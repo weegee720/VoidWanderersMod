@@ -126,11 +126,11 @@ function CF_GetItemShopArray(gs, makefilters)
 			if #CF_BombOwnerFactions[itm] > 0 then
 				allowed = false
 				for of = 1, #CF_BombOwnerFactions[itm] do
-					print(CF_BombOwnerFactions[itm][of])
+					--print(CF_BombOwnerFactions[itm][of])
 					if CF_BombOwnerFactions[itm][of] == f then
-						print ("OK")
-						print (tonumber(gs["Player"..i.."Reputation"]))
-						print (CF_BombUnlockData[itm])
+						--print ("OK")
+						--print (tonumber(gs["Player"..i.."Reputation"]))
+						--print (CF_BombUnlockData[itm])
 						if tonumber(gs["Player"..i.."Reputation"]) >= CF_BombUnlockData[itm] then
 							allowed = true
 							owner = f

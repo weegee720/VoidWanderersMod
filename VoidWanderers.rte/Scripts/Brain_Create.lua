@@ -19,6 +19,8 @@ function do_rpgbrain_create(self)
 	
 	self.HealRange = 75
 	
+	self.LinkedActors = nil
+	
 	-- Find our owner actor
 	local found = MovableMan:GetMOFromID(self.RootID);
 
@@ -167,7 +169,75 @@ function do_rpgbrain_create(self)
 		-- Create skills menu
 		self.Skills = {}
 		local count = 0
+		
+		-- Commands skill menu
+		-- Commands skill sub-menu
+		self.Orders = {}
 
+		local o = #self.Orders + 1
+		self.Orders[o]	= {}
+		self.Orders[o]["Text"] = "Follow"
+		self.Orders[o]["ActorDetectRange"] = CF_OrdersRange		
+		self.Orders[o]["DetectAllActors"] = true
+		self.Orders[o]["Count"] = -1
+		self.Orders[o]["Function"] = rpgbrain_orders_follow
+
+		local o = #self.Orders + 1
+		self.Orders[o]	= {}
+		self.Orders[o]["Text"] = "Dig"
+		self.Orders[o]["ActorDetectRange"] = CF_OrdersRange		
+		self.Orders[o]["DetectAllActors"] = true
+		self.Orders[o]["Count"] = -1
+		self.Orders[o]["Function"] = rpgbrain_orders_dig
+
+		local o = #self.Orders + 1
+		self.Orders[o]	= {}
+		self.Orders[o]["Text"] = "Sentry"
+		self.Orders[o]["ActorDetectRange"] = CF_OrdersRange		
+		self.Orders[o]["DetectAllActors"] = true
+		self.Orders[o]["Count"] = -1
+		self.Orders[o]["Function"] = rpgbrain_orders_sentry
+
+		local o = #self.Orders + 1
+		self.Orders[o]	= {}
+		self.Orders[o]["Text"] = "Brain Hunt"
+		self.Orders[o]["ActorDetectRange"] = CF_OrdersRange		
+		self.Orders[o]["DetectAllActors"] = true
+		self.Orders[o]["Count"] = -1
+		self.Orders[o]["Function"] = rpgbrain_orders_brainhunt
+		
+		local o = #self.Orders + 1
+		self.Orders[o]	= {}
+		self.Orders[o]["Text"] = "Link"
+		self.Orders[o]["ActorDetectRange"] = CF_OrdersRange
+		self.Orders[o]["DetectAllActors"] = true
+		self.Orders[o]["Count"] = -1
+		self.Orders[o]["Function"] = rpgbrain_orders_link
+
+		--[[local o = #self.Orders + 1
+		self.Orders[o]	= {}
+		self.Orders[o]["Text"] = "Fire Barrage"
+		self.Orders[o]["ActorDetectRange"] = CF_OrdersRange
+		self.Orders[o]["DetectAllActors"] = true
+		self.Orders[o]["Count"] = -1
+		self.Orders[o]["Function"] = rpgbrain_orders_barrage--]]--
+		
+		local o = #self.Orders + 1
+		self.Orders[o]	= {}
+		self.Orders[o]["Text"] = "BACK"
+		self.Orders[o]["Count"] = -1
+		self.Orders[o]["SubMenu"] = self.Skills
+
+		
+		count = count + 1
+		self.Skills[count] = {}
+		
+		self.Skills[count]["Text"] = "Orders"
+		self.Skills[count]["Count"] = -1
+		self.Skills[count]["ActorDetectRange"] = CF_OrdersRange
+		self.Skills[count]["DetectAllActors"] = true
+		self.Skills[count]["SubMenu"] = self.Orders
+		
 		if self.RepairCount > 0 then
 			count = count + 1
 			self.Skills[count] = {}
@@ -401,7 +471,7 @@ function VoidWanderersRPG_GetAngle(from, to)
 	elseif (from.X < to.X and from.Y < to.Y) then
 		angle = -angle
 	elseif (from.X > to.X and from.Y < to.Y) then
-		angle =  2 * 3.14 - angle --
+		angle =  2 * math.pi - angle --
 	end
 	
 	return angle, c, cosa

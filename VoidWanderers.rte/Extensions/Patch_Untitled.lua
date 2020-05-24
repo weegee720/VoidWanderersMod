@@ -12,7 +12,11 @@ if PresetMan:GetModuleID("Untitled.rte") ~= -1 then
 			if item == "Laser Rifle" then
 				return CreateHDFirearm(item, "Untitled.rte")
 			else
-				return CreateHDFirearm(item)
+				if item == "Pistol" then
+					return CreateHDFirearm(item, "Coalition.rte")
+				else
+					return CreateHDFirearm(item)
+				end
 			end
 		elseif class == "TDExplosive" then
 			return CreateTDExplosive(item)

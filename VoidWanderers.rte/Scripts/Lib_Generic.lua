@@ -28,6 +28,8 @@ function CF_InitFactions(activity)
 	
 	CF_ReputationErosionInterval = 50
 	
+	CF_OrdersRange = 175
+	
 	CF_MaxMissions = 5
 	
 	CF_MaxHolograms = 18
@@ -877,7 +879,11 @@ function CF_MakeItem2(item, class)
 	if class == "HeldDevice" then
 		return CreateHeldDevice(item)
 	elseif class == "HDFirearm" then
-		return CreateHDFirearm(item)
+		if item == "Pistol" then
+			return CreateHDFirearm(item, "Coalition.rte")
+		else
+			return CreateHDFirearm(item)
+		end
 	elseif class == "TDExplosive" then
 		return CreateTDExplosive(item)
 	elseif class == "ThrownDevice" then

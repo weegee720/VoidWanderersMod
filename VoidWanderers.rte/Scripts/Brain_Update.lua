@@ -462,6 +462,47 @@ function do_rpgbrain_update(self)
 			VoidWanderersRPG_AddEffect(self.Pos + relpos, effect)
 		end
 		
+		-- Process linked actors
+		if self.LinkedActors then
+			--VoidWanderersRPG_AddEffect(self.ThisActor.ViewPoint, "Green Glow")
+
+			local angle, d = VoidWanderersRPG_GetAngle(self.ThisActor.Pos, self.ThisActor.ViewPoint)
+			--CF_DrawString(tostring(angle), self.ThisActor.ViewPoint , 200,200)
+			--CF_DrawString(tostring(self.ThisActor:GetAimAngle(false)), self.ThisActor.ViewPoint + Vector(0,10) , 200,200)
+			--CF_DrawString(tostring(math.pi - angle), self.ThisActor.ViewPoint + Vector(0,20) , 200,200)
+			--CF_DrawString(tostring(self.ThisActor.HFlipped), self.ThisActor.ViewPoint + Vector(0,30) , 200,200)
+			
+			for i = 1, #self.LinkedActors do
+				if MovableMan:IsActor(self.LinkedActors[i]) then
+					--self.LinkedActors[i].ViewPoint = self.ThisActor.ViewPoint
+
+					-- Flip or unflip actor
+					if self.ThisActor.ViewPoint.X > self.LinkedActors[i].Pos.X then
+						self.LinkedActors[i].HFlipped = false
+					else
+						self.LinkedActors[i].HFlipped = true
+					end
+					
+					if not self.LinkedActors[i].HFlipped then
+						local angle, d = VoidWanderersRPG_GetAngle(self.LinkedActors[i].Pos, self.ThisActor.ViewPoint)
+						self.LinkedActors[i]:SetAimAngle(angle)
+						
+						--VoidWanderersRPG_AddEffect(self.LinkedActors[i].ViewPoint, "Red Glow")
+					else
+						local angle, d = VoidWanderersRPG_GetAngle(self.LinkedActors[i].Pos, self.ThisActor.ViewPoint)
+						angle = math.pi - angle
+						self.LinkedActors[i]:SetAimAngle(angle)
+						
+						--VoidWanderersRPG_AddEffect(self.LinkedActors[i].ViewPoint, "Yellow Glow")
+					end
+					
+					if not self.PDAEnabled and self.ThisActor:GetController():IsState(Controller.WEAPON_FIRE) then
+						self.LinkedActors[i]:GetController():SetState(Controller.WEAPON_FIRE, true)
+					end
+				end
+			end
+		end
+		
 		-- Process PDA input
 		if self.ThisActor:IsPlayerControlled() then
 			if CF_PDAInitiator ~= nil and CF_PDAInitiator.ID == self.ThisActor.ID then
@@ -480,6 +521,7 @@ function do_rpgbrain_update(self)
 			end
 		else
 			self.PDAEnabled = false
+			self.LinkedActors = nil
 		end
 		
 		if self.PDAEnabled then
@@ -541,50 +583,96 @@ function do_rpgbrain_pda(self)
 	local pos = self.ThisActor.Pos + Vector(0,-130)
 	
 	self.SkillTargetActor = nil
+	self.SkillTargetActors = nil
 	
 	-- Detect nearby target actor
 	if #self.ActiveMenu > 0 and self.ActiveMenu[self.SelectedMenuItem]["ActorDetectRange"] ~= nil then
-		local dist = self.ActiveMenu[self.SelectedMenuItem]["ActorDetectRange"]
-		local a = nil
+		if self.ActiveMenu[self.SelectedMenuItem]["DetectAllActors"] == nil or self.ActiveMenu[self.SelectedMenuItem]["DetectAllActors"] == false then
+			local dist = self.ActiveMenu[self.SelectedMenuItem]["ActorDetectRange"]
+			local a = nil
 
-		for actor in MovableMan.Actors do
-			local brainonly = false
+			for actor in MovableMan.Actors do
+				local brainonly = false
+				
+				if self.ActiveMenu[self.SelectedMenuItem]["AffectsBrains"] ~= nil and self.ActiveMenu[self.SelectedMenuItem]["AffectsBrains"] == true then
+					brainonly = true
+				end
 			
-			if self.ActiveMenu[self.SelectedMenuItem]["AffectsBrains"] ~= nil and self.ActiveMenu[self.SelectedMenuItem]["AffectsBrains"] == true then
-				brainonly = true
-			end
-		
-			local acceptable = true
+				local acceptable = true
+				
+				if brainonly then
+					if actor:IsInGroup("Brains") then
+						acceptable = true
+					else
+						acceptable = false
+					end
+				else
+					if actor:IsInGroup("Brains") then
+						acceptable = false
+					else
+						acceptable = true
+					end
+				end
 			
-			if brainonly then
-				if actor:IsInGroup("Brains") then
-					acceptable = true
-				else
-					acceptable = false
-				end
-			else
-				if actor:IsInGroup("Brains") then
-					acceptable = false
-				else
-					acceptable = true
+				if actor.Team == self.ThisActor.Team and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") and acceptable then
+					local d = CF_Dist(self.ThisActor.Pos, actor.Pos)
+					if d <= dist then
+						a = actor;
+						dist = d
+					end
 				end
 			end
-		
-			if actor.Team == self.ThisActor.Team and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") and acceptable then
-				local d = CF_Dist(self.ThisActor.Pos, actor.Pos)
-				if d <= dist then
-					a = actor;
-					dist = d
+			
+			if a ~= nil then
+				self.SkillTargetActor = a
+				
+				if self.BlinkTimer:IsPastSimMS(500) then
+					self.SkillTargetActor:FlashWhite(25)
+					self.BlinkTimer:Reset()
 				end
 			end
-		end
-		
-		if a ~= nil then
-			self.SkillTargetActor = a
+		else
+			self.SkillTargetActors = {}
+
+			local dist = self.ActiveMenu[self.SelectedMenuItem]["ActorDetectRange"]
+			local a = nil
+
+			for actor in MovableMan.Actors do
+				local brainonly = false
+				
+				if self.ActiveMenu[self.SelectedMenuItem]["AffectsBrains"] ~= nil and self.ActiveMenu[self.SelectedMenuItem]["AffectsBrains"] == true then
+					brainonly = true
+				end
+			
+				local acceptable = true
+				
+				if brainonly then
+					if actor:IsInGroup("Brains") then
+						acceptable = true
+					else
+						acceptable = false
+					end
+				else
+					if actor:IsInGroup("Brains") then
+						acceptable = false
+					else
+						acceptable = true
+					end
+				end
+			
+				if actor.Team == self.ThisActor.Team and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") and acceptable then
+					local d = CF_Dist(self.ThisActor.Pos, actor.Pos)
+					if d <= dist then
+						self.SkillTargetActors[#self.SkillTargetActors + 1] = actor
+					end
+				end
+			end
 			
 			if self.BlinkTimer:IsPastSimMS(500) then
-				self.SkillTargetActor:FlashWhite(25)
 				self.BlinkTimer:Reset()
+				for i = 1, #self.SkillTargetActors do
+					self.SkillTargetActors[i]:FlashWhite(25)
+				end
 			end
 		end
 	end
@@ -680,6 +768,54 @@ function do_rpgbrain_pda(self)
 		end
 	else
 		self.FirePressed = false
+	end
+end
+
+function rpgbrain_orders_follow(self)
+	if self.SkillTargetActors ~= nil and #self.SkillTargetActors > 0 then
+		for i = 1, #self.SkillTargetActors do
+			if MovableMan:IsActor(self.SkillTargetActors[i]) then
+				self.SkillTargetActors[i].AIMode = Actor.AIMODE_GOTO
+				self.SkillTargetActors[i]:ClearAIWaypoints()
+				self.SkillTargetActors[i]:AddAIMOWaypoint(self.ThisActor)
+			end
+		end
+	end
+end
+
+function rpgbrain_orders_dig(self)
+	if self.SkillTargetActors ~= nil and #self.SkillTargetActors > 0 then
+		for i = 1, #self.SkillTargetActors do
+			if MovableMan:IsActor(self.SkillTargetActors[i]) then
+				self.SkillTargetActors[i].AIMode = Actor.AIMODE_GOLDDIG
+			end
+		end
+	end
+end
+
+function rpgbrain_orders_sentry(self)
+	if self.SkillTargetActors ~= nil and #self.SkillTargetActors > 0 then
+		for i = 1, #self.SkillTargetActors do
+			if MovableMan:IsActor(self.SkillTargetActors[i]) then
+				self.SkillTargetActors[i].AIMode = Actor.AIMODE_SENTRY
+			end
+		end
+	end
+end
+
+function rpgbrain_orders_brainhunt(self)
+	if self.SkillTargetActors ~= nil and #self.SkillTargetActors > 0 then
+		for i = 1, #self.SkillTargetActors do
+			if MovableMan:IsActor(self.SkillTargetActors[i]) then
+				self.SkillTargetActors[i].AIMode = Actor.AIMODE_BRAINHUNT
+			end
+		end
+	end
+end
+
+function rpgbrain_orders_link(self)
+	if self.SkillTargetActors ~= nil and #self.SkillTargetActors > 0 then
+		self.LinkedActors = self.SkillTargetActors
 	end
 end
 
