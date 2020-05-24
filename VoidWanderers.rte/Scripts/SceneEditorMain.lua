@@ -54,54 +54,35 @@ function VoidWanderers:StartActivity()
 	end
 	
 	--Make an invisible brain.
-	if self.PlayerCount == 1 then
-		self.brain = CreateActor("Fake Brain Case");
-		self.brain.Scale = 0;
-		self.brain.Team = Activity.TEAM_1;
-		self.brain.Pos = self.Mid;
-		self.brain.HitsMOs = false;
-		self.brain.GetsHitByMOs = false;
-		MovableMan:AddActor(self.brain);
-		self:SetPlayerBrain(self.brain, Activity.TEAM_1);
-		self:SwitchToActor(self.brain, Activity.PLAYER_1,-1);
-	else
-		local brainpos = {}
-		
-		local offset = 0.5
-		
-		if self.PlayerCount == 2 then
-			brainpos[0] = self.Mid + Vector(0, -self.ResY2 / 2)
-			brainpos[1] = self.Mid + Vector(0, self.ResY2 / 2)
-		elseif self.PlayerCount == 3 or self.PlayerCount == 4 then
-			brainpos[0] = self.Mid + Vector(-self.ResX2 / 2 + offset, -self.ResY2 / 2 + offset)
-			brainpos[1] = self.Mid + Vector(self.ResX2 / 2 - offset, -self.ResY2 / 2 + offset)
-			
-			brainpos[2] = self.Mid + Vector(-self.ResX2 / 2 + offset, self.ResY2 / 2 - offset)
-			brainpos[3] = self.Mid + Vector(self.ResX2 / 2 - offset, self.ResY2 / 2 - offset)
-			
-			self.ObserverPos = brainpos[3]
-		end
+	self.brain = CreateActor("Fake Brain Case");
+	self.brain.Scale = 0;
+	self.brain.Team = Activity.TEAM_1;
+	self.brain.Pos = self.Mid;
+	self.brain.HitsMOs = false;
+	self.brain.GetsHitByMOs = false;
+	MovableMan:AddActor(self.brain);
+	self:SetPlayerBrain(self.brain, Activity.TEAM_1);
+	self:SwitchToActor(self.brain, Activity.PLAYER_1,-1);
 	
-		for plr = 0, self.PlayerCount - 1 do
-			local brn
+	
+	G_CursorActor = CreateActor("VW_Cursor")
+	if G_CursorActor then
+		G_CursorActor.Team = CF_PlayerTeam
+		local curactor = self:GetControlledActor(CF_PlayerTeam);
 		
-			brn = CreateActor("Fake Brain Case");
-			brn.Scale = 0;
-			brn.Team = Activity.TEAM_1;
-			brn.Pos = brainpos[plr];
-			brn.HitsMOs = false;
-			brn.GetsHitByMOs = false;
-			MovableMan:AddActor(brn);
-			self:SetPlayerBrain(brn, plr);
-			self:SwitchToActor(brn, plr,-1);
-			SceneMan:SetScrollTarget(brn.Pos, 0.04, false, plr);				
-			
-			brn.Team = -1;
-			
-			if self.brain == nil then
-				self.brain = brn
+		if MovableMan:IsActor(curactor) then
+			G_CursorActor.Pos = curactor.Pos
+		else
+			local curactor = self:GetPlayerBrain(0);
+			if MovableMan:IsActor(curactor) then
+				G_CursorActor.Pos = curactor.Pos
+			else
+				G_CursorActor.Pos = Vector(0,0)
 			end
 		end
+		
+		MovableMan:AddActor(G_CursorActor)
+		ActivityMan:GetActivity():SwitchToActor(G_CursorActor, 0, 0);
 	end
 	
 	self.MouseFirePressed = true
@@ -155,64 +136,6 @@ end
 -----------------------------------------------------------------------------------------
 function VoidWanderers:ClearMessages()
 	self.Messages = {}
-end
------------------------------------------------------------------------------------------
--- 
------------------------------------------------------------------------------------------
-function VoidWanderers:ShowMessage(msg, iscritical)
-	if #self.Messages == 0 then
-		self.MessageTimer:Reset()
-	end
-	
-	local newmsg = {}
-	newmsg["Text"] = msg
-	newmsg["Critical"] = iscritical
-	
-	table.insert(self.Messages, newmsg)
-end
------------------------------------------------------------------------------------------
--- 
------------------------------------------------------------------------------------------
-function VoidWanderers:DisplayCurrentMessage()
-	if #self.Messages > 0 then
-		if self.MessageTimer:IsPastSimMS(self.MessageInterval) then
-			table.remove(self.Messages, 1)
-			self.MessageTimer:Reset()
-		else
-			local msg = self.Messages[1]
-		
-			if msg["Critical"] == true then
-				local pix = CreateMOPixel("MessagePanelRed");
-				pix.Pos = self.MessagePos;
-				MovableMan:AddParticle(pix);
-			else
-				local pix = CreateMOPixel("MessagePanel");
-				pix.Pos = self.MessagePos;
-				MovableMan:AddParticle(pix);
-			end
-			
-			CF_DrawString(msg["Text"], self.MessagePos + Vector(-130, -40), 260, 80);
-		end
-	end
-end
------------------------------------------------------------------------------------------
---
------------------------------------------------------------------------------------------
-function VoidWanderers:AddAIAttackEvent(terr, base, facil)
-	-- Find empty attack event effect slot
-	local found = 1
-
-	for i = 1, CF_MaxAttackEventSlots do
-		if self.GS["AttackEvent"..i.."Expires"] == nil or tonumber(self.GS["AttackEvent"..i.."Expires"]) < tonumber(self.GS["Time"]) then
-			found = i
-			break;
-		end
-	end
-	
-	self.GS["AttackEvent"..found.."Expires"] = tonumber(self.GS["Time"]) + CF_AttackEventExpire
-	self.GS["AttackEvent"..found.."Territory"] = terr
-	self.GS["AttackEvent"..found.."Facility"] = facil
-	self.GS["AttackEvent"..found.."Base"] = base
 end
 -----------------------------------------------------------------------------------------
 --
@@ -404,7 +327,7 @@ function VoidWanderers:UpdateActivity()
 	
 	--Read standard input, ugly but at least it will be operational if mouse fail for
 	-- whatever reason
-	local cont = self.brain:GetController();
+	local cont = self:GetControlledActor(0):GetController();
 
 	if CF_EnableKeyboardControls then
 		if cont:IsState(Controller.MOVE_LEFT) then
@@ -441,24 +364,29 @@ function VoidWanderers:UpdateActivity()
 	--end
 
 	-- Don't let the cursor leave the screen
-	if self.Mouse.X - self.Mid.X < -self.ResX2 then
-		self.Mouse.X = self.Mid.X - self.ResX2;
+
+	-- Don't let the cursor leave the screen
+	if self.Mouse.X < 0 then
+		self.Mouse.X = SceneMan.Scene.Width - 1
 	end
 	
-	if self.Mouse.Y - self.Mid.Y < -self.ResY2 then
-		self.Mouse.Y = self.Mid.Y - self.ResY2;
+	if self.Mouse.Y < 10 then
+		self.Mouse.Y = 10;
 	end
 
-	if self.Mouse.X - self.Mid.X > self.ResX2 - 10 then
-		self.Mouse.X = self.Mid.X + self.ResX2 - 10;
+	if self.Mouse.X > SceneMan.Scene.Width then
+		self.Mouse.X = 0;
 	end
 	
-	if self.Mouse.Y - self.Mid.Y > self.ResY2 - 10 then
-		self.Mouse.Y = self.Mid.Y + self.ResY2 - 10;
+	if self.Mouse.Y > SceneMan.Scene.Height - 10 then
+		self.Mouse.Y = SceneMan.Scene.Height - 10;
 	end
 
 	self:DrawMouseCursor();
-	self:DisplayCurrentMessage()	
+	
+	if MovableMan:IsActor(G_CursorActor) then
+		G_CursorActor.Pos = self.Mouse
+	end
 	
 	-- Process mouse hovers and presses
 	if CF_EnableKeyboardControls then

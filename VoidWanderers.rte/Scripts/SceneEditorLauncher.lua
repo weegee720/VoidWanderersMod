@@ -13,13 +13,6 @@ function VoidWanderers:StartActivity()
 	dofile(LIB_PATH.."Lib_Config.lua");
 	dofile(LIB_PATH.."Lib_Generic.lua");
 	dofile(LIB_PATH.."Lib_ExtensionsData.lua");
-	dofile(LIB_PATH.."Lib_Spawn.lua");
-	dofile(LIB_PATH.."Lib_Storage.lua");
-
-	dofile(LIB_PATH.."Panel_Clones.lua");
-	dofile(LIB_PATH.."Panel_Ship.lua");
-	dofile(LIB_PATH.."Panel_Beam.lua");
-	dofile(LIB_PATH.."Panel_Storage.lua");
 	
 	if TRANSFER_IN_PROGRESS == nil then
 		TRANSFER_IN_PROGRESS = false
@@ -41,12 +34,12 @@ function VoidWanderers:StartActivity()
 	end
 
 	if SCRIPT_TO_LAUNCH == nil then
-		SCRIPT_TO_LAUNCH = BASE_PATH.."StrategyScreenMain.lua"
+		SCRIPT_TO_LAUNCH = BASE_PATH.."SceneEditorMain.lua"
 	end
 	
-	TRANSFER_IN_PROGRESS = false
+	FORM_TO_LOAD = BASE_PATH.."FormSceneSelect.lua"
 	
-	FORM_TO_LOAD = BASE_PATH.."FormStart.lua"
+	TRANSFER_IN_PROGRESS = false
 	
 	print ("SCRIPT: "..SCRIPT_TO_LAUNCH);
 	print ("SCENE : "..SCENE_TO_LAUNCH);

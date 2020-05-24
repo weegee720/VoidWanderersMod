@@ -419,47 +419,7 @@ function CF_InitFactions(activity)
 		end
 	end
 
-	-- Init planet data structures
-	CF_Planet = {}
-	CF_PlanetName = {}
-	CF_PlanetGlow = {}
-	CF_PlanetGlowModule = {}
-	
-	-- Init locations data structures
-	CF_Location = {}
-	CF_LocationName = {}
-	CF_LocationPos = {}
-	CF_LocationSecurity = {}
-	CF_LocationScene = {}
-	CF_LocationPlanet = {}	
-
-	-- Init ship data structures
-	CF_Vessel = {}
-	CF_VesselName = {}
-	CF_VesselScene = {}
-	CF_VesselModule = {}
-
-	-- Price of the vesel
-	CF_VesselPrice = {}
-	
-	-- Amount of bodies which can be stored on the ship
-	CF_VesselMaxClonesCapacity = {}
-	CF_VesselStartClonesCapacity = {}
-	
-	-- Amount of items which can be stored on the ship
-	CF_VesselMaxStorageCapacity = {}
-	CF_VesselStartStorageCapacity = {}
-
-	-- How many units can be active on the ship simultaneously
-	CF_VesselMaxLifeSupport = {}
-	CF_VesselStartLifeSupport = {}
-
-	-- How many units can be active on the planet surface simultaneously
-	CF_VesselMaxCommunication = {}
-	CF_VesselStartCommunication = {}
-
-	CF_VesselMaxFuel = {}
-	
+	CF_InitExtensionsData(activity)
 	
 	-- Load extensions
 	CF_ExtensionFiles = CF_ReadFactionsList(CF_ModuleName.."/Extensions/Extensions.cfg")
