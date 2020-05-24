@@ -155,6 +155,9 @@ function VoidWanderers:ProcessShipControlPanelUI()
 
 							self.GS["ShipX"] = math.floor(locpos.X)
 							self.GS["ShipY"] = math.floor(locpos.Y)
+						else
+							self.GS["ShipX"] = 0
+							self.GS["ShipY"] = 0
 						end
 						
 						self.GS["Location"] = nil

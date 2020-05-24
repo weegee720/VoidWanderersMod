@@ -28,6 +28,10 @@ function VoidWanderers:StartActivity()
 	self.TeleportEffectTimer = Timer()
 	self.TeleportEffectTimer:Reset()
 	
+	self.FlightTimer = Timer()
+	self.FlightTimer:Reset()
+	self.LastTrigger = 0
+	
 	-- Factions are already initialized by strategic part
 	self:LoadCurrentGameState();
 
@@ -59,6 +63,8 @@ function VoidWanderers:StartActivity()
 				MovableMan:AddActor(a)
 			end
 		end
+		
+		self.Ship = SceneMan.Scene:GetArea("Vessel")
 		
 		local spawnedactors = 1
 		
@@ -456,8 +462,8 @@ function VoidWanderers:TriggerShipAssault()
 				self.AssaultDifficulty = CF_MaxDifficulty
 			end
 			
-			local r = math.random(CF_MaxDifficulty * 2.5)
-			local tgt = (CF_MaxDifficulty - self.AssaultDifficulty + 4) * 2
+			local r = math.random(CF_MaxDifficulty * 5)
+			local tgt = ((CF_MaxDifficulty - self.AssaultDifficulty) * 2) + 4
 			
 			print (self.AssaultDifficulty)
 			print (r)
@@ -596,7 +602,9 @@ function VoidWanderers:UpdateActivity()
 		-- Auto heall all actors when not in combat
 		if not self.OverCrowded then
 			for actor in MovableMan.Actors do
-				actor.Health = 100
+				if self.Ship:IsInside(actor.Pos) then
+					actor.Health = 100
+				end
 			end
 		else
 			FrameMan:ClearScreenText(0);
@@ -624,6 +632,52 @@ function VoidWanderers:UpdateActivity()
 		end
 	end
 	
+	if self.GS["Mode"] == "Vessel" and self.FlightTimer:IsPastSimMS(CF_FlightTickInterval) then
+		self.FlightTimer:Reset()
+		-- Fly to new location
+		if self.GS["Destination"] ~= nil and self.Time > self.AssaultTime then
+			-- Move ship
+			local dx = tonumber(self.GS["DestX"])
+			local dy = tonumber(self.GS["DestY"])
+			
+			local sx = tonumber(self.GS["ShipX"])
+			local sy = tonumber(self.GS["ShipY"])
+			
+			local d = CF_Dist(Vector(sx,sy), Vector(dx,dy))
+			
+			if (d < 1.5) then
+				self.GS["Location"] = self.GS["Destination"]
+				self.GS["Destination"] = nil
+
+				local locpos = CF_LocationPos[ self.GS["Location"] ]
+				if locpos == nil then
+					locpos = Vector(0,0)
+				end
+				
+				self.GS["ShipX"] = locpos.X
+				self.GS["ShipY"] = locpos.Y
+			else
+				self.GS["Distance"] = d
+				
+				local ax = (dx - sx) / d * (tonumber(self.GS["Player0VesselSpeed"]) / CF_KmPerPixel)
+				local ay = (dy - sy) / d * (tonumber(self.GS["Player0VesselSpeed"]) / CF_KmPerPixel)
+				
+				sx = sx + ax
+				sy = sy + ay
+				
+				self.GS["ShipX"] = sx
+				self.GS["ShipY"] = sy
+				
+				self.LastTrigger = self.LastTrigger + 1
+				
+				if self.LastTrigger > 10 then
+					self.LastTrigger = 0
+					self:TriggerShipAssault()
+				end
+			end
+		end
+	end
+	
 	-- Tick timer
 	--if self.TickTimer:IsPastSimMS(self.TickInterval) then
 	if self.TickTimer:IsPastRealMS(self.TickInterval) then
@@ -632,52 +686,28 @@ function VoidWanderers:UpdateActivity()
 
 		-- Autosave game from time to time
 		if self.GS["Mode"] == "Vessel" then
-			
 			if CF_CountActors(CF_PlayerTeam) > tonumber(self.GS["Player0VesselLifeSupport"]) then
 				self.OverCrowded = true
 				
 				for actor in MovableMan.Actors do
-					actor.Health = actor.Health - 3
+					if actor.ClassName == "AHuman" or actor.ClassName == "ACrab" then
+						actor.Health = actor.Health - 3
+					end
 				end				
 			else
 				self.OverCrowded = false
 			end
-			
-			-- Fly to new location
-			if self.GS["Destination"] ~= nil and self.Time > self.AssaultTime then
-				-- Move ship
-				local dx = tonumber(self.GS["DestX"])
-				local dy = tonumber(self.GS["DestY"])
-				
-				local sx = tonumber(self.GS["ShipX"])
-				local sy = tonumber(self.GS["ShipY"])
-				
-				local d = CF_Dist(Vector(sx,sy), Vector(dx,dy))
-				
-				if (d < 1.5) then
-					self.GS["Location"] = self.GS["Destination"]
-					self.GS["Destination"] = nil
-
-					local locpos = CF_LocationPos[ self.GS["Location"] ]
-					if locpos == nil then
-						locpos = Vector(0,0)
+		end
+		
+		-- Kill all actors outside the ship
+		if self.GS["SceneType"] == "Vessel" then
+			for actor in MovableMan.Actors do
+				if (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") and not self.Ship:IsInside(actor.Pos) then
+					--actor:AddAbsForce(Vector(0 , -12*actor.Mass) , Vector(actor.Pos.X , actor.Pos.Y - 50))
+					actor.Health = actor.Health - math.random(8)
+					if actor.Health < 20 then
+						actor:GibThis()
 					end
-					
-					self.GS["ShipX"] = locpos.X
-					self.GS["ShipY"] = locpos.Y
-				else
-					self.GS["Distance"] = math.floor(d)
-					
-					local ax = (dx - sx) / d * (tonumber(self.GS["Player0VesselSpeed"]) / CF_KmPerPixel)
-					local ay = (dy - sy) / d * (tonumber(self.GS["Player0VesselSpeed"]) / CF_KmPerPixel)
-					
-					sx = sx + ax
-					sy = sy + ay
-					
-					self.GS["ShipX"] = sx
-					self.GS["ShipY"] = sy
-					
-					self:TriggerShipAssault()
 				end
 			end
 		end

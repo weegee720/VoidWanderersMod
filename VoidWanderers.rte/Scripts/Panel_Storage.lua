@@ -82,6 +82,13 @@ function VoidWanderers:DestroyStorageControlPanelUI()
 		self.StorageControlPanelActor.ToDelete = true
 		self.StorageControlPanelActor = nil
 	end
+	
+	if self.StorageControlPanelObject ~= nil then
+		if MovableMan:IsDevice(self.StorageControlPanelObject) then
+			self.StorageControlPanelObject.ToDelete = true
+			self.StorageControlPanelObject = nil
+		end
+	end	
 end
 -----------------------------------------------------------------------------------------
 --

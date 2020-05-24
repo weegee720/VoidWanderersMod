@@ -14,7 +14,7 @@ function CF_InitFactions(activity)
 	CF_ModuleName = "VoidWanderers.rte"
 	
 	-- Used in flight mode
-	CF_KmPerPixel = 50
+	CF_KmPerPixel = 100
 	
 	CF_AssaultCheckInterval = 5
 	CF_ReputationPerDifficulty = 1000
@@ -105,7 +105,8 @@ function CF_InitFactions(activity)
 	CF_LaunchActivities = true
 	CF_MissionReturnInterval = 2500
 
-	CF_TickInterval = 850
+	CF_TickInterval = 1000
+	CF_FlightTickInterval = 25
 
 	-- How much percents of price to add if player and ally factions natures are not the same
 	CF_SynthetsToOrganicRatio = 0.70
