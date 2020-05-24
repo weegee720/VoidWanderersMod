@@ -12,10 +12,6 @@ CF_MissionRequiredData[id] = {}
 
 local i = 1
 CF_MissionRequiredData[id][i] = {}
-CF_MissionRequiredData[id][i]["Name"] = id.."_ClearAreaLeftCorner"
-CF_MissionRequiredData[id][i]["Max"] = 4
+CF_MissionRequiredData[id][i]["Name"] = id.."_ClearArea"
+CF_MissionRequiredData[id][i]["Max"] = 10
 
-local i = 2
-CF_MissionRequiredData[id][i] = {}
-CF_MissionRequiredData[id][i]["Name"] = id.."_ClearAreaRightCorner"
-CF_MissionRequiredData[id][i]["Max"] = 4

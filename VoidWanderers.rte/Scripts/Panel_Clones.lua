@@ -107,19 +107,21 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 				self.ClonesControlMode = self.ClonesControlPanelModes.CLONES
 			end			
 			
-			if cont:IsState(Controller.PRESS_LEFT) then
-				self.ClonesControlMode = self.ClonesControlMode - 1
-				
-				if self.ClonesControlMode == -1 then
-					self.ClonesControlMode = 0
-				end
-			end	
+			if self.SelectedClone ~= 0 then
+				if cont:IsState(Controller.PRESS_LEFT) then
+					self.ClonesControlMode = self.ClonesControlMode - 1
+					
+					if self.ClonesControlMode == -1 then
+						self.ClonesControlMode = 0
+					end
+				end	
 
-			if cont:IsState(Controller.PRESS_RIGHT) then
-				self.ClonesControlMode = self.ClonesControlMode + 1
-				
-				if self.ClonesControlMode == 3 then
-					self.ClonesControlMode = 2
+				if cont:IsState(Controller.PRESS_RIGHT) then
+					self.ClonesControlMode = self.ClonesControlMode + 1
+					
+					if self.ClonesControlMode == 3 then
+						self.ClonesControlMode = 2
+					end
 				end
 			end
 
@@ -231,7 +233,7 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 				if self.SelectedClone ~= nil and self.SelectedClone > 0 then
 					-- Print inventory
 					CF_DrawString("Inventory: "..#self.Clones[self.SelectedClone]["Items"].."/"..CF_MaxItems, pos + Vector(12,-60) , 300, 10)
-				
+					
 					for i = 1, #self.Clones[self.SelectedClone]["Items"] do
 						CF_DrawString(self.Clones[self.SelectedClone]["Items"][i]["Preset"], pos + Vector(12,-40) + Vector(0, (i - 1) * 12), 120, 10)
 					end
@@ -402,14 +404,14 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 						
 						
 						if self.ClonesControlMode == self.ClonesControlPanelModes.ITEMS and self.ClonesStorageSelectedItem == i then
-							CF_DrawString("> "..self.StorageItems[itm]["Preset"], pos + Vector(12,-40) + Vector(0, (loc) * 12), 120, 10)
+							CF_DrawString("> "..self.StorageItems[itm]["Preset"], pos + Vector(12,-40) + Vector(0, (loc) * 12), 110, 10)
 							self.ClonesControlPanelModesTexts[self.ClonesControlPanelModes.ITEMS] = self.StorageItems[itm]["Preset"] .. " [ Items ]"
 
 						else
-							CF_DrawString(self.StorageItems[itm]["Preset"], pos + Vector(12,-40) + Vector(0, (loc) * 12), 120, 10)
+							CF_DrawString(self.StorageItems[itm]["Preset"], pos + Vector(12,-40) + Vector(0, (loc) * 12), 110, 10)
 						end
 						
-						CF_DrawString(tostring(self.StorageItems[itm]["Count"]), pos + Vector(12,-40) + Vector(110, (loc) * 12), 120, 10)
+						CF_DrawString(tostring(self.StorageItems[itm]["Count"]), pos + Vector(12,-40) + Vector(110, (loc) * 12), 110, 10)
 					end
 				end
 				
@@ -445,6 +447,7 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 	-- Process clones input
 	if self.ClonesInputPos ~= nil then
 		local count = CF_CountUsedClonesInArray(self.Clones)
+		local toresettimer = true
 	
 		if  count < tonumber(self.GS["Player0VesselClonesCapacity"]) then
 			local hasactor = false
@@ -452,6 +455,8 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 			-- Search for body and put it in storage
 			for actor in MovableMan.Actors do
 				if CF_Dist(actor.Pos, self.ClonesInputPos) <= self.ClonesInputRange then
+					toresettimer = false
+				
 					if self.ClonesLastDetectedBodyTime ~= nil then
 						-- Put clone to storage
 						if self.Time >= self.ClonesLastDetectedBodyTime + self.ClonesInputDelay and CF_CountUsedClonesInArray(self.Clones) < tonumber(self.GS["Player0VesselClonesCapacity"]) then
@@ -464,13 +469,13 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 							-- Store inventory
 							local inv, cls = CF_GetInventory(actor)
 							
+							if self.Clones[c]["Items"] == nil then
+								self.Clones[c]["Items"] = {}
+							end
+							
 							for i = 1, #inv do
 								-- First store items in clone storage
 								if i <= CF_MaxItems then
-									if self.Clones[c]["Items"] == nil then
-										self.Clones[c]["Items"] = {}
-									end
-																			
 									self.Clones[c]["Items"][i] = {}
 									self.Clones[c]["Items"][i]["Preset"] = inv[i]
 									self.Clones[c]["Items"][i]["Class"] = cls[i]
@@ -506,6 +511,7 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 									end
 								end
 							end
+							
 							actor.ToDelete = true
 							
 							-- Store everything
@@ -535,6 +541,10 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 			end
 		else
 			self:AddObjectivePoint("Clone storage is full", self.ClonesInputPos + Vector(0,-40) , CF_PlayerTeam, GameActivity.ARROWUP);
+			self.ClonesLastDetectedBodyTime = nil
+		end
+		
+		if toresettimer then
 			self.ClonesLastDetectedBodyTime = nil
 		end
 	end

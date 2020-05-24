@@ -104,6 +104,8 @@ end
 
 -- in sentry behavior the agent only looks for new enemies, it sometimes sharp aims to increse spotting range
 function HumanBehaviors.Sentry(AI, Owner)
+	--print ("Sentry")
+
 	local sweepUp = true
 	local sweepDone = false
 	local maxAng = 1.4
@@ -438,6 +440,7 @@ end
 
 -- open fire on the selected target
 function HumanBehaviors.ShootTarget(AI, Owner)
+	--print ("ShootTarget")
 	if not MovableMan:IsActor(AI.Target) then
 		return true
 	end
@@ -709,6 +712,16 @@ function HumanBehaviors.ShootTarget(AI, Owner)
 				
 				if openFire > 0 then
 					AI.fire = true
+					
+					-- WEEGEE
+					if CF_FogOfWarEnabled then
+						--	print ("Fire")
+						for x = -1, 1 do
+							for y = -1, 1 do
+								SceneMan:RevealUnseen(Owner.Pos.X - x * CF_FogOfWarResolution, Owner.Pos.Y - y * CF_FogOfWarResolution, CF_PlayerTeam)
+							end
+						end
+					end
 				else
 					AI.fire = false
 				end

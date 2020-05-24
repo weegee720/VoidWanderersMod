@@ -231,7 +231,32 @@ function VoidWanderers:StartActivity()
 		self:MissionCreate()
 		self:MissionUpdate()
 		
+		
 		-- Set unseen
+		if CF_FogOfWarEnabled then
+			SceneMan:MakeAllUnseen(Vector(CF_FogOfWarResolution, CF_FogOfWarResolution), CF_PlayerTeam);
+			
+			-- Reveal previously saved fog of war
+			--print ("Reveal fog")
+			local wx = math.ceil(SceneMan.Scene.Width / CF_FogOfWarResolution);
+			local wy = math.ceil(SceneMan.Scene.Height / CF_FogOfWarResolution);
+			local str = "";
+			
+			for y = 0, wy do
+				str = self.GS[SceneMan.Scene.PresetName.."-Fog"..tostring(y)];
+				-- print (str);
+				if str ~= nil then
+					for x = 0, wx do
+						-- print(string.sub(str, x + 1 , x + 1))
+						if string.sub(str, x + 1, x + 1) == "1" then
+							SceneMan:RevealUnseen(x * CF_FogOfWarResolution , y * CF_FogOfWarResolution , CF_PlayerTeam);
+						end
+					end
+				end
+			end			
+		end
+		
+		-- Set unseen for AI (maybe some day it will matter ))))
 		for p = 1, 3 do
 			SceneMan:MakeAllUnseen(Vector(CF_FogOfWarResolution, CF_FogOfWarResolution), p);
 		end
@@ -397,7 +422,7 @@ function VoidWanderers:SaveFogOfWarState(config)
 				end
 			end
 			
-			config["Terr"..self.Target..self.FacilityString.."Fog"..tostring(y)] = str;
+			config[SceneMan.Scene.PresetName.."-Fog"..tostring(y)] = str;
 		end
 	end
 end

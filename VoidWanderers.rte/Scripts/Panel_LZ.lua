@@ -53,7 +53,7 @@ function VoidWanderers:ProcessLZControlPanelUI()
 	
 		if showidle then
 			self:PutGlow("ControlPanel_LZ", self.LZControlPanelPos[i])
-			CF_DrawString("RETURN",self.LZControlPanelPos[i] + Vector(-16,0),120,20 )
+			CF_DrawString("RETURN",self.LZControlPanelPos[i] + Vector(-13,0),120,20 )
 		end
 	end
 	
@@ -219,6 +219,11 @@ function VoidWanderers:ProcessLZControlPanelUI()
 						end
 					end
 					
+					-- Save fog of war
+					if CF_FogOfWarEnabled then
+						self:SaveFogOfWarState(self.GS)
+					end
+					
 					-- Dump mission report to config to be saved 
 					for i = 1, CF_MaxMissionReportLines do
 						self.GS["MissionReport"..i] = nil
@@ -227,7 +232,6 @@ function VoidWanderers:ProcessLZControlPanelUI()
 					for i = 1, #self.MissionReport do
 						self.GS["MissionReport"..i] = self.MissionReport[i]
 					end
-					
 					
 					local scene = CF_VesselScene[self.GS["Player0Vessel"]]
 					-- Set new operating mode
@@ -242,7 +246,7 @@ function VoidWanderers:ProcessLZControlPanelUI()
 					return
 				end
 			else
-				CF_DrawString("HOLD FIRE TO RETURN", pos + Vector(-54, -10), 130, 20)
+				CF_DrawString("HOLD FIRE TO RETURN", pos + Vector(-50, -10), 130, 20)
 				self.ControlPanelLZPressTime = nil
 			end
 		end

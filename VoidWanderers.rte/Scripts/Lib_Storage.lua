@@ -255,7 +255,6 @@ function CF_SetClonesArray(gs, arr)
 	end
 	
 	-- Save clones
-	-- Copy clones
 	for i = 1, #arr do
 		gs["ClonesStorage"..i.."Preset"] = arr[i]["Preset"]
 		gs["ClonesStorage"..i.."Class"] = arr[i]["Class"]

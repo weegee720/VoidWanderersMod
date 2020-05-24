@@ -84,8 +84,6 @@ function CF_InitFactions(activity)
 	
 	CF_MaxSavedActors = 40
 	CF_MaxSavedItemsPerActor = 20
-
-	CF_AutoSaveInterval = 4500
 	
 	-- Set this to true to stop any UI processing. Useful when debuging and need to disable UI error message spam.
 	CF_StopUIProcessing = false
@@ -101,7 +99,7 @@ function CF_InitFactions(activity)
 	CF_EnableAssaults = true -- Set to false to disable assaults
 	
 	CF_FogOfWarEnabled = true -- Gameplay value
-	CF_FogOfWarResolution = 100
+	CF_FogOfWarResolution = 144
 	
 	CF_Factions = {};
 	

@@ -221,6 +221,7 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 				if self.StorageControlPanelObject ~= nil then
 					if MovableMan:IsDevice(self.StorageControlPanelObject) then
 						self.StorageControlPanelObject.ToDelete = true
+						self.StorageControlPanelObject = nil
 					end
 				end
 				
@@ -279,7 +280,7 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 	
 	if showidle and self.StorageControlPanelPos ~= nil then
 		self:PutGlow("ControlPanel_Storage", self.StorageControlPanelPos)
-		CF_DrawString("STORAGE",self.StorageControlPanelPos + Vector(-16,0),120,20 )
+		CF_DrawString("STORAGE",self.StorageControlPanelPos + Vector(-16,0), 120, 20)
 
 		self.StorageControlPanelInitialized = false
 		
@@ -287,6 +288,7 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 		if self.StorageControlPanelObject ~= nil then
 			if MovableMan:IsDevice(self.StorageControlPanelObject) then
 				self.StorageControlPanelObject.ToDelete = true
+				self.StorageControlPanelObject = nil
 			end
 		end
 	end
@@ -297,10 +299,15 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 	
 		if  count < tonumber(self.GS["Player0VesselStorageCapacity"]) then
 			local hasitem = false
+			local toreset = true
 			
 			-- Search for item and put it in storage
 			for item in MovableMan.Items do
 				if CF_Dist(item.Pos, self.StorageInputPos) <= self.StorageInputRange then
+					toreset = false
+				
+					self:AddObjectivePoint("X", item.Pos , CF_PlayerTeam, GameActivity.ARROWDOWN);
+				
 					if self.StorageLastDetectedItemTime ~= nil then
 						-- Put item to storage
 						if self.Time >= self.StorageLastDetectedItemTime + self.StorageInputDelay and CF_CountUsedStorageInArray(self.StorageItems) < tonumber(self.GS["Player0VesselStorageCapacity"]) then
@@ -326,9 +333,13 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 				end
 			end
 			
+			if toreset then
+				self.StorageLastDetectedItemTime = nil
+			end
+			
 			if showidle then
-				if hasitem and self.ClonesLastDetectedBodyTime ~= nil then
-					self:AddObjectivePoint("Store in "..self.ClonesLastDetectedBodyTime + self.ClonesInputDelay - self.Time, self.StorageDeployPos , CF_PlayerTeam, GameActivity.ARROWDOWN);
+				if hasitem and self.StorageLastDetectedItemTime ~= nil then
+					self:AddObjectivePoint("Store in "..self.StorageLastDetectedItemTime + self.ClonesInputDelay - self.Time, self.StorageDeployPos , CF_PlayerTeam, GameActivity.ARROWDOWN);
 				else
 					self:AddObjectivePoint("Stand here to receive items\nor place items here to store\n"..count.." / "..self.GS["Player0VesselStorageCapacity"], self.StorageDeployPos , CF_PlayerTeam, GameActivity.ARROWDOWN);
 				end
