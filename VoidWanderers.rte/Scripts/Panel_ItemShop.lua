@@ -178,8 +178,8 @@ function VoidWanderers:ProcessItemShopControlPanelUI()
 					self.ItemShopControlPanelObject = CF_MakeItem2(self.ItemShopItems[itm]["Preset"], self.ItemShopItems[itm]["Class"])
 					if self.ItemShopControlPanelObject ~= nil then
 						MovableMan:AddItem(self.ItemShopControlPanelObject)
-						self.StorageControlPanelObject.HitsMOs = false
-						self.StorageControlPanelObject.GetsHitByMOs = false
+						self.ItemShopControlPanelObject.HitsMOs = false
+						self.ItemShopControlPanelObject.GetsHitByMOs = false
 					end
 				else
 					self.ItemShopSelectedItemDescription = ""
