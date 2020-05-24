@@ -78,6 +78,25 @@ end
 -----------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------
+function CF_WriteSceneConfigFile(config, modulename, filename)
+	io = require("io");
+	local file = io.open("./"..modulename.."/Scenes/Data/"..filename , "w");
+	
+	--for i,line in pairs(config) do
+	--	file:write(tostring(i).."="..tostring(line).."\n");
+	--end
+	
+	local sorted = CF_GetSortedListFromTable(config)
+	
+	for i = 1, #sorted do
+		file:write(tostring(sorted[i]["Key"]).."="..tostring(sorted[i]["Value"]).."\n");
+	end
+	
+	file:close();
+end
+-----------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------
 function CF_WriteConfigFile(config , modulename , filename)
 	io = require("io");
 
@@ -88,6 +107,31 @@ function CF_WriteConfigFile(config , modulename , filename)
 	end
 	
 	file:close();
+end
+-----------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------
+function CF_GetSortedListFromTable(arr)
+	local newarr = {}
+
+	for key, value in pairs(arr) do
+		local i = #newarr + 1
+		newarr[i] = {}
+		newarr[i]["Key"] = key
+		newarr[i]["Value"] = value
+	end
+	
+	for i = 1, #newarr do
+		for j = 1, #newarr - 1 do
+			if newarr[j]["Key"] > newarr[j + 1]["Key"] then
+				local tmp = newarr[j]
+				newarr[j] = newarr[j + 1]
+				newarr[j + 1] = tmp
+			end
+		end
+	end
+	
+	return newarr;
 end
 -----------------------------------------------------------------------------
 --

@@ -17,28 +17,36 @@ function VoidWanderers:FormLoad()
 	
 	-- Create scene buttons
 	for i = 1, #CF_Location	do
-		el = {}
-		el["Type"] = self.ElementTypes.BUTTON;
-		el["Presets"] = {};
-		el["Presets"][self.ButtonStates.IDLE] = "ButtonIdle"
-		el["Presets"][self.ButtonStates.MOUSE_OVER] = "ButtonMouseOver"
-		el["Presets"][self.ButtonStates.PRESSED] = "ButtonPressed"
-		el["Pos"] = pos + Vector( -(wx * sx / 2) + x*sx, y*sy)
-		el["Text"] = CF_LocationScene[CF_Location[i]]
-		el["LocationID"] = CF_Location[i]
-		el["Width"] = sx;
-		el["Height"] = sy;
-		
-		x = x + 1;
-		if x > wx then
-			x = 1
-			y = y + 1
+		local playable = true
+	
+		if CF_LocationPlayable[CF_Location[i]] ~= nil and CF_LocationPlayable[CF_Location[i]] == false then
+			playable = false
 		end
 		
-		--el["OnHover"] = self.SaveSlots_OnHover;
-		el["OnClick"] = self.SceneButton_OnClick;
-		
-		self.UI[#self.UI + 1] = el;	
+		if playable then
+			el = {}
+			el["Type"] = self.ElementTypes.BUTTON;
+			el["Presets"] = {};
+			el["Presets"][self.ButtonStates.IDLE] = "ButtonIdle"
+			el["Presets"][self.ButtonStates.MOUSE_OVER] = "ButtonMouseOver"
+			el["Presets"][self.ButtonStates.PRESSED] = "ButtonPressed"
+			el["Pos"] = pos + Vector( -(wx * sx / 2) + x*sx, y*sy)
+			el["Text"] = CF_LocationScene[CF_Location[i]]
+			el["LocationID"] = CF_Location[i]
+			el["Width"] = sx;
+			el["Height"] = sy;
+			
+			x = x + 1;
+			if x > wx then
+				x = 1
+				y = y + 1
+			end
+			
+			--el["OnHover"] = self.SaveSlots_OnHover;
+			el["OnClick"] = self.SceneButton_OnClick;
+			
+			self.UI[#self.UI + 1] = el;
+		end
 	end
 end
 -----------------------------------------------------------------------------------------
@@ -54,6 +62,7 @@ end
 --
 -----------------------------------------------------------------------------------------
 function VoidWanderers:SceneButton_OnClick()
+	--CF_StopUIProcessing = true
 	local el = self.MousePressedElement;
 	
 	self:FormClose();

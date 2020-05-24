@@ -13,6 +13,7 @@ function CF_InitExtensionsData(activity)
 	CF_LocationScene = {}
 	CF_LocationPlanet = {}
 	CF_LocationMissions = {}
+	CF_LocationPlayable = {} -- Used by scene editor to discard service locations
 
 	-- Init ship data structures
 	CF_Vessel = {}
@@ -47,8 +48,9 @@ function CF_InitExtensionsData(activity)
 	CF_Mission = {}
 	
 	CF_MissionName = {}
-	CF_RequiredData = {}
-	CF_Script = {}
-	CF_MinReputation = {}
-	CF_BriefingText = {}
+	CF_MissionRequiredData = {}
+	CF_MissionScript = {}
+	CF_MissionMinReputation = {}
+	CF_MissionBriefingText = {}
+	CF_MissionMaxSets = {}
 end
