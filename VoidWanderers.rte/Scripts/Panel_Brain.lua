@@ -69,6 +69,7 @@ function VoidWanderers:ProcessBrainControlPanelUI()
 					self:SwitchToActor(rb, plr, CF_PlayerTeam);
 					
 					self.GS["Brain"..bplr.."Detached"] = "True"
+					CF_ClearAllBrainsSupplies(self.GS, bplr)
 					self.CreatedBrains[bplr] = nil
 					act.ToDelete = true
 				end

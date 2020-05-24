@@ -433,7 +433,6 @@ function VoidWanderers:StartActivity()
 	self.GenericTimer = Timer();
 	self.GenericTimer:Reset();
 
-
 	self.AISpawnTimer = Timer();
 	self.AISpawnTimer:Reset();
 	
@@ -760,6 +759,25 @@ function VoidWanderers:SpawnFromTable()
 		
 			local act = CF_SpawnAIUnitWithPreset(self.GS, nm["Player"], nm["Team"], nm["Pos"], nm["AIMode"], nm["Preset"])
 			if act then
+				-- Give diggers of required
+				if nm["Digger"] ~= nil and nm["Digger"] == true then
+					local diggers = CF_MakeListOfMostPowerfulWeapons(self.GS, nm["Player"], CF_WeaponTypes.DIGGER, 10000)
+					if diggers ~= nil then
+						local r = math.random(#diggers)
+						local itm = diggers[r]["Item"]
+						local fct = diggers[r]["Faction"]
+						
+						local pre = CF_ItmPresets[fct][itm]
+						local cls = CF_ItmClasses[fct][itm]
+						local mdl = CF_ItmModules[fct][itm]
+						
+						local newitem = CF_MakeItem(pre, cls, mdl)
+						if newitem then
+							act:AddInventoryItem(newitem)
+						end
+					end
+				end
+			
 				MovableMan:AddActor(act)
 			end
 			if nm["RenamePreset"] ~= nil then
@@ -890,7 +908,9 @@ function VoidWanderers:UpdateActivity()
 				
 				if l > 0 then
 					for i = 1, l do
-						self:PutGlow(icons[i], actor.Pos + Vector( -(13 * l / 2) + ((i - 1) * 13) + 7, -67))
+						local pos = actor.Pos + Vector( -(13 * l / 2) + ((i - 1) * 13) + 7, -67)
+						
+						self:PutGlow(icons[i], pos)
 					end
 				end
 			end
@@ -1108,6 +1128,8 @@ function VoidWanderers:UpdateActivity()
 			else
 				self.OverCrowded = false
 			end
+			
+			-- When on vessel always 
 		end--]]--
 		
 		-- Kill all actors outside the ship
@@ -1614,4 +1636,5 @@ function VoidWanderers:CraftEnteredOrbit()
 end
 -----------------------------------------------------------------------------------------
 -- That's all folks!!!
+-----------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------

@@ -11,33 +11,21 @@ function VoidWanderers:MissionCreate()
 	setts = {}
 	setts[1] = {}
 	setts[1]["TroopCount"] = 3
-	setts[1]["BrainBasicPreset"] = "RPG Brain Robot Base LVL0"
-	setts[1]["BrainPresetRename"] = "RPG Brain Robot Base LVL0 HLTH1"
 
 	setts[2] = {}
 	setts[2]["TroopCount"] = 4
-	setts[2]["BrainBasicPreset"] = "RPG Brain Robot Base LVL1"
-	setts[2]["BrainPresetRename"] = "RPG Brain Robot Base LVL1 HLTH3 SHLD1 TLKN1"
 
 	setts[3] = {}
 	setts[3]["TroopCount"] = 5
-	setts[3]["BrainBasicPreset"] = "RPG Brain Robot Base LVL2"
-	setts[3]["BrainPresetRename"] = "RPG Brain Robot Base LVL2 HLTH5 SHLD2 TLKN2"
 
 	setts[4] = {}
 	setts[4]["TroopCount"] = 6
-	setts[4]["BrainBasicPreset"] = "RPG Brain Robot Base LVL3"
-	setts[4]["BrainPresetRename"] = "RPG Brain Robot Base LVL3 HLTH7 SHLD3 TLKN3"
 
 	setts[5] = {}
 	setts[5]["TroopCount"] = 7
-	setts[5]["BrainBasicPreset"] = "RPG Brain Robot Base LVL4"
-	setts[5]["BrainPresetRename"] = "RPG Brain Robot Base LVL4 HLTH9 SHLD4 TLKN4"
 
 	setts[6] = {}
 	setts[6]["TroopCount"] = 8
-	setts[6]["BrainBasicPreset"] = "RPG Brain Robot Base LVL5"
-	setts[6]["BrainPresetRename"] = "RPG Brain Robot Base LVL5 HLTH9 SHLD5 TLKN5"
 	
 	self.MissionSettings = setts[self.MissionDifficulty]
 	self.MissionStart = self.Time
@@ -55,9 +43,8 @@ function VoidWanderers:MissionCreate()
 	self.MissionStage = self.MissionStages.ACTIVE
 	
 	-- Spawn commander
-	self.MissionBrain = CF_MakeBrainWithPreset(self.GS, self.MissionTargetPlayer, CF_CPUTeam, brain[1], self.MissionSettings["BrainBasicPreset"], "AHuman", nil)
+	self.MissionBrain = CF_MakeRPGBrain(self.GS, self.MissionTargetPlayer, CF_CPUTeam, brain[1], self.MissionDifficulty)
 	if self.MissionBrain then
-		self.MissionBrain.PresetName = self.MissionSettings["BrainPresetRename"]
 		MovableMan:AddActor(self.MissionBrain)
 	end
 	
@@ -71,6 +58,7 @@ function VoidWanderers:MissionCreate()
 		nw["Player"] = self.MissionTargetPlayer
 		nw["AIMode"] = Actor.AIMODE_SENTRY
 		nw["Pos"] = troops[pos]
+		--nw["Digger"] = true
 		
 		table.insert(self.SpawnTable, nw)
 		
@@ -95,7 +83,7 @@ function VoidWanderers:MissionUpdate()
 		local count = 0
 		
 		local enemydist = 100000
-		
+
 		for actor in MovableMan.Actors do
 			if actor.Team == CF_CPUTeam and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") then
 				count = count + 1
@@ -165,6 +153,8 @@ function VoidWanderers:MissionUpdate()
 		
 		-- Give squad orders
 		if MovableMan:IsActor(self.MissionBrain) then
+			--self.MissionBrain.Health = 10
+		
 			-- If we're close to enemy send squad to fight
 			if enemydist < 650 then
 				-- Brain itself will wait
@@ -231,13 +221,26 @@ function VoidWanderers:MissionUpdate()
 				end
 			end
 		else
-			if not self.TriggerBrainHunt then
-				for actor in MovableMan.Actors do
-					if actor.Team == CF_CPUTeam then
-						actor.AIMode = Actor.AIMODE_BRAINHUNT
-					end
+			local brainwasfound = false
+		
+			-- Attempt to find another commander
+			for actor in MovableMan.Actors do
+				if actor.Team == CF_CPUTeam and actor:IsInGroup("Brains") then
+					self.MissionBrain = actor
+					brainwasfound = false
+					break
 				end
-				self.TriggerBrainHunt = true
+			end
+		
+			if not brainwasfound then
+				if not self.TriggerBrainHunt then
+					for actor in MovableMan.Actors do
+						if actor.Team == CF_CPUTeam then
+							actor.AIMode = Actor.AIMODE_BRAINHUNT
+						end
+					end
+					self.TriggerBrainHunt = true
+				end
 			end
 		end
 	elseif self.MissionStage == self.MissionStages.COMPLETED then

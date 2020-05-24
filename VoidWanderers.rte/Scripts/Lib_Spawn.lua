@@ -1,6 +1,43 @@
 -----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
+function CF_MakeRPGBrain(c, p, team, pos, level)
+	local levels = {}
+	levels[1] = {}
+	levels[1]["BrainBasicPreset"] = "RPG Brain Robot Base LVL0"
+	levels[1]["BrainPresetRename"] = "RPG Brain Robot Base LVL0::HLTH1"	
+	
+	levels[2] = {}
+	levels[2]["BrainBasicPreset"] = "RPG Brain Robot Base LVL1"
+	levels[2]["BrainPresetRename"] = "RPG Brain Robot Base LVL1::LTH3 SHLD1 TLKN1 HEAL1 RGEN1 STOR1 QCAP1"	
+	
+	levels[3] = {}
+	levels[3]["BrainBasicPreset"] = "RPG Brain Robot Base LVL2"
+	levels[3]["BrainPresetRename"] = "RPG Brain Robot Base LVL2::HLTH5 SHLD2 TLKN2 HEAL2 RGEN2 STOR2 QCAP2"	
+
+	levels[4] = {}
+	levels[4]["BrainBasicPreset"] = "RPG Brain Robot Base LVL3"
+	levels[4]["BrainPresetRename"] = "RPG Brain Robot Base LVL3::HLTH7 SHLD3 TLKN3 HEAL3 RGEN3 STOR3 QCAP3"	
+
+	levels[5] = {}
+	levels[5]["BrainBasicPreset"] = "RPG Brain Robot Base LVL4"
+	levels[5]["BrainPresetRename"] = "RPG Brain Robot Base LVL4::HLTH9 SHLD4 TLKN4 HEAL4 RGEN4 STOR4 QCAP4"	
+
+	levels[6] = {}
+	levels[6]["BrainBasicPreset"] = "RPG Brain Robot Base LVL5"
+	levels[6]["BrainPresetRename"] = "RPG Brain Robot Base LVL5::HLTH9 SHLD5 TLKN5 HEAL5 RGEN5 STOR5 QCAP5"	
+
+	--print ("CF_MakeBrain");
+	local f = CF_GetPlayerFaction(c, p);
+	local brain = CF_MakeBrainWithPreset(c, p, team, pos, levels[level]["BrainBasicPreset"], "AHuman", nil)
+	if brain then
+		brain.PresetName = levels[level]["BrainPresetRename"]
+	end
+	return brain
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
 function CF_MakeBrain(c, p, team, pos)
 	--print ("CF_MakeBrain");
 	local f = CF_GetPlayerFaction(c, p);

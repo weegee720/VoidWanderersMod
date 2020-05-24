@@ -17,6 +17,8 @@ function do_rpgbrain_create(self)
 	self.StealCost = 30;
 	self.DistortCost = 25;
 	
+	self.HealRange = 75
+	
 	-- Find our owner actor
 	local found = MovableMan:GetMOFromID(self.RootID);
 
@@ -24,6 +26,7 @@ function do_rpgbrain_create(self)
 		-- Store actor for future use
 		if found.ClassName == "AHuman" then
 			self.ThisActor = ToAHuman(found)
+			--print ("Created: " ..self.ThisActor.PresetName)
 		elseif found.ClassName == "ACrab" then
 			self.ThisActor = ToACrab(found)
 		else
@@ -33,9 +36,15 @@ function do_rpgbrain_create(self)
 
 	self.Energy = 100;
 	self.Timer = Timer();
+	self.Timer:Reset()
 	self.CoolDownTimer = Timer()
+	self.CoolDownTimer:Reset()
 	self.RegenTimer = Timer();
+	self.RegenTimer:Reset()
 	self.BlinkTimer = Timer();
+	self.BlinkTimer:Reset()
+	self.HealSkillTimer = Timer();
+	self.HealSkillTimer:Reset()
 	
 	if self.ThisActor then
 		self.TelekinesisLvl = 0
@@ -47,6 +56,16 @@ function do_rpgbrain_create(self)
 		self.SelfHealCount = 0
 		self.ScanRange = 0
 		self.ScanLevel = 0
+		self.QuantumStorage = 0
+		self.QuantumCapacity = 0
+		self.SplitterLevel = 0
+	
+		self.BrainNumber = -1
+		
+		-- Fake menu to use by AI brain
+		self.ActiveMenu = {}
+		self.ActiveMenu[1] = {}
+		self.SelectedMenuItem = 1
 	
 		-- Calculate actor base power
 		local s = self.ThisActor.PresetName
@@ -55,6 +74,7 @@ function do_rpgbrain_create(self)
 			if CF_GS ~= nil and self.ThisActor.Team == 0 then
 				--print ("GS")
 				local bplr = tonumber(string.sub(s, string.len(s), string.len(s) ))
+				self.BrainNumber = bplr
 				
 				self.TelekinesisLvl = tonumber(CF_GS["Brain".. bplr .."Telekinesis"])
 				self.ShieldLvl = tonumber(CF_GS["Brain".. bplr .."Field"])
@@ -67,11 +87,11 @@ function do_rpgbrain_create(self)
 				self.SelfHealCount = tonumber(CF_GS["Brain".. bplr .."SelfHeal"])
 				self.ScanLevel = tonumber(CF_GS["Brain".. bplr .."Scanner"])
 				self.SplitterLevel = tonumber(CF_GS["Brain".. bplr .."Splitter"])
-				self.QuantumStorage = tonumber(CF_GS["Brain".. bplr .."QuantumStorage"])
 				self.QuantumCapacity = tonumber(CF_GS["Brain".. bplr .."QuantumCapacity"])
 				self.QuantumCapacity = CF_QuantumCapacityPerLevel + self.QuantumCapacity * CF_QuantumCapacityPerLevel
 				
-				self.BrainNumber = bplr
+				-- If skills counters were previosly saved then load their values from config
+				CF_LoadThisBrainSupplies(CF_GS, self)				
 			else
 				--print ("Preset")
 				local pos = string.find(s ,"SHLD");
@@ -119,12 +139,17 @@ function do_rpgbrain_create(self)
 
 				local pos = string.find(s ,"STOR");
 				if pos ~= nil then
-					self.QuantumStorage = tonumber(string.sub(s, pos + 4, pos + 4 )) * 50
+					self.QuantumStorage = CF_QuantumCapacityPerLevel + tonumber(string.sub(s, pos + 4, pos + 4 )) * CF_QuantumCapacityPerLevel
 				end
 				
 				local pos = string.find(s ,"QCAP");
 				if pos ~= nil then
 					self.QuantumCapacity = CF_QuantumCapacityPerLevel + tonumber(string.sub(s, pos + 4, pos + 4 )) * CF_QuantumCapacityPerLevel
+				end
+				
+				local pos = string.find(s ,"::");
+				if pos ~= nil then
+					self.OriginalPreset = string.sub(s, 1, pos -1 )
 				end
 			end
 		end
@@ -167,8 +192,8 @@ function do_rpgbrain_create(self)
 			
 			self.Skills[count]["Text"] = "Heal unit"
 			self.Skills[count]["Count"] = self.HealCount
-			self.Skills[count]["Function"] = rpgbrain_skill_heal
-			self.Skills[count]["ActorDetectRange"] = 50
+			self.Skills[count]["Function"] = rpgbrain_skill_healstart
+			self.Skills[count]["ActorDetectRange"] = self.HealRange
 		end
 		
 		if self.SelfHealCount > 0 then
@@ -177,7 +202,7 @@ function do_rpgbrain_create(self)
 			
 			self.Skills[count]["Text"] = "Heal brain"
 			self.Skills[count]["Count"] = self.SelfHealCount
-			self.Skills[count]["Function"] = rpgbrain_skill_heal
+			self.Skills[count]["Function"] = rpgbrain_skill_selfhealstart
 			self.Skills[count]["ActorDetectRange"] = 0.1
 			self.Skills[count]["AffectsBrains"] = true
 		end

@@ -425,14 +425,18 @@ function do_rpgbrain_update(self)
 						if actor.Team ~= self.ThisActor.Team then
 							local pos = self.Pos + Vector(math.cos(-a) * 20, math.sin(-a) * 20)
 							local actorpos = pos
-							local vectortoactor = actor.Pos - actorpos;
-							local moid = SceneMan:CastMORay(actorpos , vectortoactor , self.ThisActor.ID , -2 , -1, false , 4);
-							local mo = MovableMan:GetMOFromID(moid);
+
+							effect = "Yellow Glow"
 							
-							if mo ~= nil then
-								effect = "Red Glow"
-							else
-								effect = "Yellow Glow"
+							local offsets = {Vector(0,-15), Vector(0,-7), Vector(0,0), Vector(0,7), Vector(0,15)}
+							for i = 1, #offsets do
+								local vectortoactor = actor.Pos + offsets[i] - actorpos;
+								local outv = Vector(0,0)
+								
+								if not SceneMan:CastStrengthRay(actorpos , vectortoactor, 1, outv, 6, -1, true) then
+									effect = "Red Glow"
+									break
+								end
 							end
 						end
 						
@@ -472,6 +476,51 @@ function do_rpgbrain_update(self)
 		
 		if self.PDAEnabled then
 			do_rpgbrain_pda(self)
+		end
+		
+		-- Process healing skill activation
+		if self.HealTarget ~= nil then
+			if self.HealSkillTimer:IsPastSimMS(6000) then
+				rpgbrain_skill_healend(self)
+			else
+				swarm_update(self)
+			end
+		else
+			swarm_destroy(self)
+		end
+		
+		-- Process AI skill usage
+		if self.ThisActor.Team ~= 0 then
+			-- Heal itself
+			if self.ThisActor.Health < 40 and self.HealTarget == nil then
+				self.SkillTargetActor = self.ThisActor
+				rpgbrain_skill_selfhealstart(self)
+			end
+			
+			-- Heal nearby actors
+			if self.HealTarget == nil then
+				local a = nil
+				local dist = self.HealRange
+				local hlth = 40
+
+				for actor in MovableMan.Actors do
+					if actor.Team == self.ThisActor.Team and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") then
+						local d = CF_Dist(self.ThisActor.Pos, actor.Pos)
+						if d <= dist then
+							if actor.Health < hlth then
+								a = actor;
+								dist = d
+								hlth = actor.Health
+							end
+						end
+					end
+				end
+				
+				if a ~= nil then
+					self.SkillTargetActor = a
+					rpgbrain_skill_healstart(self)
+				end
+			end
 		end
 	end
 end
@@ -626,47 +675,82 @@ function do_rpgbrain_pda(self)
 	end
 end
 
-function rpgbrain_skill_heal(self)
-	if self.ActiveMenu[self.SelectedMenuItem]["Count"] > 0 then
+function rpgbrain_skill_healstart(self)
+	if self.HealCount > 0 and self.HealTarget == nil then
 		if self.SkillTargetActor ~= nil and MovableMan:IsActor(self.SkillTargetActor) and self.SkillTargetActor.Health > 0 then
-			self.ActiveMenu[self.SelectedMenuItem]["Count"] = self.ActiveMenu[self.SelectedMenuItem]["Count"] - 1
-
-			local presets, classes
-			if self.SkillTargetActor.ClassName == "AHuman" then
-				presets, classes = CF_GetInventory(self.SkillTargetActor)
-			end
-			local preset = self.SkillTargetActor.PresetName
-			local class = self.SkillTargetActor.ClassName
-			local pos = Vector(self.SkillTargetActor.Pos.X, self.SkillTargetActor.Pos.Y)
-			local mode = self.SkillTargetActor.AIMode
+			self.HealTarget = self.SkillTargetActor
+			self.HealSkillTimer:Reset()
+			swarm_create(self, self.HealTarget)
 			
-			self.SkillTargetActor.Pos = Vector(0,-1000)
-			self.SkillTargetActor.ToDelete = true
-			self.SkillTargetActor = nil
-			
-			local actor = CF_MakeActor2(preset,class)
-			if actor then
-				actor.Pos = pos
-				actor.Team = self.ThisActor.Team
-				actor.AIMode = mode
-				
-				if actor.ClassName == "AHuman" then
-					for i = 1, #presets do
-						local itm = CF_MakeItem2(presets[i], classes[i])
-						if itm then
-							actor:AddInventoryItem(itm)
-						end
-					end
-				end
-				
-				MovableMan:AddActor(actor)
-			end
+			self.HealCount = self.HealCount - 1
+			self.ActiveMenu[self.SelectedMenuItem]["Count"] = self.HealCount
+			CF_SaveThisBrainSupplies(CF_GS, self)
 		end
 	end
 end
 
+function rpgbrain_skill_selfhealstart(self)
+	if self.SelfHealCount > 0 and self.HealTarget == nil then
+		if self.SkillTargetActor ~= nil and MovableMan:IsActor(self.SkillTargetActor) and self.SkillTargetActor.Health > 0 then
+			self.HealTarget = self.SkillTargetActor
+			self.HealSkillTimer:Reset()
+			swarm_create(self, self.HealTarget)
+			
+			self.SelfHealCount = self.SelfHealCount - 1
+			self.ActiveMenu[self.SelectedMenuItem]["Count"] = self.SelfHealCount
+			CF_SaveThisBrainSupplies(CF_GS, self)			
+		end
+	end
+end
+
+function rpgbrain_skill_healend(self)
+	if self.HealTarget ~= nil and MovableMan:IsActor(self.HealTarget) and self.HealTarget.Health > 0 then
+		local presets, classes
+		if self.HealTarget.ClassName == "AHuman" then
+			presets, classes = CF_GetInventory(self.HealTarget)
+		end
+		local preset = self.HealTarget.PresetName
+		local oldpreset = self.HealTarget.PresetName
+		
+		if self.HealTarget:IsInGroup("Brains") and self.OriginalPreset ~= nil then
+			preset = self.OriginalPreset
+		end
+		
+		local class = self.HealTarget.ClassName
+		local pos = Vector(self.HealTarget.Pos.X, self.HealTarget.Pos.Y)
+		local mode = self.HealTarget.AIMode
+		
+		self.HealTarget.Pos = Vector(0,-1000)
+		self.HealTarget.ToDelete = true
+		self.HealTarget = nil
+		
+		--print (self.OriginalPreset)
+		--print (oldpreset)
+		
+		local actor = CF_MakeActor2(preset,class)
+		if actor then
+			actor.PresetName = oldpreset
+			actor.Pos = pos
+			actor.Team = self.ThisActor.Team
+			actor.AIMode = mode
+			
+			if actor.ClassName == "AHuman" then
+				for i = 1, #presets do
+					local itm = CF_MakeItem2(presets[i], classes[i])
+					if itm then
+						actor:AddInventoryItem(itm)
+					end
+				end
+			end
+			
+			MovableMan:AddActor(actor)
+		end
+	end
+	swarm_destroy(self)
+end
+
 function rpgbrain_skill_repair(self)
-	if self.ActiveMenu[self.SelectedMenuItem]["Count"] > 0 then
+	if self.RepairCount > 0 then
 		if self.ThisActor.EquippedItem ~= nil then
 			local preset = self.ThisActor.EquippedItem.PresetName
 			local class = self.ThisActor.EquippedItem.ClassName
@@ -678,6 +762,10 @@ function rpgbrain_skill_repair(self)
 				self.ThisActor:AddInventoryItem(newgun)
 				self.ThisActor:GetController():SetState(Controller.WEAPON_CHANGE_PREV,true);
 			end
+			
+			self.RepairCount = self.RepairCount - 1
+			self.ActiveMenu[self.SelectedMenuItem]["Count"] = self.RepairCount
+			CF_SaveThisBrainSupplies(CF_GS, self)
 		end
 	end
 end
@@ -694,9 +782,9 @@ function rpgbrain_skill_split(self)
 				self.QuantumStorage = self.QuantumCapacity
 			end
 
-			CF_GS["Brain".. self.BrainNumber .."QuantumStorage"] = self.QuantumStorage
 			self.Skills[self.QuantumStorageItem]["Count"] = self.QuantumStorage
-			
+			CF_SaveThisBrainSupplies(CF_GS, self)
+				
 			self.ThisActor.EquippedItem.ToDelete = true;
 			self.ThisActor:GetController():SetState(Controller.WEAPON_CHANGE_PREV, true);
 		end
@@ -716,9 +804,8 @@ function rpgbrain_skill_synthesize(self)
 		end
 		
 		self.QuantumStorage = self.QuantumStorage - self.ActiveMenu[self.SelectedMenuItem]["Price"]
-		
-		CF_GS["Brain".. self.BrainNumber .."QuantumStorage"] = self.QuantumStorage
 		self.Skills[self.QuantumStorageItem]["Count"] = self.QuantumStorage
+		CF_SaveThisBrainSupplies(CF_GS, self)
 	end
 end
 
@@ -753,3 +840,271 @@ function CF_UnlockRandomQuantumItem(c)
 	
 	return id;
 end
+
+
+function CF_SaveThisBrainSupplies(c, self)
+	if self.BrainNumber > -1 then
+		c["Brain".. self.BrainNumber .."Fix_Count"] = self.RepairCount
+		c["Brain".. self.BrainNumber .."Heal_Count"] = self.HealCount
+		c["Brain".. self.BrainNumber .."SelfHeal_Count"] = self.SelfHealCount
+		c["Brain".. self.BrainNumber .."QuantumStorage"] = self.QuantumStorage
+	end
+end
+
+function CF_LoadThisBrainSupplies(c, self)
+	if self.BrainNumber > -1 then
+		local val = tonumber(c["Brain".. self.BrainNumber .."Fix_Count"]) 
+		if val ~= nil then
+			self.RepairCount = val
+		end
+		
+		local val = tonumber(c["Brain".. self.BrainNumber .."Heal_Count"])
+		if val ~= nil then
+			self.HealCount = val
+		end
+		
+		local val = tonumber(c["Brain".. self.BrainNumber .."SelfHeal_Count"])
+		if val ~= nil then
+			self.SelfHealCount = val
+		end
+		
+		local val = tonumber(c["Brain".. self.BrainNumber .."QuantumStorage"])
+		if val ~= nil then
+			self.QuantumStorage = val
+		end
+	end
+end
+
+function CF_ClearAllBrainsSupplies(c , b)
+	c["Brain".. b .."Fix_Count"] = nil
+	c["Brain".. b .."Heal_Count"] = nil
+	c["Brain".. b .."SelfHeal_Count"] = nil
+end
+
+function swarm_swarmto(object, target, speed)
+	local baseVector = SceneMan:ShortestDistance(object.Pos, target, true);
+	local dirVector = baseVector / baseVector.Largest;
+	local dist = baseVector.Magnitude;
+	local modifier = dist / 5;
+	if modifier < 1 then
+		modifier = 1;
+	end
+
+	object.Vel = object.Vel + dirVector * speed * modifier;
+end
+
+function swarm_create(self, target)
+	--The initial number of wasps.
+	self.waspNum = 25;
+    
+    --The chance of stinging.
+    self.stingChance = 0.015;
+    
+    --The change of dying while stinging.
+    self.stingDieChance = 0.1;
+    
+    --The chance of flickering.
+    self.flickerChance = 0.2;
+    
+    --Speed of the sting particle.
+    self.stingSpeed = 25;
+    
+    --How long it takes for one wasp to die off.
+    self.dieTime = 500;
+	
+	--How high to go while idling, maximum.
+	self.maxIdleAlt = 100;
+	
+	--How low to go while idling, minimum.
+	self.minIdleAlt = 25;
+	
+	--The radius of the swarm.
+	self.swarmRad = 15;
+	
+	--The maximum speed for one wasp.
+	self.maxSpeed = 5;
+	
+	--The modifier for maximum speed when attacking.
+	self.attackMaxMod = 5;
+    
+    --The basic acceleration for one wasp.
+    self.baseAcc = 0.75;
+	
+	--The modifier for acceleration when attacking.
+	self.attackAccMod = 2;
+	
+	--The acceleration speed of the base swarm.
+	self.swarmSpeed = 1;
+	
+	--The maximum speed of the base swarm.
+	self.maxBaseSpeed = 15;
+	
+	--The air reistance on the base swarm.
+	self.airResistance = 1.1;
+	
+	--The maximum distance a wasp can be from the swarm.
+	self.maxDist = 75;
+	
+	--The maximum distance to target at.
+	self.targetDist = 500;
+	
+	--The maximum distance to attack at.
+	self.attackDist = 75;
+    
+    --The maximum strength the swarm can push through.
+    self.maxMoveStrength = 1;
+    
+	--The list of wasps in this swarm.
+	self.roster = {};
+	
+	--The list of offsets for each wasp.
+	self.offsets = {};
+	
+	--The target to attack.
+	self.target = target;
+	
+    --Timer for wasp death.
+	--self.dieTimer = Timer();
+	
+	--Garbage collection timer.
+	self.garbTimer = Timer();
+	
+	--Fill the list.
+	for i = 1, self.waspNum do
+		local wasp = CreateMOPixel("Techion.rte/Nanowasp " .. math.random(1,3));
+		wasp.Vel = Vector(math.random(-10, 10),math.random(-10, 10));
+		self.offsets[i] = Vector(math.random(-self.swarmRad, self.swarmRad), math.random(-self.swarmRad, self.swarmRad));
+		wasp.Pos = self.Pos + self.offsets[i];
+		MovableMan:AddParticle(wasp);
+		self.roster[i] = wasp;
+	end
+end
+
+function swarm_update(self)
+	--Move the swarm.
+	local moving = false;
+    local attacking = false;
+    
+    if MovableMan:IsActor(self.target) then
+        --Go after the target.       
+        if not SceneMan:CastStrengthRay(self.Pos, SceneMan:ShortestDistance(self.Pos, self.target.Pos, true), self.maxMoveStrength, Vector(), 5, 0, true) then
+            local dirVec = SceneMan:ShortestDistance(self.Pos, self.target.Pos, true);
+            local movement = (dirVec / dirVec.Largest) * self.maxBaseSpeed;
+            
+            self.Vel = self.Vel + movement;
+            
+            if movement.Largest ~= 0 then
+                moving = true;
+            end
+        else
+            target = nil;
+        end
+    else
+        target = nil;
+    end
+
+	if not moving then
+		self.Vel = self.Vel / self.airResistance;
+	end
+	
+	if self.Vel.Largest > self.maxBaseSpeed then
+		self.Vel = (self.Vel / self.Vel.Largest) * self.maxBaseSpeed;
+	end
+	
+	--Check if the swarm is about to run into a wall, and if it is, stop it.
+	if SceneMan:CastStrengthRay(self.Pos, self.Vel, self.maxMoveStrength, Vector(), 0, 0, true) then
+		self.Vel = Vector(0,0);
+	end
+	
+	--Attack.
+	local attackMax = 1;
+	local attackAcc = 1;
+	
+	if attacking then
+		attackMax = self.attackMaxMod;
+		attackAcc = self.attackAccMod;
+	end
+	
+	--Make all the wasps in this swarm's roster follow it.
+	for i = 1, #self.roster do
+		if MovableMan:IsParticle(self.roster[i]) then
+			local wasp = self.roster[i];
+			
+			--Keep the wasp alive.
+			wasp.ToDelete = false;
+			wasp.ToSettle = false;
+			wasp:NotResting();
+			wasp.Age = 0;
+			
+			--Make the wasp follow the swarm.
+			local target = self.target.Pos + self.offsets[i];
+			swarm_swarmto(wasp,target,math.random() * self.baseAcc * attackAcc);
+			
+			--Keep the wasp from going too fast.
+			local speedMod = SceneMan:ShortestDistance(wasp.Pos, target, true).Magnitude / 5;
+			if speedMod < 1 then
+				speedMod = 1;
+			end
+            
+            --Counteract gravity.
+            wasp.Vel.Y = wasp.Vel.Y - SceneMan.Scene.GlocalAcc.Y * TimerMan.DeltaTimeSecs;
+			
+			if wasp.Vel.Largest > self.maxSpeed * speedMod * attackMax then
+				wasp.Vel = (wasp.Vel / wasp.Vel.Largest) * self.maxSpeed * speedMod * attackMax;
+			end
+			
+			--Keep the wasp within decent bounds of the swarm.
+			local distVec = SceneMan:ShortestDistance(target, wasp.Pos, true);
+
+			if math.abs(distVec.Largest) > self.maxDist then
+				wasp.Pos = distVec:SetMagnitude(self.maxDist) + target;
+			end
+            
+            --Flicker.
+            if math.random() <= self.flickerChance then
+                local flicker = CreateMOPixel("Techion.rte/Nanowasp Flicker");
+                flicker.Pos = wasp.Pos;
+                MovableMan:AddParticle(flicker);
+            end
+		else
+			if #self.roster < self.waspNum then
+				--Replace the wasp.
+				local wasp = CreateMOPixel("Techion.rte/Nanowasp " .. math.random(1,3));
+				wasp.Pos = self.Pos + self.offsets[i];
+				wasp.Vel = Vector(math.random(-10, 10), math.random(-10, 10));
+				MovableMan:AddParticle(wasp);
+				self.roster[i] = wasp;
+			else
+				table.remove(self.roster, i);
+			end
+		end
+	end
+    
+	if self.garbTimer:IsPastSimMS(10000) then
+		collectgarbage("collect");
+		self.garbTimer:Reset();
+	end
+    
+    if self.waspNum > 0 then
+        self.ToDelete = false;
+        self.ToSettle = false;
+        self:NotResting();
+        self.Age = 0;
+    else
+        self.ToDelete = true;
+    end
+end
+
+function swarm_destroy(self)
+	--Remove all wasps.
+	if self.roster ~= nil then
+		for i=1,#self.roster do
+			if MovableMan:IsParticle(self.roster[i]) then
+				self.roster[i].ToDelete = true;
+			end
+		end
+		
+		self.roster = nil
+	end
+end
+

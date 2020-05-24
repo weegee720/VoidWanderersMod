@@ -126,6 +126,7 @@ end
 function VoidWanderers:EndActivity()
     print("END! -- VoidWanderers:EndActivity()!");
 	CF_Self = nil;
+	CF_GS = nil
 end
 -----------------------------------------------------------------------------------------
 -- Update Activity
