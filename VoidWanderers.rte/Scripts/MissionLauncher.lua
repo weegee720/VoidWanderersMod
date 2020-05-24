@@ -213,6 +213,31 @@ function VoidWanderers:LoadCurrentGameState()
 			if val == nil then
 				self.GS["Brain"..plr.."Fix"] = 0
 			end
+			
+			local val = self.GS["Brain"..plr.."Fix"]
+			if val == nil then
+				self.GS["Brain"..plr.."Fix"] = 0
+			end
+			
+			local val = self.GS["Brain"..plr.."Splitter"]
+			if val == nil then
+				self.GS["Brain"..plr.."Splitter"] = 0
+			end
+			
+			local val = self.GS["Brain"..plr.."QuantumStorage"]
+			if val == nil then
+				self.GS["Brain"..plr.."QuantumStorage"] = 0
+			end
+			
+			local val = self.GS["Brain"..plr.."QuantumCapacity"]
+			if val == nil then
+				self.GS["Brain"..plr.."QuantumCapacity"] = 0
+			end
+			
+			local arr = CF_GetAvailableQuantumItems(self.GS)
+			if #arr == 0 then
+				CF_UnlockRandomQuantumItem(self.GS)
+			end
 		end
 	end
 end

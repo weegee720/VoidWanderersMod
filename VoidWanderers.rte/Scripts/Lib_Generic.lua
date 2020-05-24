@@ -30,8 +30,11 @@ function CF_InitFactions(activity)
 	
 	CF_MaxMissions = 5
 	
-	CF_MaxLevel = 60
+	CF_MaxLevel = 100
 	CF_ExpPerLevel = 500
+	
+	CF_QuantumCapacityPerLevel = 50
+	CF_QuantumSplitterEffectiveness = 0.2
 	
 	CF_SecurityIncrementPerMission = 10
 	CF_SecurityIncrementPerDeployment = 2

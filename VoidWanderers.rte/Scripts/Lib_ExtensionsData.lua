@@ -97,6 +97,13 @@ function CF_InitExtensionsData(activity)
 	CF_ArtActModules = {}
 	CF_ArtActClasses = {}
 	
+	-- Quantum items
+	CF_QuantumItems = {}
+	CF_QuantumItmPresets = {}
+	CF_QuantumItmModules = {}
+	CF_QuantumItmClasses = {}	
+	CF_QuantumItmPrices = {}
+	
 	-- Random encounters
 	CF_RandomEncounters = {}
 	CF_RandomEncounterIDs = {}

@@ -770,7 +770,6 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self.ShipControlSkillUpgrades[nm]["Name"] = "Force field"
 				self.ShipControlSkillUpgrades[nm]["Variable"] = "Brain"..plr.."Field"
 				self.ShipControlSkillUpgrades[nm]["Description"] = "Regeneration speed of force field."
-				self.ShipControlSkillUpgrades[nm]["Price"] = CF_StoragePrice
 				local val = tonumber(self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ])
 				self.GS[self.ShipControlSkillUpgrades[nm]["Variable"]] = val
 				self.ShipControlSkillUpgrades[nm]["Price"] = val + 1
@@ -781,7 +780,6 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self.ShipControlSkillUpgrades[nm]["Name"] = "Telekinesis"
 				self.ShipControlSkillUpgrades[nm]["Variable"] = "Brain"..plr.."Telekinesis"
 				self.ShipControlSkillUpgrades[nm]["Description"] = "Telekinesis abilities and their power."
-				self.ShipControlSkillUpgrades[nm]["Price"] = CF_StoragePrice
 				local val = tonumber(self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ])
 				self.GS[self.ShipControlSkillUpgrades[nm]["Variable"]] = val
 				self.ShipControlSkillUpgrades[nm]["Price"] = val + 1
@@ -792,18 +790,15 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self.ShipControlSkillUpgrades[nm]["Name"] = "Scanning"
 				self.ShipControlSkillUpgrades[nm]["Variable"] = "Brain"..plr.."Scanner"
 				self.ShipControlSkillUpgrades[nm]["Description"] = "Built-in scanner range."
-				self.ShipControlSkillUpgrades[nm]["Price"] = CF_StoragePrice
 				local val = tonumber(self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ])
 				self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ] = val
 				self.ShipControlSkillUpgrades[nm]["Price"] = val + 1
-				
 				
 				local nm = #self.ShipControlSkillUpgrades + 1
 				self.ShipControlSkillUpgrades[nm] = {}
 				self.ShipControlSkillUpgrades[nm]["Name"] = "Healing"
 				self.ShipControlSkillUpgrades[nm]["Variable"] = "Brain"..plr.."Heal"
 				self.ShipControlSkillUpgrades[nm]["Description"] = "How many times brain-robot can fully heal a unit. Every level adds 2 charges."
-				self.ShipControlSkillUpgrades[nm]["Price"] = CF_StoragePrice
 				local val = tonumber(self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ])
 				self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ] = val
 				self.ShipControlSkillUpgrades[nm]["Price"] = val + 1
@@ -813,7 +808,6 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self.ShipControlSkillUpgrades[nm]["Name"] = "Self-Healing"
 				self.ShipControlSkillUpgrades[nm]["Variable"] = "Brain"..plr.."SelfHeal"
 				self.ShipControlSkillUpgrades[nm]["Description"] = "How many times brain-robot can fully heal itself."
-				self.ShipControlSkillUpgrades[nm]["Price"] = CF_StoragePrice
 				local val = tonumber(self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ])
 				self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ] = val
 				self.ShipControlSkillUpgrades[nm]["Price"] = val + 1
@@ -823,11 +817,29 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self.ShipControlSkillUpgrades[nm]["Name"] = "Engineering"
 				self.ShipControlSkillUpgrades[nm]["Variable"] = "Brain"..plr.."Fix"
 				self.ShipControlSkillUpgrades[nm]["Description"] = "How many times brain-robot can fix a weapon. Every level adds 3 charges."
-				self.ShipControlSkillUpgrades[nm]["Price"] = CF_StoragePrice
 				local val = tonumber(self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ])
 				self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ] = val
 				self.ShipControlSkillUpgrades[nm]["Price"] = val + 1
 
+				local nm = #self.ShipControlSkillUpgrades + 1
+				self.ShipControlSkillUpgrades[nm] = {}
+				self.ShipControlSkillUpgrades[nm]["Name"] = "Quantum Splitter"
+				self.ShipControlSkillUpgrades[nm]["Variable"] = "Brain"..plr.."Splitter"
+				self.ShipControlSkillUpgrades[nm]["Description"] = "Effectiveness of built-in quantum splitter matter processing."
+				local val = tonumber(self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ])
+				self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ] = val
+				self.ShipControlSkillUpgrades[nm]["Price"] = val + 1
+				
+				if tonumber(self.GS[ "Brain"..plr.."Splitter" ]) > 0 then
+					local nm = #self.ShipControlSkillUpgrades + 1
+					self.ShipControlSkillUpgrades[nm] = {}
+					self.ShipControlSkillUpgrades[nm]["Name"] = "Quantum Storage"
+					self.ShipControlSkillUpgrades[nm]["Variable"] = "Brain"..plr.."QuantumCapacity"
+					self.ShipControlSkillUpgrades[nm]["Description"] = "Capacity of built-in quantum storage."
+					local val = tonumber(self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ])
+					self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ] = val
+					self.ShipControlSkillUpgrades[nm]["Price"] = val + 1
+				end
 				
 				if cont:IsState(Controller.PRESS_UP) then
 					self.ShipControlSelectedSkillUpgrade = self.ShipControlSelectedSkillUpgrade - 1

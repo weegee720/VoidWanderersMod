@@ -66,6 +66,12 @@ function do_rpgbrain_create(self)
 				self.HealCount = tonumber(CF_GS["Brain".. bplr .."Heal"]) * 2
 				self.SelfHealCount = tonumber(CF_GS["Brain".. bplr .."SelfHeal"])
 				self.ScanLevel = tonumber(CF_GS["Brain".. bplr .."Scanner"])
+				self.SplitterLevel = tonumber(CF_GS["Brain".. bplr .."Splitter"])
+				self.QuantumStorage = tonumber(CF_GS["Brain".. bplr .."QuantumStorage"])
+				self.QuantumCapacity = tonumber(CF_GS["Brain".. bplr .."QuantumCapacity"])
+				self.QuantumCapacity = CF_QuantumCapacityPerLevel + self.QuantumCapacity * CF_QuantumCapacityPerLevel
+				
+				self.BrainNumber = bplr
 			else
 				--print ("Preset")
 				local pos = string.find(s ,"SHLD");
@@ -104,7 +110,22 @@ function do_rpgbrain_create(self)
 				local pos = string.find(s ,"SCAN");
 				if pos ~= nil then
 					self.ScanLevel = tonumber(string.sub(s, pos + 4, pos + 4 ))
-				end				
+				end
+				
+				local pos = string.find(s ,"SPLT");
+				if pos ~= nil then
+					self.SplitterLevel = tonumber(string.sub(s, pos + 4, pos + 4 ))
+				end
+
+				local pos = string.find(s ,"STOR");
+				if pos ~= nil then
+					self.QuantumStorage = tonumber(string.sub(s, pos + 4, pos + 4 )) * 50
+				end
+				
+				local pos = string.find(s ,"QCAP");
+				if pos ~= nil then
+					self.QuantumCapacity = CF_QuantumCapacityPerLevel + tonumber(string.sub(s, pos + 4, pos + 4 )) * CF_QuantumCapacityPerLevel
+				end
 			end
 		end
 
@@ -159,6 +180,52 @@ function do_rpgbrain_create(self)
 			self.Skills[count]["Function"] = rpgbrain_skill_heal
 			self.Skills[count]["ActorDetectRange"] = 0.1
 			self.Skills[count]["AffectsBrains"] = true
+		end
+
+		if self.SplitterLevel > 0 then
+			count = count + 1
+			self.Skills[count] = {}
+			
+			self.Skills[count]["Text"] = "Nanolyze item"
+			self.Skills[count]["Count"] = -1
+			self.Skills[count]["Function"] = rpgbrain_skill_split
+
+			self.NanolyzeItem = count
+			
+			-- Make quantum sub-menu
+			local items = CF_GetAvailableQuantumItems(CF_GS)
+			
+			self.Quantum = {}
+			for i = 1, #items do
+				self.Quantum[i]	= {}
+				self.Quantum[i]["Text"] = items[i]["Preset"]
+				self.Quantum[i]["Count"] = items[i]["Price"]
+
+				self.Quantum[i]["ID"] = items[i]["ID"]
+				self.Quantum[i]["Preset"] = items[i]["Preset"]
+				self.Quantum[i]["Class"] = items[i]["Class"]
+				self.Quantum[i]["Module"] = items[i]["Module"]
+				self.Quantum[i]["Price"] = items[i]["Price"]
+
+				self.Quantum[i]["Function"] = rpgbrain_skill_synthesize
+			end
+			
+			local n = #self.Quantum + 1
+			
+			self.Quantum[n]	= {}
+			self.Quantum[n]["Text"] = "BACK"
+			self.Quantum[n]["Count"] = -1
+			self.Quantum[n]["SubMenu"] = self.Skills
+			
+			-- Add synthesizer menu item
+			count = count + 1
+			self.Skills[count] = {}
+			
+			self.Skills[count]["Text"] = "Synthesize item"
+			self.Skills[count]["Count"] = self.QuantumStorage
+			self.Skills[count]["SubMenu"] = self.Quantum
+
+			self.QuantumStorageItem = count
 		end
 		
 		if self.ShieldLvl > 0 then

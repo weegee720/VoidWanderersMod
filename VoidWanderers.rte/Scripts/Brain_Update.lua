@@ -453,8 +453,9 @@ function do_rpgbrain_update(self)
 					end
 				end
 				CF_PDAInitiator = nil
-				self.SelectedSkill = 1
+				self.SelectedMenuItem = 1
 				self.PinPoint = Vector(self.ThisActor.Pos.X, self.ThisActor.Pos.Y)
+				self.ActiveMenu = self.Skills
 			end
 		else
 			self.PDAEnabled = false
@@ -470,41 +471,20 @@ function do_rpgbrain_pda(self)
 	self.ThisActor.Vel = Vector(0,0)
 	self.ThisActor.Pos = self.PinPoint
 	
-	local pos = self.ThisActor.Pos + Vector(0,-40)
-	
-	-- Draw skills menu
-	if self.Skills == nil or #self.Skills == 0 then
-		local s = "NO SKILLS"
-		local l = CF_GetStringPixelWidth(s)
-		
-		CF_DrawString(s, pos + Vector(-l / 2, -80), 100 , 8)
-	else
-		for i = 1, #self.Skills do
-			local s = self.Skills[i]["Text"]
-			
-			if self.Skills[i]["Count"] ~= nil and self.Skills[i]["Count"] ~= -1 then
-				s = s .." "..self.Skills[i]["Count"]
-			end
-		
-			if i == self.SelectedSkill then
-				CF_DrawString("> "..s, pos + Vector(-50, i * 10), 150 , 8)
-			else
-				CF_DrawString(s, pos + Vector(-50, i * 10), 150 , 8)
-			end
-		end
-	end
+	--local pos = self.ThisActor.Pos + Vector(0,-34)
+	local pos = self.ThisActor.Pos + Vector(0,-130)
 	
 	self.SkillTargetActor = nil
 	
 	-- Detect nearby target actor
-	if self.Skills[self.SelectedSkill]["ActorDetectRange"] ~= nil then
-		local dist = self.Skills[self.SelectedSkill]["ActorDetectRange"]
+	if self.ActiveMenu[self.SelectedMenuItem]["ActorDetectRange"] ~= nil then
+		local dist = self.ActiveMenu[self.SelectedMenuItem]["ActorDetectRange"]
 		local a = nil
 
 		for actor in MovableMan.Actors do
 			local brainonly = false
 			
-			if self.Skills[self.SelectedSkill]["AffectsBrains"] ~= nil and self.Skills[self.SelectedSkill]["AffectsBrains"] == true then
+			if self.ActiveMenu[self.SelectedMenuItem]["AffectsBrains"] ~= nil and self.ActiveMenu[self.SelectedMenuItem]["AffectsBrains"] == true then
 				brainonly = true
 			end
 		
@@ -550,9 +530,9 @@ function do_rpgbrain_pda(self)
 		cont:SetState(Controller.BODY_JUMPSTART, false)
 		cont:SetState(Controller.BODY_JUMP, false)
 
-		self.SelectedSkill = self.SelectedSkill - 1
-		if self.SelectedSkill < 1 then
-			self.SelectedSkill = 1
+		self.SelectedMenuItem = self.SelectedMenuItem - 1
+		if self.SelectedMenuItem < 1 then
+			self.SelectedMenuItem = 1
 		end		
 	end
 
@@ -561,10 +541,59 @@ function do_rpgbrain_pda(self)
 		cont:SetState(Controller.MOVE_DOWN, false)
 		cont:SetState(Controller.BODY_CROUCH, false)
 
-		self.SelectedSkill = self.SelectedSkill + 1
-		if self.SelectedSkill > #self.Skills then
-			self.SelectedSkill = #self.Skills
+		self.SelectedMenuItem = self.SelectedMenuItem + 1
+		if self.SelectedMenuItem > #self.ActiveMenu then
+			self.SelectedMenuItem = #self.ActiveMenu
 		end		
+	end
+	
+	self.MenuItemsListStart = self.SelectedMenuItem - (self.SelectedMenuItem - 1) % 6
+	
+	-- Show price if item will be nanolyzed
+	if 	self.NanolyzeItem ~= nil then
+		self.Skills[self.NanolyzeItem]["Count"] = "EMPTY"
+	
+		if self.ThisActor.EquippedItem ~= nil then
+			local mass = self.ThisActor.EquippedItem.Mass
+			local convert = self.SplitterLevel * CF_QuantumSplitterEffectiveness
+			local matter = math.floor(mass * convert)
+			
+			if self.QuantumStorage + matter > self.QuantumCapacity then
+				matter = self.QuantumCapacity - self.QuantumStorage
+			end
+			self.Skills[self.NanolyzeItem]["Count"] = "+"..matter
+			
+			if self.QuantumStorage == self.QuantumCapacity then
+				self.Skills[self.NanolyzeItem]["Count"] = "MAX"
+			end
+		end
+	end
+
+	-- Draw background
+	VoidWanderersRPG_AddEffect(pos + Vector(0,27), "ControlPanel_Skills")	
+	
+	-- Draw skills menu
+	if self.ActiveMenu == nil or #self.ActiveMenu == 0 then
+		local s = "NO SKILLS"
+		local l = CF_GetStringPixelWidth(s)
+		
+		CF_DrawString(s, pos + Vector(-l / 2, -80), 100 , 8)
+	else
+		for i = self.MenuItemsListStart, self.MenuItemsListStart + 6 - 1 do
+			if i <= #self.ActiveMenu then
+				local s = self.ActiveMenu[i]["Text"]
+				
+				if self.ActiveMenu[i]["Count"] ~= nil and self.ActiveMenu[i]["Count"] ~= -1 then
+					s = s .." "..self.ActiveMenu[i]["Count"]
+				end
+			
+				if i == self.SelectedMenuItem then
+					CF_DrawString("> "..s, pos + Vector(-50, (i - self.MenuItemsListStart) * 10), 150 , 8)
+				else
+					CF_DrawString(s, pos + Vector(-50, (i - self.MenuItemsListStart) * 10), 150 , 8)
+				end
+			end
+		end
 	end
 	
 	if cont:IsState(Controller.WEAPON_FIRE) then
@@ -574,8 +603,13 @@ function do_rpgbrain_pda(self)
 			self.FirePressed = true;
 			
 			-- Execute skill function
-			if self.Skills[self.SelectedSkill]["Function"] ~= nil then
-				self.Skills[self.SelectedSkill]["Function"](self)
+			if self.ActiveMenu[self.SelectedMenuItem]["Function"] ~= nil then
+				self.ActiveMenu[self.SelectedMenuItem]["Function"](self)
+			end
+			
+			if self.ActiveMenu[self.SelectedMenuItem]["SubMenu"] ~= nill then
+				self.ActiveMenu = self.ActiveMenu[self.SelectedMenuItem]["SubMenu"]
+				self.SelectedMenuItem = 1
 			end
 		end
 	else
@@ -584,9 +618,9 @@ function do_rpgbrain_pda(self)
 end
 
 function rpgbrain_skill_heal(self)
-	if self.Skills[self.SelectedSkill]["Count"] > 0 then
+	if self.ActiveMenu[self.SelectedMenuItem]["Count"] > 0 then
 		if self.SkillTargetActor ~= nil and MovableMan:IsActor(self.SkillTargetActor) and self.SkillTargetActor.Health > 0 then
-			self.Skills[self.SelectedSkill]["Count"] = self.Skills[self.SelectedSkill]["Count"] - 1
+			self.ActiveMenu[self.SelectedMenuItem]["Count"] = self.ActiveMenu[self.SelectedMenuItem]["Count"] - 1
 
 			local presets, classes
 			if self.SkillTargetActor.ClassName == "AHuman" then
@@ -623,9 +657,8 @@ function rpgbrain_skill_heal(self)
 end
 
 function rpgbrain_skill_repair(self)
-	if self.Skills[self.SelectedSkill]["Count"] > 0 then
+	if self.ActiveMenu[self.SelectedMenuItem]["Count"] > 0 then
 		if self.ThisActor.EquippedItem ~= nil then
-			self.Skills[self.SelectedSkill]["Count"] = self.Skills[self.SelectedSkill]["Count"] - 1
 			local preset = self.ThisActor.EquippedItem.PresetName
 			local class = self.ThisActor.EquippedItem.ClassName
 			
@@ -640,6 +673,74 @@ function rpgbrain_skill_repair(self)
 	end
 end
 
+function rpgbrain_skill_split(self)
+	if self.ThisActor.EquippedItem ~= nil then
+		if self.QuantumStorage < self.QuantumCapacity then
+			local mass = self.ThisActor.EquippedItem.Mass
+			local convert = self.SplitterLevel * CF_QuantumSplitterEffectiveness
+			local matter = math.floor(mass * convert)
+			
+			self.QuantumStorage = self.QuantumStorage + matter
+			if self.QuantumStorage > self.QuantumCapacity then
+				self.QuantumStorage = self.QuantumCapacity
+			end
+
+			CF_GS["Brain".. self.BrainNumber .."QuantumStorage"] = self.QuantumStorage
+			self.Skills[self.QuantumStorageItem]["Count"] = self.QuantumStorage
+			
+			self.ThisActor.EquippedItem.ToDelete = true;
+			self.ThisActor:GetController():SetState(Controller.WEAPON_CHANGE_PREV, true);
+		end
+	end
+end
+
+function rpgbrain_skill_synthesize(self)
+	if self.QuantumStorage >= self.ActiveMenu[self.SelectedMenuItem]["Price"] then
+		local preset = self.ActiveMenu[self.SelectedMenuItem]["Preset"]
+		local class = self.ActiveMenu[self.SelectedMenuItem]["Class"]
+		local module = self.ActiveMenu[self.SelectedMenuItem]["Module"]
+		
+		local newgun = CF_MakeItem(preset, class, module)
+		if newgun then
+			self.ThisActor:AddInventoryItem(newgun)
+			self.ThisActor:GetController():SetState(Controller.WEAPON_CHANGE_PREV, true);
+		end
+		
+		self.QuantumStorage = self.QuantumStorage - self.ActiveMenu[self.SelectedMenuItem]["Price"]
+		
+		CF_GS["Brain".. self.BrainNumber .."QuantumStorage"] = self.QuantumStorage
+		self.Skills[self.QuantumStorageItem]["Count"] = self.QuantumStorage
+	end
+end
+
 function rpgbrain_skill_scanner(self)
 	self.ScanEnabled = not self.ScanEnabled
+end
+
+function CF_GetAvailableQuantumItems(c)
+	local arr = {}
+
+	for i = 1, #CF_QuantumItems do
+		local id = CF_QuantumItems[i]
+		
+		if c["QuantumItemUnlocked_"..id] == "True" then
+			local n = #arr + 1
+			arr[n] = {}
+			arr[n]["ID"] = id
+			arr[n]["Preset"] = CF_QuantumItmPresets[id]
+			arr[n]["Class"] = CF_QuantumItmClasses[id]
+			arr[n]["Module"] = CF_QuantumItmModules[id]
+			arr[n]["Price"] = math.ceil(CF_QuantumItmPrices[id] / 2)
+		end
+	end
+	
+	return arr
+end
+
+function CF_UnlockRandomQuantumItem(c)
+	local id = CF_QuantumItems[ math.random(#CF_QuantumItems) ]
+	
+	c["QuantumItemUnlocked_"..id] = "True"
+	
+	return id;
 end

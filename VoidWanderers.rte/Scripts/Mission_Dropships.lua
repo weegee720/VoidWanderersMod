@@ -58,6 +58,8 @@ function VoidWanderers:MissionCreate()
 	-- Get LZs
 	self.MissionLZs = CF_GetPointsArray(self.Pts, "Mine", set, "MinerLZ")	
 	
+	--print (#self.MissionLZs)
+	
 	local count
 
 	-- Get miner locations
