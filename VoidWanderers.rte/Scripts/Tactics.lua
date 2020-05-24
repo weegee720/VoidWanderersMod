@@ -99,6 +99,51 @@ function VoidWanderers:StartActivity()
 		end
 	end
 	
+	-- Read control panels location data
+	-- Ship Control Panel
+	local x,y;
+			
+	x = tonumber(self.LS["ShipControlPanelX"])
+	y = tonumber(self.LS["ShipControlPanelY"])
+	if x~= nil and y ~= nil then
+		self.ShipControlPanelPos = Vector(x,y)
+	else
+		self.ShipControlPanelPos = nil
+	end
+
+	-- Clone Control Panel
+	local x,y;
+			
+	x = tonumber(self.LS["CloneControlPanelX"])
+	y = tonumber(self.LS["CloneControlPanelY"])
+	if x~= nil and y ~= nil then
+		self.CloneControlPanelPos = Vector(x,y)
+	else
+		self.CloneControlPanelPos = nil
+	end
+
+	-- Storage Control Panel
+	local x,y;
+			
+	x = tonumber(self.LS["StorageControlPanelX"])
+	y = tonumber(self.LS["StorageControlPanelY"])
+	if x~= nil and y ~= nil then
+		self.StorageControlPanelPos = Vector(x,y)
+	else
+		self.StorageControlPanelPos = nil
+	end
+
+	-- Beam Control Panel
+	local x,y;
+			
+	x = tonumber(self.LS["BeamControlPanelX"])
+	y = tonumber(self.LS["BeamControlPanelY"])
+	if x~= nil and y ~= nil then
+		self.BeamControlPanelPos = Vector(x,y)
+	else
+		self.BeamControlPanelPos = nil
+	end
+	
 	self.GenericTimer = Timer();
 	self.GenericTimer:Reset();
 
@@ -127,6 +172,71 @@ function VoidWanderers:StartActivity()
 	self.LastIncomeShowInterval = 2	
 
 	self:SaveCurrentGameState();
+	
+	self:CreateControlPanelActors()
+	
+	self:InitShipControlPanelUI()
+end
+-----------------------------------------------------------------------------------------
+-- Removes specified item from actor's inventory, returns number of removed items
+-----------------------------------------------------------------------------------------
+function VoidWanderers:CreateControlPanelActors()
+	-- Clone
+	if self.CloneControlPanelPos ~= nil then
+		if not MovableMan:IsActor(self.CloneControlPanelActor) then
+			self.CloneControlPanelActor = CreateActor("Clone Control Panel")
+			if self.CloneControlPanelActor ~= nil then
+				self.CloneControlPanelActor.Pos = self.CloneControlPanelPos
+				self.CloneControlPanelActor.Team = CF_PlayerTeam
+				MovableMan:AddActor(self.CloneControlPanelActor)
+			end
+		end
+	end
+	
+	-- Storage
+	if self.StorageControlPanelPos ~= nil then
+		if not MovableMan:IsActor(self.StorageControlPanelActor) then
+			self.StorageControlPanelActor = CreateActor("Storage Control Panel")
+			if self.StorageControlPanelActor ~= nil then
+				self.StorageControlPanelActor.Pos = self.StorageControlPanelPos
+				self.StorageControlPanelActor.Team = CF_PlayerTeam
+				MovableMan:AddActor(self.StorageControlPanelActor)
+			end
+		end
+	end
+		
+
+	-- Beam
+	if self.BeamControlPanelPos ~= nil then
+		if not MovableMan:IsActor(self.BeamControlPanelActor) then
+			self.BeamControlPanelActor = CreateActor("Beam Control Panel")
+			if self.BeamControlPanelActor ~= nil then
+				self.BeamControlPanelActor.Pos = self.BeamControlPanelPos
+				self.BeamControlPanelActor.Team = CF_PlayerTeam
+				MovableMan:AddActor(self.BeamControlPanelActor)
+			end
+		end
+	end
+end
+-----------------------------------------------------------------------------------------
+-- 
+-----------------------------------------------------------------------------------------
+function VoidWanderers:PutGlow(preset, pos)
+	local glow = CreateMOPixel(preset, self.ModuleName);
+	if glow then
+		glow.Pos = pos
+		MovableMan:AddParticle(glow);	
+	end
+end
+-----------------------------------------------------------------------------------------
+-- 
+-----------------------------------------------------------------------------------------
+function VoidWanderers:PutGlowWithModule(preset, pos, module)
+	local glow = CreateMOPixel(preset, module);
+	if glow then
+		glow.Pos = pos
+		MovableMan:AddParticle(glow);	
+	end
 end
 -----------------------------------------------------------------------------------------
 -- Removes specified item from actor's inventory, returns number of removed items
@@ -264,13 +374,19 @@ function VoidWanderers:UpdateActivity()
 		end
 	end
 	
+	-- Process UI's
+	self:ProcessShipControlPanelUI()
+	self:ProcessCloneControlPanelUI()
+	self:ProcessStorageControlPanelUI()
+	self:ProcessBeamControlPanelUI()
+	
 	-- Tick timer
 	if self.TickTimer:IsPastSimMS(self.TickInterval) then
 		self.Time = self.Time + 1
 		self.TickTimer:Reset();
 	end
 	
-	-- Show retreat reaseon
+	-- Show retreat reason
 	if self.MissionEndText ~= nil then
 		FrameMan:ClearScreenText(0);
 		FrameMan:SetScreenText(self.MissionEndText, 0, 0, 8000, true);	

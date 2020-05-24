@@ -26,7 +26,8 @@ function CF_InitFactions(activity)
 	CF_MaxCPUPlayers = 8
 	CF_MaxSaveGames = 6
 	CF_MaxItems = 50
-
+	CF_MaxUnitsPerDropship = 3
+	
 	CF_MaxAIEngineerCount = 3
 	
 	-- AI engineers won't dig if they're too close to lz
@@ -253,191 +254,197 @@ function CF_InitFactions(activity)
 		--print("Loading "..CF_FactionFiles[i])
 		f = loadfile(factionstorage..CF_FactionFiles[i])
 		if f ~= nil then
+			local lastfactioncount  = #CF_Factions
+		
+			-- Execute script
 			f()
 		
-			local id  = CF_Factions[#CF_Factions]
-		
-			-- Check if faction modules installed. Check only works with old v1 or most new v2 faction files.
-			--print(CF_InfantryModules[CF_Factions[#CF_Factions]])
-			for m = 1, #CF_RequiredModules[id] do
-				local module = CF_RequiredModules[id][m];
+			-- Check for faction consistency only if it is a faction file
+			if lastfactioncount ~= #CF_Factions then
+				local id  = CF_Factions[#CF_Factions]
 			
-				if module ~= nil then
-					if PresetMan:GetModuleID(module) == -1 then
-						CF_FactionPlayable[id] = false;
-						print ("ERROR!!! "..id.." DISABLED!!! "..CF_RequiredModules[id][m].." NOT FOUND!!!")
+				--Check if faction modules installed. Check only works with old v1 or most new v2 faction files.
+				--print(CF_InfantryModules[CF_Factions[#CF_Factions]])
+				for m = 1, #CF_RequiredModules[id] do
+					local module = CF_RequiredModules[id][m];
+				
+					if module ~= nil then
+						if PresetMan:GetModuleID(module) == -1 then
+							CF_FactionPlayable[id] = false;
+							print ("ERROR!!! "..id.." DISABLED!!! "..CF_RequiredModules[id][m].." NOT FOUND!!!")
+						end
 					end
 				end
-			end
-			
-			-- Assume that faction file is correct
-			local factionok = true;
-			local err = "";
-			
-			-- Verify faction file data and add mission values if any
-			-- Verify items
-			for i = 1, #CF_ItmNames[id] do
-				if CF_ItmModules[id][i] == nil then
-					factionok = false;
-					err = "CF_ItmModules is missing."
+				
+				-- Assume that faction file is correct
+				local factionok = true;
+				local err = "";
+				
+				-- Verify faction file data and add mission values if any
+				-- Verify items
+				for i = 1, #CF_ItmNames[id] do
+					if CF_ItmModules[id][i] == nil then
+						factionok = false;
+						err = "CF_ItmModules is missing."
+					end
+
+					if CF_ItmPrices[id][i] == nil then
+						factionok = false;
+						err = "CF_ItmPrices is missing."
+					end
+
+					if CF_ItmDescriptions[id][i] == nil then
+						factionok = false;
+						err = "CF_ItmDescriptions is missing."
+					end
+					
+					if CF_ItmUnlockData[id][i] == nil then
+						factionok = false;
+						err = "CF_ItmUnlockData is missing."
+					end
+
+					if CF_ItmTypes[id][i] == nil then
+						factionok = false;
+						err = "CF_ItmTypes is missing."
+					end
+
+					if CF_ItmPowers[id][i] == nil then
+						factionok = false;
+						err = "CF_ItmPowers is missing."
+					end
+					
+					-- If something is wrong then disable faction and print error message
+					if not factionok then
+						CF_FactionPlayable[id] = false;
+						print ("ERROR!!! "..id.." DISABLED!!! "..CF_ItmNames[id][i].." : "..err)
+						break;
+					end
 				end
 
-				if CF_ItmPrices[id][i] == nil then
-					factionok = false;
-					err = "CF_ItmPrices is missing."
-				end
+				-- Assume that faction file is correct
+				local info = {}
+				local data = {}
+				
+				-- Verify faction generic data
+				info[#info + 1] = "CF_FactionNames"
+				data[#info] = CF_FactionNames[id]
 
-				if CF_ItmDescriptions[id][i] == nil then
-					factionok = false;
-					err = "CF_ItmDescriptions is missing."
+				info[#info + 1] = "CF_FactionDescriptions"
+				data[#info] = CF_FactionDescriptions[id]
+
+				info[#info + 1] = "CF_FactionPlayable"
+				data[#info] = CF_FactionPlayable[id]
+
+				info[#info + 1] = "CF_RequiredModules"
+				data[#info] = CF_RequiredModules[id]
+
+				info[#info + 1] = "CF_FactionNatures"
+				data[#info] = CF_FactionNatures[id]
+
+				info[#info + 1] = "CF_ScanBonuses"
+				data[#info] = CF_ScanBonuses[id]
+				
+				info[#info + 1] = "CF_RelationsBonuses"
+				data[#info] = CF_RelationsBonuses[id]
+
+				info[#info + 1] = "CF_ExpansionBonuses"
+				data[#info] = CF_ExpansionBonuses[id]
+
+				info[#info + 1] = "CF_MineBonuses"
+				data[#info] = CF_MineBonuses[id]
+
+				info[#info + 1] = "CF_LabBonuses"
+				data[#info] = CF_LabBonuses[id]
+
+				info[#info + 1] = "CF_AirfieldBonuses"
+				data[#info] = CF_AirfieldBonuses[id]
+
+				info[#info + 1] = "CF_SuperWeaponBonuses"
+				data[#info] = CF_SuperWeaponBonuses[id]
+
+				info[#info + 1] = "CF_FactoryBonuses"
+				data[#info] = CF_FactoryBonuses[id]
+
+				info[#info + 1] = "CF_CloneBonuses"
+				data[#info] = CF_CloneBonuses[id]
+
+				info[#info + 1] = "CF_HospitalBonuses"
+				data[#info] = CF_HospitalBonuses[id]
+
+				info[#info + 1] = "CF_Brains"
+				data[#info] = CF_Brains[id]
+
+				info[#info + 1] = "CF_BrainModules"
+				data[#info] = CF_BrainModules[id]
+
+				info[#info + 1] = "CF_BrainClasses"
+				data[#info] = CF_BrainClasses[id]
+
+				info[#info + 1] = "CF_BrainPrices"
+				data[#info] = CF_BrainPrices[id]
+
+				info[#info + 1] = "CF_Crafts"
+				data[#info] = CF_Crafts[id]
+
+				info[#info + 1] = "CF_CraftModules"
+				data[#info] = CF_CraftModules[id]
+
+				info[#info + 1] = "CF_CraftClasses"
+				data[#info] = CF_CraftClasses[id]
+
+				info[#info + 1] = "CF_CraftPrices"
+				data[#info] = CF_CraftPrices[id]
+				
+				for i = 1, #info do
+					if data[i] == nil then
+						CF_FactionPlayable[id] = false;
+						print ("ERROR!!! "..id.." DISABLED!!! "..info[i].." is missing")
+						break;
+					end
 				end
 				
-				if CF_ItmUnlockData[id][i] == nil then
-					factionok = false;
-					err = "CF_ItmUnlockData is missing."
-				end
-
-				if CF_ItmTypes[id][i] == nil then
-					factionok = false;
-					err = "CF_ItmTypes is missing."
-				end
-
-				if CF_ItmPowers[id][i] == nil then
-					factionok = false;
-					err = "CF_ItmPowers is missing."
-				end
+				-- Assume that faction file is correct
+				local factionok = true;
+				local err = "";
 				
-				-- If something is wrong then disable faction and print error message
-				if not factionok then
-					CF_FactionPlayable[id] = false;
-					print ("ERROR!!! "..id.." DISABLED!!! "..CF_ItmNames[id][i].." : "..err)
-					break;
-				end
-			end
+				-- Verify actors
+				for i = 1, #CF_ActNames[id] do
+					if CF_ActModules[id][i] == nil then
+						factionok = false;
+						err = "CF_ActModules is missing."
+					end
 
-			-- Assume that faction file is correct
-			local info = {}
-			local data = {}
-			
-			-- Verify faction generic data
-			info[#info + 1] = "CF_FactionNames"
-			data[#info] = CF_FactionNames[id]
+					if CF_ActPrices[id][i] == nil then
+						factionok = false;
+						err = "CF_ActPrices is missing."
+					end
 
-			info[#info + 1] = "CF_FactionDescriptions"
-			data[#info] = CF_FactionDescriptions[id]
+					if CF_ActDescriptions[id][i] == nil then
+						factionok = false;
+						err = "CF_ActDescriptions is missing."
+					end
+					
+					if CF_ActUnlockData[id][i] == nil then
+						factionok = false;
+						err = "CF_ActUnlockData is missing."
+					end
 
-			info[#info + 1] = "CF_FactionPlayable"
-			data[#info] = CF_FactionPlayable[id]
+					if CF_ActTypes[id][i] == nil then
+						factionok = false;
+						err = "CF_ActTypes is missing."
+					end
 
-			info[#info + 1] = "CF_RequiredModules"
-			data[#info] = CF_RequiredModules[id]
-
-			info[#info + 1] = "CF_FactionNatures"
-			data[#info] = CF_FactionNatures[id]
-
-			info[#info + 1] = "CF_ScanBonuses"
-			data[#info] = CF_ScanBonuses[id]
-			
-			info[#info + 1] = "CF_RelationsBonuses"
-			data[#info] = CF_RelationsBonuses[id]
-
-			info[#info + 1] = "CF_ExpansionBonuses"
-			data[#info] = CF_ExpansionBonuses[id]
-
-			info[#info + 1] = "CF_MineBonuses"
-			data[#info] = CF_MineBonuses[id]
-
-			info[#info + 1] = "CF_LabBonuses"
-			data[#info] = CF_LabBonuses[id]
-
-			info[#info + 1] = "CF_AirfieldBonuses"
-			data[#info] = CF_AirfieldBonuses[id]
-
-			info[#info + 1] = "CF_SuperWeaponBonuses"
-			data[#info] = CF_SuperWeaponBonuses[id]
-
-			info[#info + 1] = "CF_FactoryBonuses"
-			data[#info] = CF_FactoryBonuses[id]
-
-			info[#info + 1] = "CF_CloneBonuses"
-			data[#info] = CF_CloneBonuses[id]
-
-			info[#info + 1] = "CF_HospitalBonuses"
-			data[#info] = CF_HospitalBonuses[id]
-
-			info[#info + 1] = "CF_Brains"
-			data[#info] = CF_Brains[id]
-
-			info[#info + 1] = "CF_BrainModules"
-			data[#info] = CF_BrainModules[id]
-
-			info[#info + 1] = "CF_BrainClasses"
-			data[#info] = CF_BrainClasses[id]
-
-			info[#info + 1] = "CF_BrainPrices"
-			data[#info] = CF_BrainPrices[id]
-
-			info[#info + 1] = "CF_Crafts"
-			data[#info] = CF_Crafts[id]
-
-			info[#info + 1] = "CF_CraftModules"
-			data[#info] = CF_CraftModules[id]
-
-			info[#info + 1] = "CF_CraftClasses"
-			data[#info] = CF_CraftClasses[id]
-
-			info[#info + 1] = "CF_CraftPrices"
-			data[#info] = CF_CraftPrices[id]
-			
-			for i = 1, #info do
-				if data[i] == nil then
-					CF_FactionPlayable[id] = false;
-					print ("ERROR!!! "..id.." DISABLED!!! "..info[i].." is missing")
-					break;
-				end
-			end
-			
-			-- Assume that faction file is correct
-			local factionok = true;
-			local err = "";
-			
-			-- Verify actors
-			for i = 1, #CF_ActNames[id] do
-				if CF_ActModules[id][i] == nil then
-					factionok = false;
-					err = "CF_ActModules is missing."
-				end
-
-				if CF_ActPrices[id][i] == nil then
-					factionok = false;
-					err = "CF_ActPrices is missing."
-				end
-
-				if CF_ActDescriptions[id][i] == nil then
-					factionok = false;
-					err = "CF_ActDescriptions is missing."
-				end
-				
-				if CF_ActUnlockData[id][i] == nil then
-					factionok = false;
-					err = "CF_ActUnlockData is missing."
-				end
-
-				if CF_ActTypes[id][i] == nil then
-					factionok = false;
-					err = "CF_ActTypes is missing."
-				end
-
-				if CF_ActPowers[id][i] == nil then
-					factionok = false;
-					err = "CF_ActPowers is missing."
-				end
-				
-				-- If something is wrong then disable faction and print error message
-				if not factionok then
-					CF_FactionPlayable[id] = false;
-					print ("ERROR!!! "..id.." DISABLED!!! "..CF_ActNames[id][i].." : "..err)
-					break;
+					if CF_ActPowers[id][i] == nil then
+						factionok = false;
+						err = "CF_ActPowers is missing."
+					end
+					
+					-- If something is wrong then disable faction and print error message
+					if not factionok then
+						CF_FactionPlayable[id] = false;
+						print ("ERROR!!! "..id.." DISABLED!!! "..CF_ActNames[id][i].." : "..err)
+						break;
+					end
 				end
 			end
 		else
@@ -445,60 +452,13 @@ function CF_InitFactions(activity)
 		end
 	end
 	
-	CF_InitOtherGameData(activity)
+	CF_InitShipsData(activity)
+	CF_InitScenesData(activity)
 	
 	--print("Factions loaded:")
 	--for i = 1 , #CF_Factions do
 		--print(CF_Factions[i])
 	--end	
-end
------------------------------------------------------------------------------------------
--- Initialize global faction lists
------------------------------------------------------------------------------------------
-function CF_InitOtherGameData(activity)
-	-- Init vessels data
-	CF_Vessel = {}
-	CF_VesselName = {}
-	CF_VesselScene = {}
-	CF_VesselModule = {}
-
-	-- Price of the vesel
-	CF_VesselPrice = {}
-	
-	-- Amount of bodies which can be stored on the ship
-	CF_VesselMaxCloneCapacity = {}
-	CF_VesselStartCloneCapacity = {}
-	
-	-- Amount of items which can be stored on the ship
-	CF_VesselMaxCargoCapacity = {}
-	CF_VesselStartCargoCapacity = {}
-
-	-- How many units can be active on the ship simultaneously
-	CF_VesselMaxLifeSupport = {}
-	CF_VesselStartLifeSupport = {}
-
-	-- How many units can be active on the planet surface simultaneously
-	CF_VesselMaxCommunication = {}
-	CF_VesselStartCommunication = {}
-
-	local id = "Gryphon"
-	CF_Vessel[#CF_Vessel + 1] = id
-	CF_VesselPrice[id] = 35000
-	CF_VesselName[id] = "Gryphon"
-	CF_VesselScene[id] = "Vessel Gryphon"
-	CF_VesselModule[id] = "VoidWanderers.rte"
-	
-	CF_VesselMaxCloneCapacity[id] = 20
-	CF_VesselStartCloneCapacity[id] = 6
-	
-	CF_VesselMaxCargoCapacity[id] = 100
-	CF_VesselStartCargoCapacity[id] = 20
-	
-	CF_VesselMaxLifeSupport[id] = 8
-	CF_VesselStartLifeSupport[id] = 4
-	
-	CF_VesselMaxCommunication[id] = 8
-	CF_VesselStartCommunication[id] = 4
 end
 -----------------------------------------------------------------------------------------
 --	Create actor from preset pre, where c - config, p - player, t - territory, pay gold is pay == true

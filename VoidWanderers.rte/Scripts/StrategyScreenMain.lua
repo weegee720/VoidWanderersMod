@@ -5,7 +5,11 @@
 function VoidWanderers:StartActivity()
 	print ("VoidWanderers:StrategyScreen:StartActivity");
 
-	CF_EnableKeyboardControls = false;
+	if self.PlayerCount > 1 then
+		CF_EnableKeyboardControls = true;
+	else
+		CF_EnableKeyboardControls = false;
+	end
 	
 	if self.IsInitialized == nil then
 		self.IsInitialized = false
@@ -15,6 +19,8 @@ function VoidWanderers:StartActivity()
 		return
 	end
 
+	self:SetTeamFunds(0 , 0);	
+	
 	self.GS = {};
 	
 	self:LoadCurrentGameState();
@@ -35,16 +41,70 @@ function VoidWanderers:StartActivity()
 	
 	self.Mouse = self.Mid;
 	
+	for plr = 0, self.PlayerCount - 1 do
+		self:SetPlayerBrain(nil, Activity.TEAM_1);
+	end
+	
+	self.brain = nil
+	
+	self.ObserverPos = nil
+	
+	for plr = 0,self.PlayerCount - 1 do
+		FrameMan:ClearScreenText(plr);
+	end
+	
 	--Make an invisible brain.
-	self.brain = CreateActor("Brain Case");
-	self.brain.Scale = 0;
-	self.brain.Team = Activity.TEAM_1;
-	self.brain.Pos = self.Mid;
-	self.brain.HitsMOs = false;
-	self.brain.GetsHitByMOs = false;
-	MovableMan:AddActor(self.brain);
-	self:SetPlayerBrain(self.brain, Activity.TEAM_1);
-	self:SwitchToActor(self.brain, Activity.PLAYER_1,-1);
+	if self.PlayerCount == 1 then
+		self.brain = CreateActor("Fake Brain Case");
+		self.brain.Scale = 0;
+		self.brain.Team = Activity.TEAM_1;
+		self.brain.Pos = self.Mid;
+		self.brain.HitsMOs = false;
+		self.brain.GetsHitByMOs = false;
+		MovableMan:AddActor(self.brain);
+		self:SetPlayerBrain(self.brain, Activity.TEAM_1);
+		self:SwitchToActor(self.brain, Activity.PLAYER_1,-1);
+	else
+		local brainpos = {}
+		
+		local offset = 0.5
+		
+		if self.PlayerCount == 2 then
+			brainpos[0] = self.Mid + Vector(0, -self.ResY2 / 2)
+			brainpos[1] = self.Mid + Vector(0, self.ResY2 / 2)
+		elseif self.PlayerCount == 3 or self.PlayerCount == 4 then
+			brainpos[0] = self.Mid + Vector(-self.ResX2 / 2 + offset, -self.ResY2 / 2 + offset)
+			brainpos[1] = self.Mid + Vector(self.ResX2 / 2 - offset, -self.ResY2 / 2 + offset)
+			
+			brainpos[2] = self.Mid + Vector(-self.ResX2 / 2 + offset, self.ResY2 / 2 - offset)
+			brainpos[3] = self.Mid + Vector(self.ResX2 / 2 - offset, self.ResY2 / 2 - offset)
+			
+			self.ObserverPos = brainpos[3]
+		end
+	
+		for plr = 0, self.PlayerCount - 1 do
+			local brn
+		
+			brn = CreateActor("Fake Brain Case");
+			brn.Scale = 0;
+			brn.Team = Activity.TEAM_1;
+			brn.Pos = brainpos[plr];
+			brn.HitsMOs = false;
+			brn.GetsHitByMOs = false;
+			MovableMan:AddActor(brn);
+			self:SetPlayerBrain(brn, plr);
+			self:SwitchToActor(brn, plr,-1);
+			SceneMan:SetScrollTarget(brn.Pos, 0.04, false, plr);				
+			
+			brn.Team = -1;
+			
+			if self.brain == nil then
+				self.brain = brn
+			end
+		end
+	end
+	
+	self.MouseFirePressed = true
 	
 	self.GenericTimer = Timer();
 	self.GenericTimer:Reset();
@@ -82,17 +142,7 @@ function VoidWanderers:StartActivity()
 	self.MousePressStartElement = nil;
 	self.MousePressEndElement = nil;
 	
-	-- Load map data which is used to track clicks on map. 
-	-- Although map data is used only by some forms, we load it here to avoid lag during forms 
-	-- switching
-	io = require("io");
-	self.MapData = {}
-	
-	local y = 1;
-	
 	self.IsInitialized = true	
-	
-	self:SetTeamFunds(0 , 0);	
 end
 -----------------------------------------------------------------------------------------
 -- Pause Activity
@@ -347,6 +397,11 @@ function VoidWanderers:UpdateActivity()
 		self:ProcessBeforeAnything()
 	end
 	
+	-- Set the screen of disabled 4-th player when we're playing in 3-player mode
+	if self.ObserverPos ~= nil then
+		SceneMan:SetScrollTarget(self.ObserverPos, 0.04, false, 3);	
+	end
+	
 	--Read standard input, ugly but at least it will be operational if mouse fail for
 	-- whatever reason
 	local cont = self.brain:GetController();
@@ -407,22 +462,40 @@ function VoidWanderers:UpdateActivity()
 	
 	-- Process mouse hovers and presses
 	if CF_EnableKeyboardControls then
+		self.MouseOverElement = self:GetMouseOverKnownFormElements();
+		
+		if self.MouseOverElement then
+			if self.UI[self.MouseOverElement]["OnHover"] ~= nil then
+				self.UI[self.MouseOverElement]["OnHover"](self)
+			end
+		end
+	
 		-- Process standard input
 		if cont:IsState(Controller.WEAPON_FIRE) then
-			self.MousePressedElement = self:GetMouseOverKnownFormElements()
+			if not self.MouseFirePressed then
+				self.MousePressedElement = self:GetMouseOverKnownFormElements()
 
-			if self.MousePressedElement ~= nil then
-				if self.UI[self.MousePressedElement]["OnClick"] ~= nil then
-					self.UI[self.MousePressedElement]["OnClick"](self)
+				local dontpass = false;
+				
+				if self.MousePressedElement ~= nil then
+					if self.UI[self.MousePressedElement]["OnClick"] ~= nil then
+						dontpass = true
+						self.UI[self.MousePressedElement]["OnClick"](self)
+					end
 				end
+				
+				if not dontpass then
+					self:FormClick()
+				end
+				
+				self.MouseOverElement = nil;
+				self.MousePressedElement = nil;
+				self.MousePressStartElement = nil;
+				self.MousePressEndElement = nil;
 			end
-
-			self:FormClick()
-			
-			self.MouseOverElement = nil;
-			self.MousePressedElement = nil;
-			self.MousePressStartElement = nil;
-			self.MousePressEndElement = nil;
+			self.MouseFirePressed = true
+		else
+			self.MouseFirePressed = false;
 		end
 	else
 		-- Process mouse input
@@ -476,7 +549,6 @@ function VoidWanderers:UpdateActivity()
 	
 	--print(self.MouseOverElement);
 	--print(self.MousePressedElement);
-
 	
 	self:RedrawKnownFormElements();
 	self:FormUpdate()

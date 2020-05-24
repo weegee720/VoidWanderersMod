@@ -12,7 +12,14 @@ function VoidWanderers:StartActivity()
 
 	dofile(LIB_PATH.."CF_ConfigLibrary.lua");
 	dofile(LIB_PATH.."CF_MissionLibrary.lua");
+	dofile(LIB_PATH.."CF_ShipsData.lua");
+	dofile(LIB_PATH.."CF_ScenesData.lua");
 
+	dofile(LIB_PATH.."Panel_Clone.lua");
+	dofile(LIB_PATH.."Panel_Ship.lua");
+	dofile(LIB_PATH.."Panel_Beam.lua");
+	dofile(LIB_PATH.."Panel_Storage.lua");
+	
 	if TRANSFER_IN_PROGRESS == nil then
 		TRANSFER_IN_PROGRESS = false
 	end

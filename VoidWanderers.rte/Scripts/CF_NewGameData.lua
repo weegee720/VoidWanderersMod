@@ -56,6 +56,13 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 	-- Assign player ship
 	config["Player0Vessel"] = "Gryphon"
 	
+	-- Set up initial location - Tradestar
+	config["Planet"] = CF_Planet[1]
+	config["Location"] = CF_Location[1]
+	
+	-- Set up initial FTL fuel
+	config["Fuel"] = 10
+	
 	local found = 0
 	
 	-- Find available player actor
