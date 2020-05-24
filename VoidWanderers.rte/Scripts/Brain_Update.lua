@@ -467,38 +467,80 @@ function do_rpgbrain_update(self)
 			--VoidWanderersRPG_AddEffect(self.ThisActor.ViewPoint, "Green Glow")
 
 			local angle, d = VoidWanderersRPG_GetAngle(self.ThisActor.Pos, self.ThisActor.ViewPoint)
-			--CF_DrawString(tostring(angle), self.ThisActor.ViewPoint , 200,200)
-			--CF_DrawString(tostring(self.ThisActor:GetAimAngle(false)), self.ThisActor.ViewPoint + Vector(0,10) , 200,200)
-			--CF_DrawString(tostring(math.pi - angle), self.ThisActor.ViewPoint + Vector(0,20) , 200,200)
+			--CF_DrawString(string.format("%.2f", angle), self.ThisActor.ViewPoint , 200,200)
+			--CF_DrawString(string.format("%.2f", self.ThisActor:GetAimAngle(false)), self.ThisActor.ViewPoint + Vector(0,10) , 200,200)
+			--CF_DrawString(string.format("%.2f", math.pi - angle), self.ThisActor.ViewPoint + Vector(0,20) , 200,200)
 			--CF_DrawString(tostring(self.ThisActor.HFlipped), self.ThisActor.ViewPoint + Vector(0,30) , 200,200)
+
+			VoidWanderersRPG_AddEffect(self.ThisActor.Pos + Vector(0,-28), "Icon_Linked")
 			
 			for i = 1, #self.LinkedActors do
 				if MovableMan:IsActor(self.LinkedActors[i]) then
-					--self.LinkedActors[i].ViewPoint = self.ThisActor.ViewPoint
-
+					local flip
+				
+					-- Determine angle to aim
 					-- Flip or unflip actor
 					if self.ThisActor.ViewPoint.X > self.LinkedActors[i].Pos.X then
-						self.LinkedActors[i].HFlipped = false
+						flip = false
 					else
-						self.LinkedActors[i].HFlipped = true
+						flip = true
 					end
 					
+					local angle, d
+					
 					if not self.LinkedActors[i].HFlipped then
-						local angle, d = VoidWanderersRPG_GetAngle(self.LinkedActors[i].Pos, self.ThisActor.ViewPoint)
-						self.LinkedActors[i]:SetAimAngle(angle)
+						angle, d = VoidWanderersRPG_GetAngle(self.LinkedActors[i].Pos, self.ThisActor.ViewPoint)
 						
 						--VoidWanderersRPG_AddEffect(self.LinkedActors[i].ViewPoint, "Red Glow")
 					else
-						local angle, d = VoidWanderersRPG_GetAngle(self.LinkedActors[i].Pos, self.ThisActor.ViewPoint)
+						angle, d = VoidWanderersRPG_GetAngle(self.LinkedActors[i].Pos, self.ThisActor.ViewPoint)
 						angle = math.pi - angle
 						self.LinkedActors[i]:SetAimAngle(angle)
 						
 						--VoidWanderersRPG_AddEffect(self.LinkedActors[i].ViewPoint, "Yellow Glow")
 					end
-					
+				
+					-- Find out if we need to fire this time
 					if not self.PDAEnabled and self.ThisActor:GetController():IsState(Controller.WEAPON_FIRE) then
-						self.LinkedActors[i]:GetController():SetState(Controller.WEAPON_FIRE, true)
+						local isvisible = false
+						local sum = SceneMan:CastStrengthSumRay(self.LinkedActors[i].EyePos, self.ThisActor.ViewPoint, 10, 0)
+						
+						if sum > 100 then
+							visible = false
+						else
+							visible = true
+						end
+						
+						-- Abort fire if actor is not looking where it told-to
+						if math.abs(self.LinkedActors[i]:GetAimAngle(false) - angle) > 0.02 then
+							visible = false
+							--self.LinkedActors[i]:FlashWhite(25)
+						end
+						
+						if self.LinkedActors[i].HFlipped ~= flip then
+							visible = false
+							--self.LinkedActors[i]:FlashWhite(25)
+						end
+
+						if visible then
+							self.LinkedActors[i]:GetController():SetState(Controller.WEAPON_FIRE, true)
+							--self.LinkedActors[i]:FlashWhite(25)
+						end
 					end
+	
+					if math.abs(self.LinkedActors[i]:GetAimAngle(false) - angle) > 0.02 then
+						self.LinkedActors[i]:SetAimAngle(angle)
+					end
+					self.LinkedActors[i].HFlipped = flip
+					
+					
+					-- Draw linked icon
+					VoidWanderersRPG_AddEffect(self.LinkedActors[i].Pos + Vector(0,-28), "Icon_Linked")
+				
+					--CF_DrawString(string.format("%.2f", angle), self.LinkedActors[i].Pos , 200,200)
+					--CF_DrawString(string.format("%.2f", self.LinkedActors[i]:GetAimAngle(false)), self.LinkedActors[i].Pos + Vector(0,10) , 200,200)
+				else
+					self.LinkedActors[i] = nil
 				end
 			end
 		end
@@ -521,6 +563,13 @@ function do_rpgbrain_update(self)
 			end
 		else
 			self.PDAEnabled = false
+			if self.LinkedActors ~= nil then
+				for i = 1, #self.LinkedActors do
+					if MovableMan:IsActor(self.LinkedActors[i]) then
+						self.LinkedActors[i]:SetControllerMode(Controller.CIM_AI,-1);
+					end
+				end
+			end
 			self.LinkedActors = nil
 		end
 		
@@ -816,6 +865,12 @@ end
 function rpgbrain_orders_link(self)
 	if self.SkillTargetActors ~= nil and #self.SkillTargetActors > 0 then
 		self.LinkedActors = self.SkillTargetActors
+		
+		for i = 1, #self.LinkedActors do
+			if MovableMan:IsActor(self.LinkedActors[i]) then
+				self.LinkedActors[i]:SetControllerMode(Controller.CIM_DISABLED,-1);
+			end
+		end
 	end
 end
 
