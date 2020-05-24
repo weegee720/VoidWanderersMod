@@ -151,6 +151,20 @@ end
 --
 -----------------------------------------------------------------------------------------
 function VoidWanderers:MissionUpdate()
+	local teamcount = {}
+	teamcount[-1] = 0
+	teamcount[0] = 0
+	teamcount[1] = 0
+	teamcount[2] = 0
+	teamcount[3] = 0
+		
+	-- Count actors
+	for actor in MovableMan.Actors do
+		if actor.ClassName == "AHuman" or actor.ClassName == "ACrab" then
+			teamcount[actor.Team] = teamcount[actor.Team] + 1
+		end
+	end
+
 	--print (self.MissionNextDropShip - self.Time)
 	if self.Time > self.MissionNextDropShip and #self.MissionLZs > 0 then
 		self.MissionNextDropShip = self.Time + CF_AmbientReinforcementsInterval + math.random(13)
@@ -166,29 +180,32 @@ function VoidWanderers:MissionUpdate()
 				sel = 2
 			end
 			
-			local count = math.ceil(self.MissionDifficulty / 2)
-			if count <= 0 then 
-				count = 1
-			end
-			if count > 3 then
-				count = 3
-			end
-			
-			count = math.random(count)
-			
-			local f = CF_GetPlayerFaction(self.GS, self.MissionCPUPlayers[sel])
-			local ship = CF_MakeActor(CF_Crafts[f] , CF_CraftClasses[f] , CF_CraftModules[f]);
-			if ship then
-				for i = 1, count do
-					local actor = CF_SpawnAIUnit(self.GS, self.MissionCPUPlayers[sel], self.MissionCPUTeams[sel], nil, Actor.AIMODE_SENTRY)
-					if actor then
-						ship:AddInventoryItem(actor)
-					end
+			-- Do nothin if there are too many actors of this team
+			if teamcount[self.MissionCPUTeams[sel]] < 5 then
+				local count = math.ceil(self.MissionDifficulty / 2)
+				if count <= 0 then 
+					count = 1
 				end
-				ship.Team = self.MissionCPUTeams[sel]
-				ship.Pos = Vector(self.MissionLZs[math.random(#self.MissionLZs)].X, -10)
-				ship.AIMode = Actor.AIMODE_DELIVER
-				MovableMan:AddActor(ship)
+				if count > 3 then
+					count = 3
+				end
+				
+				count = math.random(count)
+				
+				local f = CF_GetPlayerFaction(self.GS, self.MissionCPUPlayers[sel])
+				local ship = CF_MakeActor(CF_Crafts[f] , CF_CraftClasses[f] , CF_CraftModules[f]);
+				if ship then
+					for i = 1, count do
+						local actor = CF_SpawnAIUnit(self.GS, self.MissionCPUPlayers[sel], self.MissionCPUTeams[sel], nil, Actor.AIMODE_SENTRY)
+						if actor then
+							ship:AddInventoryItem(actor)
+						end
+					end
+					ship.Team = self.MissionCPUTeams[sel]
+					ship.Pos = Vector(self.MissionLZs[math.random(#self.MissionLZs)].X, -10)
+					ship.AIMode = Actor.AIMODE_DELIVER
+					MovableMan:AddActor(ship)
+				end
 			end
 		end
 	end

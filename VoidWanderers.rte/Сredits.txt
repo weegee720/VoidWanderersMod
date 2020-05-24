@@ -7,5 +7,8 @@ Bad Boy:
 Grimmcrypt:
 	scenes, factions
 	
+Major:
+	factions
+	
 Gotcha!:
 	Bunker Modules and maps from Map Pack 3 ( http://forums.datarealms.com/viewtopic.php?f=24&t=12224 ), scenes
