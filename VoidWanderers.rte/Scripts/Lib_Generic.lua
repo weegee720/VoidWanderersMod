@@ -31,16 +31,16 @@ function CF_InitFactions(activity)
 	CF_SecurityIncrementPerDeployment = 2
 	
 	CF_AssaultCheckInterval = 5
-	CF_ReputationPerDifficulty = 800
+	CF_ReputationPerDifficulty = 1000
 	
 	-- When reputation below this level enemy starts sending crafts after player
 	CF_ReputationHuntTreshold = -500
 	
 	-- When mission completed defines how many reputation points will be subtracted from target reputation	
-	CF_ReputationPenaltyRatio = 1.85
+	CF_ReputationPenaltyRatio = 1.65
 
 	-- When mission failed defines how many reputation points will be subtracted from both reputations
-	CF_MissionFailedReputationPenaltyRatio = 0.35
+	CF_MissionFailedReputationPenaltyRatio = 0.25
 	
 	CF_EnableIcons = true
 	
@@ -1019,14 +1019,14 @@ end
 -----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
+function CF_CalculateReward(base, diff)
+	local coeff = 1 + (diff - 1) * 0.35
+	
+	return math.floor(base * coeff)
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
 
 
 

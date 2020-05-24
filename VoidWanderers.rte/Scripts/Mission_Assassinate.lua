@@ -55,7 +55,7 @@ function VoidWanderers:MissionCreate()
 	-- Use generic enemy set
 	local set = CF_GetRandomMissionPointsSet(self.Pts, "Enemy")
 	
-	self:DeployGenericMissionEnemies(set, "Enemy", self.MissionTargetPlayer, self.MissionSettings["SpawnRate"])
+	self:DeployGenericMissionEnemies(set, "Enemy", self.MissionTargetPlayer, CF_CPUTeam, self.MissionSettings["SpawnRate"])
 
 	-- Spawn commander
 	local cmndrpts = CF_GetPointsArray(self.Pts, "Assassinate", set, "Commander")
@@ -102,6 +102,19 @@ function VoidWanderers:MissionUpdate()
 				-- Remember when we started showing misison status message
 				self.MissionStatusShowStart = self.Time
 				self.MissionEnd = self.Time
+			end
+		end
+
+		-- Trigger reinforcements
+		for actor in MovableMan.Actors do
+			if actor.Team == CF_CPUTeam and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") then
+				local inside = false
+				
+				if not self.MissionReinforcementsTriggered and actor.Health < 50 then
+					self.MissionReinforcementsTriggered = true
+					
+					self.MissionLastReinforcements = self.Time
+				end
 			end
 		end
 		

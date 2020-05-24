@@ -34,10 +34,14 @@ function VoidWanderers:StartActivity()
 	
 	-- Factions are already initialized by strategic part
 	self:LoadCurrentGameState();
-
-	self.GS["ActivityWasReset"] = "True"
 	
 	self.PlayerFaction = self.GS["Player0Faction"]
+	
+	-- If activity was reset during mission switch back to mission mode
+	if 	self.GS["WasReset"] == "True" then
+		self.GS["Mode"] = "Vessel"
+		self.GS["SceneType"] = "Vessel"
+	end
 
 	-- Load level data
 	self.LS = CF_ReadSceneConfigFile(self.ModuleName , SceneMan.Scene.PresetName..".dat");
@@ -177,6 +181,8 @@ function VoidWanderers:StartActivity()
 	
 	-- Spawn away-team objects
 	if self.GS["Mode"] == "Mission" then
+		self.GS["WasReset"] = "True"
+	
 		-- All mission related final message will be accumulated in mission report list
 		self.MissionReport = {}
 		self.MissionDeployedTroops = #self.DeployedActors
@@ -187,7 +193,7 @@ function VoidWanderers:StartActivity()
 		self.MissionDeploySet = CF_GetRandomMissionPointsSet(self.Pts, "Deploy")
 		
 		-- Remove non-CPU doors
-		if 	CF_LocationRemoveDoors[self.GS["Location"]] ~= nil and CF_LocationRemoveDoors[self.GS["Location"]] == true then
+		if CF_LocationRemoveDoors[self.GS["Location"]] ~= nil and CF_LocationRemoveDoors[self.GS["Location"]] == true then
 			for actor in MovableMan.Actors do
 				if actor.Team ~= CF_CPUTeam and actor.ClassName == "ADoor" then
 					actor.ToDelete = true
@@ -256,8 +262,7 @@ function VoidWanderers:StartActivity()
 		
 		-- Find available mission
 		for m = 1, CF_MaxMissions do
-			if self.GS["Location"] == self.GS["Mission"..m.."Location"] then
-			--if self.GS["Location"] == "Ketanot Hills" then -- DEBUG
+			if self.GS["Location"] == self.GS["Mission"..m.."Location"] then -- GAMEPLAY
 				self.MissionAvailable = true
 				
 				self.MissionNumber = m
@@ -273,10 +278,11 @@ function VoidWanderers:StartActivity()
 				--self.MissionType = "Dropships" -- DEBUG
 				--self.MissionType = "Mine" -- DEBUG
 				--self.MissionType = "Zombies" -- DEBUG
+				--self.MissionType = "Defend" -- DEBUG
 				
 				self.MissionScript = CF_MissionScript[ self.MissionType ]
-				self.MissionGoldReward = CF_MissionGoldRewardPerDifficulty[ self.MissionType ] * self.MissionDifficulty
-				self.MissionReputationReward = CF_MissionReputationRewardPerDifficulty[ self.MissionType ] * self.MissionDifficulty
+				self.MissionGoldReward = CF_CalculateReward(CF_MissionGoldRewardPerDifficulty[ self.MissionType ] , self.MissionDifficulty)
+				self.MissionReputationReward = CF_CalculateReward(CF_MissionReputationRewardPerDifficulty[ self.MissionType ] , self.MissionDifficulty)
 				
 				self.MissionStatus = "" -- Will be updated by mission script
 
@@ -285,7 +291,7 @@ function VoidWanderers:StartActivity()
 				CF_CreateAIUnitPresets(self.GS, self.MissionTargetPlayer , CF_GetTechLevelFromDifficulty(self.GS, self.MissionTargetPlayer, self.MissionDifficulty, CF_MaxDifficulty))
 				
 				break
-			end
+			end -- GAMEPLAY
 		end
 		
 		if self.MissionAvailable then
@@ -576,8 +582,8 @@ function VoidWanderers:TriggerShipAssault()
 			self.AssaultDifficulty = CF_MaxDifficulty
 		end
 		
-		local r = math.random(CF_MaxDifficulty * 30)
-		local tgt = ((CF_MaxDifficulty - self.AssaultDifficulty) * 4) + 4
+		local r = math.random(CF_MaxDifficulty * 65)
+		local tgt = ((CF_MaxDifficulty - self.AssaultDifficulty) * 4) + 10
 		
 		print (CF_GetPlayerFaction(self.GS, self.AssaultEnemyPlayer).." D - "..self.AssaultDifficulty.." R - "..r.." TGT - "..tgt)
 		
@@ -1162,7 +1168,7 @@ end
 -----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
-function VoidWanderers:DeployGenericMissionEnemies(setnumber, setname, plr, spawnrate)
+function VoidWanderers:DeployGenericMissionEnemies(setnumber, setname, plr, team, spawnrate)
 	-- Define spawn queue
 	local dq = {}
 	-- Defenders aka turrets if any
@@ -1232,10 +1238,15 @@ function VoidWanderers:DeployGenericMissionEnemies(setnumber, setname, plr, spaw
 			else
 				nw["Preset"] = dq[d]["Preset"]
 			end
-			nw["Team"] = CF_CPUTeam
+			nw["Team"] = team
 			nw["Player"] = plr
 			nw["AIMode"] = Actor.AIMODE_SENTRY
 			nw["Pos"] = enmpos[i]
+			
+			-- If spawning as player's team then they are allies
+			if team == CF_PlayerTeam then
+				nw["RenamePreset"] = "-"
+			end
 			
 			table.insert(self.SpawnTable, nw)
 		end

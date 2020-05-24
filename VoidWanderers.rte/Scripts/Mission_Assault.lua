@@ -53,7 +53,7 @@ function VoidWanderers:MissionCreate()
 	-- Use generic enemy set
 	local set = CF_GetRandomMissionPointsSet(self.Pts, "Enemy")
 	
-	self:DeployGenericMissionEnemies(set, "Enemy", self.MissionTargetPlayer, self.MissionSettings["SpawnRate"])
+	self:DeployGenericMissionEnemies(set, "Enemy", self.MissionTargetPlayer, CF_CPUTeam, self.MissionSettings["SpawnRate"])
 	
 	self.MissionStages = {ACTIVE = 0, COMPLETED = 1}
 	self.MissionStage = self.MissionStages.ACTIVE

@@ -174,14 +174,14 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 					local r = math.random(#CF_LocationScenes[ self.GS["Location"] ])
 					local scene = CF_LocationScenes[ self.GS["Location"] ][r]
 					
-					print (self.GS["Location"])
-					print (scene)
-					
+					--print (self.GS["Location"])
+					--print (scene)
+
 					-- Set new operating mode
 					self.GS["Mode"] = "Mission"
-					self.GS["SceneType"] = "Mission"					
-
+					self.GS["SceneType"] = "Mission"			
 					self:SaveCurrentGameState();
+
 					self:LaunchScript(scene, "Tactics.lua")
 					self.EnableBrainSelection = false
 					self:DestroyConsoles()

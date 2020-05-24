@@ -268,7 +268,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				for m = 1, CF_MaxMissions do
 					if self.ShipControlLocationList[ self.ShipControlSelectedLocation ] == self.GS["Mission"..m.."Location"] then
 						msn = true
-						msntype = CF_MissionName[ self.GS["Mission"..m.."Type"] ]
+						msntype = self.GS["Mission"..m.."Type"]
 						msndiff = CF_GetFullMissionDifficulty(self.GS, self.GS["Mission"..m.."Location"], m)--tonumber(self.GS["Mission"..m.."Difficulty"])
 						msntgt = tonumber(self.GS["Mission"..m.."TargetPlayer"])
 						break
@@ -301,7 +301,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				local diff 
 				
 				if msn then
-					CF_DrawString("MISSION: "..CF_MissionName[msntype], pos + Vector(8, 50), 120, 10)
+					CF_DrawString("MISSION: "..CF_MissionName[msntype], pos + Vector(8, 50), 140, 10)
 					CF_DrawString("TARGET: "..CF_FactionNames[ CF_GetPlayerFaction(self.GS, msntgt) ], pos + Vector(8, 62), 130, 10)
 					diff = msndiff
 				else
@@ -520,8 +520,8 @@ function VoidWanderers:ProcessShipControlPanelUI()
 
 					self.ShipControlMissions[i]["Description"] = CF_MissionBriefingText[ self.ShipControlMissions[i]["Type"] ]
 					
-					self.ShipControlMissions[i]["GoldReward"] = CF_MissionGoldRewardPerDifficulty[ self.ShipControlMissions[i]["Type"] ] * self.ShipControlMissions[i]["Difficulty"]
-					self.ShipControlMissions[i]["RepReward"] = CF_MissionReputationRewardPerDifficulty[ self.ShipControlMissions[i]["Type"] ] * self.ShipControlMissions[i]["Difficulty"]
+					self.ShipControlMissions[i]["GoldReward"] = CF_CalculateReward( CF_MissionGoldRewardPerDifficulty[ self.ShipControlMissions[i]["Type"] ] , self.ShipControlMissions[i]["Difficulty"])
+					self.ShipControlMissions[i]["RepReward"] = CF_CalculateReward( CF_MissionReputationRewardPerDifficulty[ self.ShipControlMissions[i]["Type"] ] , self.ShipControlMissions[i]["Difficulty"])
 				end
 				
 				if cont:IsState(Controller.PRESS_UP) then

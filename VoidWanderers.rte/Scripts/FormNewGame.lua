@@ -141,7 +141,7 @@ function VoidWanderers:FormLoad()
 	
 	
 	-- Interface logic
-	self.Phases = {PLAYER = 0, CPU1 = 1, CPU2 = 2, CPU3 = 3, CPU4 = 4, CPU5 = 5, CPU6 = 6, CPU7 = 7, CPU8 = 8}
+	self.Phases = {PLAYER = 0, CPU1 = 1, CPU2 = 2, CPU3 = 3, CPU4 = 4, CPU5 = 5, CPU6 = 6, CPU7 = 7, CPU8 = 8, DONE = 9}
 	self.Phase = self.Phases.PLAYER;
 	
 	-- Selections
@@ -308,10 +308,23 @@ function VoidWanderers:FormClick()
 				FrameMan:SetScreenText("ALL CPU FACTIONS MUST BE DIFFERENT", 0, 0, 3500, true);
 			end
 		elseif self.Phase == self.Phases.CPU8 then
-			self.SelectedCPUFactions[self.Phase] = f
-			self.LblPhase["Text"] = "PRESS OK TO START NEW GAME"
+			local ok = true;
+			
+			for i = 1, self.Phase do
+				if self.SelectedCPUFactions[i] == f then
+					ok = false
+				end
+			end
+			
+			if ok then
+				self.SelectedCPUFactions[self.Phase] = f
+				self.LblPhase["Text"] = "PRESS OK TO START NEW GAME"
 
-			CF_SpawnRandomInfantry(-1 , self.SelectionButtons[self.Phase + 1]["Pos"] , self.FactionButtons[f]["FactionId"] , Actor.AIMODE_SENTRY)
+				CF_SpawnRandomInfantry(-1 , self.SelectionButtons[self.Phase + 1]["Pos"] , self.FactionButtons[f]["FactionId"] , Actor.AIMODE_SENTRY)
+				self.Phase = self.Phase + 1			
+			else
+				FrameMan:SetScreenText("ALL CPU FACTIONS MUST BE DIFFERENT", 0, 0, 3500, true);
+			end
 		end
 	end
 end

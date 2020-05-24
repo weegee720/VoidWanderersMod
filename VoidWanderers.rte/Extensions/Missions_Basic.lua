@@ -7,7 +7,7 @@ CF_MissionScript[id] = "VoidWanderers.rte/Scripts/Mission_Assault.lua"
 CF_MissionMinReputation[id] = -10000 -- This mission is always available
 CF_MissionBriefingText[id] = "Attack the enemy installation and wipe out any enemy forces."
 CF_MissionGoldRewardPerDifficulty[id] = 0
-CF_MissionReputationRewardPerDifficulty[id] = 75
+CF_MissionReputationRewardPerDifficulty[id] = 100
 CF_MissionMaxSets[id] = 6
 CF_MissionRequiredData[id] = {}
 
@@ -19,8 +19,8 @@ CF_MissionName[id] = "Assassinate"
 CF_MissionScript[id] = "VoidWanderers.rte/Scripts/Mission_Assassinate.lua"
 CF_MissionMinReputation[id] = 0
 CF_MissionBriefingText[id] = "Locate and assassinate enemy commander."
-CF_MissionGoldRewardPerDifficulty[id] = 750
-CF_MissionReputationRewardPerDifficulty[id] = 50
+CF_MissionGoldRewardPerDifficulty[id] = 550
+CF_MissionReputationRewardPerDifficulty[id] = 80
 CF_MissionMaxSets[id] = 6
 CF_MissionRequiredData[id] = {}
 
@@ -37,10 +37,10 @@ CF_Mission[#CF_Mission + 1] = id
 
 CF_MissionName[id] = "Establish Mining"
 CF_MissionScript[id] = "VoidWanderers.rte/Scripts/Mission_Mine.lua"
-CF_MissionMinReputation[id] = 1000
+CF_MissionMinReputation[id] = 750
 CF_MissionBriefingText[id] = "Establish mining camp and protect enough miners from enemy."
 CF_MissionGoldRewardPerDifficulty[id] = 0
-CF_MissionReputationRewardPerDifficulty[id] = 150
+CF_MissionReputationRewardPerDifficulty[id] = 175
 CF_MissionMaxSets[id] = 6
 CF_MissionRequiredData[id] = {}
 
@@ -72,7 +72,7 @@ CF_MissionScript[id] = "VoidWanderers.rte/Scripts/Mission_Dropships.lua"
 CF_MissionMinReputation[id] = 600
 CF_MissionBriefingText[id] = "Disrupt enemy mining operations and destroy all incoming dropships."
 CF_MissionGoldRewardPerDifficulty[id] = 1000
-CF_MissionReputationRewardPerDifficulty[id] = 175
+CF_MissionReputationRewardPerDifficulty[id] = 150
 CF_MissionMaxSets[id] = 6
 CF_MissionRequiredData[id] = {}
 
@@ -85,7 +85,7 @@ CF_MissionScript[id] = "VoidWanderers.rte/Scripts/Mission_Zombies.lua"
 CF_MissionMinReputation[id] = 800
 CF_MissionBriefingText[id] = "Destroy hacked cloning vats producing agressive unbacked bodies."
 CF_MissionGoldRewardPerDifficulty[id] = 950
-CF_MissionReputationRewardPerDifficulty[id] = 130
+CF_MissionReputationRewardPerDifficulty[id] = 190
 CF_MissionMaxSets[id] = 6
 CF_MissionRequiredData[id] = {}
 
@@ -94,4 +94,17 @@ CF_MissionRequiredData[id][i] = {}
 CF_MissionRequiredData[id][i]["Name"] = "Vat"
 CF_MissionRequiredData[id][i]["Type"] = "Vector"
 CF_MissionRequiredData[id][i]["Max"] = 8
+
+-- Uses: Enemy
+local id = "Defend"
+CF_Mission[#CF_Mission + 1] = id
+
+CF_MissionName[id] = "Hold position"
+CF_MissionScript[id] = "VoidWanderers.rte/Scripts/Mission_Defend.lua"
+CF_MissionMinReputation[id] = 1000
+CF_MissionBriefingText[id] = "Assist allied troops and protect the base from incoming enemies."
+CF_MissionGoldRewardPerDifficulty[id] = 1250
+CF_MissionReputationRewardPerDifficulty[id] = 210
+CF_MissionMaxSets[id] = 6
+CF_MissionRequiredData[id] = {}
 

@@ -106,5 +106,4 @@ CF_MissionRequiredData[id][i]["Name"] = "LZ"
 CF_MissionRequiredData[id][i]["Type"] = "Vector"
 CF_MissionRequiredData[id][i]["Max"] = 12
 
-
 CF_GenericMissionCount = #CF_Mission

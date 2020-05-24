@@ -246,6 +246,7 @@ function VoidWanderers:ProcessLZControlPanelUI()
 					-- Set new operating mode
 					self.GS["Mode"] = "Vessel"
 					self.GS["SceneType"] = "Vessel"
+					self.GS["WasReset"] = "False"
 					
 					self:SaveCurrentGameState();
 					
