@@ -150,7 +150,7 @@ function VoidWanderers:ProcessItemShopControlPanelUI()
 				self.ItemShopSelectedItem = 1
 				self.LastItemShopSelectedItem = 0
 				
-				if self.ItemShopControlMode == 9 then
+				if self.ItemShopControlMode == 10 then
 					self.ItemShopControlMode = self.ItemShopControlPanelModes.EVERYTHING
 				end
 			end

@@ -2,319 +2,174 @@
 --
 -----------------------------------------------------------------------------------------
 function VoidWanderers:InitBombsControlPanelUI()
-	local count = tonumber(self.GS["Player0VesselBombs"])
-
-	self.BombsControlPanelPos = {}
-	
-	for i = 1, count do
-		local x = tonumber(self.GS["Bomb"..i.."X"])
-		local y = tonumber(self.GS["Bomb"..i.."Y"])
-	
-		if x ~= nil and  y~= nil then
-			self.BombsControlPanelPos[i] = Vector(x, y)
-		else
-			self.BombsControlPanelPos[i] = self.AwayTeamPos[i]
-		end
-	end
-
-	self.BombsControlPanelActor = {}
-	
-	for i = 1, count do
-		if not MovableMan:IsActor(self.BombsControlPanelActor[i]) then
-			self.BombsControlPanelActor[i] = CreateActor("Bomb Control Panel")
-			if self.BombsControlPanelActor[i] ~= nil then
-				self.BombsControlPanelActor[i].Pos = self.BombsControlPanelPos[i]
-				self.BombsControlPanelActor[i].Team = CF_PlayerTeam
-				MovableMan:AddActor(self.BombsControlPanelActor[i])
-			end
-		else
-			--print (self.BombsControlPanelActor)
-		end
-	end
-
-	self.BombsControlPanelEditMode = {}
-	self.BombsControlPanelInitialized = {}
-	for i = 1, count do
-		self.BombsControlPanelEditMode[i] = false
-		self.BombsControlPanelInitialized[i] = false
+	self.BombsControlPanelActor = CreateActor("Bomb Control Panel")
+	if self.BombsControlPanelActor ~= nil then
+		self.BombsControlPanelActor.Pos = Vector(0,0)
+		self.BombsControlPanelActor.Team = CF_PlayerTeam
+		MovableMan:AddActor(self.BombsControlPanelActor)
 	end
 	
-	self.Bombs = CF_GetBombsArray(self.GS)
-	self.BombsControlPanelLinesPerPage = 4
+	self.HoldTimer = Timer()
+	self.HoldTimer:Reset()
 end
 -----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
 function VoidWanderers:DestroyBombsControlPanelUI()
-	local count = tonumber(self.GS["Player0VesselBombs"])
-	for i = 1, count do
-		if self.BombsControlPanelActor[i] ~= nil and MovableMan:IsActor(self.BombsControlPanelActor[i]) then
-			self.BombsControlPanelActor[i].ToDelete = true
-			self.BombsControlPanelActor[i] = nil
-		end
+	if self.BombsControlPanelActor ~= nil and MovableMan:IsActor(self.BombsControlPanelActor) then
+		self.BombsControlPanelActor.ToDelete = true
+		self.BombsControlPanelActor = nil
 	end
 end
 -----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
 function VoidWanderers:ProcessBombsControlPanelUI()
-	local count = tonumber(self.GS["Player0VesselBombs"])
-
-	for turr = 1, count do
-		if MovableMan:IsActor(self.BombsControlPanelActor[turr]) then
-			local showidle = true
-			local empty = true
-			
-			if self.GS["DeployedBomb"..turr.."Preset"] ~= nil then
-				empty = false
-			end
-			
-			for plr = 0 , self.PlayerCount - 1 do
-				local act = self:GetControlledActor(plr);
-			
-				if MovableMan:IsActor(act) and act.Pos.X == self.BombsControlPanelActor[turr].Pos.X and act.Pos.Y == self.BombsControlPanelActor[turr].Pos.Y and act.Age == self.BombsControlPanelActor[turr].Age then
-					showidle = false
+	if MovableMan:IsActor(self.BombsControlPanelActor) then
+		local isactive = false
+	
+		for plr = 0 , self.PlayerCount - 1 do
+			local act = self:GetControlledActor(plr);
+		
+			if MovableMan:IsActor(act) and act.PresetName == "Bomb Control Panel" then
+				self.BombsControlPanelInBombMode = true
+				isactive = true
+				local pos = self.BombsControlPanelActor.Pos
+				local cont = act:GetController()
+				
+				local left = false
+				local right = right
 					
-					local pos = self.BombsControlPanelPos[turr]
-					local cont = act:GetController()
+				if self.BombingTarget == nil then
+					if cont:IsState(Controller.PRESS_LEFT) then
+						left = true
+					end
+
+					if cont:IsState(Controller.PRESS_RIGHT) then
+						right = true
+					end
+						
+					if self.HoldTimer:IsPastSimMS(25) then
+						self.HoldTimer:Reset()
+
+						if cont:IsState(Controller.HOLD_LEFT) then
+							left = true
+						end
 					
-					if self.BombsControlPanelEditMode[turr] then
-						if not self.BombsControlPanelInitialized[turr] then
-							if #self.Bombs > 0 then
-								self.SelectedBomb = 1
-							else
-								self.SelectedBomb = 0
-							end
-							
-							self.BombsStorageSelectedItem = 1
-							
-							self.BombsControlPanelInitialized[turr] = true
+						if cont:IsState(Controller.HOLD_RIGHT) then
+							right = true
 						end
-
-						-- Add or delete 'remove Bomb' menu item
-						if self.GS["DeployedBomb"..turr.."Preset"] ~= nil then
-							if self.Bombs[#self.Bombs]["Preset"] ~= "Remove Bomb" then
-								local n = #self.Bombs + 1
-								
-								self.Bombs[n] = {}
-								self.Bombs[n]["Preset"] = "Remove Bomb"
-								self.Bombs[n]["Class"] = ""
-								self.Bombs[n]["Count"] = 0
-							end
-						else
+					end
+					
+					if left then
+						pos.X = pos.X - 15
+						if pos.X < 0 then
+							pos.X = SceneMan.Scene.Width - math.abs(pos.X)
 						end
-						
-						if cont:IsState(Controller.PRESS_UP) then
-							if #self.Bombs > 0 then
-								self.SelectedBomb = self.SelectedBomb - 1
-								
-								if self.SelectedBomb < 1 then
-									self.SelectedBomb = 1
-								end
-							end
-						end
-
-						if cont:IsState(Controller.PRESS_DOWN) then
-							if #self.Bombs > 0 then
-								self.SelectedBomb = self.SelectedBomb + 1
-								
-								if self.SelectedBomb > #self.Bombs then
-									self.SelectedBomb = #self.Bombs
-								end
-							end
-						end
-						
-						if cont:IsState(Controller.WEAPON_FIRE) then
-							if not self.FirePressed then
-								self.FirePressed = true;
-								
-								if self.SelectedBomb > 0 then
-									-- Remove current Bomb  if 'remove Bomb' was selected
-									if self.Bombs[self.SelectedBomb]["Preset"] == "Remove Bomb" then
-										if self.GS["DeployedBomb"..turr.."Preset"] ~= nil and self.GS["DeployedBomb"..turr.."Class"] ~= nil then
-											if CF_CountUsedBombsInArray(self.Bombs) < tonumber(self.GS["Player0VesselBombStorage"]) then
-												if self.Bombs[#self.Bombs]["Preset"] == "Remove Bomb" then
-													self.Bombs[#self.Bombs] = nil
-												end
-
-												self.SelectedBomb = #self.Bombs
-												
-												CF_PutBombToStorageArray(self.Bombs, self.GS["DeployedBomb"..turr.."Preset"], self.GS["DeployedBomb"..turr.."Class"])
-
-												self.GS["DeployedBomb"..turr.."Preset"] = nil
-												self.GS["DeployedBomb"..turr.."Class"] = nil
-												CF_SetBombsArray(self.GS, self.Bombs)
-											end
-										end
-									else
-										if self.Bombs[self.SelectedBomb]["Count"] > 0 then
-											if self.GS["DeployedBomb"..turr.."Preset"] ~= nil and self.GS["DeployedBomb"..turr.."Class"] ~= nil then
-												CF_PutBombToStorageArray(self.Bombs, self.GS["DeployedBomb"..turr.."Preset"], self.GS["DeployedBomb"..turr.."Class"])
-											end
-										
-											self.GS["DeployedBomb"..turr.."Preset"] = self.Bombs[self.SelectedBomb]["Preset"]
-											self.GS["DeployedBomb"..turr.."Class"] = self.Bombs[self.SelectedBomb]["Class"]
-											self.Bombs[self.SelectedBomb]["Count"] = self.Bombs[self.SelectedBomb]["Count"] - 1
-											
-											CF_SetBombsArray(self.GS, self.Bombs)
-										end
-									end
-								end
-							end
-						else
-							self.FirePressed = false
-						end
-						
-						self.BombsControlCloneListStart = self.SelectedBomb - (self.SelectedBomb - 1) % self.BombsControlPanelLinesPerPage
-
-						local pre = self.GS["DeployedBomb"..turr.."Preset"]
-						
-						if self.Time % 2 == 0 then
-							if pre ~= nil then
-								CF_DrawString("Active: "..pre, pos + Vector(-60,-24), 136, 10)
-							else
-								CF_DrawString("Active: NONE", pos + Vector(-60,-24), 136, 10)
-							end
-						else
-							CF_DrawString("Storage: "..CF_CountUsedBombsInArray(self.Bombs) .." / ".. self.GS["Player0VesselBombStorage"], pos + Vector(-60,-24), 136, 10)
-						end
-						
-						-- Draw list
-						for i = self.BombsControlCloneListStart, self.BombsControlCloneListStart + self.BombsControlPanelLinesPerPage - 1 do
-							if i <= #self.Bombs and i > 0 then
-								local loc = i - self.BombsControlCloneListStart
-								
-								if i == self.SelectedBomb then
-									CF_DrawString("> "..self.Bombs[i]["Preset"], pos + Vector(-60,-8) + Vector(0, (loc) * 12), 120, 10)
-								else
-									CF_DrawString(self.Bombs[i]["Preset"], pos + Vector(-60,-8) + Vector(0, (loc) * 12), 120, 10)
-								end
-								if self.Bombs[i]["Preset"] ~= "Remove Bomb" then
-									CF_DrawString(tostring(self.Bombs[i]["Count"]), pos + Vector(56,-8) + Vector(0, (loc) * 12), 120, 10)
-								end
-							end
-						end
-
-						self:PutGlow("ControlPanel_Bomb_Select", self.BombsControlPanelPos[turr])
-					else
-						local ax = 0
-						local ay = 0
-						
-						if cont:IsState(Controller.PRESS_LEFT) then
-							ax = -1
-						end					
-
-						if cont:IsState(Controller.PRESS_RIGHT) then
-							ax = 1
-						end					
-
-						if cont:IsState(Controller.PRESS_UP) then
-							ay = -1
-						end					
-						
-						if cont:IsState(Controller.PRESS_DOWN) then
-							ay = 1
-						end					
-						
-						if ax ~= 0 or ay ~= 0 then
-							local newpos = Vector(self.BombsControlPanelActor[turr].Pos.X + ax * 8, self.BombsControlPanelActor[turr].Pos.Y + ay * 8)
-							
-							--if self.Ship:IsInside(newpos) and SceneMan:GetTerrMatter(newpos.X, newpos.Y) == 0 then
-							if self.Ship:IsInside(newpos) then
-								self.BombsControlPanelActor[turr].Pos = newpos
-								self.BombsControlPanelPos[turr] = newpos
-								self.GS["Bomb"..turr.."X"] = math.floor(newpos.X)
-								self.GS["Bomb"..turr.."Y"] = math.floor(newpos.Y)
-							end
-						end
-						
-						if cont:IsState(Controller.WEAPON_FIRE) then
-							if not self.FirePressed then
-								self.FirePressed = true;
-								
-								self.BombsControlPanelEditMode[turr] = true
-								self.BombsControlPanelInitialized[turr] = false
-							end
-						else
-							self.FirePressed = false
-						end
-						
-						-- Draw background
-						if empty then
-							self:PutGlow("ControlPanel_Bomb_EmptyMove", self.BombsControlPanelPos[turr])
-						else
-							if self.GS["DeployedBomb"..turr.."Preset"] ~= nil and self.GS["DeployedBomb"..turr.."Class"] ~= nil then
-								local l = CF_GetStringPixelWidth(self.GS["DeployedBomb"..turr.."Preset"])
-								CF_DrawString(self.GS["DeployedBomb"..turr.."Preset"], self.BombsControlPanelPos[turr] + Vector( -l/2, -28), 120,10)
-							end
-
-							self:PutGlow("ControlPanel_Bomb_Move", self.BombsControlPanelPos[turr])
+					end
+					
+					if right then
+						pos.X = pos.X + 15
+						if pos.X > SceneMan.Scene.Width then
+							pos.X = pos.X - SceneMan.Scene.Width
 						end
 					end
 				end
-			end
-			
-			if showidle then
-				self.BombsControlPanelEditMode[turr] = false
-				self.BombsControlPanelInitialized[turr] = false
-			end
-			
-			if showidle and self.BombsControlPanelPos[turr] ~= nil then
-				if empty then
-					self:PutGlow("ControlPanel_Bomb_Empty", self.BombsControlPanelPos[turr])
-				else
-					self:PutGlow("ControlPanel_Bomb", self.BombsControlPanelPos[turr])
+					
+				local bombpos = SceneMan:MovePointToGround(Vector(pos.X, 0) , 20 , 3);
+				
+				if bombpos.Y < 0 then
+					bombpos.Y = 0
 				end
-			end
-			
-			if MovableMan:IsActor(self.BombsControlPanelActor[turr]) then
-				self.BombsControlPanelActor[turr].Health = 100
-			end
-		end
-	end
-end
------------------------------------------------------------------------------------------
---
------------------------------------------------------------------------------------------
-function VoidWanderers:DeployBombs()
-	self.BombsDeployedActors = {}
-	local count = tonumber(self.GS["Player0VesselBombs"])
+				
+				if bombpos.Y > SceneMan.Scene.Height then
+					bombpos.Y = SceneMan.Scene.Height
+				end
 
-	for turr = 1, count do
-		local pre = self.GS["DeployedBomb"..turr.."Preset"]
-		local cls = self.GS["DeployedBomb"..turr.."Class"]
-	
-		if pre ~= nil and cls ~= nil then
-			local a = CF_MakeActor2(pre, cls)
-			if a then
-				a.Team = CF_PlayerTeam
-				a.Pos = self.BombsControlPanelPos[turr]
-				a.AIMode = Actor.AIMODE_SENTRY
-				self.BombsDeployedActors[turr] = a
-				MovableMan:AddActor(a)
-			else
-				print ("Can't create Bomb "..pre.." "..cls)
-			end
-		end
-	end
-end
------------------------------------------------------------------------------------------
---
------------------------------------------------------------------------------------------
-function VoidWanderers:RemoveDeployedBombs()
-	if self.BombsDeployedActors ~= nil then
-		local count = tonumber(self.GS["Player0VesselBombs"])
+				self.BombsControlPanelActor.Pos = bombpos
 
-		for turr = 1, count do
-			if MovableMan:IsActor(self.BombsDeployedActors[turr]) then
-				self.BombsDeployedActors[turr].ToDelete = true
-			else
-				self.GS["DeployedBomb"..turr.."Preset"] = nil
-				self.GS["DeployedBomb"..turr.."Class"] = nil
+				local range
+				
+				if SceneMan:IsUnseen(bombpos.X, bombpos.Y, CF_PlayerTeam) then
+					range = CF_BombUnseenRange
+				else
+					range = CF_BombSeenRange
+				end
+				
+				local s = "SELECT TARGET"
+				
+				if self.BombingTarget ~= nil then
+					s = ""
+					if self.Time <= self.BombingStart + self.BombingLoadTime then
+						s = "LOADING BOMBS\nT-"..tostring(self.BombingStart + self.BombingLoadTime + CF_BombFlightInterval - self.Time)
+					elseif self.Time <= self.BombingStart + self.BombingLoadTime  + CF_BombFlightInterval then
+						s = "BOMBS RELEASED\nT-"..tostring(self.BombingStart + self.BombingLoadTime + CF_BombFlightInterval - self.Time)
+					end
+				else
+					self.LastKnownBombingPosition = bombpos
+				end
+				self:AddObjectivePoint(s, bombpos, CF_PlayerTeam, GameActivity.ARROWDOWN);
+
+				local x = pos.X - range / 4
+				if x < 0 then
+					x = SceneMan.Scene.Width - math.abs(x)
+				end
+				local targetpos = SceneMan:MovePointToGround(Vector(x, 0) , 20 , 3);
+				self:AddObjectivePoint("", targetpos, CF_PlayerTeam, GameActivity.ARROWDOWN);
+
+				local x = pos.X - range / 2
+				if x < 0 then
+					x = SceneMan.Scene.Width - math.abs(x)
+				end
+				local targetpos = SceneMan:MovePointToGround(Vector(x, 0) , 20 , 3);
+				self:AddObjectivePoint("", targetpos, CF_PlayerTeam, GameActivity.ARROWDOWN);
+
+				local x = pos.X + range / 4
+				if x > SceneMan.Scene.Width then
+					x = x - SceneMan.Scene.Width
+				end
+				local targetpos = SceneMan:MovePointToGround(Vector(x, 0) , 20 , 3);
+				self:AddObjectivePoint("", targetpos, CF_PlayerTeam, GameActivity.ARROWDOWN);
+
+				local x = pos.X + range / 2
+				if x > SceneMan.Scene.Width then
+					x = x - SceneMan.Scene.Width
+				end
+				local targetpos = SceneMan:MovePointToGround(Vector(x, 0) , 20 , 3);
+				self:AddObjectivePoint("", targetpos, CF_PlayerTeam, GameActivity.ARROWDOWN);
+				
+				if cont:IsState(Controller.WEAPON_FIRE) then
+					if not self.FirePressed then
+						self.FirePressed = true;
+						
+						if self.BombingTarget == nil then
+							self.BombingTarget = bombpos.X
+							self.BombingStart = self.Time
+							self.BombingLoadTime = math.ceil(#self.BombPayload / tonumber(self.GS["Player0VesselBombBays"])) * CF_BombLoadInterval
+							self.BobmingRange = range
+							self.BombingLastBombShot = self.Time
+							self.BombingCount = 1
+							
+							-- Commit bombs to storage
+							CF_SetBombsArray(self.GS, self.Bombs)
+						end
+					end
+				else
+					self.FirePressed = false
+				end
 			end
 		end
 		
-		self.BombsDeployedActors = nil
+		-- Destroy bomb actor if it's not selected anymore
+		if not isactive then
+			if self.BombsControlPanelActor ~= nil then
+				-- If we started to drop the bombs then LZ update routine will delete bombing actor once everything is finished
+				-- we need to allow player to watch the results of bombing
+				if self.BombingTarget == nil then
+					self:DestroyBombsControlPanelUI()
+				end
+			end
+		end
 	end
 end
 -----------------------------------------------------------------------------------------

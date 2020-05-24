@@ -32,6 +32,13 @@ function CF_InitFactions(activity)
 	
 	CF_MaxHolograms = 18
 	
+	CF_BombsPerBay = 5
+	CF_BombInterval = 1
+	CF_BombLoadInterval = 2
+	CF_BombFlightInterval = 10
+	CF_BombSeenRange = 150
+	CF_BombUnseenRange = 400
+	
 	CF_MaxLevel = 100
 	CF_ExpPerLevel = 500
 	
