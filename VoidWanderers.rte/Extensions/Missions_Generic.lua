@@ -18,11 +18,17 @@ CF_MissionRequiredData[id][i]["Max"] = 8
 
 local i = 2
 CF_MissionRequiredData[id][i] = {}
-CF_MissionRequiredData[id][i]["Name"] = "AmbientEnemy"
+CF_MissionRequiredData[id][i]["Name"] = "PlayerUnit"
 CF_MissionRequiredData[id][i]["Type"] = "Vector"
 CF_MissionRequiredData[id][i]["Max"] = 16
 
 local i = 3
+CF_MissionRequiredData[id][i] = {}
+CF_MissionRequiredData[id][i]["Name"] = "AmbientEnemy"
+CF_MissionRequiredData[id][i]["Type"] = "Vector"
+CF_MissionRequiredData[id][i]["Max"] = 16
+
+local i = 4
 CF_MissionRequiredData[id][i] = {}
 CF_MissionRequiredData[id][i]["Name"] = "Crates"
 CF_MissionRequiredData[id][i]["Type"] = "Vector"

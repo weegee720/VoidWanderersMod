@@ -58,9 +58,73 @@ function VoidWanderers:StartActivity()
 				MovableMan:AddActor(a)
 			end
 		end
+		
+		-- Spawn previously saved actors
+		for i = 1, CF_MaxSavedActors do
+			if self.GS["Actor"..i.."Preset"] ~= nil then
+				local actor = CF_MakeActor2(self.GS["Actor"..i.."Preset"], self.GS["Actor"..i.."Class"])
+				if actor then
+					actor.Pos = Vector(tonumber(self.GS["Actor"..i.."X"]), tonumber(self.GS["Actor"..i.."Y"]))
+					actor.Team = CF_PlayerTeam
+					for j = 1, CF_MaxSavedItemsPerActor do
+						if self.GS["Actor"..i.."Item"..j.."Preset"] ~= nil then
+							local itm = CF_MakeItem2(self.GS["Actor"..i.."Item"..j.."Preset"], self.GS["Actor"..i.."Item"..j.."Class"])
+							if itm then
+								actor:AddInventoryItem(itm)
+							end
+						else
+							break
+						end
+					end
+					MovableMan:AddActor(actor)
+				end
+			else
+				break
+			end
+		end
+		
+		-- Spawn previously deployed actors
+		if self.DeployedActors ~= nil then
+			local dest = 1;
+			local dsts = {}
+			
+			for i = 1, 16 do
+				local x,y;
+				
+				x = tonumber(self.LS["AwayTeamSpawn"..i.."X"])
+				y = tonumber(self.LS["AwayTeamSpawn"..i.."Y"])
+				
+				if x ~= nil and y ~= nil then
+					dsts[i] = Vector(x,y)
+				else
+					break
+				end
+			end
+			
+			for i = 1, #self.DeployedActors do
+				local actor = CF_MakeActor2(self.DeployedActors[i]["Preset"], self.DeployedActors[i]["Class"])
+				if actor then
+					actor.Pos = dsts[dest]
+					actor.Team = CF_PlayerTeam
+					for j = 1, #self.DeployedActors[i]["InventoryPresets"] do
+						local itm = CF_MakeItem2(self.DeployedActors[i]["InventoryPresets"][j], self.DeployedActors[i]["InventoryClasses"][j])
+						if itm then
+							actor:AddInventoryItem(itm)
+						end
+					end
+					MovableMan:AddActor(actor)
+				end
+			
+				dest = dest + 1
+				if dest > #dsts then
+					dest = 1
+				end
+			end
+		end
+		self.DeployedActors = nil
 	end
 	
-	-- Spawn mission objects
+	-- Spawn away team objects
 	if self.GS["Mode"] == "Mission" then
 		local scene = SceneMan.Scene.PresetName
 
@@ -73,6 +137,31 @@ function VoidWanderers:StartActivity()
 		
 		-- Init LZ's
 		self:InitLZControlPanelUI()
+		
+		local dest = 1;
+		local dsts = CF_GetPointsArray(self.Pts, "Deploy", set, "PlayerUnit")
+		
+		-- Spawn player troops
+		for i = 1, #self.DeployedActors do
+			local actor = CF_MakeActor2(self.DeployedActors[i]["Preset"], self.DeployedActors[i]["Class"])
+			if actor then
+				actor.Pos = dsts[dest]
+				actor.Team = CF_PlayerTeam
+				for j = 1, #self.DeployedActors[i]["InventoryPresets"] do
+					local itm = CF_MakeItem2(self.DeployedActors[i]["InventoryPresets"][j], self.DeployedActors[i]["InventoryClasses"][j])
+					if itm then
+						actor:AddInventoryItem(itm)
+					end
+				end
+				MovableMan:AddActor(actor)
+			end
+		
+			dest = dest + 1
+			if dest > #dsts then
+				dest = 1
+			end
+		end
+		self.DeployedActors = nil
 	end
 	
 	-- Load pre-spawned enemy locations. These locations also used during assaults to place teleported units
@@ -119,7 +208,10 @@ function VoidWanderers:StartActivity()
 		self:InitConsoles()
 	end
 
-	self.AssaultTime = 0
+	self.AssaultTime = -100
+	
+	self:DoBrainSelection()
+	self.EnableBrainSelection = true
 	
 	print ("VoidWanderers:Tactics:StartActivity - End");
 end
@@ -131,6 +223,15 @@ function VoidWanderers:InitConsoles()
 	self:InitStorageControlPanelUI()
 	self:InitClonesControlPanelUI()
 	self:InitBeamControlPanelUI()
+end
+-----------------------------------------------------------------------------------------
+-- 
+-----------------------------------------------------------------------------------------
+function VoidWanderers:DestroyConsoles()
+	self:DestroyShipControlPanelUI()
+	self:DestroyStorageControlPanelUI()
+	self:DestroyClonesControlPanelUI()
+	self:DestroyBeamControlPanelUI()
 end
 -----------------------------------------------------------------------------------------
 -- 
@@ -320,6 +421,11 @@ function VoidWanderers:UpdateActivity()
 	if self.GS["Mode"] == "Vessel" then
 		self:ProcessClonesControlPanelUI()
 		self:ProcessStorageControlPanelUI()
+
+		-- Auto heall all actors when not in combat
+		for actor in MovableMan.Actors do
+			actor.Health = 100
+		end
 		
 		-- Show assault warning
 		if self.AssaultTime > self.Time then
@@ -402,19 +508,14 @@ function VoidWanderers:UpdateActivity()
 			end
 		end
 	end
-	
-	-- After assault prevent friendly bleeding units from dying
-	if self.GS["Mode"] == "Vessel" then
-		for actor in MovableMan.Actors do
-			actor.Health = 100
-		end
+
+	if self.GS["Mode"] == "Mission" then
+		self:ProcessLZControlPanelUI()
 	end
 	
-	--for actor in MovableMan.Actors do
-	--	print (actor)
-	--end
-	
-	self:DoBrainSelection()
+	if self.EnableBrainSelection then
+		self:DoBrainSelection()
+	end
 	self:CheckWinningConditions();
 	self:YSortObjectivePoints();
 	--CF_ReturnOnMissionEnd();

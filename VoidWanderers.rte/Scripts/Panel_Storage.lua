@@ -70,6 +70,15 @@ end
 -----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
+function VoidWanderers:DestroyStorageControlPanelUI()
+	if self.StorageControlPanelActor ~= nil then
+		self.StorageControlPanelActor.ToDelete = true
+		self.StorageControlPanelActor = nil
+	end
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
 function VoidWanderers:ProcessStorageControlPanelUI()
 	local showidle = true
 
@@ -263,6 +272,8 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 	
 	if showidle and self.StorageControlPanelPos ~= nil then
 		self:PutGlow("ControlPanel_Storage", self.StorageControlPanelPos)
+		CF_DrawString("STORAGE",self.StorageControlPanelPos + Vector(-16,0),120,20 )
+
 		self.StorageControlPanelInitialized = false
 		
 		-- Delete sample weapon

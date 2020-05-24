@@ -36,8 +36,19 @@ function VoidWanderers:InitBeamControlPanelUI()
 				self.BeamControlPanelActor.Team = CF_PlayerTeam
 				MovableMan:AddActor(self.BeamControlPanelActor)
 			end
+		else
+			print (self.BeamControlPanelActor)
 		end
 	end	
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
+function VoidWanderers:DestroyBeamControlPanelUI()
+	if self.BeamControlPanelActor ~= nil then
+		self.BeamControlPanelActor.ToDelete = true
+		self.BeamControlPanelActor = nil
+	end
 end
 -----------------------------------------------------------------------------------------
 --
@@ -139,31 +150,29 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 					-- Save actors to config and transfer them to scene
 					for actor in MovableMan.Actors do
 						if actor.PresetName ~= "Brain Case" and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") then
-							-- Save actors to config
-							self.GS["Actor"..savedactor.."Status"] = "Boarded"
-							self.GS["Actor"..savedactor.."Preset"] = actor.PresetName
-							self.GS["Actor"..savedactor.."Class"] = actor.ClassName
-							self.GS["Actor"..savedactor.."X"] = math.floor(actor.Pos.X)
-							self.GS["Actor"..savedactor.."Y"] = math.floor(actor.Pos.Y)
-							
 							local pre, cls = CF_GetInventory(actor)
-							
-							for j = 1, #pre do
-								self.GS["Actor"..savedactor.."Item"..j.."Preset"] = pre[j]
-								self.GS["Actor"..savedactor.."Item"..j.."Class"] = cls[j]
-							end
-							
-							savedactor = savedactor + 1
-
+						
 							-- These actors must be deployed
 							if self.BeamControlPanelBox:WithinBox(actor.Pos) then
-								self.GS["Actor"..savedactor.."Status"] = "Deployed"
 								local n =  #self.DeployedActors + 1
 								self.DeployedActors[n] = {}
 								self.DeployedActors[n]["Preset"] = actor.PresetName
 								self.DeployedActors[n]["Class"] = actor.ClassName
 								self.DeployedActors[n]["InventoryPresets"] = pre
 								self.DeployedActors[n]["InventoryClasses"] = cls
+							else
+								-- Save actors to config
+								self.GS["Actor"..savedactor.."Preset"] = actor.PresetName
+								self.GS["Actor"..savedactor.."Class"] = actor.ClassName
+								self.GS["Actor"..savedactor.."X"] = math.floor(actor.Pos.X)
+								self.GS["Actor"..savedactor.."Y"] = math.floor(actor.Pos.Y)
+								
+								for j = 1, #pre do
+									self.GS["Actor"..savedactor.."Item"..j.."Preset"] = pre[j]
+									self.GS["Actor"..savedactor.."Item"..j.."Class"] = cls[j]
+								end
+
+								savedactor = savedactor + 1
 							end
 						end
 					end
@@ -178,8 +187,10 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 					self.GS["SceneType"] = "Mission"					
 
 					self:SaveCurrentGameState();
-					
 					self:LaunchScript(scene, "Tactics.lua")
+					self.EnableBrainSelection = false
+					self:DestroyConsoles()
+					return
 				end
 			else
 				self.FirePressed = false
@@ -196,5 +207,6 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 	
 	if showidle and self.BeamControlPanelPos ~= nil then
 		self:PutGlow("ControlPanel_Beam", self.BeamControlPanelPos)
+		CF_DrawString("DEPLOY",self.BeamControlPanelPos + Vector(-16,0),120,20 )
 	end
 end

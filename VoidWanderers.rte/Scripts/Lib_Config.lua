@@ -102,8 +102,14 @@ function CF_WriteConfigFile(config , modulename , filename)
 
 	local file = io.open("./"..modulename.."/CampaignData/"..filename , "w");
 	
-	for i,line in pairs(config) do
-		file:write(tostring(i).."="..tostring(line).."\n");
+	--for i,line in pairs(config) do
+	--	file:write(tostring(i).."="..tostring(line).."\n");
+	--end
+	
+	local sorted = CF_GetSortedListFromTable(config)
+	
+	for i = 1, #sorted do
+		file:write(tostring(sorted[i]["Key"]).."="..tostring(sorted[i]["Value"]).."\n");
 	end
 	
 	file:close();

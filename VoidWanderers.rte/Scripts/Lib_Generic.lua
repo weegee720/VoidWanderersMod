@@ -26,6 +26,8 @@ function CF_InitFactions(activity)
 	
 	CF_ShipAssaultDelay = 2--30
 	
+	CF_TeamReturnDelay = 2--5
+	
 	CF_AssaultDifficultyTexts = {}
 	CF_AssaultDifficultyTexts[1] = "scout"
 	CF_AssaultDifficultyTexts[2] = "corvette"
@@ -44,11 +46,11 @@ function CF_InitFactions(activity)
 
 	CF_AssaultDifficultySpawnInterval = {}
 	CF_AssaultDifficultySpawnInterval[1] = 10
-	CF_AssaultDifficultySpawnInterval[2] = 8
-	CF_AssaultDifficultySpawnInterval[3] = 6
-	CF_AssaultDifficultySpawnInterval[4] = 5
-	CF_AssaultDifficultySpawnInterval[5] = 5
-	CF_AssaultDifficultySpawnInterval[6] = 5
+	CF_AssaultDifficultySpawnInterval[2] = 9
+	CF_AssaultDifficultySpawnInterval[3] = 8
+	CF_AssaultDifficultySpawnInterval[4] = 7
+	CF_AssaultDifficultySpawnInterval[5] = 8
+	CF_AssaultDifficultySpawnInterval[6] = 9
 
 	CF_AssaultDifficultySpawnBurst = {}
 	CF_AssaultDifficultySpawnBurst[1] = 1

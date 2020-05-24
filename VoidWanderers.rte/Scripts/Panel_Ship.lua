@@ -34,6 +34,15 @@ end
 -----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
+function VoidWanderers:DestroyShipControlPanelUI()
+	if self.ShipControlPanelActor ~= nil then
+		self.ShipControlPanelActor.ToDelete = true
+		self.ShipControlPanelActor = nil
+	end
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
 function VoidWanderers:ProcessShipControlPanelUI()
 	local showidle = true
 	local resetlists = false;
@@ -201,6 +210,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 	
 	if showidle and self.ShipControlPanelPos ~= nil then
 		self:PutGlow("ControlPanel_Ship", self.ShipControlPanelPos)
+		CF_DrawString("SHIP",self.ShipControlPanelPos + Vector(-16,0),120,20 )
 		resetlists = true
 	end
 	
