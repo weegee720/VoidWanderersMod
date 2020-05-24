@@ -1026,58 +1026,62 @@ function swarm_update(self)
 	end
 	
 	--Make all the wasps in this swarm's roster follow it.
-	for i = 1, #self.roster do
-		if MovableMan:IsParticle(self.roster[i]) then
-			local wasp = self.roster[i];
-			
-			--Keep the wasp alive.
-			wasp.ToDelete = false;
-			wasp.ToSettle = false;
-			wasp:NotResting();
-			wasp.Age = 0;
-			
-			--Make the wasp follow the swarm.
-			local target = self.target.Pos + self.offsets[i];
-			swarm_swarmto(wasp,target,math.random() * self.baseAcc * attackAcc);
-			
-			--Keep the wasp from going too fast.
-			local speedMod = SceneMan:ShortestDistance(wasp.Pos, target, true).Magnitude / 5;
-			if speedMod < 1 then
-				speedMod = 1;
-			end
-            
-            --Counteract gravity.
-            wasp.Vel.Y = wasp.Vel.Y - SceneMan.Scene.GlocalAcc.Y * TimerMan.DeltaTimeSecs;
-			
-			if wasp.Vel.Largest > self.maxSpeed * speedMod * attackMax then
-				wasp.Vel = (wasp.Vel / wasp.Vel.Largest) * self.maxSpeed * speedMod * attackMax;
-			end
-			
-			--Keep the wasp within decent bounds of the swarm.
-			local distVec = SceneMan:ShortestDistance(target, wasp.Pos, true);
+	if MovableMan:IsActor(self.target) then
+		for i = 1, #self.roster do
+			if MovableMan:IsParticle(self.roster[i]) then
+				local wasp = self.roster[i];
+				
+				--Keep the wasp alive.
+				wasp.ToDelete = false;
+				wasp.ToSettle = false;
+				wasp:NotResting();
+				wasp.Age = 0;
+				
+				--Make the wasp follow the swarm.
+				local target = self.target.Pos + self.offsets[i];
+				swarm_swarmto(wasp,target,math.random() * self.baseAcc * attackAcc);
+				
+				--Keep the wasp from going too fast.
+				local speedMod = SceneMan:ShortestDistance(wasp.Pos, target, true).Magnitude / 5;
+				if speedMod < 1 then
+					speedMod = 1;
+				end
+				
+				--Counteract gravity.
+				wasp.Vel.Y = wasp.Vel.Y - SceneMan.Scene.GlocalAcc.Y * TimerMan.DeltaTimeSecs;
+				
+				if wasp.Vel.Largest > self.maxSpeed * speedMod * attackMax then
+					wasp.Vel = (wasp.Vel / wasp.Vel.Largest) * self.maxSpeed * speedMod * attackMax;
+				end
+				
+				--Keep the wasp within decent bounds of the swarm.
+				local distVec = SceneMan:ShortestDistance(target, wasp.Pos, true);
 
-			if math.abs(distVec.Largest) > self.maxDist then
-				wasp.Pos = distVec:SetMagnitude(self.maxDist) + target;
-			end
-            
-            --Flicker.
-            if math.random() <= self.flickerChance then
-                local flicker = CreateMOPixel("Techion.rte/Nanowasp Flicker");
-                flicker.Pos = wasp.Pos;
-                MovableMan:AddParticle(flicker);
-            end
-		else
-			if #self.roster < self.waspNum then
-				--Replace the wasp.
-				local wasp = CreateMOPixel("Techion.rte/Nanowasp " .. math.random(1,3));
-				wasp.Pos = self.Pos + self.offsets[i];
-				wasp.Vel = Vector(math.random(-10, 10), math.random(-10, 10));
-				MovableMan:AddParticle(wasp);
-				self.roster[i] = wasp;
+				if math.abs(distVec.Largest) > self.maxDist then
+					wasp.Pos = distVec:SetMagnitude(self.maxDist) + target;
+				end
+				
+				--Flicker.
+				if math.random() <= self.flickerChance then
+					local flicker = CreateMOPixel("Techion.rte/Nanowasp Flicker");
+					flicker.Pos = wasp.Pos;
+					MovableMan:AddParticle(flicker);
+				end
 			else
-				table.remove(self.roster, i);
+				if #self.roster < self.waspNum then
+					--Replace the wasp.
+					local wasp = CreateMOPixel("Techion.rte/Nanowasp " .. math.random(1,3));
+					wasp.Pos = self.Pos + self.offsets[i];
+					wasp.Vel = Vector(math.random(-10, 10), math.random(-10, 10));
+					MovableMan:AddParticle(wasp);
+					self.roster[i] = wasp;
+				else
+					table.remove(self.roster, i);
+				end
 			end
 		end
+	else
+		self.ToDelete = true;
 	end
     
 	if self.garbTimer:IsPastSimMS(10000) then

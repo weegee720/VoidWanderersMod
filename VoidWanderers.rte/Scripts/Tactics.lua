@@ -392,8 +392,7 @@ function VoidWanderers:StartActivity()
 			SceneMan:MakeAllUnseen(Vector(CF_FogOfWarResolution, CF_FogOfWarResolution), CF_PlayerTeam);
 			
 			-- Reveal previously saved fog of war
-			
-			-- Do not reveal on vessel maps
+			-- But do not reveal on vessel maps
 			if not CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.ALWAYSUNSEEN) then
 				local wx = math.ceil(SceneMan.Scene.Width / CF_FogOfWarResolution);
 				local wy = math.ceil(SceneMan.Scene.Height / CF_FogOfWarResolution);

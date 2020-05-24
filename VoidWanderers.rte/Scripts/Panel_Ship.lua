@@ -487,6 +487,19 @@ function VoidWanderers:ProcessShipControlPanelUI()
 					end
 					
 					if cont:IsState(Controller.PRESS_DOWN) then
+						-- Save all items
+						for item in MovableMan.Items do
+							local count = CF_CountUsedStorageInArray(self.StorageItems)
+
+							if  count < tonumber(self.GS["Player0VesselStorageCapacity"]) then
+								CF_PutItemToStorageArray(self.StorageItems, item.PresetName, item.ClassName)
+							else
+								break
+							end
+						end
+					
+						CF_SetStorageArray(self.GS, self.StorageItems)
+					
 						self:SaveActors(false)
 						self:SaveCurrentGameState()
 						

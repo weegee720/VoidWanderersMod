@@ -162,6 +162,19 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 					self.FirePressed = true;
 					
 					local savedactor = 1
+					
+					-- Save all items
+					for item in MovableMan.Items do
+						local count = CF_CountUsedStorageInArray(self.StorageItems)
+
+						if  count < tonumber(self.GS["Player0VesselStorageCapacity"]) then
+							CF_PutItemToStorageArray(self.StorageItems, item.PresetName, item.ClassName)
+						else
+							break
+						end
+					end
+				
+					CF_SetStorageArray(self.GS, self.StorageItems)
 
 					-- Clean previously saved actors and inventories in config
 					self:ClearActors()

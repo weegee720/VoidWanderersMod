@@ -50,12 +50,11 @@ CF_VesselStartCommunication[id] = 4
 CF_VesselMaxSpeed[id] = 40
 CF_VesselStartSpeed[id] = 20
 
-CF_VesselMaxTurrets[id] = 2
+CF_VesselMaxTurrets[id] = 3
 CF_VesselStartTurrets[id] = 0
 
-CF_VesselMaxTurretStorage[id] = 6
+CF_VesselMaxTurretStorage[id] = 8
 CF_VesselStartTurretStorage[id] = 1
-
 
 
 local id = "Titan"
