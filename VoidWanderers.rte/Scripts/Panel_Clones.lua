@@ -158,23 +158,48 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 						self.ClonesControlPanelModesHelpTexts[self.ClonesControlPanelModes.SELL] = "L/R/U/D - Select, FIRE - Dump"
 					end
 				end
-			
+				
+				local up = false
+				local down = false
+
 				if cont:IsState(Controller.PRESS_UP) then
+					self.HoldTimer:Reset()
+					up = true
+				end
+
+				if cont:IsState(Controller.PRESS_DOWN) then
+					self.HoldTimer:Reset()
+					down = true
+				end
+					
+				if self.HoldTimer:IsPastSimMS(CF_KeyRepeatDelay) then
+					self.HoldTimer:Reset()
+
+					if cont:IsState(Controller.HOLD_UP) then
+						up = true
+					end
+				
+					if cont:IsState(Controller.HOLD_DOWN) then
+						down = true
+					end
+				end
+				
+				if up then
 					if #self.Clones > 0 then
 						self.SelectedClone = self.SelectedClone - 1
 						
 						if self.SelectedClone < 1 then
-							self.SelectedClone = 1
+							self.SelectedClone = #self.Clones
 						end
 					end
 				end
 
-				if cont:IsState(Controller.PRESS_DOWN) then
+				if down then
 					if #self.Clones > 0 then
 						self.SelectedClone = self.SelectedClone + 1
 						
 						if self.SelectedClone > #self.Clones then
-							self.SelectedClone = #self.Clones
+							self.SelectedClone = 1
 						end
 					end
 				end
@@ -395,19 +420,44 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 					self.FirePressed = false
 				end
 				
+				local up = false
+				local down = false
+
 				if cont:IsState(Controller.PRESS_UP) then
-					self.ClonesInventorySelectedItem = self.ClonesInventorySelectedItem - 1
-					
-					if self.ClonesInventorySelectedItem < 1 then
-						self.ClonesInventorySelectedItem = 1
-					end
+					self.HoldTimer:Reset()
+					up = true
 				end
 
 				if cont:IsState(Controller.PRESS_DOWN) then
+					self.HoldTimer:Reset()
+					down = true
+				end
+					
+				if self.HoldTimer:IsPastSimMS(CF_KeyRepeatDelay) then
+					self.HoldTimer:Reset()
+
+					if cont:IsState(Controller.HOLD_UP) then
+						up = true
+					end
+				
+					if cont:IsState(Controller.HOLD_DOWN) then
+						down = true
+					end
+				end
+				
+				if up then
+					self.ClonesInventorySelectedItem = self.ClonesInventorySelectedItem - 1
+					
+					if self.ClonesInventorySelectedItem < 1 then
+						self.ClonesInventorySelectedItem = #self.Clones[self.SelectedClone]["Items"]
+					end
+				end
+
+				if down then
 					self.ClonesInventorySelectedItem = self.ClonesInventorySelectedItem + 1
 					
 					if self.ClonesInventorySelectedItem > #self.Clones[self.SelectedClone]["Items"] then
-						self.ClonesInventorySelectedItem = #self.Clones[self.SelectedClone]["Items"]
+						self.ClonesInventorySelectedItem = 1
 					end
 				end
 			end
@@ -458,23 +508,48 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 				if self.ClonesStorageSelectedItem > #self.StorageFilters[self.StorageControlPanelModes.EVERYTHING] and #self.StorageFilters[self.StorageControlPanelModes.EVERYTHING] > 0 then
 					self.ClonesStorageSelectedItem = #self.StorageFilters[self.StorageControlPanelModes.EVERYTHING]
 				end
-				
+
+				local up = false
+				local down = false
+
 				if cont:IsState(Controller.PRESS_UP) then
+					self.HoldTimer:Reset()
+					up = true
+				end
+
+				if cont:IsState(Controller.PRESS_DOWN) then
+					self.HoldTimer:Reset()
+					down = true
+				end
+					
+				if self.HoldTimer:IsPastSimMS(CF_KeyRepeatDelay) then
+					self.HoldTimer:Reset()
+
+					if cont:IsState(Controller.HOLD_UP) then
+						up = true
+					end
+				
+					if cont:IsState(Controller.HOLD_DOWN) then
+						down = true
+					end
+				end
+				
+				if up then
 					if #self.StorageFilters[self.StorageControlPanelModes.EVERYTHING] > 0 then
 						self.ClonesStorageSelectedItem = self.ClonesStorageSelectedItem - 1
 						
 						if self.ClonesStorageSelectedItem < 1 then
-							self.ClonesStorageSelectedItem = 1
+							self.ClonesStorageSelectedItem = #self.StorageFilters[self.StorageControlPanelModes.EVERYTHING]
 						end
 					end
 				end
 
-				if cont:IsState(Controller.PRESS_DOWN) then
+				if down then
 					if #self.StorageFilters[self.StorageControlPanelModes.EVERYTHING] > 0 then
 						self.ClonesStorageSelectedItem = self.ClonesStorageSelectedItem + 1
 						
 						if self.ClonesStorageSelectedItem > #self.StorageFilters[self.StorageControlPanelModes.EVERYTHING] then
-							self.ClonesStorageSelectedItem = #self.StorageFilters[self.StorageControlPanelModes.EVERYTHING]
+							self.ClonesStorageSelectedItem = 1
 						end
 					end
 				end		

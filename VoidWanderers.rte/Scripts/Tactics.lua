@@ -28,6 +28,9 @@ function VoidWanderers:StartActivity()
 	
 	self.TeleportEffectTimer = Timer()
 	self.TeleportEffectTimer:Reset()
+
+	self.HoldTimer = Timer()
+	self.HoldTimer:Reset()	
 	
 	self.RandomEncounterDelayTimer = Timer()
 	self.RandomEncounterDelayTimer:Reset()

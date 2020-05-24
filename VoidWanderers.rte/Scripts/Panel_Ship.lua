@@ -136,19 +136,44 @@ function VoidWanderers:ProcessShipControlPanelUI()
 			
 ---------------------------------------------------------------------------------------------------
 			if self.ShipControlMode == self.ShipControlPanelModes.LOCATION then 
+				local up = false
+				local down = false
+
 				if cont:IsState(Controller.PRESS_UP) then
+					self.HoldTimer:Reset()
+					up = true
+				end
+
+				if cont:IsState(Controller.PRESS_DOWN) then
+					self.HoldTimer:Reset()
+					down = true
+				end
+					
+				if self.HoldTimer:IsPastSimMS(CF_KeyRepeatDelay) then
+					self.HoldTimer:Reset()
+
+					if cont:IsState(Controller.HOLD_UP) then
+						up = true
+					end
+				
+					if cont:IsState(Controller.HOLD_DOWN) then
+						down = true
+					end
+				end
+
+				if up then
 					-- Select location
 					self.ShipControlSelectedLocation = self.ShipControlSelectedLocation - 1
 					if self.ShipControlSelectedLocation < 1 then
-						self.ShipControlSelectedLocation = 1
+						self.ShipControlSelectedLocation = #self.ShipControlLocationList
 					end
 				end
 			
-				if cont:IsState(Controller.PRESS_DOWN) then
+				if down then
 					-- Select location
 					self.ShipControlSelectedLocation = self.ShipControlSelectedLocation + 1
 					if self.ShipControlSelectedLocation > #self.ShipControlLocationList then
-						self.ShipControlSelectedLocation = #self.ShipControlLocationList
+						self.ShipControlSelectedLocation = 1
 					end
 				end
 				
@@ -368,19 +393,44 @@ function VoidWanderers:ProcessShipControlPanelUI()
 			end
 ---------------------------------------------------------------------------------------------------
 			if self.ShipControlMode == self.ShipControlPanelModes.PLANET then
+				local up = false
+				local down = false
+
 				if cont:IsState(Controller.PRESS_UP) then
+					self.HoldTimer:Reset()
+					up = true
+				end
+
+				if cont:IsState(Controller.PRESS_DOWN) then
+					self.HoldTimer:Reset()
+					down = true
+				end
+					
+				if self.HoldTimer:IsPastSimMS(CF_KeyRepeatDelay) then
+					self.HoldTimer:Reset()
+
+					if cont:IsState(Controller.HOLD_UP) then
+						up = true
+					end
+				
+					if cont:IsState(Controller.HOLD_DOWN) then
+						down = true
+					end
+				end
+
+				if up then
 					-- Select planet
 					self.ShipControlSelectedPlanet = self.ShipControlSelectedPlanet - 1
 					if self.ShipControlSelectedPlanet < 1 then
-						self.ShipControlSelectedPlanet = 1
+						self.ShipControlSelectedPlanet = #self.ShipControlPlanetList
 					end
 				end
 			
-				if cont:IsState(Controller.PRESS_DOWN) then
+				if down then
 					-- Select planet
 					self.ShipControlSelectedPlanet = self.ShipControlSelectedPlanet + 1
 					if self.ShipControlSelectedPlanet > #self.ShipControlPlanetList then
-						self.ShipControlSelectedPlanet = #self.ShipControlPlanetList
+						self.ShipControlSelectedPlanet = 1
 					end
 				end
 				
@@ -514,19 +564,44 @@ function VoidWanderers:ProcessShipControlPanelUI()
 					CF_DrawString(self.RandomEncounterText, pos + Vector(-130,-56), 262, 141)
 					
 					if self.RandomEncounterVariants ~= nil and self.RandomEncounterDelayTimer:IsPastSimMS(750) then
+						local up = false
+						local down = false
+
 						if cont:IsState(Controller.PRESS_UP) then
+							self.HoldTimer:Reset()
+							up = true
+						end
+
+						if cont:IsState(Controller.PRESS_DOWN) then
+							self.HoldTimer:Reset()
+							down = true
+						end
+							
+						if self.HoldTimer:IsPastSimMS(CF_KeyRepeatDelay) then
+							self.HoldTimer:Reset()
+
+							if cont:IsState(Controller.HOLD_UP) then
+								up = true
+							end
+						
+							if cont:IsState(Controller.HOLD_DOWN) then
+								down = true
+							end
+						end
+
+						if up then
 							-- Select planet
 							self.ShipControlSelectedEncounterVariant = self.ShipControlSelectedEncounterVariant - 1
 							if self.ShipControlSelectedEncounterVariant < 1 then
-								self.ShipControlSelectedEncounterVariant = 1
+								self.ShipControlSelectedEncounterVariant = #self.RandomEncounterVariants
 							end
 						end
 					
-						if cont:IsState(Controller.PRESS_DOWN) then
+						if down then
 							-- Select planet
 							self.ShipControlSelectedEncounterVariant = self.ShipControlSelectedEncounterVariant + 1
 							if self.ShipControlSelectedEncounterVariant > #self.RandomEncounterVariants then
-								self.ShipControlSelectedEncounterVariant = #self.RandomEncounterVariants
+								self.ShipControlSelectedEncounterVariant = 1
 							end
 						end
 						
@@ -594,20 +669,45 @@ function VoidWanderers:ProcessShipControlPanelUI()
 					self.ShipControlMissions[i]["GoldReward"] = CF_CalculateReward( CF_MissionGoldRewardPerDifficulty[ self.ShipControlMissions[i]["Type"] ] , self.ShipControlMissions[i]["Difficulty"])
 					self.ShipControlMissions[i]["RepReward"] = CF_CalculateReward( CF_MissionReputationRewardPerDifficulty[ self.ShipControlMissions[i]["Type"] ] , self.ShipControlMissions[i]["Difficulty"])
 				end
-				
+
+				local up = false
+				local down = false
+
 				if cont:IsState(Controller.PRESS_UP) then
+					self.HoldTimer:Reset()
+					up = true
+				end
+
+				if cont:IsState(Controller.PRESS_DOWN) then
+					self.HoldTimer:Reset()
+					down = true
+				end
+					
+				if self.HoldTimer:IsPastSimMS(CF_KeyRepeatDelay) then
+					self.HoldTimer:Reset()
+
+					if cont:IsState(Controller.HOLD_UP) then
+						up = true
+					end
+				
+					if cont:IsState(Controller.HOLD_DOWN) then
+						down = true
+					end
+				end
+				
+				if up then
 					-- Select planet
 					self.ShipControlSelectedMission = self.ShipControlSelectedMission - 1
 					if self.ShipControlSelectedMission < 1 then
-						self.ShipControlSelectedMission = 1
+						self.ShipControlSelectedMission = #self.ShipControlMissions
 					end
 				end
 			
-				if cont:IsState(Controller.PRESS_DOWN) then
+				if down then
 					-- Select planet
 					self.ShipControlSelectedMission = self.ShipControlSelectedMission + 1
 					if self.ShipControlSelectedMission > #self.ShipControlMissions then
-						self.ShipControlSelectedMission = #self.ShipControlMissions
+						self.ShipControlSelectedMission = 1
 					end
 				end
 
@@ -711,20 +811,45 @@ function VoidWanderers:ProcessShipControlPanelUI()
 						self.ShipControlFactions[i]["ReputationStr"] = tostring(self.ShipControlFactions[i]["Reputation"])
 					end
 				end
-				
+
+				local up = false
+				local down = false
+
 				if cont:IsState(Controller.PRESS_UP) then
+					self.HoldTimer:Reset()
+					up = true
+				end
+
+				if cont:IsState(Controller.PRESS_DOWN) then
+					self.HoldTimer:Reset()
+					down = true
+				end
+					
+				if self.HoldTimer:IsPastSimMS(CF_KeyRepeatDelay) then
+					self.HoldTimer:Reset()
+
+					if cont:IsState(Controller.HOLD_UP) then
+						up = true
+					end
+				
+					if cont:IsState(Controller.HOLD_DOWN) then
+						down = true
+					end
+				end
+				
+				if up then
 					-- Select faction
 					self.ShipControlSelectedFaction = self.ShipControlSelectedFaction - 1
 					if self.ShipControlSelectedFaction < 1 then
-						self.ShipControlSelectedFaction = 1
+						self.ShipControlSelectedFaction = #self.ShipControlFactions
 					end
 				end
 			
-				if cont:IsState(Controller.PRESS_DOWN) then
+				if down then
 					-- Select faction
 					self.ShipControlSelectedFaction = self.ShipControlSelectedFaction + 1
 					if self.ShipControlSelectedFaction > #self.ShipControlFactions then
-						self.ShipControlSelectedFaction = #self.ShipControlFactions
+						self.ShipControlSelectedFaction = 1
 					end
 				end
 
@@ -853,18 +978,43 @@ function VoidWanderers:ProcessShipControlPanelUI()
 					self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ] = val
 					self.ShipControlSkillUpgrades[nm]["Price"] = val + 1
 				end
-				
+
+				local up = false
+				local down = false
+
 				if cont:IsState(Controller.PRESS_UP) then
+					self.HoldTimer:Reset()
+					up = true
+				end
+
+				if cont:IsState(Controller.PRESS_DOWN) then
+					self.HoldTimer:Reset()
+					down = true
+				end
+					
+				if self.HoldTimer:IsPastSimMS(CF_KeyRepeatDelay) then
+					self.HoldTimer:Reset()
+
+					if cont:IsState(Controller.HOLD_UP) then
+						up = true
+					end
+				
+					if cont:IsState(Controller.HOLD_DOWN) then
+						down = true
+					end
+				end
+				
+				if up then
 					self.ShipControlSelectedSkillUpgrade = self.ShipControlSelectedSkillUpgrade - 1
 					if self.ShipControlSelectedSkillUpgrade < 1 then
-						self.ShipControlSelectedSkillUpgrade = 1
+						self.ShipControlSelectedSkillUpgrade = #self.ShipControlSkillUpgrades
 					end
 				end
 			
-				if cont:IsState(Controller.PRESS_DOWN) then
+				if down then
 					self.ShipControlSelectedSkillUpgrade = self.ShipControlSelectedSkillUpgrade + 1
 					if self.ShipControlSelectedSkillUpgrade > #self.ShipControlSkillUpgrades then
-						self.ShipControlSelectedSkillUpgrade = #self.ShipControlSkillUpgrades
+						self.ShipControlSelectedSkillUpgrade = 1
 					end
 				end
 
@@ -1001,22 +1151,44 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self.ShipControlUpgrades[9]["Price"] = CF_BombStoragePrice
 				self.ShipControlUpgrades[9]["Bundle"] = 1
 
+				local up = false
+				local down = false
 
-				
-				
 				if cont:IsState(Controller.PRESS_UP) then
+					self.HoldTimer:Reset()
+					up = true
+				end
+
+				if cont:IsState(Controller.PRESS_DOWN) then
+					self.HoldTimer:Reset()
+					down = true
+				end
+					
+				if self.HoldTimer:IsPastSimMS(CF_KeyRepeatDelay) then
+					self.HoldTimer:Reset()
+
+					if cont:IsState(Controller.HOLD_UP) then
+						up = true
+					end
+				
+					if cont:IsState(Controller.HOLD_DOWN) then
+						down = true
+					end
+				end
+				
+				if up then
 					-- Select planet
 					self.ShipControlSelectedUpgrade = self.ShipControlSelectedUpgrade - 1
 					if self.ShipControlSelectedUpgrade < 1 then
-						self.ShipControlSelectedUpgrade = 1
+						self.ShipControlSelectedUpgrade = #self.ShipControlUpgrades
 					end
 				end
 			
-				if cont:IsState(Controller.PRESS_DOWN) then
+				if down then
 					-- Select planet
 					self.ShipControlSelectedUpgrade = self.ShipControlSelectedUpgrade + 1
 					if self.ShipControlSelectedUpgrade > #self.ShipControlUpgrades then
-						self.ShipControlSelectedUpgrade = #self.ShipControlUpgrades
+						self.ShipControlSelectedUpgrade = 1
 					end
 				end
 
@@ -1105,20 +1277,45 @@ function VoidWanderers:ProcessShipControlPanelUI()
 						self.ShipControlShips[nv] = id
 					end
 				end
-				
+
+				local up = false
+				local down = false
+
 				if cont:IsState(Controller.PRESS_UP) then
+					self.HoldTimer:Reset()
+					up = true
+				end
+
+				if cont:IsState(Controller.PRESS_DOWN) then
+					self.HoldTimer:Reset()
+					down = true
+				end
+					
+				if self.HoldTimer:IsPastSimMS(CF_KeyRepeatDelay) then
+					self.HoldTimer:Reset()
+
+					if cont:IsState(Controller.HOLD_UP) then
+						up = true
+					end
+				
+					if cont:IsState(Controller.HOLD_DOWN) then
+						down = true
+					end
+				end
+				
+				if up then
 					-- Select planet
 					self.ShipControlSelectedShip = self.ShipControlSelectedShip - 1
 					if self.ShipControlSelectedShip < 1 then
-						self.ShipControlSelectedShip = 1
+						self.ShipControlSelectedShip = #self.ShipControlShips
 					end
 				end
 			
-				if cont:IsState(Controller.PRESS_DOWN) then
+				if down then
 					-- Select planet
 					self.ShipControlSelectedShip = self.ShipControlSelectedShip + 1
 					if self.ShipControlSelectedShip > #self.ShipControlShips then
-						self.ShipControlSelectedShip = #self.ShipControlShips
+						self.ShipControlSelectedShip = 1
 					end
 				end
 

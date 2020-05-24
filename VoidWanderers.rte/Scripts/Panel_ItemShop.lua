@@ -114,23 +114,47 @@ function VoidWanderers:ProcessItemShopControlPanelUI()
 
 			-- Process controls
 			local cont = act:GetController()
-			
+			local up = false
+			local down = false
+
 			if cont:IsState(Controller.PRESS_UP) then
+				self.HoldTimer:Reset()
+				up = true
+			end
+
+			if cont:IsState(Controller.PRESS_DOWN) then
+				self.HoldTimer:Reset()
+				down = true
+			end
+				
+			if self.HoldTimer:IsPastSimMS(CF_KeyRepeatDelay) then
+				self.HoldTimer:Reset()
+
+				if cont:IsState(Controller.HOLD_UP) then
+					up = true
+				end
+			
+				if cont:IsState(Controller.HOLD_DOWN) then
+					down = true
+				end
+			end
+			
+			if up then
 				if #self.ItemShopFilters[self.ItemShopControlMode] > 0 then
 					self.ItemShopSelectedItem = self.ItemShopSelectedItem - 1
 					
 					if self.ItemShopSelectedItem < 1 then
-						self.ItemShopSelectedItem = 1
+						self.ItemShopSelectedItem = #self.ItemShopFilters[self.ItemShopControlMode]
 					end
 				end
 			end
 
-			if cont:IsState(Controller.PRESS_DOWN) then
+			if down then
 				if #self.ItemShopFilters[self.ItemShopControlMode] > 0 then
 					self.ItemShopSelectedItem = self.ItemShopSelectedItem + 1
 					
 					if self.ItemShopSelectedItem > #self.ItemShopFilters[self.ItemShopControlMode] then
-						self.ItemShopSelectedItem = #self.ItemShopFilters[self.ItemShopControlMode]
+						self.ItemShopSelectedItem = 1
 					end
 				end
 			end

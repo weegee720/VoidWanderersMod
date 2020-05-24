@@ -103,23 +103,48 @@ function VoidWanderers:ProcessTurretsControlPanelUI()
 							end
 						else
 						end
-						
+
+						local up = false
+						local down = false
+
 						if cont:IsState(Controller.PRESS_UP) then
+							self.HoldTimer:Reset()
+							up = true
+						end
+
+						if cont:IsState(Controller.PRESS_DOWN) then
+							self.HoldTimer:Reset()
+							down = true
+						end
+							
+						if self.HoldTimer:IsPastSimMS(CF_KeyRepeatDelay) then
+							self.HoldTimer:Reset()
+
+							if cont:IsState(Controller.HOLD_UP) then
+								up = true
+							end
+						
+							if cont:IsState(Controller.HOLD_DOWN) then
+								down = true
+							end
+						end
+						
+						if up then
 							if #self.Turrets > 0 then
 								self.SelectedTurret = self.SelectedTurret - 1
 								
 								if self.SelectedTurret < 1 then
-									self.SelectedTurret = 1
+									self.SelectedTurret = #self.Turrets
 								end
 							end
 						end
 
-						if cont:IsState(Controller.PRESS_DOWN) then
+						if down then
 							if #self.Turrets > 0 then
 								self.SelectedTurret = self.SelectedTurret + 1
 								
 								if self.SelectedTurret > #self.Turrets then
-									self.SelectedTurret = #self.Turrets
+									self.SelectedTurret = 1
 								end
 							end
 						end
@@ -197,22 +222,67 @@ function VoidWanderers:ProcessTurretsControlPanelUI()
 
 						self:PutGlow("ControlPanel_Turret_Select", self.TurretsControlPanelPos[turr])
 					else
+						local up = false
+						local down = false
+						local left = false
+						local right = false
+
+						if cont:IsState(Controller.PRESS_UP) then
+							self.HoldTimer:Reset()
+							up = true
+						end
+
+						if cont:IsState(Controller.PRESS_DOWN) then
+							self.HoldTimer:Reset()
+							down = true
+						end
+							
+						if cont:IsState(Controller.PRESS_LEFT) then
+							self.HoldTimer:Reset()
+							left = true
+						end
+
+						if cont:IsState(Controller.PRESS_RIGHT) then
+							self.HoldTimer:Reset()
+							right = true
+						end
+							
+						if self.HoldTimer:IsPastSimMS(50) then
+							self.HoldTimer:Reset()
+
+							if cont:IsState(Controller.HOLD_UP) then
+								up = true
+							end
+						
+							if cont:IsState(Controller.HOLD_DOWN) then
+								down = true
+							end
+							
+							if cont:IsState(Controller.HOLD_LEFT) then
+								left = true
+							end
+						
+							if cont:IsState(Controller.HOLD_RIGHT) then
+								right = true
+							end
+						end
+					
 						local ax = 0
 						local ay = 0
 						
-						if cont:IsState(Controller.PRESS_LEFT) then
+						if left then
 							ax = -1
 						end					
 
-						if cont:IsState(Controller.PRESS_RIGHT) then
+						if right then
 							ax = 1
 						end					
 
-						if cont:IsState(Controller.PRESS_UP) then
+						if up then
 							ay = -1
 						end					
 						
-						if cont:IsState(Controller.PRESS_DOWN) then
+						if down then
 							ay = 1
 						end					
 						

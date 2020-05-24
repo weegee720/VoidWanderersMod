@@ -8,9 +8,6 @@ function VoidWanderers:InitBombsControlPanelUI()
 		self.BombsControlPanelActor.Team = CF_PlayerTeam
 		MovableMan:AddActor(self.BombsControlPanelActor)
 	end
-	
-	self.HoldTimer = Timer()
-	self.HoldTimer:Reset()
 end
 -----------------------------------------------------------------------------------------
 --
@@ -38,7 +35,7 @@ function VoidWanderers:ProcessBombsControlPanelUI()
 				local cont = act:GetController()
 				
 				local left = false
-				local right = right
+				local right = false
 					
 				if self.BombingTarget == nil then
 					if cont:IsState(Controller.PRESS_LEFT) then

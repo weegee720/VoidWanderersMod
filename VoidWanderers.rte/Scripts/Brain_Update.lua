@@ -752,7 +752,32 @@ function do_rpgbrain_pda(self)
 	end
 	
 	local cont = self.ThisActor:GetController()
+	local up = false
+	local down = false
+
 	if cont:IsState(Controller.PRESS_UP) then
+		self.HoldTimer:Reset()
+		up = true
+	end
+
+	if cont:IsState(Controller.PRESS_DOWN) then
+		self.HoldTimer:Reset()
+		down = true
+	end
+		
+	if self.HoldTimer:IsPastSimMS(CF_KeyRepeatDelay) then
+		self.HoldTimer:Reset()
+
+		if cont:IsState(Controller.HOLD_UP) then
+			up = true
+		end
+	
+		if cont:IsState(Controller.HOLD_DOWN) then
+			down = true
+		end
+	end	
+	
+	if up then
 		cont:SetState(Controller.PRESS_UP, false)
 		cont:SetState(Controller.MOVE_UP, false)
 		cont:SetState(Controller.BODY_JUMPSTART, false)
@@ -760,18 +785,18 @@ function do_rpgbrain_pda(self)
 
 		self.SelectedMenuItem = self.SelectedMenuItem - 1
 		if self.SelectedMenuItem < 1 then
-			self.SelectedMenuItem = 1
+			self.SelectedMenuItem = #self.ActiveMenu
 		end		
 	end
 
-	if cont:IsState(Controller.PRESS_DOWN) then
+	if down then
 		cont:SetState(Controller.PRESS_DOWN, false)
 		cont:SetState(Controller.MOVE_DOWN, false)
 		cont:SetState(Controller.BODY_CROUCH, false)
 
 		self.SelectedMenuItem = self.SelectedMenuItem + 1
 		if self.SelectedMenuItem > #self.ActiveMenu then
-			self.SelectedMenuItem = #self.ActiveMenu
+			self.SelectedMenuItem = 1
 		end		
 	end
 	
