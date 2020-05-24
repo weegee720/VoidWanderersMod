@@ -7,7 +7,7 @@ function VoidWanderers:FormLoad()
 	local el;
 	self.UI = {}
 
-	if CF_IsFileExists(self.ModuleName , STATE_CONFIG_FILE) then
+	--[[if CF_IsFileExists(self.ModuleName , STATE_CONFIG_FILE) then
 		el = {}
 		el["Type"] = self.ElementTypes.BUTTON;
 		el["Presets"] = {};
@@ -22,7 +22,7 @@ function VoidWanderers:FormLoad()
 		el["OnClick"] = self.BtnContinueGame_OnClick;
 		
 		self.UI[#self.UI + 1] = el;
-	end
+	end--]]--
 	
 	el = {}
 	el["Type"] = self.ElementTypes.BUTTON;

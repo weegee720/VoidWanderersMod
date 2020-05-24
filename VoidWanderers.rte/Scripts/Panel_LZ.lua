@@ -271,6 +271,16 @@ function VoidWanderers:ProcessLZControlPanelUI()
 						self:MissionDestroy()
 					end
 					
+					-- Clean everything
+					self.MissionCreate = nil
+					self.MissionUpdate = nil
+					self.MissionDestroy = nil
+
+					self.AmbientCreate = nil
+					self.AmbientUpdate = nil
+					self.AmbientDestroy = nil
+					
+					collectgarbage("collect");
 					return
 				end
 			else

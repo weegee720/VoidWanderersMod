@@ -83,6 +83,12 @@ function do_rpgbrain_shield()
 		G_VW_Switch = 0
 	end
 	
+	-- Weaker shields take more pressure from incoming projectiles
+	local massindex = {}
+	for i = 1, #G_VW_Shields do
+		massindex[i] = 1 + ((6 - G_VW_Power[i]) * 0.20)
+	end
+	
 	local effectcount = 0
 	for p in MovableMan.Particles do
 		counter = counter + 1
@@ -91,8 +97,6 @@ function do_rpgbrain_shield()
 			tobreak = false
 			
 			for i = 1, #G_VW_Shields do
-				massindex = 1 + ((6 - G_VW_Power[i]) * 0.17)
-
 				if G_VW_Active[i] then
 					radius = rads[i]
 
@@ -104,7 +108,7 @@ function do_rpgbrain_shield()
 							dist = SceneMan:ShortestDistance(s.Pos , p.Pos,true).Magnitude
 							
 							if dist <= radius and dist > radius * 0.1 then
-								pr = pr + ((p.Mass * massindex) * p.Vel.Magnitude)
+								pr = pr + ((p.Mass * massindex[i]) * p.Vel.Magnitude)
 							
 								if effectcount < 10 then
 									glownum = math.floor(p.Vel.Magnitude / 10)
@@ -119,7 +123,7 @@ function do_rpgbrain_shield()
 									end
 								end
 							
-								p.Vel = Vector(p.Vel.X * 0.001, p.Vel.Y * 0.001)
+								p.Vel = Vector(p.Vel.X * 0.002, p.Vel.Y * 0.002)
 							end
 							G_VW_Pressure[i] = pr
 							break

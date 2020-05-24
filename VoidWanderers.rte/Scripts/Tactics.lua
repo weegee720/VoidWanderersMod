@@ -655,7 +655,7 @@ function VoidWanderers:TriggerShipAssault()
 			self.AssaultDifficulty = CF_MaxDifficulty
 		end
 		
-		local r = math.random(CF_MaxDifficulty * 50)
+		local r = math.random(CF_MaxDifficulty * 48)
 		local tgt = ((CF_MaxDifficulty - self.AssaultDifficulty) * 4) + 10
 		
 		print (CF_GetPlayerFaction(self.GS, self.AssaultEnemyPlayer).." D - "..self.AssaultDifficulty.." R - "..r.." TGT - "..tgt)
