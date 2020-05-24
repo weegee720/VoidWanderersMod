@@ -76,4 +76,22 @@ CF_MissionReputationRewardPerDifficulty[id] = 25
 CF_MissionMaxSets[id] = 6
 CF_MissionRequiredData[id] = {}
 
+-- Uses: Zombies
+local id = "Zombies"
+CF_Mission[#CF_Mission + 1] = id
+
+CF_MissionName[id] = "Zombie onslaught"
+CF_MissionScript[id] = "VoidWanderers.rte/Scripts/Mission_Zombies.lua"
+CF_MissionMinReputation[id] = 800
+CF_MissionBriefingText[id] = "Destroy hacked cloning vats producing agressive unbacked bodies."
+CF_MissionGoldRewardPerDifficulty[id] = 950
+CF_MissionReputationRewardPerDifficulty[id] = 50
+CF_MissionMaxSets[id] = 6
+CF_MissionRequiredData[id] = {}
+
+local i = 1
+CF_MissionRequiredData[id][i] = {}
+CF_MissionRequiredData[id][i]["Name"] = "Vat"
+CF_MissionRequiredData[id][i]["Type"] = "Vector"
+CF_MissionRequiredData[id][i]["Max"] = 8
 

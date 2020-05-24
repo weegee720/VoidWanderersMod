@@ -263,6 +263,7 @@ function VoidWanderers:StartActivity()
 				--self.MissionType = "Assassinate" -- DEBUG
 				--self.MissionType = "Dropships" -- DEBUG
 				--self.MissionType = "Mine" -- DEBUG
+				--self.MissionType = "Zombies" -- DEBUG
 				
 				self.MissionScript = CF_MissionScript[ self.MissionType ]
 				self.MissionGoldReward = CF_MissionGoldRewardPerDifficulty[ self.MissionType ] * self.MissionDifficulty

@@ -14,37 +14,37 @@ function VoidWanderers:MissionCreate()
 	
 	setts = {}
 	setts[1] = {}
-	setts[1]["SpawnRate"] = 0.40
+	setts[1]["SpawnRate"] = 0.30
 	setts[1]["Reinforcements"] = 0
 	setts[1]["Interval"] = 0
 	setts[1]["CounterAttackDelay"] = 0
 	
 	setts[2] = {}
-	setts[2]["SpawnRate"] = 0.60
+	setts[2]["SpawnRate"] = 0.40
 	setts[2]["Reinforcements"] = 0
 	setts[2]["Interval"] = 0
 	setts[2]["CounterAttackDelay"] = 0
 
 	setts[3] = {}
-	setts[3]["SpawnRate"] = 0.80
+	setts[3]["SpawnRate"] = 0.50
 	setts[3]["Reinforcements"] = 1
 	setts[3]["Interval"] = 20
 	setts[3]["CounterAttackDelay"] = 300
 
 	setts[4] = {}
-	setts[4]["SpawnRate"] = 1
+	setts[4]["SpawnRate"] = 0.60
 	setts[4]["Reinforcements"] = 2
 	setts[4]["Interval"] = 26
 	setts[4]["CounterAttackDelay"] = 260
 
 	setts[5] = {}
-	setts[5]["SpawnRate"] = 1
+	setts[5]["SpawnRate"] = 0.70
 	setts[5]["Reinforcements"] = 3
 	setts[5]["Interval"] = 24
 	setts[5]["CounterAttackDelay"] = 220
 
 	setts[6] = {}
-	setts[6]["SpawnRate"] = 1
+	setts[6]["SpawnRate"] = 0.80
 	setts[6]["Reinforcements"] = 4
 	setts[6]["Interval"] = 22
 	setts[6]["CounterAttackDelay"] = 180

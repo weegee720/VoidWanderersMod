@@ -12,39 +12,39 @@ function VoidWanderers:MissionCreate()
 	setts = {}
 	setts[1] = {}
 	setts[1]["SpawnRate"] = 0.20
-	setts[1]["Reinforcements"] = 3
+	setts[1]["Reinforcements"] = 2
 	setts[1]["Interval"] = 26
-	setts[1]["TargetGold"] = 4000
+	setts[1]["TargetGold"] = 4500
 	
 	setts[2] = {}
 	setts[2]["SpawnRate"] = 0.40
-	setts[2]["Reinforcements"] = 4
+	setts[2]["Reinforcements"] = 3
 	setts[2]["Interval"] =26
-	setts[2]["TargetGold"] = 4000
+	setts[2]["TargetGold"] = 4500
 
 	setts[3] = {}
 	setts[3]["SpawnRate"] = 0.60
-	setts[3]["Reinforcements"] = 5
+	setts[3]["Reinforcements"] = 4
 	setts[3]["Interval"] = 26
-	setts[3]["TargetGold"] = 4000
+	setts[3]["TargetGold"] = 4500
 
 	setts[4] = {}
 	setts[4]["SpawnRate"] = 0.80
-	setts[4]["Reinforcements"] = 6
+	setts[4]["Reinforcements"] = 5
 	setts[4]["Interval"] = 24
-	setts[4]["TargetGold"] = 4000
+	setts[4]["TargetGold"] = 4500
 
 	setts[5] = {}
 	setts[5]["SpawnRate"] = 1
-	setts[5]["Reinforcements"] = 8
+	setts[5]["Reinforcements"] = 6
 	setts[5]["Interval"] = 24
-	setts[5]["TargetGold"] = 3500
+	setts[5]["TargetGold"] = 4500
 
 	setts[6] = {}
 	setts[6]["SpawnRate"] = 1
-	setts[6]["Reinforcements"] = 8
+	setts[6]["Reinforcements"] = 7
 	setts[6]["Interval"] = 22
-	setts[6]["TargetGold"] = 3500
+	setts[6]["TargetGold"] = 4500
 	
 	self.MissionSettings = setts[self.MissionDifficulty]
 	self.MissionStart = self.Time
@@ -129,7 +129,7 @@ function VoidWanderers:MissionUpdate()
 		local count = 0
 			
 		if self:GetTeamFunds(CF_CPUTeam) > 0 then
-			print (self:GetTeamFunds(CF_CPUTeam))
+			--print (self:GetTeamFunds(CF_CPUTeam))
 		
 			-- Show gold warnings from time to time
 			if self:GetTeamFunds(CF_CPUTeam) > self.MissionNextWarningGold then
@@ -211,12 +211,13 @@ function VoidWanderers:MissionUpdate()
 				local f = CF_GetPlayerFaction(self.GS, self.MissionTargetPlayer)
 				local ship = CF_MakeActor(CF_Crafts[f] , CF_CraftClasses[f] , CF_CraftModules[f]);
 				if ship then
-					for i = 1, math.random(#pres) do
+					local i = math.random(#pres)
+					--for i = 1, math.random(#pres) do
 						local actor = CF_SpawnAIUnitWithPreset(self.GS, self.MissionTargetPlayer, CF_CPUTeam, nil, modes[i], pres[i])
 						if actor then
 							ship:AddInventoryItem(actor)
 						end
-					end
+					--end
 					ship.Team = CF_CPUTeam
 					ship.Pos = Vector(self.MissionLZs[math.random(#self.MissionLZs)].X, -10)
 					ship.AIMode = Actor.AIMODE_DELIVER

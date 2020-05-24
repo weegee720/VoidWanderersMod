@@ -26,7 +26,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Arctic Pole"}
 CF_LocationPlanet[id] = "MP3-GTC-SNW"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine"}
 
 local id = "Summit"
 CF_Location[#CF_Location + 1] = id
@@ -37,7 +37,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Summit"}
 CF_LocationPlanet[id] = "MP3-GTC-SNW"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine"}
 
 local id = "Snow Cave"
 CF_Location[#CF_Location + 1] = id
@@ -48,7 +48,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Snow Cave"}
 CF_LocationPlanet[id] = "MP3-GTC-SNW"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine"}
 
 local id = "Missile Silo"
 CF_Location[#CF_Location + 1] = id
@@ -56,10 +56,10 @@ CF_LocationName[id] = "Missile Sile"
 CF_LocationPos[id] = Vector(-43 , 9)
 CF_LocationDescription[id] = ""
 CF_LocationSecurity[id] = 0
-CF_LocationGoldPresent[id] = true
+CF_LocationGoldPresent[id] = false
 CF_LocationScenes[id] = {"Missile Silo"}
 CF_LocationPlanet[id] = "MP3-GTC-SNW"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships"}
+CF_LocationMissions[id] = {"Assault", "Assassinate"}
 
 local id = "Glacier"
 CF_Location[#CF_Location + 1] = id
@@ -70,7 +70,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Glacier"}
 CF_LocationPlanet[id] = "MP3-GTC-SNW"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine"}
 
 local id = "Ice Caves"
 CF_Location[#CF_Location + 1] = id
@@ -78,10 +78,10 @@ CF_LocationName[id] = "Ice Caves"
 CF_LocationPos[id] = Vector(23 , -2)
 CF_LocationDescription[id] = ""
 CF_LocationSecurity[id] = 0
-CF_LocationGoldPresent[id] = true
+CF_LocationGoldPresent[id] = false
 CF_LocationScenes[id] = {"Ice Caves"}
 CF_LocationPlanet[id] = "MP3-GTC-SNW"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships"}
+CF_LocationMissions[id] = {"Assault", "Assassinate"}
 
 local id = "Cold Slabs"
 CF_Location[#CF_Location + 1] = id
@@ -92,6 +92,6 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Cold Slabs"}
 CF_LocationPlanet[id] = "MP3-GTC-SNW"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine"}
 
 

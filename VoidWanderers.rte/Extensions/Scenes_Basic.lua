@@ -83,7 +83,7 @@ CF_LocationSecurity[id] = 10
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Rhias Forest"}
 CF_LocationPlanet[id] = "CC-11Y"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies"}
 
 local id = "Slodran Wilderness"
 CF_Location[#CF_Location + 1] = id
@@ -105,7 +105,7 @@ CF_LocationSecurity[id] = 30
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Dvorak Caves"}
 CF_LocationPlanet[id] = "CC-11Y"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies"}
 
 local id = "Rayvord Tundra"
 CF_Location[#CF_Location + 1] = id
@@ -138,7 +138,7 @@ CF_LocationSecurity[id] = 20
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Yskely Mountains"}
 CF_LocationPlanet[id] = "CC-11Y"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies"}
 
 
 
