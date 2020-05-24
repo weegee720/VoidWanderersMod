@@ -21,7 +21,7 @@ function VoidWanderers:StartActivity()
 	
 	self.GS = {};
 	self.ModuleName = "VoidWanderers.rte";
-
+	
 	self.TickTimer = Timer();
 	self.TickTimer:Reset();
 	self.TickInterval = CF_TickInterval;
@@ -41,7 +41,7 @@ function VoidWanderers:StartActivity()
 	
 	-- Factions are already initialized by strategic part
 	self:LoadCurrentGameState();
-
+	
 	CF_GS = self.GS
 
 	self.RandomEncounterID = nil
@@ -218,7 +218,6 @@ function VoidWanderers:StartActivity()
 		self.GS["WasReset"] = "True"
 	
 		-- All mission related final message will be accumulated in mission report list
-		self.MissionReport = {}
 		self.MissionDeployedTroops = #self.DeployedActors
 		
 		self.AlliedUnits = {}
@@ -662,7 +661,7 @@ function VoidWanderers:TriggerShipAssault()
 		end
 	end
 	
-	toassault = false -- DEBUG
+	--toassault = false -- DEBUG
 	--toassault = true -- DEBUG
 
 	if toassault then
@@ -710,8 +709,8 @@ function VoidWanderers:TriggerShipAssault()
 			
 			--id = "TEST" -- DEBUG
 			--id = "PIRATE_GENERIC" -- DEBUG
-			id = "ABANDONED_VESSEL_GENERIC"  --DEBUG
-			id = "HOSTILE_DRONE"
+			--id = "ABANDONED_VESSEL_GENERIC"  -- DEBUG
+			--id = "HOSTILE_DRONE" -- DEBUG
 			
 			-- Launch encounter
 			if found and id ~= nil then
@@ -1180,6 +1179,13 @@ function VoidWanderers:UpdateActivity()
 				if CF_CountActors(CF_CPUTeam) == 0 and self.AssaultEnemiesToSpawn == 0 then
 					-- End of assault
 					self.GS["Mode"] = "Vessel"
+					
+					-- Give some exp
+					if 	self.MissionReport == nil then
+						self.MissionReport = {}
+					end
+					self.MissionReport[#self.MissionReport + 1] = "We survived this assault."
+					self:GiveRandomExperienceReward(self.AssaultDifficulty)
 					
 					-- Re-init consoles back
 					self:InitConsoles()
@@ -1721,14 +1727,14 @@ function VoidWanderers:GiveRandomExplorationReward()
 	local r = math.random(rewards.nothing)
 	
 	if r == rewards.gold then
-		local amount = self.MissionDifficulty * 200 + math.random(self.MissionDifficulty * 500)
+		local amount = math.floor(self.MissionDifficulty * 200 + math.random(self.MissionDifficulty * 500))
 		
 		CF_SetPlayerGold(self.GS, 0, CF_GetPlayerGold(self.GS, 0) + amount)
 		text = {}
 		text[1] = "Bank account access codes found."
 		text[2] = tostring(amount).."oz of gold received."
 	elseif r == rewards.experience then
-		local exppts = self.MissionDifficulty * 50 + math.random(self.MissionDifficulty * 100)
+		local exppts = math.floor(self.MissionDifficulty * 50 + math.random(self.MissionDifficulty * 100))
 		levelup = CF_GiveExp(self.GS, exppts)
 		
 		text = {}
@@ -1743,7 +1749,7 @@ function VoidWanderers:GiveRandomExplorationReward()
 			text[2] = "Brain"..s.." leveled up!"
 		end
 	elseif r == rewards.reputation then
-		local amount = self.MissionDifficulty * 25 + math.random(self.MissionDifficulty * 25)
+		local amount = math.floor(self.MissionDifficulty * 25 + math.random(self.MissionDifficulty * 25))
 		local plr = math.random(tonumber(self.GS["ActiveCPUs"]))
 		
 		local rep = tonumber(self.GS["Player"..plr.."Reputation"])
@@ -1761,8 +1767,41 @@ function VoidWanderers:GiveRandomExplorationReward()
 	for i = 1, #text do
 		self.MissionReport[#self.MissionReport + 1]	= text[i]
 	end
+	CF_SaveMissionReport(self.GS, self.MissionReport)
 	
 	return text;
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
+function VoidWanderers:GiveRandomExperienceReward(diff)
+	local exppts = 150 + math.random(350)
+	
+	if diff ~= nil then
+		exppts = CF_CalculateReward(diff , 250)
+	end
+	
+	levelup = CF_GiveExp(self.GS, exppts)
+	
+	text = {}
+	text[1] = tostring(exppts).." exp gained."
+	
+	if levelup then
+		local s = ""
+		if self.PlayerCount > 1 then
+			s = "s"
+		end
+	
+		text[2] = "Brain"..s.." leveled up!"
+	end
+
+	if 	self.MissionReport == nil then
+		self.MissionReport = {}
+	end
+	for i = 1, #text do
+		self.MissionReport[#self.MissionReport + 1]	= text[i]
+	end
+	CF_SaveMissionReport(self.GS, self.MissionReport)
 end
 -----------------------------------------------------------------------------------------
 --
@@ -1787,4 +1826,4 @@ end
 -----------------------------------------------------------------------------------------
 -- That's all folks!!!
 -----------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------`````````````
+-----------------------------------------------------------------------------------------

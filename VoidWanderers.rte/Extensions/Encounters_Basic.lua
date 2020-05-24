@@ -162,6 +162,8 @@ function (self, variant)
 			if count == 0 then
 				self.MissionReport = {}
 				self.MissionReport[#self.MissionReport + 1] = "Fine, looks like you're a tough one. You can pass for free. "..self.RandomEncounterPirate["Captain"].." out."
+
+				self:GiveRandomExperienceReward()
 				
 				-- Finish encounter
 				self.RandomEncounterID = nil
@@ -415,7 +417,7 @@ CF_RandomEncountersFunctions[id] =
 function (self, variant)
 	if not self.RandomEncounterIsInitialized then
 		self.RandomEncounterDroneActivated = false
-		self.RandomEncounterDroneCharges = 10
+		self.RandomEncounterDroneCharges = 7
 		self.RandomEncounterShotFired = 0
 		self.RandomEncounterDroneInterval = 1
 		self.RandomEncounterDroneRechargeInterval = 8
@@ -532,7 +534,7 @@ function (self, variant)
 		if self.Time >= self.RandomEncounterDroneNextFire then
 			local a = self.RandomEncounterTargetAngle
 	
-			for i = 1, 6 do
+			for i = 1, 5 do
 				local expl = CreateAEmitter("Destroyer Cannon Shot");
 				expl.Pos = self.RandomEncounterFirePos + Vector(math.cos((a + 180) / (180 / math.pi)) * (i * 10), math.sin((a + 180) / (180 / math.pi)) * (i * 10));
 				
@@ -550,11 +552,8 @@ function (self, variant)
 				
 				if self.RandomEncounterDroneCharges == 0 then
 					self.MissionReport = {}
-					if math.random() < 0.5 then
-						self.MissionReport[#self.MissionReport + 1] = "Drone overloaded it's reactors and expoded."
-					else
-						self.MissionReport[#self.MissionReport + 1] = "Drone discharged it's batteries and selfdestructed."
-					end
+					self.MissionReport[#self.MissionReport + 1] = "Drone overloaded it's reactors and expoded."
+					self:GiveRandomExperienceReward()
 					CF_SaveMissionReport(self.GS, self.MissionReport)
 				
 					-- Finish encounter
