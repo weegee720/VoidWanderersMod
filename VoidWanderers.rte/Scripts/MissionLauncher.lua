@@ -136,6 +136,14 @@ function VoidWanderers:LoadCurrentGameState()
 		self.GS = CF_ReadConfigFile(self.ModuleName , STATE_CONFIG_FILE);
 		
 		self.Time = tonumber(self.GS["Time"])
+		
+		-- Move ship to tradestar if last location was removed
+		if CF_PlanetName[self.GS["Planet"]] == nil then
+			--print (self.GS["Location"].." not found. Relocated to tradestar.")
+		
+			self.GS["Planet"] = CF_Planet[1]
+			self.GS["Location"] = nil
+		end
 	end
 end
 -----------------------------------------------------------------------------------------

@@ -698,6 +698,27 @@ function VoidWanderers:UpdateActivity()
 			FrameMan:SetScreenText("LIFE SUPPORT OVERLOADED\nSTORE OR DUMP SOME BODIES", 0, 0, 1000, true);
 		end
 		
+		
+		-- Switch players from brain to bridge
+		local bridgeempty = true
+		local plrtoswitch = -1
+		
+		for plr = 0 , self.PlayerCount - 1 do
+			local act = self:GetControlledActor(plr);
+			
+			if act.PresetName == "Brain Case" and plrtoswitch == -1 then
+				plrtoswitch = plr
+			end
+			
+			if act.PresetName == "Ship Control Panel" then
+				bridgeempty = false
+			end
+		end
+			
+		if plrtoswitch > -1 and bridgeempty and MovableMan:IsActor(self.ShipControlPanelActor) then
+			self:SwitchToActor(self.ShipControlPanelActor, plrtoswitch, CF_PlayerTeam);
+		end
+		
 		-- Show assault warning
 		if self.AssaultTime > self.Time then
 			FrameMan:ClearScreenText(0);

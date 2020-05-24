@@ -446,6 +446,9 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self:PutGlow("ControlPanel_Ship_Report", pos)
 				CF_DrawString("MISSION REPORT", pos + Vector(-34,-77), 262, 141)
 
+				CF_DrawString("AVAILABLE GOLD: "..CF_GetPlayerGold(self.GS, 0), pos + Vector(-130,-60), 262, 141)
+				
+				
 				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,-77))
 				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,78))
 				CF_DrawString("Press DOWN to save game", pos + Vector(-60,77), 262, 141)

@@ -23,9 +23,9 @@ function VoidWanderers:StartActivity()
 	
 	self.GS = {};
 	
-	self:LoadCurrentGameState();
-	
 	CF_InitFactions(self)
+
+	self:LoadCurrentGameState();
 	
 	self.ModuleName = "VoidWanderers.rte";
 	
