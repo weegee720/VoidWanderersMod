@@ -68,7 +68,8 @@ function CF_InitFactions(activity)
 	CF_MaxClones = 1000 -- Max clones in clone storage
 	CF_MaxUnitsPerDropship = 3
 	
-	CF_MaxSavedActors = 100
+	CF_MaxSavedActors = 40
+	CF_MaxSavedItemsPerActor = 20
 	
 	-- Set this to true to stop any UI processing. Useful when debuging and need to disable UI error message spam.
 	CF_StopUIProcessing = false

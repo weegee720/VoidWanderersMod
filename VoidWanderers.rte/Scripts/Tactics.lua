@@ -61,6 +61,60 @@ function VoidWanderers:StartActivity()
 		end
 	end
 	
+	-- Spawn mission objects
+	if self.GS["Mode"] == "Mission" then
+		-- Data array will be indexed Data[mission][]
+		self.MissionTypes = {}
+		self.Pts = {}
+		
+		-- Create list of data objcets
+		-- Add generic mission types which must be present on any map
+		self.MissionTypes[1] = "Deploy"
+		self.MissionTypes[2] = "Enemy"
+		
+		for i = 1, #CF_LocationMissions[self.SelectedLocationID] do
+			self.MissionTypes[CF_GenericMissionCount + i] = CF_LocationMissions[self.SelectedLocationID][i]
+		end
+	
+		-- Load level data
+		for k1 = 1, #self.MissionTypes do
+			local msntype = self.MissionTypes[k1]
+			
+			for k2 = 1, CF_MissionMaxSets[msntype] do
+			
+				for k3 = 1, #CF_MissionRequiredData[msntype] do
+					local pttype = CF_MissionRequiredData[msntype][k3]["Name"]
+					
+					for k4 = 1, CF_MissionRequiredData[msntype][k3]["Max"] do
+						local id = msntype..tostring(k2)..pttype..tostring(k4)
+						
+						local x = self.LS[id.."X"]
+						local y = self.LS[id.."Y"]
+
+						if x ~= nil and y ~= nil then
+							if self.Pts[msntype] == nil then
+								self.Pts[msntype] = {}
+							end
+							if self.Pts[msntype][k2] == nil then
+								self.Pts[msntype][k2] = {}
+							end
+							if self.Pts[msntype][k2][k3] == nil then
+								self.Pts[msntype][k2][k3] = {}
+							end
+							if self.Pts[msntype][k2][k3][k4] == nil then
+								self.Pts[msntype][k2][k3][k4] = {}
+							end
+						
+							self.Pts[msntype][k2][k3][k4] = Vector(tonumber(x), tonumber(y))
+						end
+					end
+				end
+			end
+		end
+	
+		-- Find suitable LZ's
+	end
+	
 	-- Load pre-spawned enemy locations. These locations also used during assaults to place teleported units
 	self.EnemySpawn = {}
 	for i = 1, 32 do
@@ -322,8 +376,9 @@ function VoidWanderers:UpdateActivity()
 			self.GS["Mode"] = "Assault"
 
 			-- Remove control actors
-			self.StorageControlPanelActor.ToDelete = true		
-			self.ClonesControlPanelActor.ToDelete = true		
+			self.StorageControlPanelActor.ToDelete = true
+			self.ClonesControlPanelActor.ToDelete = true
+			self.BeamControlPanelActor.ToDelete = true
 		end
 	end
 	
@@ -385,6 +440,13 @@ function VoidWanderers:UpdateActivity()
 				MovableMan:AddParticle(p)
 				self.TeleportEffectTimer:Reset()
 			end
+		end
+	end
+	
+	-- After assault prevent friendly bleeding units from dying
+	if self.GS["Mode"] == "Assault" then
+		for actor in MovableMan.Actors do
+			actor.Health = 100
 		end
 	end
 	

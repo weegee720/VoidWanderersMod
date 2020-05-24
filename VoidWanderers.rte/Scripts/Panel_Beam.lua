@@ -101,11 +101,85 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 			
 			CF_DrawString("DEPLOY [ "..tostring(count).."/"..self.GS["Player0VesselCommunication"].." ]", pos + Vector(-30, -16), 130, 36)
 			
+			-- Deploy units
+			if cont:IsState(Controller.WEAPON_FIRE) and canbeam then
+				if not self.FirePressed then
+					self.FirePressed = true;
+					
+					local savedactor = 1
+
+					-- Clean previously saved actors and inventories in config
+					for i = 1, CF_MaxSavedActors do
+						self.GS["Actor"..i.."Preset"] = nil
+						self.GS["Actor"..i.."Class"] = nil
+						self.GS["Actor"..i.."X"] = nil
+						self.GS["Actor"..i.."Y"] = nil
+						
+						for j = 1, CF_MaxSavedItemsPerActor do
+							self.GS["Actor"..i.."Item"..j.."Preset"] = nil
+							self.GS["Actor"..i.."Item"..j.."Class"] = nil
+						end
+					end
+
+					self.DeployedActors = {}
+
+					-- Save actors to config and transfer them to scene
+					for actor in MovableMan:Actors() do
+						if actor.PresetName ~= "Brain Case" and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") then
+							-- Save actors to config
+							self.GS["Actor"..savedactor.."Status"] = "Boarded"
+							self.GS["Actor"..savedactor.."Preset"] = actor.PresetName
+							self.GS["Actor"..savedactor.."Class"] = actor.ClassName
+							self.GS["Actor"..savedactor.."X"] = math.floor(actor.Pos.X)
+							self.GS["Actor"..savedactor.."Y"] = math.floor(actor.Pos.Y)
+							
+							local pre, cls = CF_GetInventory(actor)
+							
+							for j = 1, #pre do
+								self.GS["Actor"..savedactor.."Item"..j.."Preset"] = pre[j]
+								self.GS["Actor"..savedactor.."Item"..j.."Class"] = cls[j]
+							end
+							
+							savedactor = savedactor + 1
+
+							-- These actors must be deployed
+							if self.BeamControlPanelBox:WithinBox(actor.Pos) then
+								self.GS["Actor"..savedactor.."Status"] = "Deployed"
+								local = n #self.DeployedActors + 1
+								self.DeployedActors[n] = {}
+								self.DeployedActors[n]["Preset"] = actor.PresetName
+								self.DeployedActors[n]["Class"] = actor.ClassName
+								self.DeployedActors[n]["InventoryPresets"] = pre
+								self.DeployedActors[n]["InventoryClasses"] = cls
+							end
+						end
+					end
+					
+					-- Prepare for transfer
+					--Select scene
+					local r = math.random(#CF_LocationScenes[ self.GS["Location"] ])
+					local scene = CF_LocationScenes[ self.GS["Location"] ][r]
+
+					self:SaveGameState();
+					
+					-- Set new operating mode
+					self.GS["Mode"] = "Mission"
+					
+					self:LaunchScript(scene, "Tactics.lua")
+				end
+			else
+				self.FirePressed = false
+			end
+			
+			-- Draw background
 			if canbeam then
 				self:PutGlow("ControlPanel_Beam_Button", pos)
 			else
 				self:PutGlow("ControlPanel_Beam_ButtonRed", pos)
 			end
+			
+			
+			
 		end
 	end
 	
