@@ -307,8 +307,23 @@ function CF_GetCloneShopArray(gs, makefilters)
 					isduplicate = true
 				end
 			end
-		
-			if tonumber(gs["Player"..i.."Reputation"]) > 0 and tonumber(gs["Player"..i.."Reputation"]) >= CF_ActUnlockData[f][itm] and not isduplicate then
+			
+			local need2add = false
+			
+			-- Add vanilla turrets as always available
+			if f == "Dummy" or f == "Coalition" or f == "Imperatus" or f == "Ronin" or f == "Techion" or f == "Browncoats" then
+				if CF_ActTypes[f][itm] == CF_ActorTypes.TURRET then
+					need2add = true
+				end
+			end
+			
+			if not need2add then
+				if tonumber(gs["Player"..i.."Reputation"]) > 0 and tonumber(gs["Player"..i.."Reputation"]) >= CF_ActUnlockData[f][itm] then
+					need2add = true
+				end
+			end
+			
+			if need2add and not duplicate then
 				local ii = #arr + 1
 				arr[ii] = {}
 				arr[ii]["Preset"] = CF_ActPresets[f][itm]
@@ -643,7 +658,6 @@ end
 function CF_CountUsedClonesInArray(arr)
 	return #arr
 end
-
 -----------------------------------------------------------------------------------------
 --	Saves array of stored items to game state
 -----------------------------------------------------------------------------------------
@@ -676,6 +690,111 @@ function CF_SetClonesArray(gs, arr)
 		end
 	end	
 	
+end
+-----------------------------------------------------------------------------------------
+--	
+--	
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
+--
+--
+-----------------------------------------------------------------------------------------
+function CF_PutTurretToStorageArray(arr, preset, class)
+	-- Find item in storage array
+	local found = 0
+	local isnew = false
+
+	--print (preset)
+	--print (class)
+	
+	for j = 1, #arr do
+		if arr[j]["Preset"] == preset then
+			found = j
+		end
+	end
+	
+	if found == 0 then
+		found = #arr + 1
+		arr[found] = {}
+		arr[found]["Count"] = 1
+		arr[found]["Preset"] = preset
+		if class ~= nil then
+			arr[found]["Class"] = class
+		else
+			arr[found]["Class"] = "AHuman"
+		end
+		isnew = true
+	else
+		arr[found]["Count"] = arr[found]["Count"] + 1
+	end
+
+	return isnew
+end
+-----------------------------------------------------------------------------------------
+--
+--
+-----------------------------------------------------------------------------------------
+function CF_GetTurretsArray(gs)
+	local arr = {}
+	
+	-- Copy 
+	for i = 1, CF_MaxTurrets do
+		if gs["TurretsStorage"..i.."Preset"] ~= nil then
+			arr[i] = {}
+			arr[i]["Preset"] = gs["TurretsStorage"..i.."Preset"]
+			arr[i]["Class"] = gs["TurretsStorage"..i.."Class"]
+			arr[i]["Count"] = gs["TurretsStorage"..i.."Count"]
+		else
+			break
+		end
+	end
+	
+	-- Sort
+	for i = 1, #arr do
+		for j = 1, #arr  - 1 do
+			if arr[j]["Preset"] > arr[j + 1]["Preset"] then
+				local c = arr[j]
+				arr[j] = arr[j + 1]
+				arr[j + 1] = c
+			end
+		end
+	end
+	
+	return arr
+end
+
+-----------------------------------------------------------------------------------------
+--	Counts used clones in clone array
+-----------------------------------------------------------------------------------------
+function CF_CountUsedTurretsInArray(arr)
+	local count = 0
+	
+	for i = 1, #arr do
+		count = count + arr[i]["Count"]
+	end
+	
+	return count
+end
+-----------------------------------------------------------------------------------------
+--	Saves array of stored items to game state
+-----------------------------------------------------------------------------------------
+function CF_SetTurretsArray(gs, arr)
+	-- Clean clones
+	for i = 1, CF_MaxTurrets do
+		gs["TurretsStorage"..i.."Preset"] = nil
+		gs["TurretsStorage"..i.."Class"] = nil
+		gs["TurretsStorage"..i.."Count"] = nil
+	end
+	
+	-- Save
+	for i = 1, #arr do
+		gs["TurretsStorage"..i.."Preset"] = arr[i]["Preset"]
+		gs["TurretsStorage"..i.."Class"] = arr[i]["Class"]
+		gs["TurretsStorage"..i.."Count"] = arr[i]["Count"]
+		
+		--print (tostring(i).." "..arr[i]["Preset"])
+		--print (tostring(i).." "..arr[i]["Class"])
+	end	
 end
 -----------------------------------------------------------------------------------------
 --

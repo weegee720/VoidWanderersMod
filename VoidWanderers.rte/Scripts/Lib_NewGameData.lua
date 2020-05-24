@@ -73,6 +73,7 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 
 	config["Player0VesselSpeed"] = CF_VesselStartSpeed[ config["Player0Vessel"] ]
 	config["Player0VesselTurrets"] = CF_VesselStartTurrets[ config["Player0Vessel"] ]
+	config["Player0VesselTurretStorage"] = CF_VesselStartTurretStorage[ config["Player0Vessel"] ]
 	
 	config["Time"] = 1
 

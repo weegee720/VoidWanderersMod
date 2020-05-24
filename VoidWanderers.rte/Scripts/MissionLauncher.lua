@@ -245,6 +245,11 @@ function VoidWanderers:LoadCurrentGameState()
 			if val == nil then
 				self.GS["Player0VesselTurrets"] = CF_VesselStartTurrets[ self.GS["Player0Vessel"] ]
 			end
+
+			local val = self.GS["Player0VesselTurretStorage"]
+			if val == nil then
+				self.GS["Player0VesselTurretStorage"] = CF_VesselStartTurretStorage[ self.GS["Player0Vessel"] ]
+			end
 		end
 	end
 end

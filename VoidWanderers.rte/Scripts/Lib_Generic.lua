@@ -44,7 +44,7 @@ function CF_InitFactions(activity)
 	CF_ReputationPerDifficulty = 1000
 	
 	CF_DistanceToAttemptEvent = 50
-	CF_RandomEncounterProbability = 1--0.1 -- 1 -- DEBUG
+	CF_RandomEncounterProbability = 0.1 -- 1 -- DEBUG
 	
 	-- When reputation below this level enemy starts sending crafts after player
 	CF_ReputationHuntTreshold = -500
@@ -91,6 +91,7 @@ function CF_InitFactions(activity)
 	CF_CommunicationPrice = 3000
 	CF_EnginePrice = 500
 	CF_TurretPrice = 4000
+	CF_TurretStoragePrice = 2000
 	
 	CF_ShipSellCoeff = 0.25
 	CF_ShipDevInstallCoeff = 0.05
@@ -143,6 +144,7 @@ function CF_InitFactions(activity)
 	CF_MaxItemsPerPreset = 2 -- Max items per AI unit preset
 	CF_MaxStorageItems = 1000
 	CF_MaxClones = 1000 -- Max clones in clone storage
+	CF_MaxTurrets = 1000
 	CF_MaxUnitsPerDropship = 3
 	
 	CF_MaxSavedActors = 40

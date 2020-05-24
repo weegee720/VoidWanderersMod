@@ -964,6 +964,14 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self.ShipControlUpgrades[6]["Price"] = CF_TurretPrice
 				self.ShipControlUpgrades[6]["Bundle"] = 1
 
+				self.ShipControlUpgrades[7] = {}
+				self.ShipControlUpgrades[7]["Name"] = "Turret storage"
+				self.ShipControlUpgrades[7]["Variable"] = "Player0VesselTurretStorage"
+				self.ShipControlUpgrades[7]["Max"] = CF_VesselMaxTurretStorage[ self.GS["Player0Vessel"] ]
+				self.ShipControlUpgrades[7]["Description"] = "How many turrets can be stored in the ship"
+				self.ShipControlUpgrades[7]["Price"] = CF_TurretStoragePrice
+				self.ShipControlUpgrades[7]["Bundle"] = 1
+				
 				
 				if cont:IsState(Controller.PRESS_UP) then
 					-- Select planet
@@ -1126,7 +1134,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				--print (instl)
 				
 				CF_DrawString("Cryo:", pos + Vector(8, -48), 140, 40)
-				CF_DrawString(""..actcryo.."/"..maxcryo, pos + Vector(8 + 86, -48), 140, 40)
+				CF_DrawString(""..actcryo.."/"..maxcryo, pos + Vector(8 + 90, -48), 140, 40)
 
 				-- Storage
 				local newstor = CF_VesselStartStorageCapacity[id]
@@ -1152,7 +1160,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 
 				
 				CF_DrawString("Storage:", pos + Vector(8, -36), 140, 40)
-				CF_DrawString(""..actstor.."/"..maxstor, pos + Vector(8 + 86, -36), 140, 40)
+				CF_DrawString(""..actstor.."/"..maxstor, pos + Vector(8 + 90, -36), 140, 40)
 
 				-- Life support
 				local newlife = CF_VesselStartLifeSupport[id]
@@ -1177,7 +1185,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				--print (instl)
 				
 				CF_DrawString("Life support:", pos + Vector(8, -24), 140, 40)
-				CF_DrawString(""..actlife.."/"..maxlife, pos + Vector(8 + 86, -24), 140, 40)
+				CF_DrawString(""..actlife.."/"..maxlife, pos + Vector(8 + 90, -24), 140, 40)
 				
 				-- Communcation
 				local newcomm = CF_VesselStartCommunication[id]
@@ -1202,7 +1210,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				--print (instl)
 				
 				CF_DrawString("Communication:", pos + Vector(8, -12), 140, 40)
-				CF_DrawString(""..actcomm.."/"..maxcomm, pos + Vector(8 + 86, -12), 140, 40)
+				CF_DrawString(""..actcomm.."/"..maxcomm, pos + Vector(8 + 90, -12), 140, 40)
 				
 				-- Engine
 				local actengn = CF_VesselStartSpeed[id]
@@ -1211,24 +1219,76 @@ function VoidWanderers:ProcessShipControlPanelUI()
 					
 				
 				CF_DrawString("Engine:", pos + Vector(8, 0), 140, 40)
-				CF_DrawString(""..actengn.."/"..maxengn, pos + Vector(8 + 86, 0), 140, 40)
+				CF_DrawString(""..actengn.."/"..maxengn, pos + Vector(8 + 90, 0), 140, 40)
+
+
+
+				-- Turrets
+				local newturr = CF_VesselStartTurrets[id]
+				local oldturr = tonumber(self.GS["Player0VesselTurrets"])
+				local maxturr = CF_VesselMaxTurrets[id]
+				local actturr = newturr + oldturr
+				local excturr = 0
+				if actturr > maxturr then
+					excturr = newturr + oldturr - maxturr
+					actturr = maxturr
+				end
+
+				local insturr = actturr - newturr
+				if insturr < 0 then
+					insturr = 0
+				end
+				
+				bonus = bonus + excturr * CF_TurretPrice* CF_ShipSellCoeff
+				instl = instl + insturr * CF_TurretPrice * CF_ShipDevInstallCoeff
+
+				--print (insturr)
+				--print (instl)
+				
+				CF_DrawString("Turrets:", pos + Vector(8, 12), 140, 40)
+				CF_DrawString(""..actturr.."/"..maxturr, pos + Vector(8 + 90, 12), 140, 40)
+
+				-- Turrets storage
+				local newturs = CF_VesselStartTurretStorage[id]
+				local oldturs = tonumber(self.GS["Player0VesselTurretStorage"])
+				local maxturs = CF_VesselMaxTurretStorage[id]
+				local actturs = newturs + oldturs
+				local excturs = 0
+				if actturs > maxturs then
+					excturs = newturs + oldturs - maxturs
+					actturs = maxturs
+				end
+
+				local insturs = actturs - newturs
+				if insturs < 0 then
+					insturs = 0
+				end
+				
+				bonus = bonus + excturs * CF_TurretStoragePrice* CF_ShipSellCoeff
+				instl = instl + insturs * CF_TurretStoragePrice * CF_ShipDevInstallCoeff
+
+				--print (insturs)
+				--print (instl)
+				
+				CF_DrawString("Turret storage:", pos + Vector(8, 24), 140, 40)
+				CF_DrawString(""..actturs.."/"..maxturs, pos + Vector(8 + 90, 24), 140, 40)
 				
 				bonus = math.floor(bonus)
 				instl = math.floor(instl)
 				
 				total = price + instl - bonus
 				
-				CF_DrawString("BASE:", pos + Vector(8, 24), 140, 40)
-				CF_DrawString(tostring(price).."oz", pos + Vector(70, 24), 140, 40)
+				CF_DrawString("BASE PRICE:", pos + Vector(8, 48), 140, 40)
+				CF_DrawString(tostring(price).."oz", pos + Vector(76, 48), 140, 40)
 
-				CF_DrawString("INSTALL:", pos + Vector(8, 36), 140, 40)
-				CF_DrawString(tostring(instl).."oz", pos + Vector(70, 36), 140, 40)
+				--CF_DrawString("INSTALL:", pos + Vector(8, 36), 140, 40)
+				--CF_DrawString(tostring(instl).."oz", pos + Vector(70, 36), 140, 40)
 
-				CF_DrawString("TRADE-IN:", pos + Vector(8, 48), 140, 40)
-				CF_DrawString(tostring(bonus).."oz", pos + Vector(70, 48), 140, 40)
+				--CF_DrawString("TRADE-IN:", pos + Vector(8, 48), 140, 40)
+				--CF_DrawString(tostring(bonus).."oz", pos + Vector(70, 48), 140, 40)
 
-				CF_DrawString("TOTAL:", pos + Vector(8, 60), 140, 40)
-				CF_DrawString(tostring(total).."oz", pos + Vector(70, 60), 140, 40)
+				CF_DrawString("YOUR PRICE:", pos + Vector(8, 60), 140, 40)
+				CF_DrawString(tostring(total).."oz", pos + Vector(76, 60), 140, 40)
 				
 				if total > CF_GetPlayerGold(self.GS, 0) then
 					if self.Time % 2 == 0 then

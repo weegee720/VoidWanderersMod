@@ -167,18 +167,36 @@ function VoidWanderers:ProcessCloneShopControlPanelUI()
 					if self.CloneShopSelectedClone > 0 then
 						local cln = self.CloneShopFilters[self.CloneShopControlMode][self.CloneShopSelectedClone]
 						
-						if cln ~= nil and CF_CountUsedClonesInArray(self.Clones) < tonumber(self.GS["Player0VesselClonesCapacity"]) and self.CloneShopSelectedClonePrice <= CF_GetPlayerGold(self.GS, 0) then
-							-- Remove actor from array
-							local c = #self.Clones + 1
-							
-							self.Clones[c] = {}
-							self.Clones[c]["Preset"] = self.CloneShopItems[cln]["Preset"]
-							self.Clones[c]["Class"] = self.CloneShopItems[cln]["Class"]
-							self.Clones[c]["Items"] = {}
-							
-							CF_SetClonesArray(self.GS, self.Clones)
-							
-							CF_SetPlayerGold(self.GS, 0, CF_GetPlayerGold(self.GS, 0) - self.CloneShopSelectedClonePrice)
+						if cln ~= nil then
+							if self.CloneShopItems[cln]["Type"] == CF_ActorTypes.TURRET then
+								if CF_CountUsedTurretsInArray(self.Turrets) < tonumber(self.GS["Player0VesselTurretStorage"]) and self.CloneShopSelectedClonePrice <= CF_GetPlayerGold(self.GS, 0) then
+									--[[local c = #self.Turrets + 1
+									
+									self.Turrets[c] = {}
+									self.Turrets[c]["Preset"] = self.CloneShopItems[cln]["Preset"]
+									self.Turrets[c]["Class"] = self.CloneShopItems[cln]["Class"]--]]--
+									
+									CF_PutTurretToStorageArray(self.Turrets, self.CloneShopItems[cln]["Preset"], self.CloneShopItems[cln]["Class"])
+									
+									CF_SetTurretsArray(self.GS, self.Turrets)
+									CF_SetPlayerGold(self.GS, 0, CF_GetPlayerGold(self.GS, 0) - self.CloneShopSelectedClonePrice)
+								end
+							else
+								if CF_CountUsedClonesInArray(self.Clones) < tonumber(self.GS["Player0VesselClonesCapacity"]) and self.CloneShopSelectedClonePrice <= CF_GetPlayerGold(self.GS, 0) then
+									local c = #self.Clones + 1
+									
+									self.Clones[c] = {}
+									self.Clones[c]["Preset"] = self.CloneShopItems[cln]["Preset"]
+									self.Clones[c]["Class"] = self.CloneShopItems[cln]["Class"]
+									self.Clones[c]["Items"] = {}
+									
+									CF_SetClonesArray(self.GS, self.Clones)
+									
+									CF_SetPlayerGold(self.GS, 0, CF_GetPlayerGold(self.GS, 0) - self.CloneShopSelectedClonePrice)
+								end
+							end
+						else
+							print ("Error in Panel_CloneShop.lua - cln is nil")
 						end
 					end
 				end
@@ -215,7 +233,13 @@ function VoidWanderers:ProcessCloneShopControlPanelUI()
 			CF_DrawString(self.CloneShopControlPanelModesTexts[self.CloneShopControlMode], pos + Vector(-130,-77) , 170, 10)
 			
 			-- Print CloneShop capacity
-			CF_DrawString("Capacity: "..CF_CountUsedClonesInArray(self.Clones).."/"..self.GS["Player0VesselClonesCapacity"], pos + Vector(-130,-60) , 300, 10)
+			local cln = self.CloneShopFilters[self.CloneShopControlMode][self.CloneShopSelectedClone]
+			
+			if cln ~= nil and self.CloneShopItems[cln]["Type"] == CF_ActorTypes.TURRET then
+				CF_DrawString("Turrets: "..CF_CountUsedTurretsInArray(self.Turrets).."/"..self.GS["Player0VesselTurretStorage"], pos + Vector(-130,-60) , 300, 10)
+			else
+				CF_DrawString("Capacity: "..CF_CountUsedClonesInArray(self.Clones).."/"..self.GS["Player0VesselClonesCapacity"], pos + Vector(-130,-60) , 300, 10)
+			end
 			CF_DrawString("Gold: "..CF_GetPlayerGold(self.GS, 0).." oz", pos + Vector(-130,-44) , 300, 10)
 		end
 	end

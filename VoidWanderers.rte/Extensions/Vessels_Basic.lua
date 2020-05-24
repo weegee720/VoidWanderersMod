@@ -24,6 +24,10 @@ CF_VesselStartSpeed[id] = 20
 CF_VesselMaxTurrets[id] = 2
 CF_VesselStartTurrets[id] = 0
 
+CF_VesselMaxTurretStorage[id] = 6
+CF_VesselStartTurretStorage[id] = 0
+
+
 
 local id = "Titan"
 CF_Vessel[#CF_Vessel + 1] = id
@@ -49,6 +53,10 @@ CF_VesselStartSpeed[id] = 10
 
 CF_VesselMaxTurrets[id] = 4
 CF_VesselStartTurrets[id] = 0
+
+CF_VesselMaxTurretStorage[id] = 14
+CF_VesselStartTurretStorage[id] = 0
+
 
 -- Abandoned vessel scenes
 local id = "Abandoned Gryphon Vessel"
