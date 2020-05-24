@@ -179,7 +179,7 @@ function VoidWanderers:ProcessItemShopControlPanelUI()
 						local itm = self.ItemShopFilters[self.ItemShopControlMode][self.ItemShopSelectedItem]
 						
 						if itm ~= nil and CF_CountUsedStorageInArray(self.StorageItems) < tonumber(self.GS["Player0VesselStorageCapacity"]) and self.ItemShopSelectedItemPrice <= CF_GetPlayerGold(self.GS, 0) then
-							local needrefresh = CF_PutItemToStorageArray(self.StorageItems, self.ItemShopItems[itm]["Preset"], self.ItemShopItems["Class"])
+							local needrefresh = CF_PutItemToStorageArray(self.StorageItems, self.ItemShopItems[itm]["Preset"], self.ItemShopItems[itm]["Class"])
 							
 							CF_SetPlayerGold(self.GS, 0, CF_GetPlayerGold(self.GS, 0) - self.ItemShopSelectedItemPrice)
 

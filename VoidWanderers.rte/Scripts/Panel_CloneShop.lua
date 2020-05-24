@@ -109,7 +109,7 @@ function VoidWanderers:ProcessCloneShopControlPanelUI()
 				self.CloneShopSelectedClone = 1
 				self.LastCloneShopSelectedClone = 0
 				
-				if self.CloneShopControlMode == -1 then
+				if self.CloneShopControlMode == -2 then
 					self.CloneShopControlMode = self.CloneShopControlPanelModes.TURRET
 				end
 			end	

@@ -259,7 +259,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 					if self.ShipControlLocationList[ self.ShipControlSelectedLocation ] == self.GS["Mission"..m.."Location"] then
 						msn = true
 						msntype = CF_MissionName[ self.GS["Mission"..m.."Type"] ]
-						msndiff = tonumber(self.GS["Mission"..m.."Difficulty"])
+						msndiff = CF_GetFullMissionDifficulty(self.GS, self.GS["Mission"..m.."Location"], m)--tonumber(self.GS["Mission"..m.."Difficulty"])
 						msntgt = tonumber(self.GS["Mission"..m.."TargetPlayer"])
 						break
 					end
@@ -579,7 +579,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 					self.ShipControlMissions[i] = {}
 					self.ShipControlMissions[i]["SourcePlayer"] = tonumber(self.GS["Mission"..i.."SourcePlayer"])
 					self.ShipControlMissions[i]["TargetPlayer"] = tonumber(self.GS["Mission"..i.."TargetPlayer"])
-					self.ShipControlMissions[i]["Difficulty"] = tonumber(self.GS["Mission"..i.."Difficulty"])
+					self.ShipControlMissions[i]["Difficulty"] = CF_GetFullMissionDifficulty(self.GS, self.GS["Mission"..i.."Location"], i)--tonumber(self.GS["Mission"..i.."Difficulty"])
 					self.ShipControlMissions[i]["Location"] = self.GS["Mission"..i.."Location"]
 					self.ShipControlMissions[i]["Type"] = self.GS["Mission"..i.."Type"]
 					

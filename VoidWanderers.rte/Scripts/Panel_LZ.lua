@@ -74,7 +74,7 @@ function VoidWanderers:ProcessLZControlPanelUI()
 			local unsafe = {}
 			
 			for actor in MovableMan.Actors do
-				if actor.ClassName == "AHuman" or actor.ClassName == "ACrab" then
+				if actor.PresetName ~= "-" and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") then
 					if actor.Team ~= CF_PlayerTeam then
 						enemies = enemies + 1
 						targets[#targets + 1] = actor.Pos
@@ -176,7 +176,7 @@ function VoidWanderers:ProcessLZControlPanelUI()
 					end
 
 					if self.MissionAvailable and self.MissionFailed then
-						self.MissionReport[#self.MissionReport + 1] = "MISSION FAILED"
+						self:GiveMissionPenalties()
 					end
 					
 					-- Update casualties report

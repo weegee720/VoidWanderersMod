@@ -56,12 +56,7 @@ function VoidWanderers:MissionCreate()
 
 	p2 = selection[math.random(#selection)]
 	
-	local diff, sec
-	
-	diff, sec = CF_GetLocationDifficulty(self.GS, self.GS["Location"])
-	-- Increase location security every time whe descend
-	sec = sec + 1
-	CF_SetLocationSecurity(self.GS, self.GS["Location"], sec)
+	local diff = CF_GetLocationDifficulty(self.GS, self.GS["Location"])
 
 	self.MissionDifficulty = diff
 	

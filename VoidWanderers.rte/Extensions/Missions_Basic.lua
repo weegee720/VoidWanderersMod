@@ -31,7 +31,6 @@ CF_MissionRequiredData[id][i]["Type"] = "Vector"
 CF_MissionRequiredData[id][i]["Max"] = 4
 
 
-
 -- Uses: Enemy
 local id = "Dropships"
 CF_Mission[#CF_Mission + 1] = id
@@ -42,5 +41,19 @@ CF_MissionMinReputation[id] = 600
 CF_MissionBriefingText[id] = "Disrupt enemy mining operations and destroy all incoming dropships."
 CF_MissionGoldRewardPerDifficulty[id] = 650
 CF_MissionReputationRewardPerDifficulty[id] = 25
+CF_MissionMaxSets[id] = 6
+CF_MissionRequiredData[id] = {}
+
+
+-- Uses: Enemy
+local id = "Mine"
+CF_Mission[#CF_Mission + 1] = id
+
+CF_MissionName[id] = "Establish Mining"
+CF_MissionScript[id] = "VoidWanderers.rte/Scripts/Mission_Mine.lua"
+CF_MissionMinReputation[id] = 1000
+CF_MissionBriefingText[id] = "Establish mining camp and protect enough miners from enemy."
+CF_MissionGoldRewardPerDifficulty[id] = 0
+CF_MissionReputationRewardPerDifficulty[id] = 60
 CF_MissionMaxSets[id] = 6
 CF_MissionRequiredData[id] = {}

@@ -25,10 +25,20 @@ function CF_InitFactions(activity)
 	
 	CF_MaxMissions = 5
 	
+	CF_SecurityIncrementPerMission = 10
+	CF_SecurityIncrementPerDeployment = 2
+	
 	CF_AssaultCheckInterval = 5
 	CF_ReputationPerDifficulty = 1000
+	
+	-- When reputation below this level enemy starts sending crafts after player
 	CF_ReputationHuntTreshold = -500
-	CF_ReputationPenaltyRatio = 1.25 -- When mission completed defines how many reputation points will be subtracted from target reputation
+	
+	-- When mission completed defines how many reputation points will be subtracted from target reputation	
+	CF_ReputationPenaltyRatio = 1.25
+
+	-- When mission failed defines how many reputation points will be subtracted from both reputations
+	CF_MissionFailedReputationPenaltyRatio = 0.35
 	
 	CF_UseCustomAI = true
 	

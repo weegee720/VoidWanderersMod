@@ -240,7 +240,7 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 								
 								-- Try to find actor or put item as is otherwise
 								for actor in MovableMan.Actors do
-									if CF_Dist(actor.Pos, self.StorageInputPos) <= self.StorageInputRange then
+									if CF_Dist(actor.Pos, self.StorageInputPos) <= self.StorageInputRange and actor.ClassName == "AHuman" then
 										hasactor = true
 										foundactor = actor
 										break;

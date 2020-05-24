@@ -21,17 +21,9 @@ function CF_GetStorageArray(gs, makefilters)
 	for i = 1, #arr do
 		for j = 1, #arr  - 1 do
 			if arr[j]["Preset"] > arr[j + 1]["Preset"] then
-				local p = arr[j]["Preset"]
-				local c = arr[j]["Class"]
-				local n = arr[j]["Count"]
-			
-				arr[j]["Preset"] = arr[j + 1]["Preset"]
-				arr[j]["Class"] = arr[j + 1]["Class"]
-				arr[j]["Count"] = arr[j + 1]["Count"]
-			
-				arr[j + 1]["Preset"] = p
-				arr[j + 1]["Class"] = c
-				arr[j + 1]["Count"] = n
+				local c = arr[j + 1]
+				arr[j + 1] = arr[j]
+				arr[j] = c
 			end
 		end
 	end
@@ -119,6 +111,9 @@ function CF_GetItemShopArray(gs, makefilters)
 				arr[ii]["Description"] = CF_ItmDescriptions[f][itm]
 				arr[ii]["Price"] = CF_ItmPrices[f][itm]
 				arr[ii]["Type"] = CF_ItmTypes[f][itm]
+				
+				--print(arr[ii]["Preset"])
+				--print(arr[ii]["Class"])
 			end
 		end
 	end
@@ -133,6 +128,11 @@ function CF_GetItemShopArray(gs, makefilters)
 			end
 		end
 	end
+	
+	--for i = 1, #arr do
+	--	print(arr[i]["Preset"])
+	--	print(arr[i]["Class"])
+	--end
 	
 	local arr2
 	if makefilters then
@@ -300,6 +300,9 @@ function CF_PutItemToStorageArray(arr, preset, class)
 	-- Find item in storage array
 	local found = 0
 	local isnew = false
+
+	--print (preset)
+	--print (class)
 	
 	for j = 1, #arr do
 		if arr[j]["Preset"] == preset then

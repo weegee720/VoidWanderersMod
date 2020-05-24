@@ -560,9 +560,6 @@ function CF_MakeUnitFromPreset(c, p, pre)
 	
 	return actor, offset;
 end
-
-
-
 -----------------------------------------------------------------------------
 --	
 -----------------------------------------------------------------------------
@@ -739,13 +736,7 @@ end
 -----------------------------------------------------------------------------
 function CF_GetLocationDifficulty(c, loc)
 	local diff = CF_MaxDifficulty
-	local sec
-	
-	if c["Security_"..loc] ~= nil then
-		sec = tonumber(c["Security_"..loc])
-	else
-		sec = CF_LocationSecurity[ loc ]
-	end
+	local sec = CF_GetLocationSecurity(c, loc)
 	
 	diff = math.floor(sec / 10)
 	if diff > CF_MaxDifficulty then
@@ -756,7 +747,39 @@ function CF_GetLocationDifficulty(c, loc)
 		diff = 1
 	end
 	
-	return diff, sec
+	return diff
+end
+-----------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------
+function CF_GetFullMissionDifficulty(c, loc, m)
+	local ld = CF_GetLocationDifficulty(c, loc)
+	local md = tonumber(c["Mission"..m.."Difficulty"])
+	local diff = ld + md - 1
+	
+	if diff > CF_MaxDifficulty then
+		diff = CF_MaxDifficulty
+	end
+	
+	if diff < 1 then
+		diff = 1
+	end	
+	
+	return diff
+end
+-----------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------
+function CF_GetLocationSecurity(c, loc)
+	local sec
+	
+	if c["Security_"..loc] ~= nil then
+		sec = tonumber(c["Security_"..loc])
+	else
+		sec = CF_LocationSecurity[ loc ]
+	end
+	
+	return sec
 end
 -----------------------------------------------------------------------------
 --
@@ -842,7 +865,9 @@ function CF_GenerateRandomMission(c)
 	local rloc = math.random(#missions[rmsn]["Scenes"])
 	
 	-- Pick some random difficulty for this mission
-	local rdif = math.random(CF_MaxDifficulty)
+	-- Generate missions with CF_MaxDifficulty / 2 because additional difficulty 
+	-- will be applied by location security level
+	local rdif = math.random(3)
 	
 	-- Pick some random target for this mission
 	local ok = false

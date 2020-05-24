@@ -170,17 +170,17 @@ function VoidWanderers:StartActivity()
 		local scene = SceneMan.Scene.PresetName
 
 		self.Pts =  CF_ReadPtsData(scene, self.LS)
-		local set = CF_GetRandomMissionPointsSet(self.Pts, "Deploy")
+		self.MissionDeploySet = CF_GetRandomMissionPointsSet(self.Pts, "Deploy")
 	
 		-- Find suitable LZ's
-		local lzs = CF_GetPointsArray(self.Pts, "Deploy", set, "PlayerLZ")
+		local lzs = CF_GetPointsArray(self.Pts, "Deploy", self.MissionDeploySet, "PlayerLZ")
 		self.LZControlPanelPos  = CF_SelectRandomPoints(lzs, self.PlayerCount)
 		
 		-- Init LZ's
 		self:InitLZControlPanelUI()
 		
 		local dest = 1;
-		local dsts = CF_GetPointsArray(self.Pts, "Deploy", set, "PlayerUnit")
+		local dsts = CF_GetPointsArray(self.Pts, "Deploy", self.MissionDeploySet, "PlayerUnit")
 		
 		-- Spawn player troops
 		for i = 1, #self.DeployedActors do
@@ -206,7 +206,7 @@ function VoidWanderers:StartActivity()
 		self.DeployedActors = nil
 		
 		-- Spawn crates
-		local crts = CF_GetPointsArray(self.Pts, "Deploy", set, "Crates")
+		local crts = CF_GetPointsArray(self.Pts, "Deploy", self.MissionDeploySet, "Crates")
 		local amount = math.ceil(CF_CratesRate * #crts)
 		--print ("Crates: "..amount)
 		local crtspos = CF_SelectRandomPoints(crts, amount)
@@ -233,20 +233,22 @@ function VoidWanderers:StartActivity()
 		
 		-- Find available mission
 		for m = 1, CF_MaxMissions do
-			if self.GS["Location"] == self.GS["Mission"..m.."Location"] then
+			--if self.GS["Location"] == self.GS["Mission"..m.."Location"] then
 			--if self.GS["Location"] == "Ketanot Hills" then -- DEBUG
 				self.MissionAvailable = true
 				
+				self.MissionNumber = m
 				self.MissionType = self.GS["Mission"..m.."Type"]
-				self.MissionDifficulty = tonumber(self.GS["Mission"..m.."Difficulty"])
+				self.MissionDifficulty = CF_GetFullMissionDifficulty(self.GS, self.GS["Location"], m)--tonumber(self.GS["Mission"..m.."Difficulty"])
 				self.MissionSourcePlayer = tonumber(self.GS["Mission"..m.."SourcePlayer"])
 				self.MissionTargetPlayer = tonumber(self.GS["Mission"..m.."TargetPlayer"])
 
 				-- DEBUG
-				--self.MissionDifficulty = CF_MaxDifficulty -- DEBUG
+				self.MissionDifficulty = CF_MaxDifficulty -- DEBUG
 				--self.MissionType = "Assault" -- DEBUG
 				--self.MissionType = "Assassinate" -- DEBUG
 				--self.MissionType = "Dropships" -- DEBUG
+				self.MissionType = "Mine" -- DEBUG
 				
 				self.MissionScript = CF_MissionScript[ self.MissionType ]
 				self.MissionGoldReward = CF_MissionGoldRewardPerDifficulty[ self.MissionType ] * self.MissionDifficulty
@@ -259,13 +261,23 @@ function VoidWanderers:StartActivity()
 				CF_CreateAIUnitPresets(self.GS, self.MissionTargetPlayer , CF_GetTechLevelFromDifficulty(self.GS, self.MissionTargetPlayer, self.MissionDifficulty, CF_MaxDifficulty))
 				
 				break
-			end
+			--end
 		end
 		
 		if self.MissionAvailable then
+			-- Increase location security every time mission started
+			local sec = CF_GetLocationSecurity(self.GS, self.GS["Location"])
+			sec = sec + CF_SecurityIncrementPerMission
+			CF_SetLocationSecurity(self.GS, self.GS["Location"], sec)
+		
 			missionscript = self.MissionScript
 			ambientscript = CF_LocationAmbientScript[ self.GS["Location"] ]
 		else
+			-- Slightly increase location security every time deplyment happens
+			local sec = CF_GetLocationSecurity(self.GS, self.GS["Location"])
+			sec = sec + CF_SecurityIncrementPerDeployment
+			CF_SetLocationSecurity(self.GS, self.GS["Location"], sec)
+
 			missionscript = CF_LocationScript[ self.GS["Location"] ]
 			ambientscript = CF_LocationAmbientScript[ self.GS["Location"] ]
 		end
@@ -553,6 +565,9 @@ function VoidWanderers:SpawnFromTable()
 			local act = CF_SpawnAIUnitWithPreset(self.GS, nm["Player"], nm["Team"], nm["Pos"], nm["AIMode"], nm["Preset"])
 			if act then
 				MovableMan:AddActor(act)
+			end
+			if nm["RenamePreset"] ~= nil then
+				act.PresetName = nm["RenamePreset"]
 			end
 			table.remove(self.SpawnTable, 1)
 		else
@@ -900,7 +915,7 @@ function VoidWanderers:UpdateActivity()
 		-- Make actors glitch if there are too many of them
 		local count = 0;
 		for actor in MovableMan.Actors do
-			if actor.Team == CF_PlayerTeam and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") then
+			if actor.Team == CF_PlayerTeam and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") and actor.PresetName ~= "-" then
 				count = count + 1
 
 				if self.Time % 4 == 0 and count > tonumber(self.GS["Player0VesselCommunication"]) then
@@ -1138,6 +1153,21 @@ function VoidWanderers:GiveMissionRewards()
 	end
 
 	self.MissionFailed = false
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
+function VoidWanderers:GiveMissionPenalties()
+	print ("MISSION FAILED")
+	self.GS["Player"..self.MissionSourcePlayer.."Reputation"] = tonumber(self.GS["Player"..self.MissionSourcePlayer.."Reputation"]) - math.ceil(self.MissionReputationReward * CF_MissionFailedReputationPenaltyRatio)
+	self.GS["Player"..self.MissionTargetPlayer.."Reputation"] = tonumber(self.GS["Player"..self.MissionTargetPlayer.."Reputation"]) - math.ceil(self.MissionReputationReward * CF_MissionFailedReputationPenaltyRatio)
+	
+	self.MissionReport[#self.MissionReport + 1] = "MISSION FAILED"
+	
+	if self.MissionReputationReward > 0 then
+		self.MissionReport[#self.MissionReport + 1] = "-"..math.ceil(self.MissionReputationReward * CF_MissionFailedReputationPenaltyRatio).." "..CF_FactionNames[ CF_GetPlayerFaction(self.GS, self.MissionSourcePlayer) ].." reputation"
+		self.MissionReport[#self.MissionReport + 1] = "-"..math.ceil(self.MissionReputationReward * CF_MissionFailedReputationPenaltyRatio).." "..CF_FactionNames[ CF_GetPlayerFaction(self.GS, self.MissionTargetPlayer) ].." reputation"
+	end
 end
 -----------------------------------------------------------------------------------------
 --
