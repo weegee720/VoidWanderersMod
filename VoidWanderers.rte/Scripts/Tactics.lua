@@ -358,6 +358,8 @@ function VoidWanderers:StartActivity()
 			ambientscript = CF_LocationAmbientScript[ self.GS["Location"] ]
 		end
 		
+		self.MissionReport = {}
+		
 		if missionscript == nil then
 			missionscript = "VoidWanderers.rte/Scripts/Mission_Generic.lua"
 		end
@@ -1813,6 +1815,9 @@ function VoidWanderers:GiveRandomExplorationReward()
 		text = {CF_QuantumItmPresets[id].." quantum scheme found."}
 	end
 	
+	if self.MissionReport == nil then
+		self.MissionReport = {}
+	end
 	for i = 1, #text do
 		self.MissionReport[#self.MissionReport + 1]	= text[i]
 	end
