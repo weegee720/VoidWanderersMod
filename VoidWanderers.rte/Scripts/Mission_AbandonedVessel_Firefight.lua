@@ -65,8 +65,11 @@ function VoidWanderers:MissionCreate()
 		enmpos[t] = CF_GetPointsArray(self.Pts, "Firefight", set, "Team "..t)
 		self.MissionFirefightWaypoint[t] = CF_GetPointsArray(self.Pts, "Firefight", set, "Waypoint "..t)
 		
+		local double = 0.25
+		
 		if self.MissionAllyPlayers[t] then
 			self.MissionCPUTeams[t] = CF_PlayerTeam
+			double = 0
 		else
 			self.MissionCPUTeams[t] = t
 		end
@@ -76,7 +79,7 @@ function VoidWanderers:MissionCreate()
 			local tm = self.MissionCPUTeams[t]
 			local count = 1
 			
-			if math.random() < 0.15 then
+			if math.random() < double then
 				count = 2
 			end
 			
