@@ -88,7 +88,7 @@ function VoidWanderers:FormLoad()
 	el["Height"] = sy;
 	el["Visible"] = false
 	
-	el["OnClick"] = self.SlawaysShowGenericMarks_OnClick;
+	el["OnClick"] = self.AlwaysShowGenericMarks_OnClick;
 	
 	self.UI[#self.UI + 1] = el;	
 	
@@ -192,6 +192,12 @@ function VoidWanderers:HideElements()
 	for i = 1, #self.UI do
 		self.UI[i]["Visible"] = false
 	end
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
+function VoidWanderers:AlwaysShowGenericMarks_OnClick()
+	self.ShowGeneric = not self.ShowGeneric
 end
 -----------------------------------------------------------------------------------------
 --
@@ -536,7 +542,7 @@ function VoidWanderers:FormDraw()
 							havepair = true
 						end
 						
-						if havepair then
+						if havepair and k4 % 2 == 1 then
 							local c1 = v4;
 							local c2 = v3[pair]
 						
@@ -546,13 +552,18 @@ function VoidWanderers:FormDraw()
 							local x2 = c2.X
 							local y2 = c2.Y
 							
-							self:DrawDottedLine(x1,y1,x2,y2,"ControlPanel_Ship_DestDot",25)
-							self:DrawDottedLine(x2,y1,x1,y2,"ControlPanel_Ship_DestDot",25)
+							-- if we crossed th seam - change drawing coords
+							if x2 < x1 then
+								x2 = SceneMan.Scene.Width + x2
+							end
 							
-							self:DrawDottedLine(x1,y1,x1,y2,"ControlPanel_Ship_DestDot",25)
-							self:DrawDottedLine(x1,y1,x2,y1,"ControlPanel_Ship_DestDot",25)
-							self:DrawDottedLine(x2,y1,x2,y2,"ControlPanel_Ship_DestDot",25)
-							self:DrawDottedLine(x1,y2,x2,y2,"ControlPanel_Ship_DestDot",25)
+							self:DrawDottedLine(x1, y1, x2, y2, "SceneEditor_Dot_Yellow", 50)
+							self:DrawDottedLine(x2, y1, x1, y2, "SceneEditor_Dot_Yellow", 50)
+														
+							self:DrawDottedLine(x1, y1, x1, y2, "SceneEditor_Dot_Yellow", 50)
+							self:DrawDottedLine(x1, y1, x2, y1, "SceneEditor_Dot_Yellow", 50)
+							self:DrawDottedLine(x2, y1, x2, y2, "SceneEditor_Dot_Yellow", 50)
+							self:DrawDottedLine(x1, y2, x2, y2, "SceneEditor_Dot_Yellow", 50)
 						end
 						
 						local nm = CF_MissionRequiredData[self.SelectedType][k3]["Name"]
@@ -644,6 +655,13 @@ end
 -----------------------------------------------------------------------------------------
 function VoidWanderers:DrawDottedLine(x1 , y1  , x2 , y2 , dot , interval)
 	local d = CF_Dist(Vector(x1,y1), Vector(x2,y2))
+	
+	--local avgx = x2 - x1;
+	--local avgy = y2 - y2;
+	--local d = math.sqrt(avgx ^ 2 + avgy ^ 2);
+	
+	--print (d)
+	
 		
 	local ax = (x2 - x1) / d * interval
 	local ay = (y2 - y1) / d * interval

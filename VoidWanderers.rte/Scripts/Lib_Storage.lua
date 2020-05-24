@@ -109,7 +109,11 @@ function CF_GetItemShopArray(gs, makefilters)
 				local ii = #arr + 1
 				arr[ii] = {}
 				arr[ii]["Preset"] = CF_ItmPresets[f][itm]
-				arr[ii]["Class"] = CF_ItmClasses[f][itm]
+				if CF_ItmClasses[f][itm] ~= nil then
+					arr[ii]["Class"] = CF_ItmClasses[f][itm]
+				else
+					arr[ii]["Class"] = "HDFirearm"
+				end
 				arr[ii]["Faction"] = f
 				arr[ii]["Index"] = itm
 				arr[ii]["Description"] = CF_ItmDescriptions[f][itm]
@@ -183,7 +187,11 @@ function CF_GetCloneShopArray(gs, makefilters)
 				local ii = #arr + 1
 				arr[ii] = {}
 				arr[ii]["Preset"] = CF_ActPresets[f][itm]
-				arr[ii]["Class"] = CF_ActClasses[f][itm]
+				if CF_ActClasses[f][itm] ~= nil then
+					arr[ii]["Class"] = CF_ActClasses[f][itm]
+				else
+					arr[ii]["Class"] = "AHuman"
+				end
 				arr[ii]["Faction"] = f
 				arr[ii]["Index"] = itm
 				arr[ii]["Description"] = CF_ActDescriptions[f][itm]
@@ -304,7 +312,11 @@ function CF_PutItemToStorageArray(arr, preset, class)
 		arr[found] = {}
 		arr[found]["Count"] = 1
 		arr[found]["Preset"] = preset
-		arr[found]["Class"] = class
+		if class ~= nil then
+			arr[found]["Class"] = class
+		else
+			arr[found]["Class"] = "HDFirearm"
+		end
 		isnew = true
 	else
 		arr[found]["Count"] = arr[found]["Count"] + 1
@@ -363,17 +375,9 @@ function CF_GetClonesArray(gs)
 	for i = 1, #arr do
 		for j = 1, #arr  - 1 do
 			if arr[j]["Preset"] > arr[j + 1]["Preset"] then
-				local p = arr[j]["Preset"]
-				local c = arr[j]["Class"]
-				local itm = arr[j]["Items"]
-			
-				arr[j]["Preset"] = arr[j + 1]["Preset"]
-				arr[j]["Class"] = arr[j + 1]["Class"]
-				arr[j]["Items"] = arr[j + 1]["Items"]
-			
-				arr[j + 1]["Preset"] = p
-				arr[j + 1]["Class"] = c
-				arr[j + 1]["Class"] = itm
+				local c = arr[j]
+				arr[j] = arr[j + 1]
+				arr[j + 1] = c
 			end
 		end
 	end
@@ -408,9 +412,15 @@ function CF_SetClonesArray(gs, arr)
 		gs["ClonesStorage"..i.."Preset"] = arr[i]["Preset"]
 		gs["ClonesStorage"..i.."Class"] = arr[i]["Class"]
 		
+		--print (tostring(i).." "..arr[i]["Preset"])
+		--print (tostring(i).." "..arr[i]["Class"])
+		
 		for itm = 1, #arr[i]["Items"] do
 			gs["ClonesStorage"..i.."Item"..itm.."Preset"] = arr[i]["Items"][itm]["Preset"]
 			gs["ClonesStorage"..i.."Item"..itm.."Class"] = arr[i]["Items"][itm]["Class"]
+			
+			--print (tostring(i).." "..itm.." "..arr[i]["Items"][itm]["Preset"])
+			--print (tostring(i).." "..itm.." "..arr[i]["Items"][itm]["Class"])
 		end
 	end	
 	

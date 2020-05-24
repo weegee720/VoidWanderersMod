@@ -27,13 +27,43 @@ function VoidWanderers:MissionCreate()
 	local enmpos = CF_SelectRandomPoints(enm, amount)
 
 	-- Find random enemy players for this map
-	local p1 = math.random(tonumber(self.GS["ActiveCPUs"]))
-	local p2
-	local pret = p1
-	while pret == p1 do
-		pret = math.random(tonumber(self.GS["ActiveCPUs"]))
+	--local p1 = math.random(tonumber(self.GS["ActiveCPUs"]))
+	--local p2
+	--local pret = p1
+	--while pret == p1 do
+	--	pret = math.random(tonumber(self.GS["ActiveCPUs"]))
+	--end
+	--p2 = pret
+	
+	-- We should not spawn player-selected faction unless we have bad relation with  it
+	local selection = {}
+	for i = 1, tonumber(self.GS["ActiveCPUs"]) do
+		if i == 1 then
+			if tonumber(self.GS["Player"..i.."Reputation"]) < CF_ReputationHuntTreshold then
+				selection[#selection + 1] = i
+			end
+		else
+			selection[#selection + 1] = i
+		end
 	end
-	p2 = pret
+		
+	p1 = selection[math.random(#selection)]
+
+	-- Next we should select not p1 and not player faction if relations are good enough
+	local selection = {}
+	for i = 1, tonumber(self.GS["ActiveCPUs"]) do
+		if i == 1 then
+			if tonumber(self.GS["Player"..i.."Reputation"]) < CF_ReputationHuntTreshold then
+				selection[#selection + 1] = i
+			end
+		else
+			if i ~= p1  then
+				selection[#selection + 1] = i
+			end
+		end
+	end
+
+	p2 = selection[math.random(#selection)]
 	
 	local diff, sec
 	

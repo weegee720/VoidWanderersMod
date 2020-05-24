@@ -104,12 +104,20 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 	-- Assign initial player actors in storage
 	for i = 1, 4 do
 		config["ClonesStorage"..i.."Preset"] = CF_ActPresets[f][found]
-		config["ClonesStorage"..i.."Class"] = CF_ActClasses[f][found]
+		if CF_ActClasses[f][found] ~= nil then
+			config["ClonesStorage"..i.."Class"] = CF_ActClasses[f][found]
+		else
+			config["ClonesStorage"..i.."Class"] = "AHuman"
+		end
 		
 		local slt = 1
 		for j = #weaps, 1 , -1 do
 			config[ "ClonesStorage"..i.."Item"..slt.."Preset"] = CF_ItmPresets[f][weaps[j] ]
-			config[ "ClonesStorage"..i.."Item"..slt.."Class"] = CF_ItmClasses[f][weaps[j] ]
+			if CF_ItmClasses[f][weaps[j] ] ~= nil then
+				config[ "ClonesStorage"..i.."Item"..slt.."Class"] = CF_ItmClasses[f][weaps[j] ]
+			else
+				config[ "ClonesStorage"..i.."Item"..slt.."Class"] = "HDFirearm"
+			end
 			slt = slt + 1
 		end
 	end--]]--
@@ -119,7 +127,11 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 	
 	for j = #weaps, 1 , -1 do
 		config["ItemStorage"..slt.."Preset"] = CF_ItmPresets[f][weaps[j]]
-		config["ItemStorage"..slt.."Class"] = CF_ItmClasses[f][weaps[j]]
+		if CF_ItmClasses[f][weaps[j]] ~= nil then
+			config["ItemStorage"..slt.."Class"] = CF_ItmClasses[f][weaps[j]]
+		else
+			config["ItemStorage"..slt.."Class"] = "HDFirearm"
+		end
 		config["ItemStorage"..slt.."Count"] = 4
 		slt = slt + 1
 	end

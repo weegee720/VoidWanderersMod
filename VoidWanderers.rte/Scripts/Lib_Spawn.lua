@@ -713,10 +713,16 @@ function CF_GenerateRandomMission(c)
 				local locid = CF_Location[l]
 				local playable = true
 				
+				-- Discard unplayable locations
 				if CF_LocationPlayable[locid] ~= nil then
 					if CF_LocationPlayable[locid] == false then
 						playable = false
 					end
+				end
+				
+				-- Bever select current player's location
+				if c["Location"] == locid then
+					playable = false
 				end
 				
 				if playable then

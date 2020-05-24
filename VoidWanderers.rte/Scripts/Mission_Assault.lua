@@ -35,7 +35,7 @@ function VoidWanderers:MissionUpdate()
 			
 				for i = 1, #self.MissionBase do
 					if self.MissionBase[i]:WithinBox(actor.Pos) then
-						actor:FlashWhite(250)
+						--actor:FlashWhite(250)
 						count = count + 1
 						inside = true
 						break

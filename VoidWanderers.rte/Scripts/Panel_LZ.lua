@@ -244,6 +244,11 @@ function VoidWanderers:ProcessLZControlPanelUI()
 
 					self:SaveCurrentGameState();
 					
+					if self.MissionAvailable then
+						-- Generate new missions
+						CF_GenerateRandomMissions(self.GS)
+					end
+					
 					self:LaunchScript(scene, "Tactics.lua")
 					self.EnableBrainSelection = false
 					self:DestroyLZControlPanelUI()

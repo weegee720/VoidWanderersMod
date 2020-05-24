@@ -198,13 +198,14 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 							else
 								self.SelectedClonePrice = CF_UnknownActorPrice
 							end
-							
-							if self.ClonesControlMode == self.ClonesControlPanelModes.SELL then
-								CF_DrawString(tostring(self.SelectedClonePrice).."oz", pos + Vector(-20,-40) + Vector(0, (loc) * 12), 120, 10)
-							end
+
+							--if self.ClonesControlMode == self.ClonesControlPanelModes.SELL and self.GS["Planet"] == "TradeStar" and self.GS["Location"] ~= nil then
+							--	CF_DrawString(tostring(self.SelectedClonePrice).."oz", pos + Vector(-20,-40) + Vector(0, (loc) * 12), 120, 10)
+							--end
 						else
 							CF_DrawString(self.Clones[i]["Preset"], pos + Vector(-130,-40) + Vector(0, (loc) * 12), 120, 10)
 						end
+						
 					end
 				end
 				
@@ -566,6 +567,8 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 						if self.Time >= self.ClonesLastDetectedBodyTime + self.ClonesInputDelay and CF_CountUsedClonesInArray(self.Clones) < tonumber(self.GS["Player0VesselClonesCapacity"]) then
 							local c = #self.Clones + 1
 							
+							print (c)
+							
 							self.Clones[c] = {}
 							self.Clones[c]["Preset"] = actor.PresetName
 							self.Clones[c]["Class"] = actor.ClassName
@@ -573,9 +576,7 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 							-- Store inventory
 							local inv, cls = CF_GetInventory(actor)
 							
-							if self.Clones[c]["Items"] == nil then
-								self.Clones[c]["Items"] = {}
-							end
+							self.Clones[c]["Items"] = {}
 							
 							for i = 1, #inv do
 								-- First store items in clone storage
@@ -588,24 +589,15 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 									-- If we have free space add items to storage, spawn nearby otherwise
 									if CF_CountUsedStorageInArray(self.StorageItems) < tonumber(self.GS["Player0VesselStorageCapacity"]) then
 										-- Put item to storage array
-										-- Find item in storage array
-										local found = 0
+										local needrefresh = CF_PutItemToStorageArray(self.StorageItems, inv[i], cls[i])
 										
-										for j = 1, #self.StorageItems do
-											if self.StorageItems[j]["Preset"] == inv[i] then
-												found = j
-											end
+										-- Store everything
+										CF_SetStorageArray(self.GS, self.StorageItems)
+										
+										-- Refresh storage items array and filters
+										if needrefresh then
+											self.StorageItems, self.StorageFilters = CF_GetStorageArray(self.GS, true)
 										end
-										
-										if found == 0 then
-											found = #self.StorageItems + 1
-											self.StorageItems[found] = {}
-											self.StorageItems[found]["Count"] = 1
-											self.StorageItems[found]["Preset"] = inv[i]
-											self.StorageItems[found]["Class"] = cls[i]
-										else
-											self.StorageItems[found]["Count"] = self.StorageItems[found]["Count"] + 1
-										end									
 									else
 										local itm = CF_MakeItem2(inv[i], cls[i])
 										if itm ~= nil then
@@ -620,10 +612,8 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 							
 							-- Store everything
 							CF_SetClonesArray(self.GS, self.Clones)
-							CF_SetStorageArray(self.GS, self.StorageItems)
 							
 							-- Refresh storage items array and filters
-							self.StorageItems, self.StorageFilters = CF_GetStorageArray(self.GS, true)
 							self.Clones = CF_GetClonesArray(self.GS, true)
 							
 							self.ClonesLastDetectedBodyTime = nil

@@ -889,19 +889,19 @@ function VoidWanderers:UpdateActivity()
 		for actor in MovableMan.Actors do
 			if actor.Team == CF_PlayerTeam and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") then
 				count = count + 1
-			end
 
-			if self.Time % 4 == 0 and count > tonumber(self.GS["Player0VesselCommunication"]) then
-				local cont = actor:GetController();
-				if cont ~= nil then
-					if cont:IsState(Controller.WEAPON_FIRE) then
-						cont:SetState(Controller.WEAPON_FIRE, false)
-					else
-						cont:SetState(Controller.WEAPON_FIRE, true)
+				if self.Time % 4 == 0 and count > tonumber(self.GS["Player0VesselCommunication"]) then
+					local cont = actor:GetController();
+					if cont ~= nil then
+						if cont:IsState(Controller.WEAPON_FIRE) then
+							cont:SetState(Controller.WEAPON_FIRE, false)
+						else
+							cont:SetState(Controller.WEAPON_FIRE, true)
+						end
 					end
+					
+					self:AddObjectivePoint("CONNECTION LOST", actor.AboveHUDPos , CF_PlayerTeam, GameActivity.ARROWUP);
 				end
-				
-				self:AddObjectivePoint("CONNECTION LOST", actor.AboveHUDPos , CF_PlayerTeam, GameActivity.ARROWUP);
 			end
 		end
 	end
