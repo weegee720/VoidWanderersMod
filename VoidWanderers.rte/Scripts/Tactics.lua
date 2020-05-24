@@ -433,23 +433,56 @@ function VoidWanderers:TriggerShipAssault()
 	if not CF_EnableAssaults then
 		return
 	end
-
-	--TODO Check reputation and trigger assaults accordingly
 	
-	self.AssaultTime = self.Time + CF_ShipAssaultDelay
-	self.AssaultEnemyPlayer = math.random(tonumber(self.GS["ActiveCPUs"]))
-	self.AssaultDifficulty = 1--math.random(CF_MaxDifficulty)
-	self.AssaultEnemiesToSpawn = CF_AssaultDifficultyUnitCount[self.AssaultDifficulty]
-	self.AssaultNextSpawnTime = self.AssaultTime + CF_AssaultDifficultySpawnInterval[self.AssaultDifficulty] + 1
-	self.AssaultNextSpawnPos = self.EnemySpawn[math.random(#self.EnemySpawn)]	
+	if self.Time % CF_AssaultCheckInterval == 0 then
+		local toassault = false
+		
+		-- First select random assault player
+		self.AssaultEnemyPlayer = math.random(tonumber(self.GS["ActiveCPUs"]))
+		
+		local rep = tonumber(self.GS["Player"..self.AssaultEnemyPlayer.."Reputation"])
+		
+		print (CF_GetPlayerFaction(self.GS,self.AssaultEnemyPlayer))
+		print (rep)
+		
+		if rep < 0 then
+			self.AssaultDifficulty = math.floor(math.abs(rep / CF_ReputationPerDifficulty))
+			
+			if self.AssaultDifficulty < 0 then
+				self.AssaultDifficulty = 1
+			end
+			
+			if self.AssaultDifficulty > CF_MaxDifficulty then
+				self.AssaultDifficulty = CF_MaxDifficulty
+			end
+			
+			local r = math.random(CF_MaxDifficulty * 2.5)
+			local tgt = (CF_MaxDifficulty - self.AssaultDifficulty + 4) * 2
+			
+			print (self.AssaultDifficulty)
+			print (r)
+			print (tgt)
+			
+			if r <= tgt then
+				toassault = true
+			end
+		end
 	
-	-- Create attacker's unit presets
-	-- TODO Add actual tech levels depending on difficulty
-	CF_CreateAIUnitPresets(self.GS, self.AssaultEnemyPlayer, CF_GetTechLevelFromDifficulty(self.GS, self.AssaultEnemyPlayer, self.AssaultDifficulty, CF_MaxDifficulty))	
-	
-	-- Remove some panel actors
-	self.ShipControlPanelActor.ToDelete = true
-	self.BeamControlPanelActor.ToDelete = true
+		if toassault then
+			self.AssaultTime = self.Time + CF_ShipAssaultDelay
+			
+			self.AssaultEnemiesToSpawn = CF_AssaultDifficultyUnitCount[self.AssaultDifficulty]
+			self.AssaultNextSpawnTime = self.AssaultTime + CF_AssaultDifficultySpawnInterval[self.AssaultDifficulty] + 1
+			self.AssaultNextSpawnPos = self.EnemySpawn[math.random(#self.EnemySpawn)]	
+			
+			-- Create attacker's unit presets
+			CF_CreateAIUnitPresets(self.GS, self.AssaultEnemyPlayer, CF_GetTechLevelFromDifficulty(self.GS, self.AssaultEnemyPlayer, self.AssaultDifficulty, CF_MaxDifficulty))	
+			
+			-- Remove some panel actors
+			self.ShipControlPanelActor.ToDelete = true
+			self.BeamControlPanelActor.ToDelete = true
+		end
+	end
 end
 
 -----------------------------------------------------------------------------------------
@@ -592,7 +625,8 @@ function VoidWanderers:UpdateActivity()
 	end
 	
 	-- Tick timer
-	if self.TickTimer:IsPastSimMS(self.TickInterval) then
+	--if self.TickTimer:IsPastSimMS(self.TickInterval) then
+	if self.TickTimer:IsPastRealMS(self.TickInterval) then
 		self.Time = self.Time + 1
 		self.TickTimer:Reset();
 
@@ -607,6 +641,44 @@ function VoidWanderers:UpdateActivity()
 				end				
 			else
 				self.OverCrowded = false
+			end
+			
+			-- Fly to new location
+			if self.GS["Destination"] ~= nil and self.Time > self.AssaultTime then
+				-- Move ship
+				local dx = tonumber(self.GS["DestX"])
+				local dy = tonumber(self.GS["DestY"])
+				
+				local sx = tonumber(self.GS["ShipX"])
+				local sy = tonumber(self.GS["ShipY"])
+				
+				local d = CF_Dist(Vector(sx,sy), Vector(dx,dy))
+				
+				if (d < 1.5) then
+					self.GS["Location"] = self.GS["Destination"]
+					self.GS["Destination"] = nil
+
+					local locpos = CF_LocationPos[ self.GS["Location"] ]
+					if locpos == nil then
+						locpos = Vector(0,0)
+					end
+					
+					self.GS["ShipX"] = locpos.X
+					self.GS["ShipY"] = locpos.Y
+				else
+					self.GS["Distance"] = math.floor(d)
+					
+					local ax = (dx - sx) / d * (tonumber(self.GS["Player0VesselSpeed"]) / CF_KmPerPixel)
+					local ay = (dy - sy) / d * (tonumber(self.GS["Player0VesselSpeed"]) / CF_KmPerPixel)
+					
+					sx = sx + ax
+					sy = sy + ay
+					
+					self.GS["ShipX"] = sx
+					self.GS["ShipY"] = sy
+					
+					self:TriggerShipAssault()
+				end
 			end
 		end
 		
@@ -756,6 +828,27 @@ function VoidWanderers:DoBrainSelection()
 				self:SetObservationTarget(brain.Pos, player)
 			end
 		end
+	end
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
+function VoidWanderers:DrawDottedLine(x1,y1,x2,y2,dot,interval)
+	local d = CF_Dist(Vector(x1,y1), Vector(x2,y2))
+		
+	local ax = (x2 - x1) / d * interval
+	local ay = (y2 - y1) / d * interval
+	
+	local x = x1
+	local y = y1
+	
+	d = math.floor(d)
+	
+	for i = 1, d, interval do
+		self:PutGlowWithModule(dot, Vector(x,y), self.ModuleName)
+		
+		x = x + ax
+		y = y + ay
 	end
 end
 -----------------------------------------------------------------------------------------

@@ -665,7 +665,7 @@ function CF_GetLocationDifficulty(c, loc)
 	if c["Security_"..loc] ~= nil then
 		sec = tonumber(c["Security_"..loc])
 	else
-		sec = CF_LocationSecurity[ c["Location"] ]
+		sec = CF_LocationSecurity[ loc ]
 	end
 	
 	diff = math.floor(sec / 10)

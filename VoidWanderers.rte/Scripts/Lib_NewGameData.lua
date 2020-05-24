@@ -62,9 +62,11 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 
 	config["Player0VesselLifeSupport"] = CF_VesselStartLifeSupport[ config["Player0Vessel"] ]
 	config["Player0VesselCommunication"] = CF_VesselStartCommunication[ config["Player0Vessel"] ]
+
+	config["Player0VesselSpeed"] = CF_VesselStartSpeed[ config["Player0Vessel"] ]
 	
 	config["Time"] = 1
-	
+
 	-- Set up initial location - Tradestar
 	config["Planet"] = CF_Planet[1]
 	config["Location"] = CF_Location[1]
@@ -158,10 +160,7 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 	end
 	
 	config["ActiveCPUs"] = activecpus
-	-- Give tha last CPU worst reputation
-	-- Debug
-	--config["Player".. activecpus .."Reputation"] = -500
-	
+
 	return config;
 end
 -----------------------------------------------------------------------------------------

@@ -18,4 +18,5 @@ CF_VesselStartLifeSupport[id] = 4
 CF_VesselMaxCommunication[id] = 8
 CF_VesselStartCommunication[id] = 4
 
-CF_VesselMaxFuel = 30
+CF_VesselMaxSpeed[id] = 40
+CF_VesselStartSpeed[id] = 20

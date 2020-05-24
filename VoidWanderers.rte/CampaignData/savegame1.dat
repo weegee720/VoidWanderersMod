@@ -229,3 +229,5 @@ SceneType=Vessel
 Security_Ketanot Hills=1
 Time=705
 TimeStamp=05.06.13 17:24
+Player0VesselSpeed=20
+NextAssaultTime=725

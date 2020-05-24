@@ -45,7 +45,8 @@ function CF_InitExtensionsData(activity)
 	CF_VesselMaxCommunication = {}
 	CF_VesselStartCommunication = {}
 
-	CF_VesselMaxFuel = {}
+	CF_VesselMaxSpeed = {}
+	CF_VesselStartSpeed = {}
 	
 	CF_Mission = {}
 	
