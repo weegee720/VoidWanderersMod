@@ -147,6 +147,7 @@ function CF_InitFactions(activity)
 	CF_MaxStorageItems = 1000
 	CF_MaxClones = 1000 -- Max clones in clone storage
 	CF_MaxTurrets = 1000
+	CF_MaxBombs = 1000
 	CF_MaxUnitsPerDropship = 3
 	
 	CF_MaxSavedActors = 40

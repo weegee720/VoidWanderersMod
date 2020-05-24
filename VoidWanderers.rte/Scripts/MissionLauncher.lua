@@ -29,6 +29,7 @@ function VoidWanderers:StartActivity()
 		dofile(LIB_PATH.."Panel_LZ.lua");
 		dofile(LIB_PATH.."Panel_Brain.lua");
 		dofile(LIB_PATH.."Panel_Turrets.lua");
+		dofile(LIB_PATH.."Panel_Bombs.lua");
 	end
 	
 	SKIP_LIBRARIES = nil
@@ -256,7 +257,7 @@ function VoidWanderers:LoadCurrentGameState()
 		if val == nil then
 			self.GS["Player0VesselBombBays"] = CF_VesselStartBombBays[ self.GS["Player0Vessel"] ]
 		end
-asd
+
 		local val = self.GS["Player0VesselBombStorage"]
 		if val == nil then
 			self.GS["Player0VesselBombStorage"] = CF_VesselStartBombStorage[ self.GS["Player0Vessel"] ]

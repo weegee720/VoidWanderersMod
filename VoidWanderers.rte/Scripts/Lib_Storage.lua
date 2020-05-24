@@ -48,6 +48,7 @@ function CF_GetStorageArray(gs, makefilters)
 		arr2[CF_WeaponTypes.DIGGER] = {}
 		arr2[CF_WeaponTypes.GRENADE] = {}
 		arr2[CF_WeaponTypes.TOOL] = {}
+		arr2[CF_WeaponTypes.BOMB] = {}
 		
 		for itm = 1, #arr do
 			local f,i = CF_FindItemInFactions(arr[itm]["Preset"], arr[itm]["Class"])
@@ -192,7 +193,7 @@ function CF_GetItemShopArray(gs, makefilters)
 		arr2[CF_WeaponTypes.DIGGER] = {}
 		arr2[CF_WeaponTypes.GRENADE] = {}
 		arr2[CF_WeaponTypes.TOOL] = {}
-		arr2[9] = {} -- Bombs
+		arr2[CF_WeaponTypes.BOMB] = {} -- Bombs
 		
 		for itm = 1, #arr do
 			-- Add item to 'all' list
@@ -838,6 +839,114 @@ function CF_SetTurretsArray(gs, arr)
 			gs["TurretsStorage"..i.."Preset"] = arr[i]["Preset"]
 			gs["TurretsStorage"..i.."Class"] = arr[i]["Class"]
 			gs["TurretsStorage"..i.."Count"] = arr[i]["Count"]
+		end
+		
+		--print (tostring(i).." "..arr[i]["Preset"])
+		--print (tostring(i).." "..arr[i]["Class"])
+	end	
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
+--
+--
+-----------------------------------------------------------------------------------------
+function CF_PutBombToStorageArray(arr, preset, class)
+	-- Find item in storage array
+	local found = 0
+	local isnew = false
+
+	--print (preset)
+	--print (class)
+	
+	for j = 1, #arr do
+		if arr[j]["Preset"] == preset then
+			found = j
+		end
+	end
+	
+	if found == 0 then
+		found = #arr + 1
+		arr[found] = {}
+		arr[found]["Count"] = 1
+		arr[found]["Preset"] = preset
+		if class ~= nil then
+			arr[found]["Class"] = class
+		else
+			arr[found]["Class"] = "AHuman"
+		end
+		isnew = true
+	else
+		arr[found]["Count"] = arr[found]["Count"] + 1
+	end
+
+	return isnew
+end
+-----------------------------------------------------------------------------------------
+--
+--
+-----------------------------------------------------------------------------------------
+function CF_GetBombsArray(gs)
+	local arr = {}
+	
+	-- Copy 
+	for i = 1, CF_MaxBombs do
+		if gs["BombsStorage"..i.."Preset"] ~= nil then
+			arr[i] = {}
+			arr[i]["Preset"] = gs["BombsStorage"..i.."Preset"]
+			arr[i]["Class"] = gs["BombsStorage"..i.."Class"]
+			arr[i]["Count"] = tonumber(gs["BombsStorage"..i.."Count"])
+		else
+			break
+		end
+	end
+	
+	-- Sort
+	for i = 1, #arr do
+		for j = 1, #arr  - 1 do
+			if arr[j]["Preset"] > arr[j + 1]["Preset"] then
+				local c = arr[j]
+				arr[j] = arr[j + 1]
+				arr[j + 1] = c
+			end
+		end
+	end
+	
+	return arr
+end
+
+-----------------------------------------------------------------------------------------
+--	
+-----------------------------------------------------------------------------------------
+function CF_CountUsedBombsInArray(arr)
+	local count = 0
+	
+	for i = 1, #arr do
+		count = count + arr[i]["Count"]
+	end
+	
+	return count
+end
+-----------------------------------------------------------------------------------------
+--	
+-----------------------------------------------------------------------------------------
+function CF_SetBombsArray(gs, arr)
+	-- Clean clones
+	for i = 1, CF_MaxBombs do
+		gs["BombsStorage"..i.."Preset"] = nil
+		gs["BombsStorage"..i.."Class"] = nil
+		gs["BombsStorage"..i.."Count"] = nil
+	end
+	
+	-- Save
+	for i = 1, #arr do
+		if gs["BombsStorage"..i.."Preset"] == "Remove Bomb" then
+			break
+		else
+			gs["BombsStorage"..i.."Preset"] = arr[i]["Preset"]
+			gs["BombsStorage"..i.."Class"] = arr[i]["Class"]
+			gs["BombsStorage"..i.."Count"] = arr[i]["Count"]
 		end
 		
 		--print (tostring(i).." "..arr[i]["Preset"])

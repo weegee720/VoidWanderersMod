@@ -141,7 +141,7 @@ function VoidWanderers:ProcessItemShopControlPanelUI()
 				self.LastItemShopSelectedItem = 0
 				
 				if self.ItemShopControlMode == -2 then
-					self.ItemShopControlMode = self.ItemShopControlPanelModes.TOOL
+					self.ItemShopControlMode = self.ItemShopControlPanelModes.BOMB
 				end
 			end	
 
@@ -174,6 +174,7 @@ function VoidWanderers:ProcessItemShopControlPanelUI()
 					self.ItemShopSelectedItemDescription = self.ItemShopItems[itm]["Description"]
 					self.ItemShopSelectedItemManufacturer = CF_FactionNames[self.ItemShopItems[itm]["Faction"]]
 					self.ItemShopSelectedItemPrice = self.ItemShopItems[itm]["Price"]
+					self.ItemShopSelectedItemType = self.ItemShopItems[itm]["Type"]
 					
 					-- Create new item object
 					self.ItemShopControlPanelObject = CF_MakeItem2(self.ItemShopItems[itm]["Preset"], self.ItemShopItems[itm]["Class"])
@@ -186,6 +187,7 @@ function VoidWanderers:ProcessItemShopControlPanelUI()
 					self.ItemShopSelectedItemDescription = ""
 					self.ItemShopSelectedItemManufacturer = ""
 					self.ItemShopSelectedItemPrice =  nil
+					self.ItemShopSelectedItemType = nil
 				end
 			end
 
@@ -197,18 +199,28 @@ function VoidWanderers:ProcessItemShopControlPanelUI()
 					if self.ItemShopSelectedItem > 0 then
 						local itm = self.ItemShopFilters[self.ItemShopControlMode][self.ItemShopSelectedItem]
 						
-						if itm ~= nil and CF_CountUsedStorageInArray(self.StorageItems) < tonumber(self.GS["Player0VesselStorageCapacity"]) and self.ItemShopSelectedItemPrice <= CF_GetPlayerGold(self.GS, 0) then
-							local needrefresh = CF_PutItemToStorageArray(self.StorageItems, self.ItemShopItems[itm]["Preset"], self.ItemShopItems[itm]["Class"])
-							
-							CF_SetPlayerGold(self.GS, 0, CF_GetPlayerGold(self.GS, 0) - self.ItemShopSelectedItemPrice)
+						if itm ~= nil then
+							if self.ItemShopItems[itm]["Type"] == CF_WeaponTypes.BOMB then
+								if CF_CountUsedBombsInArray(self.Bombs) < tonumber(self.GS["Player0VesselBombStorage"]) and self.ItemShopSelectedItemPrice <= CF_GetPlayerGold(self.GS, 0) then
+									CF_PutBombToStorageArray(self.Bombs, self.ItemShopItems[itm]["Preset"], self.ItemShopItems[itm]["Class"])
+									CF_SetBombsArray(self.GS, self.Bombs)
+									CF_SetPlayerGold(self.GS, 0, CF_GetPlayerGold(self.GS, 0) - self.ItemShopSelectedItemPrice)
+								end
+							else
+								if CF_CountUsedStorageInArray(self.StorageItems) < tonumber(self.GS["Player0VesselStorageCapacity"]) and self.ItemShopSelectedItemPrice <= CF_GetPlayerGold(self.GS, 0) then
+									local needrefresh = CF_PutItemToStorageArray(self.StorageItems, self.ItemShopItems[itm]["Preset"], self.ItemShopItems[itm]["Class"])
+									
+									CF_SetPlayerGold(self.GS, 0, CF_GetPlayerGold(self.GS, 0) - self.ItemShopSelectedItemPrice)
 
-							-- Store everything
-							CF_SetStorageArray(self.GS, self.StorageItems)
-							
-							-- Refresh storage items array and filters
-							if needrefresh then
-								self.StorageItems, self.StorageFilters = CF_GetStorageArray(self.GS, true)
-							end						
+									-- Store everything
+									CF_SetStorageArray(self.GS, self.StorageItems)
+									
+									-- Refresh storage items array and filters
+									if needrefresh then
+										self.StorageItems, self.StorageFilters = CF_GetStorageArray(self.GS, true)
+									end						
+								end
+							end
 						end
 					end
 				end
@@ -254,7 +266,12 @@ function VoidWanderers:ProcessItemShopControlPanelUI()
 			CF_DrawString(self.ItemShopControlPanelModesTexts[self.ItemShopControlMode], pos + Vector(-130,-77) , 170, 10)
 			
 			-- Print ItemShop capacity
-			CF_DrawString("Capacity: "..CF_CountUsedStorageInArray(self.StorageItems).."/"..self.GS["Player0VesselStorageCapacity"], pos + Vector(-130,-60) , 300, 10)
+			-- Print defferent capacity and storage for bombs
+			if self.ItemShopSelectedItemType ~= nil and self.ItemShopSelectedItemType == CF_WeaponTypes.BOMB then
+				CF_DrawString("Bomb capacity: "..CF_CountUsedBombsInArray(self.Bombs).."/"..self.GS["Player0VesselBombStorage"], pos + Vector(-130,-60) , 300, 10)			
+			else
+				CF_DrawString("Capacity: "..CF_CountUsedStorageInArray(self.StorageItems).."/"..self.GS["Player0VesselStorageCapacity"], pos + Vector(-130,-60) , 300, 10)
+			end
 			CF_DrawString("Gold: "..CF_GetPlayerGold(self.GS, 0).." oz", pos + Vector(-130,-44) , 300, 10)
 		end
 	end

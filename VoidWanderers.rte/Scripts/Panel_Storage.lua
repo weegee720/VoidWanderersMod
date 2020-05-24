@@ -81,6 +81,7 @@ function VoidWanderers:InitStorageControlPanelUI()
 	self.StorageControlMode = self.StorageControlPanelModes.EVERYTHING
 	
 	self.StorageItems, self.StorageFilters = CF_GetStorageArray(self.GS, true)
+	self.Bombs = CF_GetBombsArray(self.GS)
 end
 -----------------------------------------------------------------------------------------
 --
