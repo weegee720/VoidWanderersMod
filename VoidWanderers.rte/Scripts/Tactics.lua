@@ -454,7 +454,7 @@ function VoidWanderers:TriggerShipAssault()
 		if rep < 0 then
 			self.AssaultDifficulty = math.floor(math.abs(rep / CF_ReputationPerDifficulty))
 			
-			if self.AssaultDifficulty < 0 then
+			if self.AssaultDifficulty <= 0 then
 				self.AssaultDifficulty = 1
 			end
 			
@@ -626,8 +626,11 @@ function VoidWanderers:UpdateActivity()
 			self.GS["Mode"] = "Assault"
 
 			-- Remove control actors
+			self:DestroyStorageControlPanelUI()
 			self.StorageControlPanelActor.ToDelete = true
+			self:DestroyClonesControlPanelUI()
 			self.ClonesControlPanelActor.ToDelete = true
+			self:DestroyBeamControlPanelUI()
 			self.BeamControlPanelActor.ToDelete = true
 		end
 	end
@@ -689,11 +692,17 @@ function VoidWanderers:UpdateActivity()
 			if CF_CountActors(CF_PlayerTeam) > tonumber(self.GS["Player0VesselLifeSupport"]) then
 				self.OverCrowded = true
 				
-				for actor in MovableMan.Actors do
-					if actor.ClassName == "AHuman" or actor.ClassName == "ACrab" then
-						actor.Health = actor.Health - 3
+				if self.Time % 3 == 0 then
+					for actor in MovableMan.Actors do
+						if actor.ClassName == "AHuman" or actor.ClassName == "ACrab" then
+							if actor:IsInGroup("Heavy Infantry") then
+								actor.Health = actor.Health - math.random(2)
+							else
+								actor.Health = actor.Health - math.random(3)
+							end
+						end
 					end
-				end				
+				end
 			else
 				self.OverCrowded = false
 			end
@@ -704,9 +713,13 @@ function VoidWanderers:UpdateActivity()
 			for actor in MovableMan.Actors do
 				if (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") and not self.Ship:IsInside(actor.Pos) then
 					--actor:AddAbsForce(Vector(0 , -12*actor.Mass) , Vector(actor.Pos.X , actor.Pos.Y - 50))
-					actor.Health = actor.Health - math.random(8)
-					if actor.Health < 20 then
-						actor:GibThis()
+					if actor:IsInGroup("Heavy Infantry") then
+						actor.Health = actor.Health - math.random(4)
+					else
+						actor.Health = actor.Health - math.random(8)
+						if actor.Health < 20 then
+							actor:GibThis()
+						end
 					end
 				end
 			end

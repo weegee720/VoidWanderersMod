@@ -156,8 +156,10 @@ function VoidWanderers:ProcessShipControlPanelUI()
 							self.GS["ShipX"] = math.floor(locpos.X)
 							self.GS["ShipY"] = math.floor(locpos.Y)
 						else
-							self.GS["ShipX"] = 0
-							self.GS["ShipY"] = 0
+							if self.GS["ShipX"] == nil or self.GS["ShipY"] == nil then
+								self.GS["ShipX"] = 0
+								self.GS["ShipY"] = 0
+							end
 						end
 						
 						self.GS["Location"] = nil
@@ -319,6 +321,10 @@ function VoidWanderers:ProcessShipControlPanelUI()
 						-- Travel to another planet
 						self.GS["Planet"] = self.ShipControlPlanetList [ self.ShipControlSelectedPlanet ]
 						self.GS["Location"] = nil
+						self.GS["Destination"] = nil
+						
+						self.GS["ShipX"] = 0
+						self.GS["ShipY"] = 0
 						-- Recreate all lists
 						resetlists = true
 					end

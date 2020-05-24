@@ -50,14 +50,16 @@ function VoidWanderers:InitClonesControlPanelUI()
 	
 	self.ClonesControlPanelLinesPerPage = 9
 	
-	self.ClonesControlPanelModes = {CLONES = 0, INVENTORY = 1, ITEMS = 2}
+	self.ClonesControlPanelModes = {SELL = 0, CLONES = 1, INVENTORY = 2, ITEMS = 3}
 	self.ClonesControlPanelModesTexts = {}
 	self.ClonesControlPanelModesHelpTexts = {}
 	
-	self.ClonesControlPanelModesTexts[self.ClonesControlPanelModes.CLONES] = "[ Bodies ]"
-	self.ClonesControlPanelModesTexts[self.ClonesControlPanelModes.INVENTORY] = "[ Inventory ]"
-	self.ClonesControlPanelModesTexts[self.ClonesControlPanelModes.ITEMS] = "[ Items ]"
+	self.ClonesControlPanelModesTexts[self.ClonesControlPanelModes.SELL] = "SELL BODIES"
+	self.ClonesControlPanelModesTexts[self.ClonesControlPanelModes.CLONES] = "Bodies"
+	self.ClonesControlPanelModesTexts[self.ClonesControlPanelModes.INVENTORY] = "Inventory"
+	self.ClonesControlPanelModesTexts[self.ClonesControlPanelModes.ITEMS] = "Items"
 
+	self.ClonesControlPanelModesHelpTexts[self.ClonesControlPanelModes.SELL] = "L/R/U/D - Select, FIRE - Sell"
 	self.ClonesControlPanelModesHelpTexts[self.ClonesControlPanelModes.CLONES] = "L/R/U/D - Select, FIRE - Deploy"
 	self.ClonesControlPanelModesHelpTexts[self.ClonesControlPanelModes.INVENTORY] = "L/R/U/D - Select, FIRE - Remove from inventory"
 	self.ClonesControlPanelModesHelpTexts[self.ClonesControlPanelModes.ITEMS] = "L/R/U/D - Select, FIRE - Add to inventory"
@@ -119,81 +121,24 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 				if cont:IsState(Controller.PRESS_RIGHT) then
 					self.ClonesControlMode = self.ClonesControlMode + 1
 					
-					if self.ClonesControlMode == 3 then
-						self.ClonesControlMode = 2
+					if self.ClonesControlMode == 4 then
+						self.ClonesControlMode = 3
 					end
 				end
 			end
 
 			-- Clones list screen
-			if self.ClonesControlMode == self.ClonesControlPanelModes.CLONES then		
-				if cont:IsState(Controller.WEAPON_FIRE) then
-					if not self.FirePressed then
-						self.FirePressed = true;
-						
-						if CF_CountActors(CF_PlayerTeam) < tonumber(self.GS["Player0VesselLifeSupport"]) then
-							-- Create new unit
-							if self.SelectedClone ~= 0 then
-								if MovableMan:GetMOIDCount() < CF_MOIDLimit then
-									-- Spawn actor
-									local a = CF_MakeActor2(self.Clones[self.SelectedClone]["Preset"], self.Clones[self.SelectedClone]["Class"])
-									if a ~= nil then
-										a.Team = CF_PlayerTeam
-										if self.ClonesDeployPos ~= nil then
-											a.Pos = self.ClonesDeployPos
-										else
-											a.Pos = self.ClonesControlPanelPos
-										end
-										
-										for i = 1, #self.Clones[self.SelectedClone]["Items"] do
-											local itm = CF_MakeItem2(self.Clones[self.SelectedClone]["Items"][i]["Preset"], self.Clones[self.SelectedClone]["Items"][i]["Class"])
-											if itm ~= nil then
-												a:AddInventoryItem(itm)
-											else
-												self.ClonesControlLastMessageTime = self.Time
-												self.ClonesControlMessageText = "ERROR!!! Can't create item!!!"
-											end
-										end
-										
-										MovableMan:AddActor(a)
-										
-										-- Remove actor from array
-										local newarr = {}
-										local ii = 1
-										
-										for i = 1, #self.Clones do
-											if i ~= self.SelectedClone then
-												newarr[ii] = self.Clones[i]
-												ii = ii + 1
-											end
-										end
-										
-										self.Clones = newarr
-										
-										-- Update game state data
-										CF_SetClonesArray(self.GS, self.Clones)
-										
-										if self.SelectedClone > #self.Clones then
-											self.SelectedClone = #self.Clones
-										end
-									else
-										self.ClonesControlLastMessageTime = self.Time
-										self.ClonesControlMessageText = "ERROR!!! Can't create actor!!!"
-									end
-								else
-									self.ClonesControlLastMessageTime = self.Time
-									self.ClonesControlMessageText = "Too many objects in simulation"
-								end
-							end
-						else
-							self.ClonesControlLastMessageTime = self.Time
-							self.ClonesControlMessageText = "Too many units. Upgrade life support."
-						end
+			if self.ClonesControlMode == self.ClonesControlPanelModes.CLONES or self.ClonesControlMode == self.ClonesControlPanelModes.SELL then
+				if self.ClonesControlMode == self.ClonesControlPanelModes.SELL then
+					if self.GS["Planet"] == "TradeStar" and self.GS["Location"] ~= nil then
+						self.ClonesControlPanelModesTexts[self.ClonesControlPanelModes.SELL] = "SELL BODIES "..CF_GetPlayerGold(self.GS, 0).." oz"
+						self.ClonesControlPanelModesHelpTexts[self.ClonesControlPanelModes.SELL] = "L/R/U/D - Select, FIRE - Sell"
+					else
+						self.ClonesControlPanelModesTexts[self.ClonesControlPanelModes.SELL] = "DUMP BODIES"
+						self.ClonesControlPanelModesHelpTexts[self.ClonesControlPanelModes.SELL] = "L/R/U/D - Select, FIRE - Dump"
 					end
-				else
-					self.FirePressed = false
 				end
-				
+			
 				if cont:IsState(Controller.PRESS_UP) then
 					if #self.Clones > 0 then
 						self.SelectedClone = self.SelectedClone - 1
@@ -216,6 +161,8 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 				
 				self.ClonesControlCloneListStart = self.SelectedClone - (self.SelectedClone - 1) % self.ClonesControlPanelLinesPerPage
 				
+				self.SelectedClonePrice = 0
+				
 				-- Draw clones list
 				for i = self.ClonesControlCloneListStart, self.ClonesControlCloneListStart + self.ClonesControlPanelLinesPerPage - 1 do
 					if i <= #self.Clones and i > 0 then
@@ -223,6 +170,14 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 						
 						if i == self.SelectedClone then
 							CF_DrawString("> "..self.Clones[i]["Preset"], pos + Vector(-130,-40) + Vector(0, (loc) * 12), 120, 10)
+							
+							-- Calculate actor price
+							local fact, indx = CF_FindActorInFactions(self.Clones[i]["Preset"], self.Clones[i]["Class"])
+							if fact ~= nil and indx ~= nil then
+								self.SelectedClonePrice = self.SelectedClonePrice + CF_ActPrices[fact][indx]
+							else
+								self.SelectedClonePrice = CF_UnknownActorPrice
+							end
 						else
 							CF_DrawString(self.Clones[i]["Preset"], pos + Vector(-130,-40) + Vector(0, (loc) * 12), 120, 10)
 						end
@@ -235,7 +190,33 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 					CF_DrawString("Inventory: "..#self.Clones[self.SelectedClone]["Items"].."/"..CF_MaxItems, pos + Vector(12,-60) , 300, 10)
 					
 					for i = 1, #self.Clones[self.SelectedClone]["Items"] do
-						CF_DrawString(self.Clones[self.SelectedClone]["Items"][i]["Preset"], pos + Vector(12,-40) + Vector(0, (i - 1) * 12), 120, 10)
+						-- Calculate inventory price
+						local price
+						local fact, indx = CF_FindItemInFactions(self.Clones[self.SelectedClone]["Items"][i]["Preset"], self.Clones[self.SelectedClone]["Items"][i]["Class"])
+						if fact ~= nil and indx ~= nil then
+							
+							price = CF_ItmPrices[fact][indx]
+						else
+							price = CF_UnknownItemPrice
+						end
+						self.SelectedClonePrice = self.SelectedClonePrice + price
+						
+						local prefix = ""
+						if self.ClonesControlMode == self.ClonesControlPanelModes.SELL then
+							if self.GS["Planet"] == "TradeStar" and self.GS["Location"] ~= nil then
+								prefix = tostring(math.ceil(price * CF_SellPriceCoeff)).."oz "
+							end
+						end
+
+						CF_DrawString(prefix..self.Clones[self.SelectedClone]["Items"][i]["Preset"], pos + Vector(12,-40) + Vector(0, (i - 1) * 12), 120, 10)
+					end
+				end
+
+				self.SelectedClonePrice = math.ceil(self.SelectedClonePrice * CF_SellPriceCoeff)
+				
+				if self.ClonesControlMode == self.ClonesControlPanelModes.SELL then
+					if self.GS["Planet"] == "TradeStar" and self.GS["Location"] ~= nil then
+						CF_DrawString("Sell price: "..self.SelectedClonePrice, pos + Vector(12,60) , 300, 10)
 					end
 				end
 				
@@ -243,7 +224,113 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 				CF_DrawString("Capacity: "..CF_CountUsedClonesInArray(self.Clones).."/"..self.GS["Player0VesselClonesCapacity"], pos + Vector(-130,-60) , 300, 10)
 				
 				-- Change panel text to show life support capacity
-				self.ClonesControlPanelModesTexts[self.ClonesControlPanelModes.CLONES] = "[ Bodies ] Life support usage: "..CF_CountActors(CF_PlayerTeam).."/"..self.GS["Player0VesselLifeSupport"]
+				self.ClonesControlPanelModesTexts[self.ClonesControlPanelModes.CLONES] = "Bodies - Life support usage: "..CF_CountActors(CF_PlayerTeam).."/"..self.GS["Player0VesselLifeSupport"]
+				
+				if cont:IsState(Controller.WEAPON_FIRE) then
+					if not self.FirePressed then
+						self.FirePressed = true;
+						
+						if self.ClonesControlMode == self.ClonesControlPanelModes.SELL then
+							if self.SelectedClone ~= 0 then
+								if self.GS["Planet"] == "TradeStar" and self.GS["Location"] ~= nil then
+									CF_SetPlayerGold(self.GS, 0 , CF_GetPlayerGold(self.GS, 0) + self.SelectedClonePrice)
+								end
+							
+								-- Remove actor from array
+								local newarr = {}
+								local ii = 1
+								
+								for i = 1, #self.Clones do
+									if i ~= self.SelectedClone then
+										newarr[ii] = self.Clones[i]
+										ii = ii + 1
+									end
+								end
+								
+								self.Clones = newarr
+								
+								-- Update game state data
+								CF_SetClonesArray(self.GS, self.Clones)
+								
+								if self.SelectedClone > #self.Clones then
+									self.SelectedClone = #self.Clones
+								end
+							else
+								self.ClonesControlLastMessageTime = self.Time
+								self.ClonesControlMessageText = "Clone storage is empty"
+							end
+						else
+							if CF_CountActors(CF_PlayerTeam) < tonumber(self.GS["Player0VesselLifeSupport"]) then
+								-- Create new unit
+								if self.SelectedClone ~= 0 then
+									if MovableMan:GetMOIDCount() < CF_MOIDLimit then
+										-- Spawn actor
+										local a = CF_MakeActor2(self.Clones[self.SelectedClone]["Preset"], self.Clones[self.SelectedClone]["Class"])
+										if a ~= nil then
+											a.Team = CF_PlayerTeam
+											if self.ClonesDeployPos ~= nil then
+												a.Pos = self.ClonesDeployPos
+											else
+												a.Pos = self.ClonesControlPanelPos
+											end
+											
+											for i = 1, #self.Clones[self.SelectedClone]["Items"] do
+												local itm = CF_MakeItem2(self.Clones[self.SelectedClone]["Items"][i]["Preset"], self.Clones[self.SelectedClone]["Items"][i]["Class"])
+												if itm ~= nil then
+													a:AddInventoryItem(itm)
+												else
+													self.ClonesControlLastMessageTime = self.Time
+													self.ClonesControlMessageText = "ERROR!!! Can't create item!!!"
+												end
+											end
+											
+											MovableMan:AddActor(a)
+											
+											-- Remove actor from array
+											local newarr = {}
+											local ii = 1
+											
+											for i = 1, #self.Clones do
+												if i ~= self.SelectedClone then
+													newarr[ii] = self.Clones[i]
+													ii = ii + 1
+												end
+											end
+											
+											self.Clones = newarr
+											
+											-- Update game state data
+											CF_SetClonesArray(self.GS, self.Clones)
+											
+											if self.SelectedClone > #self.Clones then
+												self.SelectedClone = #self.Clones
+											end
+										else
+											self.ClonesControlLastMessageTime = self.Time
+											self.ClonesControlMessageText = "ERROR!!! Can't create actor!!!"
+										end
+									else
+										self.ClonesControlLastMessageTime = self.Time
+										self.ClonesControlMessageText = "Too many objects in simulation"
+									end
+								else
+									self.ClonesControlLastMessageTime = self.Time
+									self.ClonesControlMessageText = "Clone storage is empty"
+								end
+							else
+								if self.SelectedClone == 0 then
+									self.ClonesControlLastMessageTime = self.Time
+									self.ClonesControlMessageText = "Clone storage is empty"
+								else
+									self.ClonesControlLastMessageTime = self.Time
+									self.ClonesControlMessageText = "Too many units. Upgrade life support."
+								end
+							end
+						end -- If not sell mode
+					end
+				else
+					self.FirePressed = false
+				end
 			end
 
 
@@ -420,16 +507,27 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 			end
 			
 			-- Draw generic UI
-			self:PutGlow("ControlPanel_Clones_Left", pos + Vector(-71,0))
-			self:PutGlow("ControlPanel_Clones_Right", pos + Vector(70,0))
-			self:PutGlow("ControlPanel_Clones_HorizontalPanel", pos + Vector(0,-77))
+			if self.ClonesControlMode ~= self.ClonesControlPanelModes.SELL then
+				self:PutGlow("ControlPanel_Clones_Left", pos + Vector(-71,0))
+				self:PutGlow("ControlPanel_Clones_Right", pos + Vector(70,0))
+				self:PutGlow("ControlPanel_Clones_HorizontalPanel", pos + Vector(0,-77))
+			else
+				self:PutGlow("ControlPanel_Clones_Left_Red", pos + Vector(-71,0))
+				self:PutGlow("ControlPanel_Clones_Right_Red", pos + Vector(70,0))
+				self:PutGlow("ControlPanel_Clones_HorizontalPanel_Red", pos + Vector(0,-77))
+			end
 			
 			-- Print help text or error message text
 			if self.Time < self.ClonesControlLastMessageTime + self.ClonesControlMessageIntrval then
 				self:PutGlow("ControlPanel_Clones_HorizontalPanel_Red", pos + Vector(0,78))
 				CF_DrawString(self.ClonesControlMessageText, pos + Vector(-130,78) , 300, 10)
 			else
-				self:PutGlow("ControlPanel_Clones_HorizontalPanel", pos + Vector(0,78))
+				if self.ClonesControlMode ~= self.ClonesControlPanelModes.SELL then
+					self:PutGlow("ControlPanel_Clones_HorizontalPanel", pos + Vector(0,78))
+				else
+					self:PutGlow("ControlPanel_Clones_HorizontalPanel_Red", pos + Vector(0,78))
+				end
+					
 				CF_DrawString(self.ClonesControlPanelModesHelpTexts[self.ClonesControlMode], pos + Vector(-130,78) , 300, 10)
 			end
 			

@@ -16,6 +16,11 @@ function CF_InitFactions(activity)
 	-- Used in flight mode
 	CF_KmPerPixel = 100
 	
+	CF_SellPriceCoeff = 0.25
+	
+	CF_UnknownItemPrice = 250
+	CF_UnknownActorPrice = 500
+	
 	CF_AssaultCheckInterval = 5
 	CF_ReputationPerDifficulty = 1000
 	

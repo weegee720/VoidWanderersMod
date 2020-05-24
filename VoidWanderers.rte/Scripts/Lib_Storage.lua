@@ -44,6 +44,8 @@ function CF_GetStorageArray(gs, makefilters)
 		arr2[-1] = {}
 		-- Array for unknown items
 		arr2[-2] = {}
+		-- Array for sell items
+		arr2[-3] = {}
 		-- Arrays for items by types
 		arr2[CF_WeaponTypes.PISTOL] = {}
 		arr2[CF_WeaponTypes.RIFLE] = {}
@@ -61,6 +63,10 @@ function CF_GetStorageArray(gs, makefilters)
 			-- Add item to 'all' list
 			local indx = #arr2[-1] + 1
 			arr2[-1][indx] = itm
+			
+			-- Add item to 'sell' list
+			local indx = #arr2[-3] + 1
+			arr2[-3][indx] = itm
 			
 			if f ~= nil and i ~= nil then
 				-- Add item to specific list
@@ -93,7 +99,6 @@ function CF_SetStorageArray(gs, arr)
 	
 	-- Copy items
 	local itm = 1
-	
 	
 	for i = 1, #arr do
 		if arr[i]["Count"] > 0 then
@@ -167,8 +172,8 @@ end
 --	Searches for given actor in all faction files and returns it's factions and index if found
 -----------------------------------------------------------------------------------------
 function CF_FindActorInFactions(preset, class)
-	for fact = 1, #CF_Actors do
-		local f = CF_Actors[fact]
+	for fact = 1, #CF_Factions do
+		local f = CF_Factions[fact]
 	
 		for i = 1, #CF_ActNames[f] do
 			if preset == CF_ActPresets[f][i] then
