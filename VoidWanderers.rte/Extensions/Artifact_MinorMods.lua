@@ -140,9 +140,9 @@ if PresetMan:GetModuleID("Khandari.rte") ~= -1 then
 		CF_RandomEncounterPirates[pid]["Itm"] = 	{"RAM T98", "Talon KV"}
 		CF_RandomEncounterPirates[pid]["ItmMod"] = 	{"Khandari.rte", "Khandari.rte"}
 		
-		CF_RandomEncounterPirates[pid]["Units"] = 3
+		CF_RandomEncounterPirates[pid]["Units"] = 5
 		CF_RandomEncounterPirates[pid]["Burst"] = 1
-		CF_RandomEncounterPirates[pid]["Interval"] = 20
+		CF_RandomEncounterPirates[pid]["Interval"] = 16
 	end
 end
 

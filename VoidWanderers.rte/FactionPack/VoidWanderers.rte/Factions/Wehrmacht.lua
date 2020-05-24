@@ -81,6 +81,10 @@ CF_ActTypes[factionid][i] = CF_ActorTypes.LIGHT;
 CF_EquipmentTypes[factionid][i] = CF_WeaponTypes.RIFLE;
 CF_ActPowers[factionid][i] = 2
 
+if CF_ItemsToRemove then
+	CF_ItemsToRemove["Volks Grenadier"] = {"Kar-98k","Luger", "Panzerfaust", "Model 24"}
+end
+
 i = #CF_ActNames[factionid] + 1
 CF_ActNames[factionid][i] = "Sturm Infanterie"
 CF_ActPresets[factionid][i] = "Sturm Infanterie"
@@ -92,6 +96,10 @@ CF_ActTypes[factionid][i] = CF_ActorTypes.HEAVY;
 CF_EquipmentTypes[factionid][i] = CF_WeaponTypes.RIFLE;
 CF_ActPowers[factionid][i] = 4
 
+if CF_ItemsToRemove then
+	CF_ItemsToRemove["Sturm Infanterie"] = {"StG44","M1912", "M39", "M39"}
+end
+
 i = #CF_ActNames[factionid] + 1
 CF_ActNames[factionid][i] = "Scharfschutze"
 CF_ActPresets[factionid][i] = "Scharfschutze"
@@ -102,6 +110,10 @@ CF_ActUnlockData[factionid][i] = 1000
 CF_ActTypes[factionid][i] = CF_ActorTypes.LIGHT;
 CF_EquipmentTypes[factionid][i] = CF_WeaponTypes.SNIPER;
 CF_ActPowers[factionid][i] = 4
+
+if CF_ItemsToRemove then
+	CF_ItemsToRemove["Scharfschutze"] = {"Gewehr 43","C96", "S-mine", "S-mine"}
+end
 
 -- Looks like these folks are incompatible with 1.05
 --i = #CF_ActNames[factionid] + 1
@@ -126,6 +138,10 @@ CF_ActTypes[factionid][i] = CF_ActorTypes.LIGHT;
 CF_EquipmentTypes[factionid][i] = CF_WeaponTypes.SNIPER;
 CF_ActPowers[factionid][i] = 6
 
+if CF_ItemsToRemove then
+	CF_ItemsToRemove["Fallschirmjager"] = {"FG42", "P-24 Revolver", "Deployable AT Rifle", "SD2 Designator"}
+end
+
 i = #CF_ActNames[factionid] + 1
 CF_ActNames[factionid][i] = "Flammenkrieger"
 CF_ActPresets[factionid][i] = "Flammenkrieger"
@@ -137,6 +153,13 @@ CF_ActTypes[factionid][i] = CF_ActorTypes.HEAVY;
 CF_EquipmentTypes[factionid][i] = CF_WeaponTypes.SHOTGUN;
 CF_ActPowers[factionid][i] = 7
 
+if CF_DiscardableItems then
+	CF_DiscardableItems["Flammenkrieger"] = {"Der Flammenkrieg"}
+end
+if CF_ItemsToRemove then
+	CF_ItemsToRemove["Flammenkrieger"] = {"MP40"}
+end
+
 i = #CF_ActNames[factionid] + 1
 CF_ActNames[factionid][i] = "20mm FlaK 88"
 CF_ActPresets[factionid][i] = "20mm FlaK 88"
@@ -145,10 +168,9 @@ CF_ActPrices[factionid][i] = 235
 CF_ActDescriptions[factionid][i] = ""
 CF_ActUnlockData[factionid][i] = 950
 CF_ActTypes[factionid][i] = CF_ActorTypes.TURRET;
-CF_EquipmentTypes[factionid][i] = CF_WeaponTypes.SHOTGUN;
+CF_EquipmentTypes[factionid][i] = CF_WeaponTypes.HEAVY;
 CF_ActClasses[factionid][i] = "ACrab"
 CF_ActPowers[factionid][i] = 6
-
 
 -- Define buyable items available for purchase or unlocks
 CF_ItmNames[factionid] = {}

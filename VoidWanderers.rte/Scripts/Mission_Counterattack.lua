@@ -145,7 +145,7 @@ function VoidWanderers:MissionUpdate()
 				for i = 1, count do
 					local actor = CF_SpawnAIUnit(self.GS, self.AssaultEnemyPlayer, CF_CPUTeam, self.MissionLZs[math.random(#self.MissionLZs)], Actor.AIMODE_BRAINHUNT)
 					if actor then
-						ship:AddInventoryItem(actor)
+						MovableMan:AddActor(actor)
 					end
 				end
 			end

@@ -47,8 +47,8 @@ if PresetMan:GetModuleID("NovaMind.rte") ~= -1 then
 		CF_RandomEncounterPirates[pid]["Itm"] = 	{"Garrett LMG","Garrett LMG","Garrett LMG", 	"SN-15"}
 		CF_RandomEncounterPirates[pid]["ItmMod"] = 	{"NovaMind.rte","NovaMind.rte","NovaMind.rte",	"NovaMind.rte"}
 		
-		CF_RandomEncounterPirates[pid]["Units"] = 3
+		CF_RandomEncounterPirates[pid]["Units"] = 5
 		CF_RandomEncounterPirates[pid]["Burst"] = 1
-		CF_RandomEncounterPirates[pid]["Interval"] = 20
+		CF_RandomEncounterPirates[pid]["Interval"] = 16
 	end
 end

@@ -1,12 +1,4 @@
 
--- Define vanilla planet
-local id = "CC-11Y"
-CF_Planet[#CF_Planet + 1] = id
-CF_PlanetName[id] = "CC-11Y"
-CF_PlanetGlow[id] = "CC-11Y"
-CF_PlanetPos[id] = Vector(27 , 32)
-CF_PlanetGlowModule[id] = "VoidWanderers.rte"
-
 -- Vanilla planet locations
 local id = "Ketanot Hills"
 CF_Location[#CF_Location + 1] = id
@@ -175,39 +167,3 @@ CF_LocationScenes[id] = {"Zekarra Mining Outpost"}
 CF_LocationPlanet[id] = "CC-11Y"
 CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy", "Squad"}
 
-
-
--- Add black markets
-local id = "Station Ypsilon-2"
-CF_Location[#CF_Location + 1] = id
-CF_LocationName[id] = "Station Ypsilon-2"
-CF_LocationPos[id] = Vector(52,50)
-CF_LocationSecurity[id] = 60
-CF_LocationGoldPresent[id] = false
-CF_LocationScenes[id] = {"Station Ypsilon-2"}
-CF_LocationPlanet[id] = "CC-11Y"
-CF_LocationPlayable[id] = false
-CF_LocationAttributes[id] = {CF_LocationAttributeTypes.BLACKMARKET}
-
--- Add shipyards
-local id = "Toha Shipyards"
-CF_Location[#CF_Location + 1] = id
-CF_LocationName[id] = "Toha Shipyards"
-CF_LocationPos[id] = Vector(-32,-50)
-CF_LocationSecurity[id] = 60
-CF_LocationGoldPresent[id] = false
-CF_LocationScenes[id] = {"Toha Shipyards"}
-CF_LocationPlanet[id] = "CC-11Y"
-CF_LocationPlayable[id] = false
-CF_LocationAttributes[id] = {CF_LocationAttributeTypes.SHIPYARD}
-
-
-
-
-
--- Define moon
---local id = "Moon"
---CF_Planet[#CF_Planet + 1] = id
---CF_PlanetName[id] = "Moon"
---CF_PlanetGlow[id] = "Moon"
---CF_PlanetGlowModule[id] = "VoidWanderers.rte"

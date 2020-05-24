@@ -75,6 +75,7 @@ function do_rpgbrain_shield()
 	G_VW_Pressure = pressure;
 	
 	local counter = 0
+	local massindex
 	
 	if G_VW_Switch == 0 then
 		G_VW_Switch = 1
@@ -88,7 +89,10 @@ function do_rpgbrain_shield()
 	
 		if counter % 2 == G_VW_Switch and p.HitsMOs and p.Vel.Magnitude >= G_VW_MinVelocity then
 			tobreak = false
+			
 			for i = 1, #G_VW_Shields do
+				massindex = 1 + ((6 - G_VW_Power[i]) * 0.17)
+
 				if G_VW_Active[i] then
 					radius = rads[i]
 
@@ -100,7 +104,7 @@ function do_rpgbrain_shield()
 							dist = SceneMan:ShortestDistance(s.Pos , p.Pos,true).Magnitude
 							
 							if dist <= radius and dist > radius * 0.1 then
-								pr = pr + (p.Mass * p.Vel.Magnitude)
+								pr = pr + ((p.Mass * massindex) * p.Vel.Magnitude)
 							
 								if effectcount < 10 then
 									glownum = math.floor(p.Vel.Magnitude / 10)

@@ -17,14 +17,14 @@ if PresetMan:GetModuleID("Deployable Turret.rte") ~= -1 then
 		if not self.RandomEncounterIsInitialized then
 			self.RandomEncounterReavers = {}
 
-			self.RandomEncounterReaversAct = 	{"Reaver"}
-			self.RandomEncounterReaversActMod = {"MZR.rte"}	
+			self.RandomEncounterReaversAct = 	{"Reaver", "Bone Reaver"}
+			self.RandomEncounterReaversActMod = {"MZR.rte", "MZR.rte"}
 
 			self.RandomEncounterReaversLight = 	{"JPL 10 Auto", "K-LDP 7.7mm"}
 			self.RandomEncounterReaversLightMod = 	{"MZR.rte", "MZR.rte"}
 
-			self.RandomEncounterReaversHeavy = 	{"K-HAR 10mm", "Shrike Mdl.G"}
-			self.RandomEncounterReaversHeavyMod = 	{"MZR.rte", "MZR.rte"}
+			self.RandomEncounterReaversHeavy = 	{"K-HAR 10mm", "Shrike Mdl.G", "PBL Maw"}
+			self.RandomEncounterReaversHeavyMod = 	{"MZR.rte", "MZR.rte", "MZR.rte"}
 			
 			self.RandomEncounterReaversInterval = 8
 			
@@ -215,11 +215,11 @@ if PresetMan:GetModuleID("Deployable Turret.rte") ~= -1 then
 					if rocket then
 						if isleft then
 							rocket.Pos = Vector(0, self.RandomEncounterLeftGates:GetRandomPoint().Y)
-							rocket.Vel = Vector(50,0)
+							rocket.Vel = Vector(35,0)
 							rocket.RotAngle = math.rad(270);
 						else
 							rocket.Pos = Vector(SceneMan.Scene.Width, self.RandomEncounterRightGates:GetRandomPoint().Y)
-							rocket.Vel = Vector(-50,0)
+							rocket.Vel = Vector(-35,0)
 							rocket.RotAngle = math.rad(90);
 						end
 						rocket.Team = CF_CPUTeam
@@ -236,7 +236,7 @@ if PresetMan:GetModuleID("Deployable Turret.rte") ~= -1 then
 									actor.Team = CF_CPUTeam
 									actor.AIMode = Actor.AIMODE_BRAINHUNT
 									
-									local itm = CreateHDFirearm(self.RandomEncounterReaversLight[r3], self.RandomEncounterReaversLightMod[r3])
+									local itm = CreateHDFirearm(self.RandomEncounterReaversHeavy[r3], self.RandomEncounterReaversHeavyMod[r3])
 									if itm then
 										actor:AddInventoryItem(itm)
 									end
@@ -245,6 +245,7 @@ if PresetMan:GetModuleID("Deployable Turret.rte") ~= -1 then
 									if itm then
 										actor:AddInventoryItem(itm)
 									end
+
 									rocket:AddInventoryItem(actor)
 									self.RandomEncounterReaversUnitCount = self.RandomEncounterReaversUnitCount - 1
 								end
