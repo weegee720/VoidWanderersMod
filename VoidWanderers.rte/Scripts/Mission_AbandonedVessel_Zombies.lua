@@ -87,6 +87,8 @@ function VoidWanderers:MissionCreate()
 			end
 		end
 	end
+
+	self:InitExplorationPoints()
 	
 	self.MissionStart = self.Time
 end
@@ -94,6 +96,8 @@ end
 --
 -----------------------------------------------------------------------------------------
 function VoidWanderers:MissionUpdate()
+	self:ProcessExplorationPoints()
+
 	if self.Time >= self.MissionZombieRespawnTime then
 		self.MissionZombieRespawnTime = self.Time + self.MissionZombieRespawnInterval
 		

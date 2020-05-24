@@ -75,12 +75,15 @@ function VoidWanderers:MissionCreate()
 		end
 	end	
 	
+	self:InitExplorationPoints()
+	
 	self.MissionStart = self.Time
 end
 -----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
 function VoidWanderers:MissionUpdate()
+	self:ProcessExplorationPoints()
 end
 -----------------------------------------------------------------------------------------
 --

@@ -384,7 +384,7 @@ function VoidWanderers:StartActivity()
 		
 		-- Set unseen
 		if CF_FogOfWarEnabled then
-			SceneMan:MakeAllUnseen(Vector(CF_FogOfWarResolution, CF_FogOfWarResolution), CF_PlayerTeam);
+			--SceneMan:MakeAllUnseen(Vector(CF_FogOfWarResolution, CF_FogOfWarResolution), CF_PlayerTeam);
 			
 			-- Reveal previously saved fog of war
 			--print ("Reveal fog")
@@ -659,7 +659,7 @@ function VoidWanderers:TriggerShipAssault()
 		end
 	end
 	
-	--toassault = false -- DEBUG
+	toassault = false -- DEBUG
 	--toassault = true -- DEBUG
 
 	if toassault then
@@ -707,7 +707,7 @@ function VoidWanderers:TriggerShipAssault()
 			
 			--id = "TEST" -- DEBUG
 			--id = "PIRATE_GENERIC" -- DEBUG
-			--id = "ABANDONED_VESSEL_GENERIC"  --DEBUG
+			id = "ABANDONED_VESSEL_GENERIC"  --DEBUG
 			
 			-- Launch encounter
 			if found and id ~= nil then
@@ -1631,10 +1631,58 @@ end
 -----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
+function VoidWanderers:InitExplorationPoints()
+	local set = CF_GetRandomMissionPointsSet(self.Pts, "Exploration")
+
+	local pts = CF_GetPointsArray(self.Pts, "Exploration", set, "Explore")
+	self.MissionExplorationPoint = pts[math.random(#pts)]
+	self.MissionExplorationRecovered = false
+	
+	self.MissionExplorationHologram = "Holo" .. math.random(CF_MaxHolograms)
+	
+	print (self.MissionExplorationPoint)
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
+function VoidWanderers:ProcessExplorationPoints()
+	if self.MissionExplorationPoint ~= nil then
+		if not self.MissionExplorationRecovered then
+			if math.random(10) < 7 then
+				self:PutGlow(self.MissionExplorationHologram, self.MissionExplorationPoint)
+			end
+			
+			for actor in MovableMan.Actors do
+				if actor.Team == CF_PlayerTeam and CF_Dist(actor.Pos, self.MissionExplorationPoint) < 5 then
+					self:GiveRandomExplorationReward()
+					self.MissionExplorationRecovered = true
+					self.MissionExplorationPoint = nil
+					
+					for a in MovableMan.Actors do
+						if a.Team ~= CF_PlayerTeam then
+							a.AIMode = Actor.AIMODE_BRAINHUNT
+						end
+					end
+					
+					break
+				end
+			end
+		end
+	end
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
+function VoidWanderers:GiveRandomExplorationReward()
+	print ("Reward")
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
 function VoidWanderers:CraftEnteredOrbit()
 	-- Empty default handler, may be changed by mission scripts
 end
 -----------------------------------------------------------------------------------------
 -- That's all folks!!!
 -----------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------`````````````

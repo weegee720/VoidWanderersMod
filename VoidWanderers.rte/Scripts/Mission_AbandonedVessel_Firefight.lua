@@ -101,8 +101,6 @@ function VoidWanderers:MissionCreate()
 		end	
 	end
 	
-	self.MissionStart = self.Time
-	
 	self.MissionNextAttackTime = self.Time + 1
 	self.MissionNextAttackInterval = 12
 	self.FirefightEnded = false
@@ -112,11 +110,17 @@ function VoidWanderers:MissionCreate()
 	if self.MissionAllyPlayers[1] or  self.MissionAllyPlayers[2] then
 		self.MissionShowObjectiveTime = self.Time + 10
 	end
+	
+	self:InitExplorationPoints()
+
+	self.MissionStart = self.Time
 end
 -----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
 function VoidWanderers:MissionUpdate()
+	self:ProcessExplorationPoints()
+
 	--[[for t = 1, 2 do
 		local l = #self.MissionFirefightWaypoint[t]
 		for j = 1, l do
