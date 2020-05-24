@@ -236,7 +236,7 @@ function VoidWanderers:BtnOk_OnClick()
 	end
 	
 	-- Create new game data
-	dofile(LIB_PATH.."CF_NewGameData.lua");
+	dofile(LIB_PATH.."Lib_NewGameData.lua");
 	config = CF_MakeNewConfig(self.Difficulty, player, cpu);
 	CF_MakeNewConfig = nil;
 	

@@ -10,16 +10,14 @@ function VoidWanderers:StartActivity()
 	LIB_PATH = self.ModuleName.."/Scripts/"
 	BASE_PATH = self.ModuleName.."/Scripts/"
 
-	dofile(LIB_PATH.."CF_ConfigLibrary.lua");
-	dofile(LIB_PATH.."CF_MissionLibrary.lua");
+	dofile(LIB_PATH.."Lib_Config.lua");
+	dofile(LIB_PATH.."Lib_Generic.lua");
+	dofile(LIB_PATH.."Lib_Storage.lua");
 
-	dofile(LIB_PATH.."Panel_Clone.lua");
+	dofile(LIB_PATH.."Panel_Clones.lua");
 	dofile(LIB_PATH.."Panel_Ship.lua");
 	dofile(LIB_PATH.."Panel_Beam.lua");
 	dofile(LIB_PATH.."Panel_Storage.lua");
-
-	dofile(LIB_PATH.."Lib_Storage.lua");
-
 	
 	if TRANSFER_IN_PROGRESS == nil then
 		TRANSFER_IN_PROGRESS = false

@@ -68,12 +68,12 @@ function VoidWanderers:StartActivity()
 	-- Clone Control Panel
 	local x,y;
 			
-	x = tonumber(self.LS["CloneControlPanelX"])
-	y = tonumber(self.LS["CloneControlPanelY"])
+	x = tonumber(self.LS["ClonesControlPanelX"])
+	y = tonumber(self.LS["ClonesControlPanelY"])
 	if x~= nil and y ~= nil then
-		self.CloneControlPanelPos = Vector(x,y)
+		self.ClonesControlPanelPos = Vector(x,y)
 	else
-		self.CloneControlPanelPos = nil
+		self.ClonesControlPanelPos = nil
 	end
 
 	-- Storage Control Panel
@@ -127,10 +127,14 @@ function VoidWanderers:StartActivity()
 
 	self:SaveCurrentGameState();
 	
-	self:CreateControlPanelActors()
-	
-	self:InitShipControlPanelUI()
-	self:InitStorageControlPanelUI()
+	-- Init consoles if in Vessel mode
+	if self.GS["Mode"] == "Vessel" then
+		self:CreateControlPanelActors()
+		
+		self:InitShipControlPanelUI()
+		self:InitStorageControlPanelUI()
+		self:InitClonesControlPanelUI()
+	end
 	
 	print ("VoidWanderers:Tactics:StartActivity - End");
 end
@@ -332,10 +336,12 @@ function VoidWanderers:UpdateActivity()
 	end
 	
 	-- Process UI's
-	self:ProcessShipControlPanelUI()
-	self:ProcessCloneControlPanelUI()
-	self:ProcessStorageControlPanelUI()
-	self:ProcessBeamControlPanelUI()
+	if self.GS["Mode"] == "Vessel" then
+		self:ProcessShipControlPanelUI()
+		self:ProcessClonesControlPanelUI()
+		self:ProcessStorageControlPanelUI()
+		self:ProcessBeamControlPanelUI()
+	end
 	
 	-- Tick timer
 	if self.TickTimer:IsPastSimMS(self.TickInterval) then
