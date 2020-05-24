@@ -177,7 +177,7 @@ function VoidWanderers:StartActivity()
 					self.GS["Actor"..spawnedactors.."X"] = math.ceil(actor.Pos.X)
 					self.GS["Actor"..spawnedactors.."Y"] = math.ceil(actor.Pos.Y)
 					
-					print (#self.DeployedActors[i]["InventoryPresets"])
+					--print (#self.DeployedActors[i]["InventoryPresets"])
 					
 					for j = 1, #self.DeployedActors[i]["InventoryPresets"] do
 						local itm = CF_MakeItem2(self.DeployedActors[i]["InventoryPresets"][j], self.DeployedActors[i]["InventoryClasses"][j])
@@ -649,7 +649,7 @@ function VoidWanderers:TriggerShipAssault()
 		self.AssaultDifficulty = CF_MaxDifficulty
 	end
 	
-	local r = math.random(CF_MaxDifficulty * 55)
+	local r = math.random(CF_MaxDifficulty * 50)
 	local tgt = ((CF_MaxDifficulty - self.AssaultDifficulty) * 4) + 10
 	
 	print (CF_GetPlayerFaction(self.GS, self.AssaultEnemyPlayer).." D - "..self.AssaultDifficulty.." R - "..r.." TGT - "..tgt)
@@ -667,8 +667,8 @@ function VoidWanderers:TriggerShipAssault()
 		self.AssaultNextSpawnTime = self.AssaultTime + CF_AssaultDifficultySpawnInterval[self.AssaultDifficulty] + 1
 		self.AssaultNextSpawnPos = self.EnemySpawn[math.random(#self.EnemySpawn)]	
 
-		--self.AssaultEnemiesToSpawn = 0 -- DEBUG
-		--self.AssaultTime = self.Time + 3 -- DEBUG
+		self.AssaultEnemiesToSpawn = 1 -- DEBUG
+		self.AssaultTime = self.Time + 3 -- DEBUG
 
 		-- Create attacker's unit presets
 		CF_CreateAIUnitPresets(self.GS, self.AssaultEnemyPlayer, CF_GetTechLevelFromDifficulty(self.GS, self.AssaultEnemyPlayer, self.AssaultDifficulty, CF_MaxDifficulty))	
@@ -1528,26 +1528,7 @@ function VoidWanderers:GiveMissionRewards(disablepenalties)
 	local levelup = false;
 
 	if self.GS["BrainsOnMission"] == "True" then
-		for p = 0, 3 do
-			local curexp = tonumber(self.GS["Brain"..p.."Exp"])
-			local cursklpts = tonumber(self.GS["Brain"..p.."SkillPoints"])
-			local curlvl = tonumber(self.GS["Brain"..p.."Level"])
-			
-			curexp = curexp + exppts
-			
-			while math.floor(curexp / CF_ExpPerLevel) > 0 do
-				if curlvl < CF_MaxLevel then
-					curexp = curexp - CF_ExpPerLevel
-					cursklpts = cursklpts + 1
-					curlvl = curlvl + 1
-					levelup = true
-				end
-			end
-		
-			self.GS["Brain"..p.."SkillPoints"] = cursklpts
-			self.GS["Brain"..p.."Exp"] = curexp
-			self.GS["Brain"..p.."Level"] = curlvl
-		end
+		levelup = CF_GiveExp(self.GS, exppts)
 		
 		self.MissionReport[#self.MissionReport + 1] = tostring(exppts).." exp received"
 		if levelup then

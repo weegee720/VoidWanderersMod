@@ -33,7 +33,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Wastelands"}
 CF_LocationPlanet[id] = "MP3-GTC-RTH"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy", "Squad"}
 
 -- Enable only if MP3 patch installed
 -- Will crash the game due to Base.rte/Mine if MP3 is not patched
@@ -59,7 +59,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Ragnarok"}
 CF_LocationPlanet[id] = "MP3-GTC-RTH"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy", "Squad"}
 
 local id = "Gryphon"
 CF_Location[#CF_Location + 1] = id
@@ -71,7 +71,7 @@ CF_LocationSecurity[id] = 30
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Gryphon"}
 CF_LocationPlanet[id] = "MP3-GTC-RTH"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy", "Squad"}
 
 local id = "Old Dam"
 CF_Location[#CF_Location + 1] = id
@@ -83,7 +83,7 @@ CF_LocationSecurity[id] = 20
 CF_LocationGoldPresent[id] = false
 CF_LocationScenes[id] = {"Old Dam"}
 CF_LocationPlanet[id] = "MP3-GTC-RTH"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Zombies", "Defend", "Destroy"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Zombies", "Defend", "Destroy", "Squad"}
 
 local id = "Station 134"
 CF_Location[#CF_Location + 1] = id
@@ -95,7 +95,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Station 134"}
 CF_LocationPlanet[id] = "MP3-GTC-RTH"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy", "Squad"}
 
 local id = "Dry Flats"
 CF_Location[#CF_Location + 1] = id
@@ -107,6 +107,6 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Dry Flats"}
 CF_LocationPlanet[id] = "MP3-GTC-RTH"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy", "Squad"}
 
 

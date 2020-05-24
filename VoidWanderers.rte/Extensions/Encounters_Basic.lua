@@ -38,7 +38,7 @@ CF_RandomEncounterPirates[pid]["ActMod"] = 	{"Ronin.rte", 		"Ronin.rte" , 	"Coal
 CF_RandomEncounterPirates[pid]["Itm"] = 	{"AR-25 Hammerfist", 	"PY-07 Trailblazer", 	"Compact Assault Rifle", 	"Assault Rifle", 	"Shotgun", 			"Uzi", 			"MP5K", 		"AK-47", 		"Thumper"}
 CF_RandomEncounterPirates[pid]["ItmMod"] = 	{"Browncoats.rte", 		"Browncoats.rte",		"Coalition.rte",			"Coalition.rte",	"Coalition.rte",	"Ronin.rte",	"Ronin.rte",	"Ronin.rte",	"Ronin.rte"}
 
-CF_RandomEncounterPirates[pid]["Units"] = 10
+CF_RandomEncounterPirates[pid]["Units"] = 12
 CF_RandomEncounterPirates[pid]["Burst"] = 3
 CF_RandomEncounterPirates[pid]["Interval"] = 18
 
@@ -55,7 +55,7 @@ CF_RandomEncounterPirates[pid]["ActMod"] = 	{"Dummy.rte", 	"Imperatus.rte" , 	"I
 CF_RandomEncounterPirates[pid]["Itm"] = 	{"Blaster", 	"Repeater", 	"Bullpup AR-14", 	"Mauler SG-23", 	"Pulse Rifle", 	"Nucleo Swarm"}
 CF_RandomEncounterPirates[pid]["ItmMod"] = 	{"Dummy.rte", 	"Dummy.rte",	"Imperatus.rte",	"Imperatus.rte",	"Techion.rte",	"Techion.rte"}
 
-CF_RandomEncounterPirates[pid]["Units"] = 10
+CF_RandomEncounterPirates[pid]["Units"] = 12
 CF_RandomEncounterPirates[pid]["Burst"] = 3
 CF_RandomEncounterPirates[pid]["Interval"] = 18
 

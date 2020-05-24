@@ -78,7 +78,7 @@ end
 --
 -----------------------------------------------------------------------------------------
 function VoidWanderers:MissionUpdate()
-	if self.MissionStage == self.MissionStages.ACTIVE then
+	--[[if self.MissionStage == self.MissionStages.ACTIVE then
 		self.MissionFailed = true
 		local count = 0
 			

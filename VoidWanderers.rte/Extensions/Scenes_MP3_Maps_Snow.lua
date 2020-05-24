@@ -33,7 +33,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Arctic Pole"}
 CF_LocationPlanet[id] = "MP3-GTC-SNW"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy", "Squad"}
 
 local id = "Summit"
 CF_Location[#CF_Location + 1] = id
@@ -45,7 +45,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Summit"}
 CF_LocationPlanet[id] = "MP3-GTC-SNW"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy", "Squad"}
 
 local id = "Snow Cave"
 CF_Location[#CF_Location + 1] = id
@@ -57,7 +57,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Snow Cave"}
 CF_LocationPlanet[id] = "MP3-GTC-SNW"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy", "Squad"}
 
 -- Enable only if MP3 patch installed
 -- Will crash the game due to Base.rte/Mine if MP3 is not patched
@@ -71,7 +71,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = false
 CF_LocationScenes[id] = {"Missile Silo"}
 CF_LocationPlanet[id] = "MP3-GTC-SNW"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Zombies", "Defend", "Destroy"}--]]--
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Zombies", "Defend", "Destroy", "Squad"}--]]--
 
 local id = "Glacier"
 CF_Location[#CF_Location + 1] = id
@@ -83,7 +83,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Glacier"}
 CF_LocationPlanet[id] = "MP3-GTC-SNW"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy", "Squad"}
 
 local id = "Ice Caves"
 CF_Location[#CF_Location + 1] = id
@@ -95,7 +95,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = false
 CF_LocationScenes[id] = {"Ice Caves"}
 CF_LocationPlanet[id] = "MP3-GTC-SNW"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Zombies", "Destroy"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Zombies", "Destroy", "Squad"}
 
 local id = "Cold Slabs"
 CF_Location[#CF_Location + 1] = id
@@ -107,6 +107,6 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Cold Slabs"}
 CF_LocationPlanet[id] = "MP3-GTC-SNW"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy", "Squad"}
 
 

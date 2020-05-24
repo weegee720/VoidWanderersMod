@@ -1081,3 +1081,56 @@ end
 -----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
+function CF_GiveExp(c, exppts)
+	local levelup = false
+
+	for p = 0, 3 do
+		local curexp = tonumber(c["Brain"..p.."Exp"])
+		local cursklpts = tonumber(c["Brain"..p.."SkillPoints"])
+		local curlvl = tonumber(c["Brain"..p.."Level"])
+		
+		curexp = curexp + exppts
+		
+		while math.floor(curexp / CF_ExpPerLevel) > 0 do
+			if curlvl < CF_MaxLevel then
+				curexp = curexp - CF_ExpPerLevel
+				cursklpts = cursklpts + 1
+				curlvl = curlvl + 1
+				levelup = true
+			end
+		end
+	
+		c["Brain"..p.."SkillPoints"] = cursklpts
+		c["Brain"..p.."Exp"] = curexp
+		c["Brain"..p.."Level"] = curlvl
+	end
+	
+	return levelup
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

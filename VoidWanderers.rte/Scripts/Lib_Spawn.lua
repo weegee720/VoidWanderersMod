@@ -2,14 +2,15 @@
 --
 -----------------------------------------------------------------------------------------
 function CF_MakeBrain(c, p, team, pos)
+	--print ("CF_MakeBrain");
 	local f = CF_GetPlayerFaction(c, p);
-	CF_MakeBrainWithPreset(c, p, team, pos, CF_Brains[f], CF_BrainClasses[f], CF_BrainModules[f])
+	return CF_MakeBrainWithPreset(c, p, team, pos, CF_Brains[f], CF_BrainClasses[f], CF_BrainModules[f])
 end
 -----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
 function CF_MakeBrainWithPreset(c, p, team, pos, preset, class, module)
-	--print ("CF_SpawnBrain");
+	--print ("CF_MakeBrainWithPreset");
 
 	-- We don't check for moids here because we must create brain anyway
 	local actor = nil

@@ -28,7 +28,7 @@ CF_LocationSecurity[id] = 20
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Mt. Imdunt"}
 CF_LocationPlanet[id] = "CC-11Y"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Squad"}
 
 local id = "Metankora Highlands"
 CF_Location[#CF_Location + 1] = id
@@ -39,7 +39,7 @@ CF_LocationSecurity[id] = 10
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Metankora Highlands"}
 CF_LocationPlanet[id] = "CC-11Y"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Squad"}
 
 local id = "Zekarra Lowlands"
 CF_Location[#CF_Location + 1] = id
@@ -50,7 +50,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Zekarra Lowlands"}
 CF_LocationPlanet[id] = "CC-11Y"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Squad"}
 
 local id = "Burraki Desert"
 CF_Location[#CF_Location + 1] = id
@@ -61,7 +61,7 @@ CF_LocationSecurity[id] = 20
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Burraki Desert"}
 CF_LocationPlanet[id] = "CC-11Y"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Squad"}
 
 local id = "Fredeleig Plains"
 CF_Location[#CF_Location + 1] = id
@@ -72,7 +72,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Fredeleig Plains"}
 CF_LocationPlanet[id] = "CC-11Y"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Squad"}
 
 local id = "Rhias Forest"
 CF_Location[#CF_Location + 1] = id
@@ -83,7 +83,7 @@ CF_LocationSecurity[id] = 10
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Rhias Forest"}
 CF_LocationPlanet[id] = "CC-11Y"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy", "Squad"}
 
 local id = "Slodran Wilderness"
 CF_Location[#CF_Location + 1] = id
@@ -94,7 +94,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Slodran Wilderness"}
 CF_LocationPlanet[id] = "CC-11Y"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Squad"}
 
 local id = "Dvorak Caves"
 CF_Location[#CF_Location + 1] = id
@@ -116,7 +116,7 @@ CF_LocationSecurity[id] = 10
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Rayvord Tundra"}
 CF_LocationPlanet[id] = "CC-11Y"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Squad"}
 
 local id = "Vesod Plains"
 CF_Location[#CF_Location + 1] = id
@@ -127,7 +127,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Vesod Plains"}
 CF_LocationPlanet[id] = "CC-11Y"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Squad"}
 
 local id = "Yskely Mountains"
 CF_Location[#CF_Location + 1] = id
@@ -151,7 +151,7 @@ CF_LocationSecurity[id] = 30
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Grasslands Mining Outpost"}
 CF_LocationPlanet[id] = "CC-11Y"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy", "Squad"}
 
 local id = "Yskely Mining Outpost"
 CF_Location[#CF_Location + 1] = id
@@ -173,7 +173,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Zekarra Mining Outpost"}
 CF_LocationPlanet[id] = "CC-11Y"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy", "Squad"}
 
 
 
