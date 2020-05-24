@@ -175,6 +175,10 @@ function VoidWanderers:ProcessLZControlPanelUI()
 						end
 					end
 
+					if self.MissionAvailable and self.MissionFailed then
+						self.MissionReport[#self.MissionReport + 1] = "MISSION FAILED"
+					end
+					
 					-- Update casualties report
 					if self.MissionDeployedTroops > #self.DeployedActors then
 						local s = ""
@@ -248,6 +252,11 @@ function VoidWanderers:ProcessLZControlPanelUI()
 			else
 				CF_DrawString("HOLD FIRE TO RETURN", pos + Vector(-50, -10), 130, 20)
 				self.ControlPanelLZPressTime = nil
+			end
+			
+			if self.MissionStatus ~= nil then
+				local l = CF_GetStringPixelWidth(self.MissionStatus)
+				CF_DrawString(self.MissionStatus, pos + Vector(-l/2, 4), 130, 25)
 			end
 		end
 	end

@@ -99,4 +99,10 @@ CF_MissionRequiredData[id][i]["Name"] = "Base"
 CF_MissionRequiredData[id][i]["Type"] = "Box"
 CF_MissionRequiredData[id][i]["Max"] = 16
 
+local i = 9
+CF_MissionRequiredData[id][i] = {}
+CF_MissionRequiredData[id][i]["Name"] = "LZ"
+CF_MissionRequiredData[id][i]["Type"] = "Vector"
+CF_MissionRequiredData[id][i]["Max"] = 4
+
 CF_GenericMissionCount = #CF_Mission

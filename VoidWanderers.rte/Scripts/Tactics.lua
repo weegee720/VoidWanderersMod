@@ -53,6 +53,19 @@ function VoidWanderers:StartActivity()
 			self.BrainPos[i] = Vector(x,y)
 		end
 
+		self.EnginePos = {}
+		for i = 1, 10 do
+			local x,y;
+			
+			x = tonumber(self.LS["Engine"..i.."X"])
+			y = tonumber(self.LS["Engine"..i.."Y"])
+			if x ~= nil and y ~= nil then
+				self.EnginePos[i] = Vector(x,y)
+			else
+				break
+			end
+		end
+		
 		-- Create brains
 		--print ("Create brains")
 		for player = 0, self.PlayerCount - 1 do
@@ -211,22 +224,51 @@ function VoidWanderers:StartActivity()
 		end
 		
 		--	Prepare for mission, load scripts
-		local missionavailable = false
+		self.MissionAvailable = false
 		local missionscript
 		local ambientscript
 		
-		if missionavailable then
+		self.MissionStatus = nil
+		
+		-- Find available mission
+		for m = 1, CF_MaxMissions do
+			if self.GS["Location"] == self.GS["Mission"..m.."Location"] then
+			--if self.GS["Location"] == "Ketanot Hills" then -- DEBUG
+				self.MissionAvailable = true
+				
+				self.MissionType = self.GS["Mission"..m.."Type"]
+				self.MissionDifficulty = tonumber(self.GS["Mission"..m.."Difficulty"])
+				self.MissionSourcePlayer = tonumber(self.GS["Mission"..m.."SourcePlayer"])
+				self.MissionTargetPlayer = tonumber(self.GS["Mission"..m.."TargetPlayer"])
+				
+				self.MissionScript = CF_MissionScript[ self.MissionType ]
+				self.MissionGoldReward = CF_MissionGoldRewardPerDifficulty[ self.MissionType ] * self.MissionDifficulty
+				self.MissionReputationReward = CF_MissionReputationRewardPerDifficulty[ self.MissionType ] * self.MissionDifficulty
+				
+				self.MissionStatus = "" -- Will be updated by mission script
+				
+				-- Create unit presets
+				CF_CreateAIUnitPresets(self.GS, self.MissionSourcePlayer , CF_GetTechLevelFromDifficulty(self.GS, self.MissionSourcePlayer, self.MissionDifficulty, CF_MaxDifficulty))
+				CF_CreateAIUnitPresets(self.GS, self.MissionTargetPlayer , CF_GetTechLevelFromDifficulty(self.GS, self.MissionTargetPlayer, self.MissionDifficulty, CF_MaxDifficulty))
+
+				break
+			end
+		end
+		
+		if self.MissionAvailable then
+			missionscript = self.MissionScript
+			ambientscript = CF_LocationAmbientScript[ self.GS["Location"] ]
 		else
 			missionscript = CF_LocationScript[ self.GS["Location"] ]
 			ambientscript = CF_LocationAmbientScript[ self.GS["Location"] ]
 		end
 		
 		if missionscript == nil then
-			missionscript = "VoidWanderers.rte/Scripts/Script_Mission_Generic.lua"
+			missionscript = "VoidWanderers.rte/Scripts/Mission_Generic.lua"
 		end
 		
 		if ambientscript == nil then
-			ambientscript = "VoidWanderers.rte/Scripts/Script_Ambient_Generic.lua"
+			ambientscript = "VoidWanderers.rte/Scripts/Ambient_Generic.lua"
 		end
 		
 		self.SpawnTable = {}
@@ -235,8 +277,7 @@ function VoidWanderers:StartActivity()
 		dofile(ambientscript)
 		
 		self:MissionCreate()
-		self:MissionUpdate()
-		
+		self:AmbientCreate()
 		
 		-- Set unseen
 		if CF_FogOfWarEnabled then
@@ -465,14 +506,14 @@ function VoidWanderers:TriggerShipAssault()
 				self.AssaultDifficulty = CF_MaxDifficulty
 			end
 			
-			local r = math.random(CF_MaxDifficulty * 20)
+			local r = math.random(CF_MaxDifficulty * 40)
 			local tgt = ((CF_MaxDifficulty - self.AssaultDifficulty) * 4) + 4
 			
 			print (self.AssaultDifficulty)
 			print (r)
 			print (tgt)
 			
-			if r <= tgt then
+			if r < tgt then
 				toassault = true
 			end
 		end
@@ -511,6 +552,8 @@ function VoidWanderers:SpawnFromTable()
 			print ("MOID LIMIT REACHED!!!")
 			self.SpawnTable = nil
 		end
+	else
+		self.SpawnTable = nil
 	end
 end
 -----------------------------------------------------------------------------------------
@@ -652,7 +695,7 @@ function VoidWanderers:UpdateActivity()
 			
 			local d = CF_Dist(Vector(sx,sy), Vector(dx,dy))
 			
-			if (d < 1.5) then
+			if (d < 1) then
 				self.GS["Location"] = self.GS["Destination"]
 				self.GS["Destination"] = nil
 
@@ -663,6 +706,14 @@ function VoidWanderers:UpdateActivity()
 				
 				self.GS["ShipX"] = locpos.X
 				self.GS["ShipY"] = locpos.Y
+				
+				-- Delete emitters
+				if self.EngineEmitters ~= nil then
+					for i = 1, #self.EngineEmitters do
+						self.EngineEmitters[i].ToDelete = true
+					end
+					self.EngineEmitters = nil
+				end
 			else
 				self.GS["Distance"] = d
 				
@@ -677,9 +728,24 @@ function VoidWanderers:UpdateActivity()
 				
 				self.LastTrigger = self.LastTrigger + 1
 				
-				if self.LastTrigger > 10 then
+				if self.LastTrigger > 25 then
 					self.LastTrigger = 0
 					self:TriggerShipAssault()
+				end
+				
+				-- Create emitters if nessesary
+				if self.EngineEmitters == nil then
+					self.EngineEmitters = {}
+					
+					for i = 1, #self.EnginePos do
+						local em = CreateAEmitter("Vessel Main Thruster")
+						if em then
+							em.Pos = self.EnginePos[i] + Vector(2,0)
+							self.EngineEmitters[i] = em
+ 							MovableMan:AddParticle(em)
+							em:EnableEmission(true)
+						end
+					end
 				end
 			end
 		end
@@ -821,11 +887,11 @@ function VoidWanderers:UpdateActivity()
 		-- Make actors glitch if there are too many of them
 		local count = 0;
 		for actor in MovableMan.Actors do
-			if actor.Team == team and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") then
+			if actor.Team == CF_PlayerTeam and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") then
 				count = count + 1
 			end
 
-			if self.Time % 2 == 0 and count > tonumber(self.GS["Player0VesselCommuncation"]) then
+			if self.Time % 4 == 0 and count > tonumber(self.GS["Player0VesselCommunication"]) then
 				local cont = actor:GetController();
 				if cont ~= nil then
 					if cont:IsState(Controller.WEAPON_FIRE) then
@@ -937,5 +1003,127 @@ function VoidWanderers:DrawDottedLine(x1,y1,x2,y2,dot,interval)
 	end
 end
 -----------------------------------------------------------------------------------------
--- Thats all folks!!!
+--
+-----------------------------------------------------------------------------------------
+function VoidWanderers:DeployGenericMissionEnemies(setnumber, setname, plr)
+	-- Define spawn queue
+	local dq = {}
+	-- Defenders aka turrets if any
+	dq[1] = {}
+	dq[1]["Preset"] = CF_PresetTypes.DEFENDER
+	dq[1]["PointName"] = "Defender"
+	
+	-- Snipers
+	dq[2] = {}
+	dq[2]["Preset"] = CF_PresetTypes.SNIPER
+	dq[2]["PointName"] = "Sniper"
+	
+	--Heavies
+	dq[3] = {}
+	if math.random(10) < 5 then
+		dq[3]["Preset"] = CF_PresetTypes.HEAVY1
+	else
+		dq[3]["Preset"] = CF_PresetTypes.HEAVY2
+	end
+	dq[3]["PointName"] = "Heavy"
+	
+	--Shotguns
+	dq[4] = {}
+	dq[4]["Preset"] = CF_PresetTypes.SHOTGUN
+	dq[4]["PointName"] = "Shotgun"
+	
+	-- Armored
+	dq[5] = {}
+	if math.random(10) < 5 then
+		dq[5]["Preset"] = CF_PresetTypes.ARMOR1
+	else
+		dq[5]["Preset"] = CF_PresetTypes.ARMOR2
+	end
+	dq[5]["PointName"] = "Armor"
+
+	-- Riflemen
+	dq[6] = {}
+	if math.random(10) < 5 then
+		dq[6]["Preset"] = CF_PresetTypes.INFANTRY1
+	else
+		dq[6]["Preset"] = CF_PresetTypes.INFANTRY2
+	end
+	dq[6]["PointName"] = "Rifle"
+
+	-- Random
+	dq[7] = {}
+	dq[7]["Preset"] = nil
+	dq[7]["PointName"] = "Any"--]]--
+	
+	-- Spawn everything
+	for d = 1, #dq do
+		local enmpos = CF_GetPointsArray(self.Pts, setname, setnumber, dq[d]["PointName"])
+		--local enmpos = CF_SelectRandomPoints(enm, #enm)
+		
+		for i = 1, #enmpos do
+			local nw = {}
+			if dq[d]["Preset"] == nil then
+				nw["Preset"] = math.random(CF_PresetTypes.ENGINEER)
+			else
+				nw["Preset"] = dq[d]["Preset"]
+			end
+			nw["Team"] = CF_CPUTeam
+			nw["Player"] = plr
+			nw["AIMode"] = Actor.AIMODE_SENTRY
+			nw["Pos"] = enmpos[i]
+			
+			table.insert(self.SpawnTable, nw)	
+		end
+	end
+	
+	-- Get LZs
+	self.MissionEnemyLZs = CF_GetPointsArray(self.Pts, setname, setnumber, "LZ")
+	
+	-- Get base box
+	local bp = CF_GetPointsArray(self.Pts, setname, setnumber, "Base")
+	self.MissionBase = {}
+	
+	for i = 1, #bp, 2 do
+		if bp[i + 1] == nil then
+			print ("OUT OF BOUNDS WHEN BUILDING BASE BOX")
+			break
+		end
+		
+		-- Split the box if we're crossing the seam
+		if bp[i].X > bp[i + 1].X then
+			local nxt = #self.MissionBase + 1
+			-- Box(x1,y1, x2, y2)
+			self.MissionBase[nxt] = Box(bp[i].X, bp[i].Y, SceneMan.Scene.Width, bp[i + 1].Y)
+
+			local nxt = #self.MissionBase + 1
+			self.MissionBase[nxt] = Box(0, bp[i].Y, bp[i + 1].X, bp[i + 1].Y)
+		else
+			local nxt = #self.MissionBase + 1
+			self.MissionBase[nxt] = Box(bp[i].X, bp[i].Y, bp[i + 1].X, bp[i + 1].Y)
+		end
+	end
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
+function VoidWanderers:GiveMissionRewards()
+	print ("MISSION COMPLETED")
+	self.GS["Player"..self.MissionSourcePlayer.."Reputation"] = tonumber(self.GS["Player"..self.MissionSourcePlayer.."Reputation"]) + self.MissionReputationReward
+	self.GS["Player"..self.MissionTargetPlayer.."Reputation"] = tonumber(self.GS["Player"..self.MissionTargetPlayer.."Reputation"]) - math.ceil(self.MissionReputationReward * CF_ReputationPenaltyRatio)
+	CF_SetPlayerGold(self.GS, 0, CF_GetPlayerGold(self.GS, 0) + self.MissionGoldReward)
+	
+	self.MissionReport[#self.MissionReport + 1] = "MISSION COMPLETED"
+	if self.MissionGoldReward > 0 then
+		self.MissionReport[#self.MissionReport + 1] = tostring(self.MissionGoldReward).."oz of gold received"
+	end
+	
+	if self.MissionReputationReward > 0 then
+		self.MissionReport[#self.MissionReport + 1] = "+"..self.MissionReputationReward.." "..CF_FactionNames[ CF_GetPlayerFaction(self.GS, self.MissionSourcePlayer) ].." reputation"
+		self.MissionReport[#self.MissionReport + 1] = "-"..math.ceil(self.MissionReputationReward * CF_ReputationPenaltyRatio).." "..CF_FactionNames[ CF_GetPlayerFaction(self.GS, self.MissionTargetPlayer) ].." reputation"
+	end
+
+	self.MissionFailed = false
+end
+-----------------------------------------------------------------------------------------
+-- That's all folks!!!
 -----------------------------------------------------------------------------------------

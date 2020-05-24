@@ -56,8 +56,6 @@ function VoidWanderers:InitShipControlPanelUI()
 	self.ShipControlSelectedUpgrade = 1
 	self.ShipControlSelectedFaction = 1
 	self.ShipControlSelectedMission = 1
-	
-	CF_GenerateRandomMissions(self.GS)
 end
 -----------------------------------------------------------------------------------------
 --
@@ -109,7 +107,6 @@ function VoidWanderers:ProcessShipControlPanelUI()
 			-- Fill location list
 			self.ShipControlLocationList = {}
 			for i = 1, #CF_Location do
-				--if CF_LocationPlanet[CF_Location[i]] == self.GS["Planet"] and CF_Location[i] ~= self.GS["Location"] then
 				if CF_LocationPlanet[CF_Location[i]] == self.GS["Planet"] then
 					self.ShipControlLocationList[#self.ShipControlLocationList + 1] = CF_Location[i]
 				end
@@ -179,9 +176,6 @@ function VoidWanderers:ProcessShipControlPanelUI()
 						self.GS["DestY"] = math.floor(destpos.Y)
 						
 						self.GS["Distance"] = CF_Dist(Vector(tonumber(self.GS["ShipX"]),tonumber(self.GS["ShipY"])), Vector(tonumber(self.GS["DestX"]),tonumber(self.GS["DestX"])))
-						
-						-- Recreate all lists
-						--resetlists = true
 					end
 				else
 					self.FirePressed = false
@@ -215,6 +209,23 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				
 				local shippos = Vector(0,0)
 				
+				-- Select green current location preset if we're on mission location
+				local msn = false
+			
+				-- If we have mission in that location then draw red dot
+				for m = 1, CF_MaxMissions do
+					if self.GS["Location"] == self.GS["Mission"..m.."Location"] then
+						msn = true
+						break
+					end
+				end
+				
+				local shippreset = "ControlPanel_Ship_CurrentLocation"
+				
+				if msn then
+					shippreset = "ControlPanel_Ship_CurrentMissionLocation"
+				end
+				
 				if self.GS["Destination"] ~= nil then
 					local sx = tonumber(self.GS["ShipX"])
 					local sy = tonumber(self.GS["ShipY"])
@@ -225,7 +236,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 					local cx = pos.X + 70
 					local cy = pos.Y
 					
-					self:PutGlow("ControlPanel_Ship_CurrentLocation", pos + Vector(sx,sy) + Vector(70,0))
+					self:PutGlow(shippreset, pos + Vector(sx,sy) + Vector(70,0))
 					
 					self:DrawDottedLine(cx + sx, cy + sy, cx + dx, cy + dy, "ControlPanel_Ship_DestDot",5)
 					
@@ -233,24 +244,30 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				else
 					local locpos = CF_LocationPos[ self.GS["Location"] ]
 					if locpos ~= nil then
-						self:PutGlow("ControlPanel_Ship_CurrentLocation", pos + locpos + Vector(70,0))
+						self:PutGlow(shippreset, pos + locpos + Vector(70,0))
 						shippos = locpos
+					end
+				end
+
+				local msn = false
+				local msntype
+				local msndiff
+				local msntgt
+			
+				-- If we have mission in that location then draw red dot
+				for m = 1, CF_MaxMissions do
+					if self.ShipControlLocationList[ self.ShipControlSelectedLocation ] == self.GS["Mission"..m.."Location"] then
+						msn = true
+						msntype = CF_MissionName[ self.GS["Mission"..m.."Type"] ]
+						msndiff = tonumber(self.GS["Mission"..m.."Difficulty"])
+						msntgt = tonumber(self.GS["Mission"..m.."TargetPlayer"])
+						break
 					end
 				end
 				
 				-- Show selected location dot
 				local locpos = CF_LocationPos[ self.ShipControlLocationList[ self.ShipControlSelectedLocation ] ]
 				if locpos ~= nil then
-					local msn = false
-				
-					-- If we have mission in that location then draw red dot
-					for m = 1, CF_MaxMissions do
-						if self.ShipControlLocationList[ self.ShipControlSelectedLocation ] == self.GS["Mission"..m.."Location"] then
-							msn = true
-							break
-						end
-					end
-					
 					if msn then
 						self:PutGlow("ControlPanel_Ship_MissionDot", pos + locpos + Vector(70,0))
 					else
@@ -271,7 +288,15 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				end
 				
 				-- Write security level
-				local diff = CF_GetLocationDifficulty(self.GS, self.ShipControlLocationList[ self.ShipControlSelectedLocation ])
+				local diff 
+				
+				if msn then
+					CF_DrawString("MISSION: "..msntype, pos + Vector(8, 50), 136, 182-34)
+					CF_DrawString("TARGET: "..CF_FactionNames[ CF_GetPlayerFaction(self.GS, msntgt) ], pos + Vector(8, 62), 136, 182-34)
+					diff = msndiff
+				else
+					diff = CF_GetLocationDifficulty(self.GS, self.ShipControlLocationList[ self.ShipControlSelectedLocation ])
+				end
 				CF_DrawString("SECURITY: "..string.upper(CF_LocationDifficultyTexts[diff]), pos + Vector(8, -60), 136, 182-34)
 				
 				-- Write gold status
@@ -579,6 +604,9 @@ function VoidWanderers:ProcessShipControlPanelUI()
 					self.ShipControlMissions[i]["TargetFaction"] = CF_FactionNames[CF_GetPlayerFaction(self.GS, self.ShipControlMissions[i]["TargetPlayer"])]
 
 					self.ShipControlMissions[i]["Description"] = CF_MissionBriefingText[ self.ShipControlMissions[i]["Type"] ]
+					
+					self.ShipControlMissions[i]["GoldReward"] = CF_MissionGoldRewardPerDifficulty[ self.ShipControlMissions[i]["Type"] ] * self.ShipControlMissions[i]["Difficulty"]
+					self.ShipControlMissions[i]["RepReward"] = CF_MissionReputationRewardPerDifficulty[ self.ShipControlMissions[i]["Type"] ] * self.ShipControlMissions[i]["Difficulty"]
 				end
 				
 				if cont:IsState(Controller.PRESS_UP) then
@@ -601,7 +629,51 @@ function VoidWanderers:ProcessShipControlPanelUI()
 					if not self.FirePressed then
 						self.FirePressed = true;
 						
-						CF_GenerateRandomMissions(self.GS)
+						-- Find planet where mission is
+						local planet = CF_LocationPlanet [ self.ShipControlMissions[self.ShipControlSelectedMission]["Location"] ]
+						
+						if self.GS["Planet"] ~= planet then
+							-- Move to planet if we're not there
+							self.GS["Planet"] = planet
+							self.GS["Location"] = nil
+							self.GS["Destination"] = nil
+							
+							self.GS["ShipX"] = 0
+							self.GS["ShipY"] = 0
+							-- Recreate all lists
+							resetlists = true
+						end
+
+						if self.GS["Location"] ~= nil then
+							local locpos = CF_LocationPos[ self.GS["Location"] ]
+							if locpos == nil then
+								locpos = Vector(0,0)
+							end
+
+							self.GS["ShipX"] = math.floor(locpos.X)
+							self.GS["ShipY"] = math.floor(locpos.Y)
+						else
+							if self.GS["ShipX"] == nil or self.GS["ShipY"] == nil then
+								self.GS["ShipX"] = 0
+								self.GS["ShipY"] = 0
+							end
+						end
+						
+						-- Fly to location
+						self.GS["Location"] = nil
+						self.GS["Destination"] = self.ShipControlMissions[self.ShipControlSelectedMission]["Location"]
+
+						local destpos = CF_LocationPos[ self.GS["Destination"] ]
+						if destpos == nil then
+							destpos = Vector(0,0)
+						end
+						
+						self.GS["DestX"] = math.floor(destpos.X)
+						self.GS["DestY"] = math.floor(destpos.Y)
+						
+						self.GS["Distance"] = CF_Dist(Vector(tonumber(self.GS["ShipX"]),tonumber(self.GS["ShipY"])), Vector(tonumber(self.GS["DestX"]),tonumber(self.GS["DestX"])))
+
+						self.ShipControlMode = self.ShipControlPanelModes.LOCATION
 					end
 				else
 					self.FirePressed = false
@@ -622,10 +694,15 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				CF_DrawString("TARGET: "..self.ShipControlMissions[self.ShipControlSelectedMission]["TargetFaction"], pos + Vector(10, -61), 270, 40)
 				CF_DrawString("AT: "..self.ShipControlMissions[self.ShipControlSelectedMission]["Location"], pos + Vector(10, -51), 270, 40)
 				CF_DrawString("SECURITY: "..CF_LocationDifficultyTexts[ self.ShipControlMissions[self.ShipControlSelectedMission]["Difficulty"] ], pos + Vector(10, -41), 270, 40)
-				CF_DrawString(self.ShipControlMissions[self.ShipControlSelectedMission]["Description"], pos + Vector(10, -25), 135, 80)
+				
+				CF_DrawString("GOLD: "..self.ShipControlMissions[self.ShipControlSelectedMission]["GoldReward"].." oz", pos + Vector(10, -31), 270, 40)
+				CF_DrawString("REPUTATION: "..self.ShipControlMissions[self.ShipControlSelectedMission]["RepReward"], pos + Vector(10, -21), 270, 40)
+				
+				CF_DrawString(self.ShipControlMissions[self.ShipControlSelectedMission]["Description"], pos + Vector(10, -5), 135, 80)
 				
 				
 				CF_DrawString("Available missions", pos + Vector(-62-71, -78), 270, 40)
+				CF_DrawString("U/D - Select mission, FIRE - Fly to location", pos + Vector(-62-71, 78), 270, 40)
 				self:PutGlow("ControlPanel_Ship_PlanetBack", pos + Vector(-71, 0))
 				self:PutGlow("ControlPanel_Ship_PlanetBack", pos + Vector(70, 0))
 				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,-77))

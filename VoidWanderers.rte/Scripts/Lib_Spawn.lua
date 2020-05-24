@@ -735,6 +735,7 @@ function CF_GenerateRandomMission(c)
 	-- Pick some random mission for which we have locations
 	local ok = false
 	local rmsn
+	local count = 1
 	
 	while not ok do
 		ok = true
@@ -743,6 +744,12 @@ function CF_GenerateRandomMission(c)
 		
 		if #missions[rmsn]["Scenes"] == 0 then
 			ok = false
+		end
+		
+		count = count + 1
+		if count > 100 then
+			error("Endless loop at CF_GenerateRandomMission - mission selection")
+			break
 		end
 	end
 	
@@ -755,6 +762,7 @@ function CF_GenerateRandomMission(c)
 	-- Pick some random target for this mission
 	local ok = false
 	local renm
+	local count = 1
 	
 	while not ok do
 		ok = true
@@ -763,6 +771,12 @@ function CF_GenerateRandomMission(c)
 		
 		if p == renm then
 			ok = false
+		end
+
+		count = count + 1
+		if count > 100 then
+			error("Endless loop at CF_GenerateRandomMission - enemy selection")
+			break
 		end
 	end
 	
@@ -784,6 +798,7 @@ function CF_GenerateRandomMissions(c)
 	for i = 1, CF_MaxMissions do
 		local ok = false
 		local msn
+		local count = 1
 		
 		while not ok do
 			ok = true
@@ -797,6 +812,12 @@ function CF_GenerateRandomMissions(c)
 						ok = false
 					end
 				end
+			end
+			
+			count = count + 1
+			if count > 100 then
+				error("Endless loop at CF_GenerateRandomMissions - mission generation")
+				break
 			end
 		end
 		

@@ -773,7 +773,7 @@ function HumanBehaviors.ShootArea(AI, Owner)
 	--WEEGEE
 	-- Don't area-shoot distant targets
 	if MovableMan:IsActor(AI.UnseenTarget) then
-		if SceneMan:ShortestDistance(Owner.Pos, AI.UnseenTarget.Pos, true) > FrameMan.PlayerScreenWidth * 0.95 then
+		if SceneMan:ShortestDistance(Owner.Pos, AI.UnseenTarget.Pos, true).Magnitude > FrameMan.PlayerScreenWidth * 0.95 then
 			return true
 		end
 	end
