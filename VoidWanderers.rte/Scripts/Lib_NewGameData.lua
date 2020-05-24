@@ -62,6 +62,7 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 	-- Assign player ship
 	config["Player0Vessel"] = "Gryphon"
 	--config["Player0Vessel"] = "Titan" -- DEBUG
+	--config["Player0Vessel"] = "Ager 9th" -- DEBUG
 	
 	-- Set vessel attrs
 	config["Player0VesselStorageCapacity"] = CF_VesselStartStorageCapacity[ config["Player0Vessel"] ]

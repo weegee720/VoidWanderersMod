@@ -156,6 +156,8 @@ function VoidWanderers:StartActivity()
 					self.GS["Actor"..spawnedactors.."X"] = math.ceil(actor.Pos.X)
 					self.GS["Actor"..spawnedactors.."Y"] = math.ceil(actor.Pos.Y)
 					
+					print (#self.DeployedActors[i]["InventoryPresets"])
+					
 					for j = 1, #self.DeployedActors[i]["InventoryPresets"] do
 						local itm = CF_MakeItem2(self.DeployedActors[i]["InventoryPresets"][j], self.DeployedActors[i]["InventoryClasses"][j])
 						if itm then
@@ -754,14 +756,14 @@ function VoidWanderers:UpdateActivity()
 				end
 			end
 		end
-	end
+	end--]]--
 	
 	-- Process UI's and other vessel mode features
 	if self.GS["Mode"] == "Vessel" then
 		self:ProcessClonesControlPanelUI()
 		self:ProcessStorageControlPanelUI()
 
-		-- Auto heall all actors when not in combat
+		-- Auto heal all actors when not in combat
 		if not self.OverCrowded then
 			for actor in MovableMan.Actors do
 				if actor.Health > 0 and actor.Team == CF_PlayerTeam and self.Ship:IsInside(actor.Pos) then
@@ -815,6 +817,8 @@ function VoidWanderers:UpdateActivity()
 		-- Launch defense activity
 		if self.AssaultTime == self.Time then
 			self.GS["Mode"] = "Assault"
+			
+			print ("Assault detroy")
 
 			-- Remove control actors
 			self:DestroyStorageControlPanelUI()
@@ -823,7 +827,7 @@ function VoidWanderers:UpdateActivity()
 			self:DestroyItemShopControlPanelUI()
 			self:DestroyCloneShopControlPanelUI()
 		end
-	end
+	end--]]--
 	
 	if self.GS["Mode"] == "Vessel" and self.FlightTimer:IsPastSimMS(CF_FlightTickInterval) then
 		self.FlightTimer:Reset()
@@ -910,7 +914,7 @@ function VoidWanderers:UpdateActivity()
 				self.ShopsCreated = false
 			end
 		end
-	end
+	end--]]--
 	
 	-- Tick timer
 	--if self.TickTimer:IsPastSimMS(self.TickInterval) then
@@ -931,7 +935,7 @@ function VoidWanderers:UpdateActivity()
 				
 				self.GS["Player"..i.."Reputation"] = rep
 			end
-		end
+		end--]]--
 		
 		if self.GS["Mode"] == "Vessel" then
 			if CF_CountActors(CF_PlayerTeam) > tonumber(self.GS["Player0VesselLifeSupport"]) then
@@ -951,7 +955,7 @@ function VoidWanderers:UpdateActivity()
 			else
 				self.OverCrowded = false
 			end
-		end
+		end--]]--
 		
 		-- Kill all actors outside the ship
 		if self.GS["SceneType"] == "Vessel" then
@@ -968,7 +972,7 @@ function VoidWanderers:UpdateActivity()
 					end
 				end
 			end
-		end
+		end--]]--
 		
 		-- Process enemy spawn during assaults
 		if self.GS["Mode"] == "Assault" then
@@ -1008,7 +1012,7 @@ function VoidWanderers:UpdateActivity()
 				-- Re-init consoles back
 				self:InitConsoles()
 			end
-		end
+		end--]]--
 	end
 	
 	if self.GS["Mode"] == "Assault" then
@@ -1075,7 +1079,6 @@ function VoidWanderers:UpdateActivity()
 	end
 	self:CheckWinningConditions();
 	self:YSortObjectivePoints();
-	--CF_ReturnOnMissionEnd();
 	--]]--
 	
 end
@@ -1230,7 +1233,7 @@ function VoidWanderers:DeployGenericMissionEnemies(setnumber, setname, plr, team
 		
 		local enmpos = CF_SelectRandomPoints(fullenmpos, count)
 		
-		print (dq[d]["PointName"].." - "..#enmpos.." / ".. #fullenmpos .." - "..spawnrate)
+		--print (dq[d]["PointName"].." - "..#enmpos.." / ".. #fullenmpos .." - "..spawnrate)
 		
 		for i = 1, #enmpos do
 			local nw = {}

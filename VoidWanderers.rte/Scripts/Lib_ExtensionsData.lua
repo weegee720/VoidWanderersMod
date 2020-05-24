@@ -60,4 +60,14 @@ function CF_InitExtensionsData(activity)
 	CF_MissionGoldRewardPerDifficulty = {}
 	CF_MissionReputationRewardPerDifficulty = {}
 	CF_MissionMaxSets = {}
+	
+	-- Artifact items
+	CF_ArtItmPresets = {}
+	CF_ArtItmModules = {}
+	CF_ArtItmClasses = {}
+
+	-- Artifact actors
+	CF_ArtActPresets = {}
+	CF_ArtActModules = {}
+	CF_ArtActClasses = {}
 end

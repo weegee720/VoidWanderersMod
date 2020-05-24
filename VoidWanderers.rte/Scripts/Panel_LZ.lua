@@ -171,6 +171,8 @@ function VoidWanderers:ProcessLZControlPanelUI()
 								self.DeployedActors[n]["Class"] = actor.ClassName
 								self.DeployedActors[n]["InventoryPresets"] = pre
 								self.DeployedActors[n]["InventoryClasses"] = cls
+								
+								print (#pre)
 							end
 						end
 					end

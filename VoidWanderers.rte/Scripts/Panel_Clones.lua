@@ -554,6 +554,7 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 		self.ClonesControlPanelInitialized = false
 		self:PutGlow("ControlPanel_Clones", self.ClonesControlPanelPos)
 		--CF_DrawString("CLONES",self.ClonesControlPanelPos + Vector(-16,0),120,20 )
+		--print (self.ClonesControlPanelActor)
 	end
 	
 	-- Process clones input
@@ -566,7 +567,7 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 			
 			-- Search for body and put it in storage
 			for actor in MovableMan.Actors do
-				if CF_Dist(actor.Pos, self.ClonesInputPos) <= self.ClonesInputRange then
+				if CF_Dist(actor.Pos, self.ClonesInputPos) <= self.ClonesInputRange and actor.PresetName ~= "Clones Control Panel" then
 					toresettimer = false
 				
 					if self.ClonesLastDetectedBodyTime ~= nil then

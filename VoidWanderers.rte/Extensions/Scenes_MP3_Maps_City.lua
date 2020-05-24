@@ -1,3 +1,9 @@
+--[[
+	Map Pack 3 by Gotcha!
+	http://forums.datarealms.com/viewtopic.php?f=24&t=12224
+	Supported out of the box
+]]--
+
 -- Integrity checks
 local extension = "Scenes_MP3_Maps_City" 
 local modules = {"Maps - City.rte"}

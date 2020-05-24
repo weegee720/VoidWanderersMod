@@ -20,8 +20,8 @@ function CF_InitFactions(activity)
 	
 	CF_MissionResultShowInterval = 10
 	
-	CF_UnknownItemPrice = 250
-	CF_UnknownActorPrice = 500
+	CF_UnknownItemPrice = 25
+	CF_UnknownActorPrice = 50
 	
 	CF_ReputationErosionInterval = 50
 	
@@ -62,6 +62,8 @@ function CF_InitFactions(activity)
 	CF_CratesRate = 0.35 -- Percentage of cases among available case spawn points
 	CF_ActorCratesRate = 0.15 -- Percentage of actor-cases among all deployed cases
 	CF_AmbientEnemyRate = 0.55
+	CF_ArtifactItemRate = 0.20--1.0 -- DEBUG
+	CF_ArtifactActorRate = 0.20--1.0 -- DEBUG
 	CF_AmbientEnemyDoubleSpawn = 0.25
 	CF_AmbientReinforcementsInterval = 80 -- In ticks
 	

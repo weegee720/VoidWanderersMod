@@ -5,51 +5,23 @@ function Create(self)
 	--self.Timer:Reset()
 	--self.Vel = Vector(0,-5)
 	
-	local atypes = {CF_ActorTypes.LIGHT, CF_ActorTypes.HEAVY, CF_ActorTypes.HEAVY, CF_ActorTypes.ARMOR}
-	local f = CF_Factions[math.random(#CF_Factions)]
+	if #CF_ArtActPresets == 0 then
+		CF_ArtifactActorRate = 0
+	end
 	
-	-- We need this fake cfg because CF_MakeList operates only on configs to get data
-	local cfg = {}
-	cfg["Player0Faction"] = f
-	
-	--print (cfg)
-	
-	local acts = CF_MakeListOfMostPowerfulActors(cfg, 0, atypes[math.random(#atypes)], 100000)
-	--print (acts)
-	if acts ~= nil then
-		local r = 1
-	
-		if #acts > 3 then
-			r = math.random(3)
-		end
+	if math.random() < CF_ArtifactActorRate then
+		local r = math.random(#CF_ArtActPresets)
 		
-		local actindex = acts[r]["Actor"]
-		
-		--print (actindex)
-		--print (CF_ActPresets[f][actindex])
-		--print (CF_ActClasses[f][actindex])
-		--print (CF_ActModules[f][actindex])
-		
-		-- Create item
-		local act = CF_MakeActor(CF_ActPresets[f][actindex], CF_ActClasses[f][actindex], CF_ActModules[f][actindex])
+		local act = CF_MakeActor(CF_ArtActPresets[r], CF_ArtActClasses[r], CF_ArtActModules[r])
 		if act then
 			act.Pos = self.Pos-- + Vector(0,-8)
 			act.Vel = Vector(0,-5)
 			act.Team = CF_PlayerTeam
-			act.AIMode = Actor.AIMODE_SENTRY
+			act.AIMode = Actor.AIMODE_SENTRY			
 			MovableMan:AddActor(act)
 		end
-	end
-	-- TODO add random explosion probability
-	
-	self.ToDelete = true
-end
------------------------------------------------------------------------------------------
---
------------------------------------------------------------------------------------------
-function Update(self)
-	--[[if self.Timer:IsPastSimMS(650) then
-		local atypes = {CF_WeaponTypes.RIFLE, CF_WeaponTypes.SHOTGUN, CF_WeaponTypes.SNIPER, CF_WeaponTypes.HEAVY}
+	else
+		local atypes = {CF_ActorTypes.LIGHT, CF_ActorTypes.HEAVY, CF_ActorTypes.HEAVY, CF_ActorTypes.ARMOR}
 		local f = CF_Factions[math.random(#CF_Factions)]
 		
 		-- We need this fake cfg because CF_MakeList operates only on configs to get data
@@ -58,7 +30,7 @@ function Update(self)
 		
 		--print (cfg)
 		
-		local acts = CF_MakeListOfMostPowerfulWeapons(cfg, 0, atypes[math.random(#atypes)], 100000)
+		local acts = CF_MakeListOfMostPowerfulActors(cfg, 0, atypes[math.random(#atypes)], 100000)
 		--print (acts)
 		if acts ~= nil then
 			local r = 1
@@ -67,7 +39,7 @@ function Update(self)
 				r = math.random(3)
 			end
 			
-			local actindex = acts[r]["Item"]
+			local actindex = acts[r]["Actor"]
 			
 			--print (actindex)
 			--print (CF_ActPresets[f][actindex])
@@ -75,15 +47,21 @@ function Update(self)
 			--print (CF_ActModules[f][actindex])
 			
 			-- Create item
-			local act = CF_MakeItem(CF_ActPresets[f][actindex], CF_ActClasses[f][actindex], CF_ActModules[f][actindex])
+			local act = CF_MakeActor(CF_ActPresets[f][actindex], CF_ActClasses[f][actindex], CF_ActModules[f][actindex])
 			if act then
-				act.Pos = self.Pos
+				act.Pos = self.Pos-- + Vector(0,-8)
 				act.Vel = Vector(0,-5)
-				MovableMan:AddItem(act)
+				act.Team = CF_PlayerTeam
+				act.AIMode = Actor.AIMODE_SENTRY
+				MovableMan:AddActor(act)
 			end
 		end
-		-- TODO add random explosion probability
-		
-		self.ToDelete = true
-	end--]]--
+	end
+	
+	self.ToDelete = true
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
+function Update(self)
 end
