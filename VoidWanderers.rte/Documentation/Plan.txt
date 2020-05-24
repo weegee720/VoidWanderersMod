@@ -4,7 +4,6 @@ Planned features:
 - Vessel guns
 - UL2 superweapons support
 - Fast vessel unit deployment
-- Artifacts and relics
 - Campaigns?
 - Built in good old CCRPG and CCRTS systems?
 - Way to recon before misison starts?

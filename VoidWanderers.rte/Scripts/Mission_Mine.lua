@@ -14,55 +14,55 @@ function VoidWanderers:MissionCreate()
 	setts[1] = {}
 	setts[1]["AllyReinforcementsCount"] = 6
 	setts[1]["EnemyDropshipUnitCount"] = 1
-	setts[1]["Interval"] = 32
+	setts[1]["Interval"] = 35
 	setts[1]["InitialMiners"] = 2
 	setts[1]["MinersNeeded"] = 3
-	setts[1]["TimeToHold"] = 60
+	setts[1]["TimeToHold"] = 120
 	
 	setts[2] = {}
 	setts[2]["AllyReinforcementsCount"] = 6
 	setts[2]["EnemyDropshipUnitCount"] = 1
-	setts[2]["Interval"] = 32
+	setts[2]["Interval"] = 35
 	setts[2]["InitialMiners"] = 1
 	setts[2]["MinersNeeded"] = 3
-	setts[2]["TimeToHold"] = 70
+	setts[2]["TimeToHold"] = 140
 
 	setts[3] = {}
 	setts[3]["AllyReinforcementsCount"] = 6
 	setts[3]["EnemyDropshipUnitCount"] = 2
-	setts[3]["Interval"] = 32
+	setts[3]["Interval"] = 35
 	setts[3]["InitialMiners"] = 2
 	setts[3]["MinersNeeded"] = 4
-	setts[3]["TimeToHold"] = 80
+	setts[3]["TimeToHold"] = 160
 
 	setts[4] = {}
 	setts[4]["AllyReinforcementsCount"] = 6
 	setts[4]["EnemyDropshipUnitCount"] = 2
-	setts[4]["Interval"] = 30
+	setts[4]["Interval"] = 35
 	setts[4]["InitialMiners"] = 2
-	setts[4]["MinersNeeded"] = 5
-	setts[4]["TimeToHold"] = 90
+	setts[4]["MinersNeeded"] = 4
+	setts[4]["TimeToHold"] = 180
 
 	setts[5] = {}
 	setts[5]["AllyReinforcementsCount"] = 6
 	setts[5]["EnemyDropshipUnitCount"] = 3
-	setts[5]["Interval"] = 30
+	setts[5]["Interval"] = 35
 	setts[5]["InitialMiners"] = 3
-	setts[5]["MinersNeeded"] = 6
-	setts[5]["TimeToHold"] = 100
+	setts[5]["MinersNeeded"] = 5
+	setts[5]["TimeToHold"] = 200
 
 	setts[6] = {}
 	setts[6]["AllyReinforcementsCount"] = 6
 	setts[6]["EnemyDropshipUnitCount"] = 3
-	setts[6]["Interval"] = 30
+	setts[6]["Interval"] = 35
 	setts[6]["InitialMiners"] = 3
-	setts[6]["MinersNeeded"] = 6
-	setts[6]["TimeToHold"] = 120
+	setts[6]["MinersNeeded"] = 5
+	setts[6]["TimeToHold"] = 220
 	
 	self.MissionSettings = setts[self.MissionDifficulty]
 	self.MissionStart = self.Time
-	self.MissionLastReinforcements = self.Time + self.MissionSettings["Interval"] * 2
-	self.MissionAllySpawnInterval = 40
+	self.MissionLastReinforcements = self.Time + self.MissionSettings["Interval"] * 1.5
+	self.MissionAllySpawnInterval = 50
 	self.MissionLastAllyReinforcements = self.Time - 1
 	
 	-- Use generic enemy set
@@ -106,7 +106,7 @@ function VoidWanderers:MissionUpdate()
 			
 		for actor in MovableMan.Actors do
 			if actor.Team == CF_PlayerTeam then
-				if actor:HasObjectInGroup("Diggers") and actor.PresetName == "-" then
+				if actor:HasObjectInGroup("Diggers") and self:IsAlly(actor) then
 					count = count + 1
 					
 					self:AddObjectivePoint("PROTECT", actor.AboveHUDPos, CF_PlayerTeam, GameActivity.ARROWDOWN);
@@ -145,7 +145,7 @@ function VoidWanderers:MissionUpdate()
 			self.MissionStatusShowStart = self.Time
 			
 			for actor in MovableMan.Actors do
-				if actor.PresetName == "-" then
+				if self:IsAlly(actor) then
 					actor.Health = 0
 				end
 			end
@@ -168,7 +168,7 @@ function VoidWanderers:MissionUpdate()
 		-- Send player reinforcements
 		if not self.EnoughMiners and #self.MissionLZs > 0 and self.Time >= self.MissionLastAllyReinforcements + 20 and self.MissionSettings["AllyReinforcementsCount"] > 0 then
 			if MovableMan:GetMOIDCount() < CF_MOIDLimit then
-				print ("Spawn ally")
+				--print ("Spawn ally")
 				self.MissionLastAllyReinforcements = self.Time
 				
 				if self.MissionSettings["AllyReinforcementsCount"] < 3 then
@@ -182,8 +182,7 @@ function VoidWanderers:MissionUpdate()
 						local actor = CF_SpawnAIUnitWithPreset(self.GS, self.MissionSourcePlayer, CF_PlayerTeam, nil, Actor.AIMODE_GOLDDIG, CF_PresetTypes.ENGINEER)
 						if actor then
 							ship:AddInventoryItem(actor)
-							print (actor)
-							actor.PresetName = "-"
+							actor.PresetName = "-"..actor.PresetName
 						end
 					end
 					ship.Team = CF_PlayerTeam

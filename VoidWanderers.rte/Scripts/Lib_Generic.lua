@@ -19,7 +19,7 @@ function CF_InitFactions(activity)
 	CF_SellPriceCoeff = 0.25
 
 	CF_BlackMarketRefreshInterval = 3000
-	CF_BlackMarketPriceMultiplier = 6
+	CF_BlackMarketPriceMultiplier = 5
 	
 	CF_MissionResultShowInterval = 10
 	

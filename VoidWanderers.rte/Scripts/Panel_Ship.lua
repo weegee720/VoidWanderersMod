@@ -1082,7 +1082,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self.ShipSelectedItem = 1
 				self.LastShipSelectedItem = 0
 				
-				if self.GS["Planet"] == "TradeStar" and self.GS["Location"] ~= nil then
+				if CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.SHIPYARD) then
 					if self.ShipControlMode == 7 then
 						self.ShipControlMode = self.ShipControlPanelModes.SHIPYARD
 					end

@@ -589,7 +589,7 @@ function VoidWanderers:TriggerShipAssault()
 			self.AssaultDifficulty = CF_MaxDifficulty
 		end
 		
-		local r = math.random(CF_MaxDifficulty * 65)
+		local r = math.random(CF_MaxDifficulty * 55)
 		local tgt = ((CF_MaxDifficulty - self.AssaultDifficulty) * 4) + 10
 		
 		print (CF_GetPlayerFaction(self.GS, self.AssaultEnemyPlayer).." D - "..self.AssaultDifficulty.." R - "..r.." TGT - "..tgt)
@@ -901,7 +901,6 @@ function VoidWanderers:UpdateActivity()
 		end
 		
 		-- Create or delete shops if we arrived/departed to/from Star base
-		--if self.GS["Planet"] == "TradeStar" and self.GS["Location"] ~= nil then
 		if CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.TRADESTAR) or CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.BLACKMARKET) then
 			if not self.ShopsCreated then
 				-- Destroy any previously created item shops and create a new one

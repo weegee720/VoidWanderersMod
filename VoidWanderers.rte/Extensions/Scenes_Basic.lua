@@ -156,13 +156,13 @@ CF_LocationPlayable[id] = false
 CF_LocationAttributes[id] = {CF_LocationAttributeTypes.BLACKMARKET}
 
 -- Add locations
-local id = "Station Ypsilon-1"
+local id = "Toha Shipyards"
 CF_Location[#CF_Location + 1] = id
-CF_LocationName[id] = "Station Ypsilon-1"
-CF_LocationPos[id] = Vector(-52,-50)
+CF_LocationName[id] = "Toha Shipyards"
+CF_LocationPos[id] = Vector(-32,-50)
 CF_LocationSecurity[id] = 60
 CF_LocationGoldPresent[id] = false
-CF_LocationScenes[id] = {"Station Ypsilon-1"}
+CF_LocationScenes[id] = {"Toha Shipyards"}
 CF_LocationPlanet[id] = "CC-11Y"
 CF_LocationPlayable[id] = false
 CF_LocationAttributes[id] = {CF_LocationAttributeTypes.SHIPYARD}

@@ -39,6 +39,19 @@ function VoidWanderers:ProcessLZControlPanelUI()
 	if self.LZControlPanelActor == nil then
 		return 
 	end
+
+	-- Re-create dead LZs
+	for plr = 0 , self.PlayerCount - 1 do
+		if not MovableMan:IsActor(self.LZControlPanelActor[plr + 1]) then
+			self.LZControlPanelActor[plr + 1] = CreateActor("LZ Control Panel")
+
+			if self.LZControlPanelActor[plr + 1] ~= nil then
+				self.LZControlPanelActor[plr + 1].Pos = self.LZControlPanelPos[plr + 1]
+				self.LZControlPanelActor[plr + 1].Team = CF_PlayerTeam
+				MovableMan:AddActor(self.LZControlPanelActor[plr + 1])
+			end
+		end		
+	end
 	
 	for i = 1, #self.LZControlPanelActor do
 		local showidle = true
