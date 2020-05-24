@@ -11,18 +11,18 @@ CF_RequiredData[id] = {}
 
 local i = 1
 CF_RequiredData[id][i] = {}
-CF_RequiredData[id][i]["Name"] = id.."_PlayerLZ"
+CF_RequiredData[id][i]["Name"] = "PlayerLZ"
 CF_RequiredData[id][i]["Type"] = "Vector"
 CF_RequiredData[id][i]["Max"] = 8
 
 local i = 2
 CF_RequiredData[id][i] = {}
-CF_RequiredData[id][i]["Name"] = id.."_AmbientEnemy"
+CF_RequiredData[id][i]["Name"] = "AmbientEnemy"
 CF_RequiredData[id][i]["Type"] = "Vector"
 CF_RequiredData[id][i]["Max"] = 16
 
 local i = 3
 CF_RequiredData[id][i] = {}
-CF_RequiredData[id][i]["Name"] = id.."Deploy_Crates"
+CF_RequiredData[id][i]["Name"] = "Crates"
 CF_RequiredData[id][i]["Type"] = "Vector"
 CF_RequiredData[id][i]["Max"] = 16

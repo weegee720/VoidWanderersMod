@@ -11,7 +11,8 @@ function CF_InitExtensionsData(activity)
 	CF_LocationPos = {}
 	CF_LocationSecurity = {}
 	CF_LocationScene = {}
-	CF_LocationPlanet = {}	
+	CF_LocationPlanet = {}
+	CF_LocationMissions = {}
 
 	-- Init ship data structures
 	CF_Vessel = {}

@@ -19,6 +19,8 @@ function VoidWanderers:StartActivity()
 		return
 	end
 
+	self.ButtonPressed = false
+	
 	self:SetTeamFunds(0 , 0);	
 	
 	self.GS = {};
@@ -52,38 +54,8 @@ function VoidWanderers:StartActivity()
 	for plr = 0,self.PlayerCount - 1 do
 		FrameMan:ClearScreenText(plr);
 	end
-	
-	--Make an invisible brain.
-	self.brain = CreateActor("Fake Brain Case");
-	self.brain.Scale = 0;
-	self.brain.Team = Activity.TEAM_1;
-	self.brain.Pos = self.Mid;
-	self.brain.HitsMOs = false;
-	self.brain.GetsHitByMOs = false;
-	MovableMan:AddActor(self.brain);
-	self:SetPlayerBrain(self.brain, Activity.TEAM_1);
-	self:SwitchToActor(self.brain, Activity.PLAYER_1,-1);
-	
-	
-	G_CursorActor = CreateActor("VW_Cursor")
-	if G_CursorActor then
-		G_CursorActor.Team = CF_PlayerTeam
-		local curactor = self:GetControlledActor(CF_PlayerTeam);
-		
-		if MovableMan:IsActor(curactor) then
-			G_CursorActor.Pos = curactor.Pos
-		else
-			local curactor = self:GetPlayerBrain(0);
-			if MovableMan:IsActor(curactor) then
-				G_CursorActor.Pos = curactor.Pos
-			else
-				G_CursorActor.Pos = Vector(0,0)
-			end
-		end
-		
-		MovableMan:AddActor(G_CursorActor)
-		ActivityMan:GetActivity():SwitchToActor(G_CursorActor, 0, 0);
-	end
+
+	self:CreateActors()
 	
 	self.MouseFirePressed = true
 	
@@ -129,7 +101,47 @@ end
 -----------------------------------------------------------------------------------------
 -- End Activity
 -----------------------------------------------------------------------------------------
-function VoidWanderers:EndActivity()
+function VoidWanderers:CreateActors()
+	--Make an invisible brain.
+	if MovableMan:IsActor(self.brain) then
+		self.brain.ToDelete = true
+		self.brain = nil
+	end
+		
+	self.brain = CreateActor("Fake Brain Case");
+	self.brain.Scale = 0;
+	self.brain.Team = Activity.TEAM_1;
+	self.brain.Pos = self.Mid;
+	self.brain.HitsMOs = false;
+	self.brain.GetsHitByMOs = false;
+	MovableMan:AddActor(self.brain);
+	self:SetPlayerBrain(self.brain, Activity.TEAM_1);
+	self:SwitchToActor(self.brain, Activity.PLAYER_1,-1);
+
+	--[[if MovableMan:IsActor(G_CursorActor) then
+		G_CursorActor.ToDelete = true
+		G_CursorActor = nil
+	end--]]--
+	
+	G_CursorActor = CreateActor("VW_Cursor")
+	if G_CursorActor then
+		G_CursorActor.Team = CF_PlayerTeam
+		local curactor = self:GetControlledActor(CF_PlayerTeam);
+		
+		if MovableMan:IsActor(curactor) then
+			G_CursorActor.Pos = curactor.Pos
+		else
+			local curactor = self:GetPlayerBrain(0);
+			if MovableMan:IsActor(curactor) then
+				G_CursorActor.Pos = curactor.Pos
+			else
+				G_CursorActor.Pos = Vector(0,0)
+			end
+		end
+		
+		MovableMan:AddActor(G_CursorActor)
+		ActivityMan:GetActivity():SwitchToActor(G_CursorActor, 0, 0);
+	end
 end
 -----------------------------------------------------------------------------------------
 -- 
@@ -364,28 +376,47 @@ function VoidWanderers:UpdateActivity()
 	--end
 
 	-- Don't let the cursor leave the screen
+	if self.ButtonPressed then
 
-	-- Don't let the cursor leave the screen
-	if self.Mouse.X < 0 then
-		self.Mouse.X = SceneMan.Scene.Width - 1
-	end
-	
-	if self.Mouse.Y < 10 then
-		self.Mouse.Y = 10;
-	end
+		if self.Mouse.X < G_CursorActor.Pos.X - self.ResX2 + 5 then
+			self.Mouse.X = G_CursorActor.Pos.X - self.ResX2 + 5
+		end
+		
+		if self.Mouse.Y < G_CursorActor.Pos.Y - self.ResY2 + 5  then
+			self.Mouse.Y = G_CursorActor.Pos.Y - self.ResY2 + 5;
+		end
 
-	if self.Mouse.X > SceneMan.Scene.Width then
-		self.Mouse.X = 0;
-	end
-	
-	if self.Mouse.Y > SceneMan.Scene.Height - 10 then
-		self.Mouse.Y = SceneMan.Scene.Height - 10;
+		if self.Mouse.X > G_CursorActor.Pos.X + self.ResX2 - 5 then
+			self.Mouse.X = G_CursorActor.Pos.X + self.ResX2 - 5;
+		end
+		
+		if self.Mouse.Y > G_CursorActor.Pos.Y + self.ResY2 - 5 then
+			self.Mouse.Y = G_CursorActor.Pos.Y + self.ResY2 - 5;
+		end
+	else
+		if self.Mouse.X < 0 then
+			self.Mouse.X = SceneMan.Scene.Width - 1
+		end
+		
+		if self.Mouse.Y < 10 then
+			self.Mouse.Y = 10;
+		end
+
+		if self.Mouse.X > SceneMan.Scene.Width then
+			self.Mouse.X = 0;
+		end
+		
+		if self.Mouse.Y > SceneMan.Scene.Height - 10 then
+			self.Mouse.Y = SceneMan.Scene.Height - 10;
+		end
 	end
 
 	self:DrawMouseCursor();
 	
 	if MovableMan:IsActor(G_CursorActor) then
-		G_CursorActor.Pos = self.Mouse
+		if not self.ButtonPressed then
+			G_CursorActor.Pos = self.Mouse
+		end
 	end
 	
 	-- Process mouse hovers and presses
