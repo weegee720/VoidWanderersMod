@@ -1,0 +1,56 @@
+Brain unit
+-	You can attach or detach your brain unit
+-	Brain inventory preserved
+-	You can’t detach brain when assault was already started
+-	Brain unit has separate life support system and don’t use life support points
+-	Thanks to this brain unit can walk in open space
+-	Brain unit may participate in missions, it will receive exp-points if mission was successful
+-	When brain unit is on the battlefield communication points are not used, because brain controls units locally without using ship as a relay
+-	With each level brain receives one skill point, which you can spend to make brain unit more powerful
+-	You can spend skill points only when brain is attached
+-	Each player has his own brain, and spends skill points separately
+-	Each level give +1 HP to brain regardless of skill points
+-	Brain units must be attached if you start mission without brain, because brain unit must be connected to ship’s communication systems to control troops on the surface
+Brain skills
+-	Skills are activated via a single element in pie-menu
+-	Scanner skill shows units nearby. Blue – friendly, red – hostiles, which can be hit directly, yellow – hidden hostile, green – brain’s aiming dot.
+-	Scanner levels increase scanner range
+-	You can toggle scanner on and off
+-	Quantum splitter converts item’s mass to quants, which then can be used to produce simple items
+-	Only one random item available at start but you can fund other blueprints in abandoned ships
+-	Splitter levels increase splitting effectiveness
+-	Healing skills fix units completely including wounds etc.
+-	Telekinesis skill are the same skills as Psyclone’s, but units don’t affect each other and immune to psi-inhibitors and psi-catalysts
+-	After some level brain will start to regenerate, and regeneration speed will be higher with each level
+-	Brain skills recharge when brain is attached to ship
+Ship navigation
+-	You can upgrade or change your ship only on SHIPYARD locations, Trade Star is only a shop now
+-	You can buy powerful weapons at BLACK MARKET locations using the usual shop panels
+-	Item selection at BLACK MARKET is randomized and change from time to time
+-	Prices on those items and actors are extreme
+Assaults and counterattacks
+-	You can counterattack invaders after assault but the time to put your troops together is very limited
+-	Successful counter attack increases your reputation with attacking faction without any other penalties
+-	Counterattacks are quite hard and that’s intentionally
+-	All items left on the ship after assault will be collected automatically if you choose to counterattack
+Turrets
+-	You can buy turrets in ordinary body shops
+-	Turrets are stored in separate storage because they are controlled and distributed by separate ship subsystem
+-	Turrets are spawned automatically when needed and removed after that
+-	Turrets don’t need life support points
+-	If turret was destroyed the last time it was deployed turret point becomes empty and player need to load another turret there
+-	You can’t sell turrets
+-	Vanilla turrets are always available, any other turrets need to be unlocked with enough reputation
+
+Missions
+-	All items are collected automatically if no hostiles left on the map
+-	You don’t need to return to LZ if no hostiles left on the map
+-	You MUST return to LZ if there is at least one hostile unit on the map, any units not close enough will be abandoned, including brain units
+Reputation
+-	Complete missions to improve reputation
+-	If you fail or abort mission you’ll get reputation penalties from both sides
+-	Reputation unlocks items available at the trade star
+-	It does not matter what faction is your main, only your reputation speaks for you
+Other
+-	TDExplosives take ten times less space in storage
+
