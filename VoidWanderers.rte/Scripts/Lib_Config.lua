@@ -75,7 +75,7 @@ end
 -- 
 -----------------------------------------------------------------------------
 function CF_ReadExtensionsList(filename)
-	print("VoidWanderers::CF_ReadFactionsList")
+	print("VoidWanderers::CF_ReadExtensionList")
 	io = require("io");
 	local config = {};
 	
