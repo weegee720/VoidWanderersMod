@@ -29,98 +29,19 @@ function CF_InitFactions(activity)
 	CF_MaxItems = 50
 	CF_MaxUnitsPerDropship = 3
 	
+	-- Set this to true to stop any UI processing. Useful when debuging and need to disable UI error message spam.
 	CF_StopUIProcessing = false
-	
-	CF_MaxAIEngineerCount = 3
-	
-	-- AI engineers won't dig if they're too close to lz
-	CF_EngineerDigRange = 250
-	
-	-- AI Engineers will scan this many pixels for gold
-	CF_EngineerDigDepth = 250
-	
-	-- How much gold AI must have before ordering engineers to dig gold
-	CF_EngineerOrderThreshold = 750
-	
-	CF_AllyItemProbability = 0.15;--0.10
-	-- Time in tactical ticks to show ally reward message
-	CF_AllyRewardShowInterval = 3;
-	
-	CF_DisableAllyMissions = true
-	
-	CF_LZCompromiseRange = 250
-	
-	CF_EnableCCRTS = true
-	CF_CCRTSKey = 75 -- Default CCRTS key - space (75)
-	
-	-- If this is true UL2 will use the new diplomacy model where player can order ally
-	-- reinforcements using ally points
-	CF_UseNewDiplomacyModel	= true
-	CF_AllyReinforcementsBasePrice = 500
-	
-	-- How much time negative console effect lasts in tactical ticks
-	CF_BasicConsoleHackNegativeEffectLength = 30
 	
 	CF_LaunchActivities = true
 	CF_MissionReturnInterval = 2500
 
-	CF_TacticalTickInterval = 1000
-	CF_TacticalHackTime = 30
-	-- Percentage of resources to steal when console is hacked
-	CF_StealAmount = 15
-	CF_ActiveConsolesRatio = 0.7
-	-- Interval after which AI will surrender due to time out. Sometimes AI have low airfield level
-	-- but big budget as a result defence missions become too long and player may consider 
-	-- that something is broken and reset. To avoid this we'll just make AI lose no matter what
-	-- if it's too slow.
-	CF_MissionTimeoutInterval = 500	
-	
-	-- How many troops will be sent to brainhunt mode (IN "SIMPLE" AI MODE!)
-	CF_DefaultBrainHuntRatio = 0.50
-	-- How many brainhunt-selected troops will go to LZ instead (IN "SIMPLE" AI MODE!)
-	CF_DefaultLZRatio = 0.20
-
-	-- To make HQ assaults harder we'll boost AI defenders with more money
-	-- If player didn't destroy facilities first, than AI will get more money for defence
-	-- Total money will be Facilities * Levels * CF_BasicAIGoldBonusPerFacility * AI income bonus
-	CF_BasicAIGoldBonusPerFacilityLevel = 200
+	CF_TickInterval = 1000
 
 	-- How much percents of price to add if player and ally factions natures are not the same
 	CF_SynthetsToOrganicRatio = 0.70
 	
 	CF_FogOfWarEnabled = true -- Gameplay value
 	CF_FogOfWarResolution = 100
-	
-	CF_DebugSuperWeapons = false -- Gameplay value
-	CF_DebugEnableRandomActivity = false;--false -- Gameplay value
-	
-	CF_AIDebugOutput = false;--false -- Gameplay value
-	CF_AIResourcesOutput = false;--false -- Gameplay value
-	
-	-- Auto save data to Current.dat every N ticks
-	CF_AutoSaveInterval = 10
-	
-	-- Increase tick time when debugging to make it simpler to track the console messages
-	if CF_AIDebugOutput then
-		CF_TickInterval = CF_TickInterval * 2
-	end
-	
-	-- Those id's used to identify data in array returned by CF_GetTerritoryValues
-	-- Facilities types
-	T_MINE = 1
-	T_LAB = 2
-	T_AIR = 3
-	T_SUPER = 4
-	T_FACT = 5
-	T_CLONE = 6
-	T_HOSP = 7
-	T_HQ = 8
-	
-	-- Meaning of values
-	V_LEVEL = 1 -- Level of facility
-	V_VAL = 2 -- Actual value, e.g. gold per tick, science per tick and so on.
-	V_BONUS = 3 -- Active total bonus in percents
-	V_DEFEND = 4 -- Defenders count
 	
 	CF_Factions = {};
 	
@@ -766,32 +687,6 @@ function CF_ReturnOnMissionEnd()
 			--CF_LaunchMissionActivity("Unmapped Lands 2");
 		end
 	end
-end
------------------------------------------------------------------------------------------
--- Launches new mission script without leaving current activity. Scene is case sensitive.
------------------------------------------------------------------------------------------
-function CF_LaunchMission(scene , script)
-	print ("CF_LaunchMission: "..scene.." "..script)
-	SCENE_TO_LAUNCH = scene
-	SCRIPT_TO_LAUNCH = BASE_PATH..script
-	TRANSFER_IN_PROGRESS = true
-	
-	--print(SCENE_TO_LAUNCH)
-	--print(SCRIPT_TO_LAUNCH)
-	
-	MovableMan:PurgeAllMOs()
-	
-	dofile(BASE_PATH.."MissionLauncher.lua")
-end
------------------------------------------------------------------------------------------
--- Restarts activity 
------------------------------------------------------------------------------------------
-function CF_LaunchMissionActivity(activity)
-	SCENE_TO_LAUNCH = nil
-	SCRIPT_TO_LAUNCH = nil
-	TRANSFER_IN_PROGRESS = false
-	
-	ActivityMan:StartActivity("GAScripted" , activity);
 end
 -----------------------------------------------------------------------------------------
 -- 

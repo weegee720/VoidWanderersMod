@@ -97,17 +97,17 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 	end
 
 	-- Create initial player actors in cockpit
-	for i = 1, 4 do
+	--[[for i = 1, 4 do
 		config["PlayerActor"..i.."Preset"] = CF_ActPresets[f][found]
 		config["PlayerActor"..i.."Class"] = CF_ActClasses[f][found]
 		
 		local slt = 1
 		for j = #weaps, 1 , -1 do
-			config["PlayerActor"..i.."Item"..slt.."Preset"] = CF_ItmPresets[f][weaps[j]]
-			config["PlayerActor"..i.."Item"..slt.."Class"] = CF_ItmClasses[f][weaps[j]]
+			config[ "PlayerActor"..i.."Item"..slt.."Preset"] = CF_ItmPresets[f][weaps[j] ]
+			config[ "PlayerActor"..i.."Item"..slt.."Class"] = CF_ItmClasses[f][weaps[j] ]
 			slt = slt + 1
 		end
-	end
+	end]]--
 	
 	-- Set game start
 	config["SpawnLocation"] = "Cockpit"

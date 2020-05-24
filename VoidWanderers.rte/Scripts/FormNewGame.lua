@@ -217,7 +217,7 @@ end
 --
 -----------------------------------------------------------------------------------------
 function VoidWanderers:BtnOk_OnClick()
-	--CF_StopUIProcessing = true
+	CF_StopUIProcessing = true
 	
 	-- Create new game file
 	local config = {};
@@ -248,7 +248,8 @@ function VoidWanderers:BtnOk_OnClick()
 	--	self:SetPlayerBrain(nil, player);
 	--end	
 	
-	CF_LaunchMission(config["Scene"], "Tactics.lua")
+	--CF_LaunchMission(config["Scene"], "Tactics.lua")
+	self:LaunchScript(config["Scene"], "Tactics.lua")
 end
 -----------------------------------------------------------------------------------------
 --

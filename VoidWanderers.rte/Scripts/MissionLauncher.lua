@@ -50,6 +50,21 @@ function VoidWanderers:StartActivity()
 	SceneMan:LoadScene(SCENE_TO_LAUNCH , true)
 end
 -----------------------------------------------------------------------------------------
+-- Launches new mission script without leaving current activity. Scene is case sensitive!
+-----------------------------------------------------------------------------------------
+function VoidWanderers:LaunchScript(scene , script)
+	print ("VoidWanderers-LaunchScript: "..scene.." / "..script)
+	--print(scene)
+	--print(script)
+
+	self.IsInitialized = false;
+	
+	MovableMan:PurgeAllMOs()
+	
+	dofile(BASE_PATH..script)
+	SceneMan:LoadScene(scene , true)
+end
+-----------------------------------------------------------------------------------------
 -- Pause Activity
 -----------------------------------------------------------------------------------------
 function VoidWanderers:PauseActivity(pause)

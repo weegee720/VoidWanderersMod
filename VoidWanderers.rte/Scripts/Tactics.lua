@@ -62,7 +62,7 @@ function VoidWanderers:StartActivity()
 		end
 		
 		-- Create initial actors
-		print ("Create actors")
+		--[[print ("Create actors")
 		if self.GS["SpawnLocation"] == "Cockpit" then
 			for i = 1, 4 do
 				local p;
@@ -95,7 +95,7 @@ function VoidWanderers:StartActivity()
 					MovableMan:AddActor(a)
 				end
 			end
-		end
+		end]]--
 	end
 	
 	-- Read control panels location data
@@ -175,6 +175,9 @@ function VoidWanderers:StartActivity()
 	self:CreateControlPanelActors()
 	
 	self:InitShipControlPanelUI()
+	self:InitStorageControlPanelUI()
+	
+	
 end
 -----------------------------------------------------------------------------------------
 -- Removes specified item from actor's inventory, returns number of removed items
@@ -391,7 +394,7 @@ function VoidWanderers:UpdateActivity()
 		FrameMan:SetScreenText(self.MissionEndText, 0, 0, 8000, true);	
 	end
 	
-	--self:DoBrainSelection()
+	self:DoBrainSelection()
 	self:CheckWinningConditions();
 	self:YSortObjectivePoints();
 	--CF_ReturnOnMissionEnd();
