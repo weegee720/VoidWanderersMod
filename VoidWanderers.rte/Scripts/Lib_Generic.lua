@@ -24,6 +24,42 @@ function CF_InitFactions(activity)
 	-- count frames so other function can decide if it's odd or even frame right now
 	CF_FrameCounter = 0
 	
+	CF_ShipAssaultDelay = 30
+	
+	CF_AssaultDifficultyTexts = {}
+	CF_AssaultDifficultyTexts[1] = "scout"
+	CF_AssaultDifficultyTexts[2] = "corvette"
+	CF_AssaultDifficultyTexts[3] = "frigate"
+	CF_AssaultDifficultyTexts[4] = "destroyer"
+	CF_AssaultDifficultyTexts[5] = "cruiser"
+	CF_AssaultDifficultyTexts[6] = "battleship"
+
+	CF_AssaultDifficultyUnitCount = {}
+	CF_AssaultDifficultyUnitCount[1] = 4
+	CF_AssaultDifficultyUnitCount[2] = 8
+	CF_AssaultDifficultyUnitCount[3] = 12
+	CF_AssaultDifficultyUnitCount[4] = 16
+	CF_AssaultDifficultyUnitCount[5] = 22
+	CF_AssaultDifficultyUnitCount[6] = 30
+
+	CF_AssaultDifficultySpawnInterval = {}
+	CF_AssaultDifficultySpawnInterval[1] = 8
+	CF_AssaultDifficultySpawnInterval[2] = 7
+	CF_AssaultDifficultySpawnInterval[3] = 6
+	CF_AssaultDifficultySpawnInterval[4] = 5
+	CF_AssaultDifficultySpawnInterval[5] = 4
+	CF_AssaultDifficultySpawnInterval[6] = 3
+
+	CF_AssaultDifficultySpawnBurst = {}
+	CF_AssaultDifficultySpawnBurst[1] = 2
+	CF_AssaultDifficultySpawnBurst[2] = 2
+	CF_AssaultDifficultySpawnBurst[3] = 3
+	CF_AssaultDifficultySpawnBurst[4] = 3
+	CF_AssaultDifficultySpawnBurst[5] = 2
+	CF_AssaultDifficultySpawnBurst[6] = 1
+	
+	CF_MaxAssaultDifficulty = 6
+	
 	CF_MaxCPUPlayers = 8
 	CF_MaxSaveGames = 6
 	CF_MaxItems = 6 -- Max items per clone in clone storage

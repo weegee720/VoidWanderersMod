@@ -120,6 +120,10 @@ function VoidWanderers:ProcessShipControlPanelUI()
 						self.GS["Location"] = nil
 						-- Recreate all lists
 						resetlists = true
+						
+						if self.GS["Planet"] ~= "TradeStar" then
+							self:TriggerShipAssault()
+						end
 					end
 				end
 			else

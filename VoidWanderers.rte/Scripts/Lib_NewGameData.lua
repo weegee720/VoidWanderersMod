@@ -53,6 +53,9 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 	config["Player0Type"] = "Player"
 	config["Player0Gold"] = math.floor(4000 * PositiveIndex)
 	
+	
+	config["AssaultTime"] = "0"
+	
 	-- Assign player ship
 	config["Player0Vessel"] = "Gryphon"
 	

@@ -57,9 +57,6 @@ function VoidWanderers:StartActivity()
 		end
 	end
 	
-	-- Read control panels location data
-
-	
 	self.GenericTimer = Timer();
 	self.GenericTimer:Reset();
 
@@ -234,6 +231,19 @@ function VoidWanderers:SaveFogOfWarState(config)
 	end
 end
 -----------------------------------------------------------------------------------------
+-- 
+-----------------------------------------------------------------------------------------
+function VoidWanderers:TriggerShipAssault()
+	--TODO Check reputation and trigger assaults accordingly
+	
+	self.GS["AssaultTime"] = self.Time + CF_ShipAssaultDelay
+	self.GS["AssaultEnemyPlayer"] = 1
+	self.GS["AssaultDifficulty"] = math.random(CF_MaxAssaultDifficulty)
+	
+	-- Remove some panel actors
+	self.ShipControlPanelActor.ToDelete = true
+end
+-----------------------------------------------------------------------------------------
 -- Pause Activity
 -----------------------------------------------------------------------------------------
 function VoidWanderers:PauseActivity(pause)
@@ -299,10 +309,18 @@ function VoidWanderers:UpdateActivity()
 	
 	-- Process UI's
 	if self.GS["Mode"] == "Vessel" then
-		self:ProcessShipControlPanelUI()
 		self:ProcessClonesControlPanelUI()
 		self:ProcessStorageControlPanelUI()
-		self:ProcessBeamControlPanelUI()
+		
+		-- Show assault warning
+		if tonumber(self.GS["AssaultTime"]) > self.Time then
+			FrameMan:ClearScreenText(0);
+			FrameMan:SetScreenText(CF_GetPlayerFaction(self.GS, tonumber(self.GS["AssaultEnemyPlayer"])).." "..CF_AssaultDifficultyTexts[self.GS["AssaultDifficulty"]].." approaching in T-"..self.GS["AssaultTime"] - self.Time.."\nBATTLE STATIONS!", 0, 0, 1000, true);
+		else
+			-- Process some control panels only when ship is not boarded
+			self:ProcessShipControlPanelUI()
+			self:ProcessBeamControlPanelUI()
+		end
 	end
 	
 	-- Tick timer
