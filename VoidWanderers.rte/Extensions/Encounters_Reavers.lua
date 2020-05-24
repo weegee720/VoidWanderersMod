@@ -1,10 +1,9 @@
 --[[
 	Miranda Zone Reavers by Major
-	https://dl.dropboxusercontent.com/u/1741337/VoidWanderers/MZR.rte.zip
 	Supported out of the box
 ]]--
 
-if PresetMan:GetModuleID("Deployable Turret.rte") ~= -1 then
+if PresetMan:GetModuleID("MZR.rte") ~= -1 then
 	local id = "REAVERS";
 	CF_RandomEncounters[#CF_RandomEncounters + 1] = id
 	CF_RandomEncountersInitialTexts[id] = ""

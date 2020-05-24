@@ -133,6 +133,7 @@ function VoidWanderers:MissionUpdate()
 		if not self.CounterAttackTriggered and self.MissionSettings["CounterAttackDelay"] > 0 and self.Time >= self.MissionStart + self.MissionSettings["CounterAttackDelay"] then
 			self.CounterAttackTriggered = true
 			print ("COUNTERATTACK!")
+			self:StartMusic(CF_MusicTypes.MISSION_INTENSE)
 
 			local count = 0
 			
@@ -147,6 +148,10 @@ function VoidWanderers:MissionUpdate()
 			end
 		end
 	elseif self.MissionStage == self.MissionStages.COMPLETED then
+		if not self.MissionEndMusicPlayed then
+			self:StartMusic(CF_MusicTypes.VICTORY)
+			self.MissionEndMusicPlayed = true
+		end
 		self.MissionStatus = "MISSION COMPLETED"
 		
 		if self.Time < self.MissionStatusShowStart + CF_MissionResultShowInterval then

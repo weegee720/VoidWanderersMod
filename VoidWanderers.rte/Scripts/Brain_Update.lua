@@ -173,7 +173,7 @@ function do_rpgbrain_update(self)
 		-- Search for nearby actors 
 		for actor in MovableMan.Actors do
 			-- Search for friends to amplify power
-			if not actor:IsInGroup("Brains") and actor.Health > 0 then
+			if actor.Team ~= self.ThisActor.Team and not actor:IsInGroup("Brains") and actor.Health > 0 then
 				-- Search for enemies to find threat
 				local d = SceneMan:ShortestDistance(actor.Pos, self.ThisActor.Pos, true).Magnitude;
 				

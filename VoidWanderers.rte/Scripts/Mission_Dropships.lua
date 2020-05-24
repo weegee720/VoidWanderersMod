@@ -229,6 +229,10 @@ function VoidWanderers:MissionUpdate()
 		end
 	elseif self.MissionStage == self.MissionStages.COMPLETED then
 		self.MissionStatus = "MISSION COMPLETED"
+		if not self.MissionEndMusicPlayed then
+			self:StartMusic(CF_MusicTypes.VICTORY)
+			self.MissionEndMusicPlayed = true
+		end
 		
 		if self.Time < self.MissionStatusShowStart + CF_MissionResultShowInterval then
 			for p = 0, self.PlayerCount - 1 do
@@ -238,6 +242,10 @@ function VoidWanderers:MissionUpdate()
 		end
 	elseif self.MissionStage == self.MissionStages.FAILED then
 		self.MissionStatus = "MISSION FAILED"
+		if not self.MissionEndMusicPlayed then
+			self:StartMusic(CF_MusicTypes.DEFEAT)
+			self.MissionEndMusicPlayed = true
+		end
 		
 		if self.Time < self.MissionStatusShowStart + CF_MissionResultShowInterval then
 			for p = 0, self.PlayerCount - 1 do

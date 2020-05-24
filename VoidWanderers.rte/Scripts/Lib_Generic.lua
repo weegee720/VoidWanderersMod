@@ -10,7 +10,7 @@ function CF_InitFactions(activity)
    	CF_CPUTeam = Activity.TEAM_2;
 	CF_PlayerTeam = Activity.TEAM_1;
 	CF_RogueTeam = -1;
-	CF_MOIDLimit = 220;
+	CF_MOIDLimit = 210;
 	CF_ModuleName = "VoidWanderers.rte"
 	
 	-- Used in flight mode
@@ -55,7 +55,7 @@ function CF_InitFactions(activity)
 	CF_ReputationPerDifficulty = 1000
 	
 	CF_DistanceToAttemptEvent = 50
-	CF_RandomEncounterProbability = 0.1 -- 1 -- DEBUG
+	CF_RandomEncounterProbability = 0.15 -- 1 -- DEBUG
 	
 	-- When reputation below this level enemy starts sending crafts after player
 	CF_ReputationHuntTreshold = -500
@@ -316,6 +316,15 @@ function CF_InitFactions(activity)
 	CF_CraftModules = {};
 	CF_CraftClasses = {};
 	CF_CraftPrices = {}
+	
+	
+	CF_MusicTypes = {SHIP_CALM = 0, SHIP_INTENSE = 1, MISSION_CALM = 2, MISSION_INTENSE = 3, VICTORY = 4, DEFEAT = 5}
+	
+	CF_Music = {}
+	CF_Music[CF_MusicTypes.SHIP_CALM] = {}
+	CF_Music[CF_MusicTypes.SHIP_INTENSE] = {}
+	CF_Music[CF_MusicTypes.MISSION_CALM] = {}
+	CF_Music[CF_MusicTypes.MISSION_INTENSE] = {}
 	
 	-- Load factions
 	if CF_IsFilePathExists("./Factions2/Factions.cfg") then

@@ -19,6 +19,9 @@ function VoidWanderers:StartActivity()
 	self.IsInitialized = true
 	self.ShopsCreated = false
 	
+	self.LastMusicType = -1
+	self.LastMusicTrack = -1
+	
 	self.GS = {};
 	self.ModuleName = "VoidWanderers.rte";
 	
@@ -218,6 +221,8 @@ function VoidWanderers:StartActivity()
 
 	-- Spawn away-team objects
 	if self.GS["Mode"] == "Mission" then
+		self:StartMusic(CF_MusicTypes.MISSION_CALM)
+	
 		self.GS["WasReset"] = "True"
 	
 		-- All mission related final message will be accumulated in mission report list
@@ -372,6 +377,7 @@ function VoidWanderers:StartActivity()
 		end
 		
 		self.MissionStartTime = tonumber(self.GS["Time"])
+		self.MissionEndMusicPlayed = false
 		
 		self.SpawnTable = {}
 		
@@ -420,6 +426,8 @@ function VoidWanderers:StartActivity()
 		for p = 1, 3 do
 			SceneMan:MakeAllUnseen(Vector(CF_FogOfWarResolution, CF_FogOfWarResolution), p);
 		end
+	else
+		self:StartMusic(CF_MusicTypes.SHIP_CALM)
 	end
 	
 	-- Load pre-spawned enemy locations. These locations also used during assaults to place teleported units
@@ -643,7 +651,30 @@ function VoidWanderers:TriggerShipAssault()
 		end
 	end
 	
+	
 	if #angry > 0 then
+		local rangedangry = {}
+		-- Range angry CPU based on their 
+		for i = 1, #angry do
+			--print ("- "..CF_GetPlayerFaction(self.GS, angry[i]))
+			local anger = math.floor(math.abs(tonumber(self.GS["Player"..angry[i].."Reputation"]) / CF_ReputationPerDifficulty))
+			
+			if anger <= 0 then
+				anger = 1
+			end
+			
+			if anger > CF_MaxDifficulty then
+				anger = CF_MaxDifficulty
+			end			
+			
+			for j = 1, anger do
+				rangedangry[#rangedangry + 1] = angry[i]
+				--print (CF_GetPlayerFaction(self.GS, angry[i]))
+			end
+		end
+		
+		angry = rangedangry
+
 		self.AssaultEnemyPlayer = angry[math.random(#angry)]
 		
 		local rep = tonumber(self.GS["Player"..self.AssaultEnemyPlayer.."Reputation"])
@@ -658,8 +689,8 @@ function VoidWanderers:TriggerShipAssault()
 			self.AssaultDifficulty = CF_MaxDifficulty
 		end
 		
-		local r = math.random(CF_MaxDifficulty * 48)
-		local tgt = ((CF_MaxDifficulty - self.AssaultDifficulty) * 4) + 10
+		local r = math.random(CF_MaxDifficulty * 45)
+		local tgt = (self.AssaultDifficulty * 5) + 10
 		
 		print (CF_GetPlayerFaction(self.GS, self.AssaultEnemyPlayer).." D - "..self.AssaultDifficulty.." R - "..r.." TGT - "..tgt)
 		
@@ -721,6 +752,15 @@ function VoidWanderers:TriggerShipAssault()
 			
 			-- Launch encounter
 			if found and id ~= nil then
+				-- Increase probability of reavers a bit
+				if CF_RandomEncounters["REAVERS"] ~= nil then
+					if id ~= "REAVERS" then
+						if math.random() < 0.2 then
+							id = "REAVERS"
+						end
+					end
+				end
+			
 				self.RandomEncounterID = id
 				self.RandomEncounterVariant = 0
 				
@@ -754,7 +794,10 @@ function VoidWanderers:TriggerShipAssault()
 				if plrtoswitch > -1 and bridgeempty and MovableMan:IsActor(self.ShipControlPanelActor) then
 					self:SwitchToActor(self.ShipControlPanelActor, plrtoswitch, CF_PlayerTeam);
 				end
-				self.ShipControlMode = self.ShipControlPanelModes.REPORT--]]--
+				self.ShipControlMode = self.ShipControlPanelModes.REPORT
+				
+				self:StartMusic(CF_MusicTypes.SHIP_INTENSE)
+				--]]--
 			end
 		end
 	end
@@ -870,6 +913,8 @@ function VoidWanderers:UpdateActivity()
 		self:RestoreAI()
 	end
 	
+	
+	
 	-- Clear player's money to avoid buying via Trade Star
 	local gold2add = self:GetTeamFunds(CF_PlayerTeam);
 	self:SetTeamFunds(0, CF_PlayerTeam);
@@ -980,6 +1025,8 @@ function VoidWanderers:UpdateActivity()
 			self:DestroyItemShopControlPanelUI()
 			self:DestroyCloneShopControlPanelUI()
 			self:DestroyTurretsControlPanelUI()
+			
+			self:StartMusic(CF_MusicTypes.SHIP_INTENSE)
 		end
 		
 		-- Process random encounter function
@@ -1126,7 +1173,7 @@ function VoidWanderers:UpdateActivity()
 				
 				self.GS["Player"..i.."Reputation"] = rep
 			end
-		end--]]--
+		end
 		
 		if self.AssaultTime > self.Time then
 			if self.Time % 2 == 0 then
@@ -1189,7 +1236,7 @@ function VoidWanderers:UpdateActivity()
 			end
 			
 			-- When on vessel always 
-		end--]]--
+		end
 		
 		-- Kill all actors outside the ship
 		if self.GS["SceneType"] == "Vessel" then
@@ -1205,7 +1252,7 @@ function VoidWanderers:UpdateActivity()
 					end
 				end
 			end
-		end--]]--
+		end
 		
 		-- Process enemy spawn during assaults
 		if self.GS["Mode"] == "Assault" then
@@ -1294,7 +1341,7 @@ function VoidWanderers:UpdateActivity()
 				
 				self.AssaultNextSpawnPos = self.EnemySpawn[math.random(#self.EnemySpawn)]
 			end
-		end--]]--
+		end
 	end
 	
 	if self.GS["Mode"] == "Assault" then
@@ -1341,13 +1388,13 @@ function VoidWanderers:UpdateActivity()
 	end--]]--
 
 	-- Deploy turrets when key pressed
-	--[[if UInputMan:KeyPressed(75) then
-		if self.TurretsDeployedActors == nil then
-			self:DeployTurrets()
-		else
-			self:RemoveDeployedTurrets()
-		end
-	end--]]--
+	--if UInputMan:KeyPressed(75) then
+	--	if self.TurretsDeployedActors == nil then
+	--		self:DeployTurrets()
+	--	else
+	--		self:RemoveDeployedTurrets()
+	--	end
+	--end
 	
 	if self.GS["Mode"] == "Mission" then
 		self:ProcessLZControlPanelUI()
@@ -1405,6 +1452,7 @@ function VoidWanderers:UpdateActivity()
 			if braincount < self.PlayerCount and self.EnableBrainSelection and self.Time > self.MissionStartTime + 1 then
 				self.WinnerTeam = CF_CPUTeam;
 				ActivityMan:EndActivity();
+				self:StartMusic(CF_MusicTypes.DEFEAT)
 			end
 		end
 	end
@@ -1879,6 +1927,137 @@ function VoidWanderers:MakeAlertSound()
 	MovableMan:AddParticle(fxb);				
 end
 -----------------------------------------------------------------------------------------
--- That's all folks!!!
+--
 -----------------------------------------------------------------------------------------
+function VoidWanderers:StartMusic(musictype)
+	print ("VoidWanderers:StartMusic")
+	local ok = false
+	local counter = 0
+	local track = -1
+	local track2 = -1
+	local queue = false
+	
+	-- Queue defeat or victory loops
+	if musictype == CF_MusicTypes.VICTORY then
+		AudioMan:PlayMusic("Base.rte/Music/dBSoundworks/uwinfinal.ogg", 1, -1);
+		queue = true
+		print ("MUSIC: Play victory")
+	end
+	
+	if musictype == CF_MusicTypes.DEFEAT then
+		AudioMan:PlayMusic("Base.rte/Music/dBSoundworks/udiedfinal.ogg", 1, -1);
+		queue = true
+		print ("MUSIC: Play defeat")
+	end
+
+	--print (self.LastMusicType)
+	--print (musictype)
+	
+	-- Select calm music to queue after victory or defeat
+	if self.LastMusicType ~= -1 and queue then
+		if self.LastMusicType == CF_MusicTypes.SHIP_CALM or self.LastMusicType == CF_MusicTypes.SHIP_INTENSE then
+			musictype = CF_MusicTypes.SHIP_CALM
+		end
+	
+		if self.LastMusicType == CF_MusicTypes.MISSION_CALM or self.LastMusicType == CF_MusicTypes.MISSION_INTENSE then
+			musictype = CF_MusicTypes.MISSION_CALM
+		end
+	end
+	
+	while (not ok) do
+		ok = true
+		track = math.random(#CF_Music[musictype])
+		
+		--print (track)
+		--print (CF_Music[musictype][track])
+		
+		if musictype ~= self.LastMusicType and #CF_Music[musictype] > 1 then
+			if track == self.LastMusicTrack then
+				ok = false
+			end
+		end
+
+		counter = counter + 1
+		if counter > 5 then
+			print ("BREAK")
+			break
+		end
+	end
+	
+	print (musictype)
+	
+	-- If we're playing intense music, then just queue it once and play ambient all the other times
+	if ok then
+		if musictype == CF_MusicTypes.SHIP_INTENSE or musictype == CF_MusicTypes.MISSION_INTENSE then
+			self:PlayMusicFile(CF_Music[musictype][track], false, 1)
+			print ("MUSIC: Queue intense")
+		else
+			self:PlayMusicFile(CF_Music[musictype][track], queue, -1)
+			if queue then
+				print("MUSIC: Queue calm")
+			else
+				print("MUSIC: Play calm")
+			end
+		end
+	end
+
+	-- Then add a calm music after an intense
+	if musictype == CF_MusicTypes.SHIP_INTENSE or musictype == CF_MusicTypes.MISSION_INTENSE then
+		if musictype == CF_MusicTypes.SHIP_INTENSE then
+			musictype = CF_MusicTypes.SHIP_CALM
+		end
+	
+		if musictype == CF_MusicTypes.MISSION_INTENSE then
+			musictype = CF_MusicTypes.MISSION_CALM
+		end
+
+		local ok = false
+		local counter = 0
+
+		while (not ok) do
+			ok = true
+
+			track = math.random(#CF_Music[musictype])
+			
+			if musictype ~= self.LastMusicType and #CF_Music[musictype] > 1 then
+				if track == self.LastMusicTrack then
+					ok = false
+				end
+			end
+			
+			counter = counter + 1
+			if counter > 5 then
+				print ("BREAK")
+				break
+			end
+		end
+		if ok then
+			self:PlayMusicFile(CF_Music[musictype][track], true, -1)
+			print("MUSIC: Queue calm")
+		end
+	end
+	
+	self.LastMusicType = musictype
+	self.LastMusicTrack = track
+--]]--
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
+function VoidWanderers:PlayMusicFile(path , queue, count)
+	if CF_IsFilePathExists(path) then
+		if queue then
+			AudioMan:QueueMusicStream(path)
+		else
+			AudioMan:ClearMusicQueue();
+			AudioMan:PlayMusic(path, count, -1);
+		end
+		return true
+	else
+		print ("ERR: Can't find music: "..path);
+		return false
+	end	
+end
+-----------------------------------------------------------------------------------------
+-- That's all folks!!!
 -----------------------------------------------------------------------------------------

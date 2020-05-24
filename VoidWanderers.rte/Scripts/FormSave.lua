@@ -186,6 +186,9 @@ function VoidWanderers:FormLoad()
 
 	self.UI[#self.UI + 1] = el;
 	self.LblSlotDescription = el
+	
+	AudioMan:ClearMusicQueue();
+	AudioMan:PlayMusic("Base.rte/Music/Hubnester/ccmenu.ogg", -1, -1);	
 end
 -----------------------------------------------------------------------------------------
 --

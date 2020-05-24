@@ -115,7 +115,7 @@ function VoidWanderers:MissionUpdate()
 			self:GiveMissionRewards()
 			self.MissionStage = self.MissionStages.COMPLETED
 			
-			-- Remember when we started showing misison status messageaaa
+			-- Remember when we started showing mission status message
 			self.MissionStatusShowStart = self.Time		
 		end
 	
@@ -160,6 +160,10 @@ function VoidWanderers:MissionUpdate()
 		end
 	elseif self.MissionStage == self.MissionStages.COMPLETED then
 		self.MissionStatus = "MISSION COMPLETED"
+		if not self.MissionEndMusicPlayed then
+			self:StartMusic(CF_MusicTypes.VICTORY)
+			self.MissionEndMusicPlayed = true
+		end
 		
 		if self.Time < self.MissionStatusShowStart + CF_MissionResultShowInterval then
 			for p = 0, self.PlayerCount - 1 do

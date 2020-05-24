@@ -15,7 +15,7 @@ function VoidWanderers:MissionCreate()
 	setts[1]["AllyReinforcementsCount"] = 6
 	setts[1]["EnemyDropshipUnitCount"] = 1
 	setts[1]["Interval"] = 35
-	setts[1]["InitialMiners"] = 2
+	setts[1]["InitialMiners"] = 1
 	setts[1]["MinersNeeded"] = 3
 	setts[1]["TimeToHold"] = 120
 	
@@ -23,7 +23,7 @@ function VoidWanderers:MissionCreate()
 	setts[2]["AllyReinforcementsCount"] = 6
 	setts[2]["EnemyDropshipUnitCount"] = 1
 	setts[2]["Interval"] = 35
-	setts[2]["InitialMiners"] = 2
+	setts[2]["InitialMiners"] = 1
 	setts[2]["MinersNeeded"] = 3
 	setts[2]["TimeToHold"] = 140
 
@@ -31,8 +31,8 @@ function VoidWanderers:MissionCreate()
 	setts[3]["AllyReinforcementsCount"] = 6
 	setts[3]["EnemyDropshipUnitCount"] = 2
 	setts[3]["Interval"] = 35
-	setts[3]["InitialMiners"] = 2
-	setts[3]["MinersNeeded"] = 4
+	setts[3]["InitialMiners"] = 1
+	setts[3]["MinersNeeded"] = 3
 	setts[3]["TimeToHold"] = 160
 
 	setts[4] = {}
@@ -46,23 +46,23 @@ function VoidWanderers:MissionCreate()
 	setts[5] = {}
 	setts[5]["AllyReinforcementsCount"] = 6
 	setts[5]["EnemyDropshipUnitCount"] = 3
-	setts[5]["Interval"] = 35
-	setts[5]["InitialMiners"] = 3
-	setts[5]["MinersNeeded"] = 5
+	setts[5]["Interval"] = 30
+	setts[5]["InitialMiners"] = 2
+	setts[5]["MinersNeeded"] = 4
 	setts[5]["TimeToHold"] = 200
 
 	setts[6] = {}
 	setts[6]["AllyReinforcementsCount"] = 6
 	setts[6]["EnemyDropshipUnitCount"] = 3
-	setts[6]["Interval"] = 35
-	setts[6]["InitialMiners"] = 3
-	setts[6]["MinersNeeded"] = 5
+	setts[6]["Interval"] = 25
+	setts[6]["InitialMiners"] = 2
+	setts[6]["MinersNeeded"] = 4
 	setts[6]["TimeToHold"] = 220
 	
 	self.MissionSettings = setts[self.MissionDifficulty]
 	self.MissionStart = self.Time
-	self.MissionLastReinforcements = self.Time + self.MissionSettings["Interval"] * 1.5
 	self.MissionAllySpawnInterval = 50
+	self.MissionLastReinforcements = self.Time + self.MissionAllySpawnInterval
 	self.MissionLastAllyReinforcements = self.Time - 1
 	
 	-- Use generic enemy set
@@ -118,6 +118,15 @@ function VoidWanderers:MissionUpdate()
 				end
 			end
 		end
+
+		-- If we don't have enough miners then show where you can find diggers
+		--[[if count <= self.MissionSettings["MinersNeeded"] then
+			for item in MovableMan.Items do
+				if item:IsInGroup("Diggers") then
+					self:AddObjectivePoint("GRAB", item + Vector(0,-30), CF_PlayerTeam, GameActivity.ARROWDOWN);				
+				end
+			end
+		end--]]--
 		
 		self.MissionStatus = "MINERS: "..count.."/"..self.MissionSettings["MinersNeeded"]
 
@@ -165,8 +174,12 @@ function VoidWanderers:MissionUpdate()
 			end
 		end
 		
+		if self.MissionEnoughMiners then
+			self.MissionLastAllyReinforcements = self.Time
+		end
+		
 		-- Send player reinforcements
-		if not self.MissionEnoughMiners and #self.MissionLZs > 0 and self.Time >= self.MissionLastAllyReinforcements + 20 and self.MissionSettings["AllyReinforcementsCount"] > 0 then
+		if not self.MissionEnoughMiners and #self.MissionLZs > 0 and self.Time >= self.MissionLastAllyReinforcements + self.MissionAllySpawnInterval and self.MissionSettings["AllyReinforcementsCount"] > 0 then
 			if MovableMan:GetMOIDCount() < CF_MOIDLimit then
 				--print ("Spawn ally")
 				self.MissionLastAllyReinforcements = self.Time
@@ -178,7 +191,14 @@ function VoidWanderers:MissionUpdate()
 				local f = CF_GetPlayerFaction(self.GS, self.MissionSourcePlayer)
 				local ship = CF_MakeActor(CF_Crafts[f] , CF_CraftClasses[f] , CF_CraftModules[f]);
 				if ship then
-					for i = 1, 2 do
+					local r 
+					if math.random() < 0.25 then
+						r = 2
+					else
+						r = 1
+					end
+				
+					for i = 1, r do
 						local actor = CF_SpawnAIUnitWithPreset(self.GS, self.MissionSourcePlayer, CF_PlayerTeam, nil, Actor.AIMODE_GOLDDIG, CF_PresetTypes.ENGINEER)
 						if actor then
 							ship:AddInventoryItem(actor)
@@ -193,9 +213,12 @@ function VoidWanderers:MissionUpdate()
 				end
 			end
 		end
-		
 	elseif self.MissionStage == self.MissionStages.COMPLETED then
 		self.MissionStatus = "MISSION COMPLETED"
+		if not self.MissionEndMusicPlayed then
+			self:StartMusic(CF_MusicTypes.VICTORY)
+			self.MissionEndMusicPlayed = true
+		end
 		
 		if self.Time < self.MissionStatusShowStart + CF_MissionResultShowInterval then
 			for p = 0, self.PlayerCount - 1 do
@@ -205,6 +228,10 @@ function VoidWanderers:MissionUpdate()
 		end
 	elseif self.MissionStage == self.MissionStages.FAILED then
 		self.MissionStatus = "MISSION FAILED"
+		if not self.MissionEndMusicPlayed then
+			self:StartMusic(CF_MusicTypes.DEFEAT)
+			self.MissionEndMusicPlayed = true
+		end
 		
 		if self.Time < self.MissionStatusShowStart + CF_MissionResultShowInterval then
 			for p = 0, self.PlayerCount - 1 do

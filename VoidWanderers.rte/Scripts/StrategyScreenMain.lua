@@ -9,6 +9,7 @@ function VoidWanderers:StartActivity()
 		CF_EnableKeyboardControls = true;
 	else
 		CF_EnableKeyboardControls = false;
+		print ("KEYBOARD MODE ENABLED")
 	end
 	
 	if self.IsInitialized == nil then
@@ -138,7 +139,14 @@ function VoidWanderers:StartActivity()
 	self.MousePressStartElement = nil;
 	self.MousePressEndElement = nil;
 	
-	self.IsInitialized = true	
+	self.IsInitialized = true
+	
+	if not CF_EnableKeyboardControls then
+		if self.brain:GetController():IsMouseControlled() == false then
+			CF_EnableKeyboardControls = true;
+			print ("KEYBOARD MODE ENABLED")
+		end
+	end
 end
 -----------------------------------------------------------------------------------------
 -- 
