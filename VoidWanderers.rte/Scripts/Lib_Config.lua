@@ -33,7 +33,7 @@ function CF_ReadFactionsList(filename, defaultpath)
 				local file = string.sub(s, 1, #s - 4)
 				local path = "./"..s.."/FactionFiles/UL2/"..file..".lua"
 				
-				if PresetMan:GetModuleID(s) then
+				if PresetMan:GetModuleID(s) > -1 then
 					if CF_IsFilePathExists(path) then
 						-- Add found .lua file if it exists
 						config[#config + 1] = path
@@ -61,7 +61,7 @@ function CF_ReadFactionsList(filename, defaultpath)
 						end
 					end
 				else
-					print ("ERR: MODULE "..s.." NOT LOADED, FACTION NOT AUTOLOADED")
+					print ("MSG: MODULE "..s.." NOT LOADED, FACTION NOT AUTOLOADED")
 				end
 			else
 				config[#config + 1] = defaultpath..s;

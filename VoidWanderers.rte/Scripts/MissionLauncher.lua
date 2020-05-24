@@ -32,6 +32,12 @@ function VoidWanderers:StartActivity()
 		dofile(LIB_PATH.."Panel_Bombs.lua");
 	end
 	
+	-- Check delta time and fix it to avoid problems with fonts
+	if TimerMan.DeltaTimeMS >= 25 then
+		print ("Incorrect delta time, fixed")
+		TimerMan.DeltaTimeSecs = 0.0166667
+	end
+	
 	SKIP_LIBRARIES = nil
 	
 	-- Load custom AI

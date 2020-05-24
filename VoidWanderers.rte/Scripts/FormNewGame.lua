@@ -10,7 +10,7 @@ function VoidWanderers:FormLoad()
 	el = {}
 	el["Type"] = self.ElementTypes.LABEL;
 	el["Preset"] = nil
-	el["Pos"] = self.Mid + Vector(0,-184)
+	el["Pos"] = self.Mid + Vector(0,-195)
 	el["Text"] = "START NEW GAME"
 	el["Width"] = 800;
 	el["Height"] = 100;
@@ -22,7 +22,7 @@ function VoidWanderers:FormLoad()
 	el = {}
 	el["Type"] = self.ElementTypes.LABEL;
 	el["Preset"] = nil
-	el["Pos"] = self.Mid + Vector(0,-174)
+	el["Pos"] = self.Mid + Vector(0,-184)
 	el["Text"] = "SELECT PLAYER FACTION"
 	el["Width"] = 800;
 	el["Height"] = 100;
@@ -45,7 +45,7 @@ function VoidWanderers:FormLoad()
 	el = {}
 	el["Type"] = self.ElementTypes.LABEL;
 	el["Preset"] = nil
-	el["Pos"] = self.Mid + Vector(0,-195)
+	el["Pos"] = self.Mid + Vector(0,-174)
 	el["Text"] = ""
 	el["Width"] = 400;
 	el["Height"] = 100;
@@ -136,8 +136,14 @@ function VoidWanderers:FormLoad()
 	self:RedrawFactionButtons();
 
 	for i = 1 , self.PlayableFactionCount do
-		CF_SpawnRandomInfantry(-1 , self.FactionButtons[i]["Pos"] , self.FactionButtons[i]["FactionId"] , Actor.AIMODE_SENTRY)
+		local actor = CF_SpawnRandomInfantry(-1 , self.FactionButtons[i]["Pos"] , self.FactionButtons[i]["FactionId"] , Actor.AIMODE_SENTRY)
+		if actor ~= nil then
+			actor:SetControllerMode(Controller.CIM_DISABLED,-1)
+			actor.HFlipped = false
+		end
 	end
+	
+	self.NoMOIDPlaceholders = {}
 	
 	
 	-- Interface logic
@@ -148,8 +154,10 @@ function VoidWanderers:FormLoad()
 	self.SelectedPlayerFaction = 0
 	self.SelectedPlayerAlly = 0
 	self.SelectedCPUFactions = {}
+	self.NoMOIDPlaceholders[0] = false
 	for i = 1, CF_MaxCPUPlayers do
 		self.SelectedCPUFactions[i] = 0
+		self.NoMOIDPlaceholders[i] = false
 	end
 	
 	-- Draw selection plates
@@ -282,7 +290,13 @@ function VoidWanderers:FormClick()
 
 			self.SelectedCPUFactions[self.Phase] = f
 			self.LblPhase["Text"] = "SELECT CPU "..self.Phase.." FACTION"
-			CF_SpawnRandomInfantry(-1 , self.SelectionButtons[self.Phase + 1]["Pos"] , self.FactionButtons[f]["FactionId"] , Actor.AIMODE_SENTRY)
+
+			local actor = CF_SpawnRandomInfantry(-1 , self.SelectionButtons[self.Phase + 1]["Pos"] , self.FactionButtons[f]["FactionId"] , Actor.AIMODE_SENTRY)
+			if actor == nil then
+				self.NoMOIDPlaceholders[self.Phase] = true
+			else
+				actor:SetControllerMode(Controller.CIM_DISABLED,-1)
+			end
 			self.Phase = self.Phase + 1
 		elseif self.Phase >= self.Phases.CPU1 and self.Phase < self.Phases.CPU8 then
 			local ok = true;
@@ -302,7 +316,12 @@ function VoidWanderers:FormClick()
 				end
 
 				
-				CF_SpawnRandomInfantry(-1 , self.SelectionButtons[self.Phase + 1]["Pos"] , self.FactionButtons[f]["FactionId"] , Actor.AIMODE_SENTRY)
+				local actor = CF_SpawnRandomInfantry(-1 , self.SelectionButtons[self.Phase + 1]["Pos"] , self.FactionButtons[f]["FactionId"] , Actor.AIMODE_SENTRY)
+				if actor == nil then
+					self.NoMOIDPlaceholders[self.Phase] = true
+				else
+					actor:SetControllerMode(Controller.CIM_DISABLED,-1)
+				end
 				self.Phase = self.Phase + 1
 			else
 				FrameMan:SetScreenText("ALL CPU FACTIONS MUST BE DIFFERENT", 0, 0, 3500, true);
@@ -320,7 +339,12 @@ function VoidWanderers:FormClick()
 				self.SelectedCPUFactions[self.Phase] = f
 				self.LblPhase["Text"] = "PRESS OK TO START NEW GAME"
 
-				CF_SpawnRandomInfantry(-1 , self.SelectionButtons[self.Phase + 1]["Pos"] , self.FactionButtons[f]["FactionId"] , Actor.AIMODE_SENTRY)
+				local actor = CF_SpawnRandomInfantry(-1 , self.SelectionButtons[self.Phase + 1]["Pos"] , self.FactionButtons[f]["FactionId"] , Actor.AIMODE_SENTRY)
+				if actor == nil then
+					self.NoMOIDPlaceholders[self.Phase] = true
+				else
+					actor:SetControllerMode(Controller.CIM_DISABLED,-1)
+				end
 				self.Phase = self.Phase + 1			
 			else
 				FrameMan:SetScreenText("ALL CPU FACTIONS MUST BE DIFFERENT", 0, 0, 3500, true);
@@ -354,6 +378,16 @@ function VoidWanderers:FormUpdate()
 			self.LblFactionName["Text"] = string.upper(self.FactionButtons[f]["FactionName"]);
 		end
 		self.LastMouseOver = f;
+	end
+	
+	-- Print out of MOID warning
+	for i = 0, CF_MaxCPUPlayers do
+		if self.NoMOIDPlaceholders[i] then
+			local s = "No MOIDs"
+			local l = CF_GetStringPixelWidth(s)
+		
+			CF_DrawString(s, self.SelectionButtons[i + 1]["Pos"] +Vector( -l / 2 ,0), 100 , 100)
+		end
 	end
 end
 -----------------------------------------------------------------------------------------

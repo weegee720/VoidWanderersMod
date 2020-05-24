@@ -239,6 +239,7 @@ function CF_SpawnRandomInfantry(team , pos , faction , aimode)
 			if pos ~= nil then
 				actor.Pos = pos;
 				MovableMan:AddActor(actor);
+				return actor
 			else
 				return actor
 			end
