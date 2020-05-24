@@ -103,8 +103,21 @@ CF_MissionName[id] = "Hold position"
 CF_MissionScript[id] = "VoidWanderers.rte/Scripts/Mission_Defend.lua"
 CF_MissionMinReputation[id] = 1000
 CF_MissionBriefingText[id] = "Assist allied troops and protect the base from incoming enemies."
-CF_MissionGoldRewardPerDifficulty[id] = 1250
+CF_MissionGoldRewardPerDifficulty[id] = 1400
 CF_MissionReputationRewardPerDifficulty[id] = 210
+CF_MissionMaxSets[id] = 6
+CF_MissionRequiredData[id] = {}
+
+-- Uses: Ambient, Zombies
+local id = "Destroy"
+CF_Mission[#CF_Mission + 1] = id
+
+CF_MissionName[id] = "Destroy"
+CF_MissionScript[id] = "VoidWanderers.rte/Scripts/Mission_Destroy.lua"
+CF_MissionMinReputation[id] = 1150
+CF_MissionBriefingText[id] = "Locate and destroy enemy data relays."
+CF_MissionGoldRewardPerDifficulty[id] = 1300
+CF_MissionReputationRewardPerDifficulty[id] = 215
 CF_MissionMaxSets[id] = 6
 CF_MissionRequiredData[id] = {}
 

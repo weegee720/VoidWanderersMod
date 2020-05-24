@@ -3,7 +3,7 @@
 --				the base box
 --	Set used: 	Enemy
 --	Events: 	AI will send a few dropships with troops depending on mission difficulty. If CPU
---				will be unable to deploy forces due to MOID limit, then fire beam weapon until 
+--				will be unable to deploy forces due to MOID limit, then it will fire beam weapon until 
 --				there are enough MOIDs to start assault
 --
 -----------------------------------------------------------------------------------------
@@ -72,7 +72,7 @@ function VoidWanderers:MissionCreate()
 	
 	CF_CreateAIUnitPresets(self.GS, self.MissionSourcePlayer , CF_GetTechLevelFromDifficulty(self.GS, self.MissionSourcePlayer, self.MissionAllyDifficulty, CF_MaxDifficulty))
 	
-	-- Remove all non-player doors
+	-- Remove all non-player doors, because allied units will be deployed inside CPU bases
 	if CF_LocationRemoveDoors[self.GS["Location"]] ~= nil and CF_LocationRemoveDoors[self.GS["Location"]] == true then
 		for actor in MovableMan.Actors do
 			if actor.Team ~= CF_PlayerTeam and actor.ClassName == "ADoor" then
@@ -87,7 +87,7 @@ function VoidWanderers:MissionCreate()
 	self:DeployGenericMissionEnemies(set, "Enemy", self.MissionSourcePlayer, CF_PlayerTeam, self.MissionSettings["SpawnRate"])
 	
 	-- DEBUG Clear deployment table to disable ally spawn
-	self.SpawnTable = nil
+	--self.SpawnTable = nil
 	
 	self.MissionStages = {ACTIVE = 0, COMPLETED = 1, FAILED = 2}
 	self.MissionStage = self.MissionStages.ACTIVE
@@ -97,6 +97,9 @@ function VoidWanderers:MissionCreate()
 	self.MissionParticleCannonLastShot = self.Time
 	self.MissionParticleCannonInterval = 6
 	self.SuperWeaponInitialized = false
+	
+	self.BaseEffectTimer = Timer();
+	self.BaseEffectTimer:Reset()
 end
 -----------------------------------------------------------------------------------------
 --
@@ -142,25 +145,22 @@ function VoidWanderers:MissionUpdate()
 			self.MissionLastReinforcements = self.Time + self.MissionSettings["Interval"] * 1.5
 		end
 			
-		if not self.MissionReinforcementsTriggered then
+		if not self.MissionReinforcementsTriggered or count < 2 then
 			-- If nobody was spawned at the base then show player where to go and what to defend
 			for i = 1, #self.MissionBase do
-				if self.Time % (i + 1) == 0 then
-					local x1 = self.MissionBase[i].Corner.X
-					local y1 = self.MissionBase[i].Corner.Y
-					local x2 = x1 + self.MissionBase[i].Width
-					local y2 = y1 + self.MissionBase[i].Width
-					
-					local cx = self.MissionBase[i].Center.X
-					local cy = self.MissionBase[i].Center.Y
-				
-					self:AddObjectivePoint("DEFEND BASE", Vector(cx, y1), CF_PlayerTeam, GameActivity.ARROWDOWN);
-					self:AddObjectivePoint("DEFEND BASE", Vector(cx, y2), CF_PlayerTeam, GameActivity.ARROWUP);
-
-					self:AddObjectivePoint("DEFEND BASE", Vector(x1, cy), CF_PlayerTeam, GameActivity.ARROWRIGHT);
-					self:AddObjectivePoint("DEFEND BASE", Vector(x2, cy), CF_PlayerTeam, GameActivity.ARROWLEFT);
-				end
+				self:AddObjectivePoint("DEFEND BASE", self.MissionBase[i].Center, CF_PlayerTeam, GameActivity.ARROWDOWN);
 			end
+			
+			if self.BaseEffectTimer:IsPastSimMS(25) then
+				-- Create particle
+				for i = 1, #self.MissionBase do
+					local p = CreateMOSParticle("Tiny Static Blue Glow", self.ModuleName)
+					p.Pos = self.MissionBase[i]:GetRandomPoint()
+					MovableMan:AddParticle(p)
+				end
+				self.BaseEffectTimer:Reset()
+			end					
+			
 		end--]]--
 		
 		self.MissionStatus = "Dropships: "..self.MissionSettings["Reinforcements"]

@@ -488,7 +488,7 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 					for i = 1, #self.Clones[self.SelectedClone]["Items"] do
 						if self.ClonesControlMode == self.ClonesControlPanelModes.INVENTORY and self.ClonesInventorySelectedItem == i then
 							CF_DrawString("> "..self.Clones[self.SelectedClone]["Items"][i]["Preset"], pos + Vector(-141 + 12,-40) + Vector(0, (i - 1) * 12), 120, 10)
-							self.ClonesControlPanelModesTexts[self.ClonesControlPanelModes.INVENTORY] = self.Clones[self.SelectedClone]["Items"][i]["Preset"] .. " [ Inventory ]"
+							self.ClonesControlPanelModesTexts[self.ClonesControlPanelModes.INVENTORY] = self.Clones[self.SelectedClone]["Items"][i]["Preset"] .. " - Inventory"
 						else
 							CF_DrawString(self.Clones[self.SelectedClone]["Items"][i]["Preset"], pos + Vector(-141 + 12,-40) + Vector(0, (i - 1) * 12), 120, 10)
 						end
@@ -506,7 +506,7 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 						
 						if self.ClonesControlMode == self.ClonesControlPanelModes.ITEMS and self.ClonesStorageSelectedItem == i then
 							CF_DrawString("> "..self.StorageItems[itm]["Preset"], pos + Vector(12,-40) + Vector(0, (loc) * 12), 110, 10)
-							self.ClonesControlPanelModesTexts[self.ClonesControlPanelModes.ITEMS] = self.StorageItems[itm]["Preset"] .. " [ Items ]"
+							self.ClonesControlPanelModesTexts[self.ClonesControlPanelModes.ITEMS] = self.StorageItems[itm]["Preset"] .. " - Items"
 
 						else
 							CF_DrawString(self.StorageItems[itm]["Preset"], pos + Vector(12,-40) + Vector(0, (loc) * 12), 110, 10)
