@@ -301,10 +301,11 @@ function VoidWanderers:FormClick()
 					self.BtnOk["Visible"] = true
 				end
 
-				FrameMan:SetScreenText("ALL CPU FACTIONS MUST BE DIFFERENT", 0, 0, 3500, true);
 				
 				CF_SpawnRandomInfantry(-1 , self.SelectionButtons[self.Phase + 1]["Pos"] , self.FactionButtons[f]["FactionId"] , Actor.AIMODE_SENTRY)
 				self.Phase = self.Phase + 1
+			else
+				FrameMan:SetScreenText("ALL CPU FACTIONS MUST BE DIFFERENT", 0, 0, 3500, true);
 			end
 		elseif self.Phase == self.Phases.CPU8 then
 			self.SelectedCPUFactions[self.Phase] = f

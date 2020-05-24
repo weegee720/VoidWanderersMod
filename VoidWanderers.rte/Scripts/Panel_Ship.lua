@@ -404,7 +404,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				CF_DrawString("MISSION REPORT", pos + Vector(-34,-60), 262, 141)
 
 				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,78))
-				CF_DrawString("Press FIRE to save game", pos + Vector(-60,77), 262, 141)
+				CF_DrawString("Press DOWN to save game", pos + Vector(-60,77), 262, 141)
 				
 				for i = 1, CF_MaxMissionReportLines do
 					if self.GS["MissionReport"..i] ~= nil then
@@ -414,21 +414,17 @@ function VoidWanderers:ProcessShipControlPanelUI()
 					end
 				end
 				
-				if cont:IsState(Controller.WEAPON_FIRE) then
-					if not self.FirePressed then
-						self.FirePressed = true;
-						
-						self:SaveActors()
-						self:SaveCurrentGameState()
-						
-						self:LaunchScript("VoidWanderers Strategy Screen", "StrategyScreenMain.lua")
-						FORM_TO_LOAD = BASE_PATH.."FormSave.lua"
-						self.EnableBrainSelection = false
-						self:DestroyConsoles()
-						return
-					end
-				else
-					self.FirePressed = false
+				if cont:IsState(Controller.PRESS_DOWN) then
+					self.FirePressed = true;
+					
+					self:SaveActors()
+					self:SaveCurrentGameState()
+					
+					self:LaunchScript("VoidWanderers Strategy Screen", "StrategyScreenMain.lua")
+					FORM_TO_LOAD = BASE_PATH.."FormSave.lua"
+					self.EnableBrainSelection = false
+					self:DestroyConsoles()
+					return
 				end
 			end
 ---------------------------------------------------------------------------------------------------

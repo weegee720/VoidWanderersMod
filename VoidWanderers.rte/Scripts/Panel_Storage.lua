@@ -203,7 +203,7 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 					if f ~= nil and i ~= nil then
 						self.StorageSelectedItemDescription = CF_ItmDescriptions[f][i]
 						self.StorageSelectedItemManufacturer = CF_FactionNames[f]
-						self.StorageSelectedItemPrice =  math.ceil(CF_ItmPrices[f][i] * CF_SellPriceCoeff)
+						self.StorageSelectedItemPrice =  math.floor(CF_ItmPrices[f][i] * CF_SellPriceCoeff)
 					else
 						self.StorageSelectedItemDescription = "Unknown item"
 						self.StorageSelectedItemManufacturer = "Unknown"

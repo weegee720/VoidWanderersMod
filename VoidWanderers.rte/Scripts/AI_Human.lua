@@ -60,7 +60,7 @@ HumanBehaviors = Custom_HumanBehaviors
 
 function RevealUnseenWhenShooting(Owner)
 	if CF_FogOfWarEnabled then
-		print ("Fire")
+		--print ("Fire")
 		for x = -2, 2 do
 			for y = -2, 2 do
 				SceneMan:RevealUnseen(Owner.Pos.X - x * CF_FogOfWarResolution, Owner.Pos.Y - y * CF_FogOfWarResolution, CF_PlayerTeam)

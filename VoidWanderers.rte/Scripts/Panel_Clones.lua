@@ -116,6 +116,16 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 					if self.ClonesControlMode == -1 then
 						self.ClonesControlMode = 0
 					end
+					
+					if self.SelectedClone > 0 then 
+						if #self.Clones[self.SelectedClone]["Items"] < self.ClonesInventorySelectedItem then
+							self.ClonesInventorySelectedItem = #self.Clones[self.SelectedClone]["Items"]
+						end
+						
+						if self.ClonesInventorySelectedItem < 1 and #self.Clones[self.SelectedClone]["Items"] > 0 then
+							self.ClonesInventorySelectedItem = 1
+						end
+					end
 				end	
 
 				if cont:IsState(Controller.PRESS_RIGHT) then
@@ -123,6 +133,16 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 					
 					if self.ClonesControlMode == 4 then
 						self.ClonesControlMode = 3
+					end
+					
+					if self.SelectedClone > 0 then 
+						if #self.Clones[self.SelectedClone]["Items"] < self.ClonesInventorySelectedItem then
+							self.ClonesInventorySelectedItem = #self.Clones[self.SelectedClone]["Items"]
+						end
+						
+						if self.ClonesInventorySelectedItem < 1 and #self.Clones[self.SelectedClone]["Items"] > 0 then
+							self.ClonesInventorySelectedItem = 1
+						end
 					end
 				end
 			end
@@ -174,9 +194,13 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 							-- Calculate actor price
 							local fact, indx = CF_FindActorInFactions(self.Clones[i]["Preset"], self.Clones[i]["Class"])
 							if fact ~= nil and indx ~= nil then
-								self.SelectedClonePrice = self.SelectedClonePrice + CF_ActPrices[fact][indx]
+								self.SelectedClonePrice = self.SelectedClonePrice + math.floor(CF_ActPrices[fact][indx] * CF_SellPriceCoeff)
 							else
 								self.SelectedClonePrice = CF_UnknownActorPrice
+							end
+							
+							if self.ClonesControlMode == self.ClonesControlPanelModes.SELL then
+								CF_DrawString(tostring(self.SelectedClonePrice).."oz", pos + Vector(-20,-40) + Vector(0, (loc) * 12), 120, 10)
 							end
 						else
 							CF_DrawString(self.Clones[i]["Preset"], pos + Vector(-130,-40) + Vector(0, (loc) * 12), 120, 10)
@@ -194,8 +218,7 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 						local price
 						local fact, indx = CF_FindItemInFactions(self.Clones[self.SelectedClone]["Items"][i]["Preset"], self.Clones[self.SelectedClone]["Items"][i]["Class"])
 						if fact ~= nil and indx ~= nil then
-							
-							price = CF_ItmPrices[fact][indx]
+							price = math.floor(CF_ItmPrices[fact][indx] * CF_SellPriceCoeff)
 						else
 							price = CF_UnknownItemPrice
 						end
@@ -204,7 +227,7 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 						local prefix = ""
 						if self.ClonesControlMode == self.ClonesControlPanelModes.SELL then
 							if self.GS["Planet"] == "TradeStar" and self.GS["Location"] ~= nil then
-								prefix = tostring(math.ceil(price * CF_SellPriceCoeff)).."oz "
+								prefix = tostring(price).."oz "
 							end
 						end
 
@@ -212,8 +235,6 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 					end
 				end
 
-				self.SelectedClonePrice = math.ceil(self.SelectedClonePrice * CF_SellPriceCoeff)
-				
 				if self.ClonesControlMode == self.ClonesControlPanelModes.SELL then
 					if self.GS["Planet"] == "TradeStar" and self.GS["Location"] ~= nil then
 						CF_DrawString("Sell price: "..self.SelectedClonePrice, pos + Vector(12,60) , 300, 10)
@@ -333,7 +354,6 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 				end
 			end
 
-
 			-- Inventory list screen
 			if self.ClonesControlMode == self.ClonesControlPanelModes.INVENTORY then		
 				if cont:IsState(Controller.WEAPON_FIRE) then
@@ -342,23 +362,13 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 						
 						if self.SelectedClone > 0 and CF_CountUsedStorageInArray(self.StorageItems) < tonumber(self.GS["Player0VesselStorageCapacity"]) and #self.Clones[self.SelectedClone]["Items"] > 0 then
 							-- Put item to storage array
-							-- Find item in storage array
-							local found = 0
-							
-							for i = 1, #self.StorageItems do
-								if self.StorageItems[i]["Preset"] == self.Clones[self.SelectedClone]["Items"][self.ClonesInventorySelectedItem]["Preset"] then
-									found = i
-								end
-							end
-							
-							if found == 0 then
-								found = #self.StorageItems + 1
-								self.StorageItems[found] = {}
-								self.StorageItems[found]["Count"] = 1
-								self.StorageItems[found]["Preset"] = self.Clones[self.SelectedClone]["Items"][self.ClonesInventorySelectedItem]["Preset"]
-								self.StorageItems[found]["Class"] = self.Clones[self.SelectedClone]["Items"][self.ClonesInventorySelectedItem]["Class"]
-							else
-								self.StorageItems[found]["Count"] = self.StorageItems[found]["Count"] + 1
+							local needrefresh = CF_PutItemToStorageArray(self.StorageItems, self.Clones[self.SelectedClone]["Items"][self.ClonesInventorySelectedItem]["Preset"], self.Clones[self.SelectedClone]["Items"][self.ClonesInventorySelectedItem]["Class"])
+
+							CF_SetStorageArray(self.GS, self.StorageItems)
+
+							-- Refresh storage items array and filters
+							if needrefresh then
+								self.StorageItems, self.StorageFilters = CF_GetStorageArray(self.GS, true)							
 							end
 							
 							-- Remove item from inventory via temp array
@@ -379,10 +389,6 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 							self.Clones[self.SelectedClone]["Items"] = inv
 							
 							CF_SetClonesArray(self.GS, self.Clones)
-							CF_SetStorageArray(self.GS, self.StorageItems)
-							
-							-- Refresh storage items array and filters
-							self.StorageItems, self.StorageFilters = CF_GetStorageArray(self.GS, true)							
 						end
 					end
 				else

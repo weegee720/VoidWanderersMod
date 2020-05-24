@@ -605,13 +605,13 @@ function VoidWanderers:UpdateActivity()
 		-- Auto heall all actors when not in combat
 		if not self.OverCrowded then
 			for actor in MovableMan.Actors do
-				if self.Ship:IsInside(actor.Pos) then
+				if actor.Health > 0 and actor.Team == CF_PlayerTeam and self.Ship:IsInside(actor.Pos) then
 					actor.Health = 100
 				end
 			end
 		else
 			FrameMan:ClearScreenText(0);
-			FrameMan:SetScreenText("LIFE SUPPORT OVERLOADED\nSTORE OR GET RID OF SOME BODIES", 0, 0, 1000, true);
+			FrameMan:SetScreenText("LIFE SUPPORT OVERLOADED\nSTORE OR DUMP SOME BODIES", 0, 0, 1000, true);
 		end
 		
 		-- Show assault warning
@@ -816,6 +816,27 @@ function VoidWanderers:UpdateActivity()
 		
 		if self.MissionUpdate ~= nil then
 			self:MissionUpdate()
+		end
+		
+		-- Make actors glitch if there are too many of them
+		local count = 0;
+		for actor in MovableMan.Actors do
+			if actor.Team == team and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") then
+				count = count + 1
+			end
+
+			if self.Time % 2 == 0 and count > tonumber(self.GS["Player0VesselCommuncation"]) then
+				local cont = actor:GetController();
+				if cont ~= nil then
+					if cont:IsState(Controller.WEAPON_FIRE) then
+						cont:SetState(Controller.WEAPON_FIRE, false)
+					else
+						cont:SetState(Controller.WEAPON_FIRE, true)
+					end
+				end
+				
+				self:AddObjectivePoint("CONNECTION LOST", actor.AboveHUDPos , CF_PlayerTeam, GameActivity.ARROWUP);
+			end
 		end
 	end
 	
