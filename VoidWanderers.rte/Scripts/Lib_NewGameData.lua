@@ -140,9 +140,13 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 			config["Player".. i .."Type"] = "CPU"
 			
 			if config["Player".. i .."Faction"] == config["Player".. 0 .."Faction"] then
-				config["Player".. i .."Reputation"] = 500
+				config["Player".. i .."Reputation"] = 650
 			else
-				config["Player".. i .."Reputation"] = 0
+				if CF_FactionNatures[config["Player0Faction"]] ~= CF_FactionNatures[config["Player"..i.."Faction"]] then
+					config["Player".. i .."Reputation"] = math.ceil(-1000 * CF_SynthetsToOrganicRatio )
+				else
+					config["Player".. i .."Reputation"] = 0
+				end
 			end
 			
 			activecpus = activecpus + 1
@@ -156,7 +160,7 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 	config["ActiveCPUs"] = activecpus
 	-- Give tha last CPU worst reputation
 	-- Debug
-	config["Player".. activecpus .."Reputation"] = -500
+	--config["Player".. activecpus .."Reputation"] = -500
 	
 	return config;
 end

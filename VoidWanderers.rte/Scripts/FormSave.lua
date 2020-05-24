@@ -38,6 +38,7 @@ function VoidWanderers:FormLoad()
 				self.Slots[i]["Faction"] = CF_FactionNames[config["Player0Faction"]];
 				self.Slots[i]["Gold"] = config["Player0Gold"];
 				self.Slots[i]["Time"] = config["Time"];
+				self.Slots[i]["Planet"] = CF_PlanetName[ config["Planet"] ]
 				self.Slots[i]["TimeStamp"] = config["TimeStamp"];
 				self.Slots[i]["Empty"] = false;
 			else
@@ -91,6 +92,16 @@ function VoidWanderers:FormLoad()
 		
 		self.UI[#self.UI + 1] = el;
 
+		el = {}
+		el["Type"] = self.ElementTypes.LABEL;
+		el["Preset"] = nil
+		el["Pos"] = self.UI[i]["Pos"] + Vector(0, -5)
+		el["Text"] = self.Slots[i]["Planet"]
+		el["Width"] = 180;
+		el["Height"] = 70;
+		
+		self.UI[#self.UI + 1] = el;		
+		
 		--print(self.Slots[i]["Empty"])
 		
 		if not self.Slots[i]["Empty"] then

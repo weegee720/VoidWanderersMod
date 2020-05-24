@@ -276,24 +276,41 @@ function VoidWanderers:FormClick()
 	if f ~= nil then
 		if self.Phase == self.Phases.PLAYER then
 			self.SelectedPlayerFaction = f;
-			self.LblPhase["Text"] = "SELECT CPU "..self.Phase.." FACTION"
 			
 			CF_SpawnRandomInfantry(-1 , self.SelectionButtons[1]["Pos"] , self.FactionButtons[f]["FactionId"] , Actor.AIMODE_SENTRY)
-		elseif self.Phase >= self.Phases.CPU1 and self.Phase < self.Phases.CPU8 then
+			self.Phase = self.Phase + 1
+
 			self.SelectedCPUFactions[self.Phase] = f
 			self.LblPhase["Text"] = "SELECT CPU "..self.Phase.." FACTION"
-			self.BtnOk["Visible"] = true
-
 			CF_SpawnRandomInfantry(-1 , self.SelectionButtons[self.Phase + 1]["Pos"] , self.FactionButtons[f]["FactionId"] , Actor.AIMODE_SENTRY)
+			self.Phase = self.Phase + 1
+		elseif self.Phase >= self.Phases.CPU1 and self.Phase < self.Phases.CPU8 then
+			local ok = true;
+			
+			for i = 1, self.Phase do
+				if self.SelectedCPUFactions[i] == f then
+					ok = false
+				end
+			end
+			
+			if ok then
+				self.SelectedCPUFactions[self.Phase] = f
+				self.LblPhase["Text"] = "SELECT CPU "..self.Phase.." FACTION"
+				
+				if self.Phase >= self.Phases.CPU3 then
+					self.BtnOk["Visible"] = true
+				end
+
+				FrameMan:SetScreenText("ALL CPU FACTIONS MUST BE DIFFERENT", 0, 0, 3500, true);
+				
+				CF_SpawnRandomInfantry(-1 , self.SelectionButtons[self.Phase + 1]["Pos"] , self.FactionButtons[f]["FactionId"] , Actor.AIMODE_SENTRY)
+				self.Phase = self.Phase + 1
+			end
 		elseif self.Phase == self.Phases.CPU8 then
 			self.SelectedCPUFactions[self.Phase] = f
 			self.LblPhase["Text"] = "PRESS OK TO START NEW GAME"
 
 			CF_SpawnRandomInfantry(-1 , self.SelectionButtons[self.Phase + 1]["Pos"] , self.FactionButtons[f]["FactionId"] , Actor.AIMODE_SENTRY)
-		end
-		
-		if self.Phase <= self.Phases.CPU8 then
-			self.Phase = self.Phase + 1
 		end
 	end
 end

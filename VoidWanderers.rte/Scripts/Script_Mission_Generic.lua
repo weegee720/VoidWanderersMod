@@ -2,6 +2,19 @@
 --	Generic mission script which is executed when no mission assigned and when no other
 --	default script is specified for location
 -----------------------------------------------------------------------------------------
+--	Generic events:
+--
+--	Periodically script will spawn a dropship with 1-3 units based on scene difficulty level. 
+-- 	Units will try to protect their own miners or if there's no any will try to find and kill
+--	enemy miners.
+--
+--	Difficulty 2+:
+--
+--	Rarely script will spawn a dropship with 3 units of the mest agressive CPU player which
+--	will switch to brain hunt mode. If custom AI is enabled the will search and destroy any 
+--	enemy actors, if not they will probably move to player LZ's since they are brain units
+--
+-----------------------------------------------------------------------------------------
 function VoidWanderers:MissionCreate()
 	-- Spawn random wandering enemies
 	local set = CF_GetRandomMissionPointsSet(self.Pts, "Deploy")	
@@ -21,9 +34,6 @@ function VoidWanderers:MissionCreate()
 		pret = math.random(tonumber(self.GS["ActiveCPUs"]))
 	end
 	p2 = pret
-	
-	--print (p1)
-	--print (p2)
 
 	local diff = CF_MaxDifficulty
 	local sec
@@ -41,7 +51,12 @@ function VoidWanderers:MissionCreate()
 		diff = CF_MaxDifficulty
 	end
 	
+	if diff < 1 then
+		diff = 1
+	end
+	
 	self.MissionDifficulty = diff
+	print ("DIFF: "..self.MissionDifficulty)
 	
 	CF_CreateAIUnitPresets(self.GS, p1, CF_GetTechLevelFromDifficulty(self.GS, p1, diff, CF_MaxDifficulty))
 	CF_CreateAIUnitPresets(self.GS, p2, CF_GetTechLevelFromDifficulty(self.GS, p2, diff, CF_MaxDifficulty))
@@ -105,7 +120,7 @@ function VoidWanderers:MissionCreate()
 		if self.AngriestPlayer ~= p1 and self.AngriestPlayer ~= p2 then
 			self.AngriestDifficulty = math.floor(math.abs(rep) / 1000)
 			
-			if self.AngriestDifficulty < 0 then
+			if self.AngriestDifficulty < 1 then
 				self.AngriestDifficulty = 1
 			end
 
@@ -114,6 +129,7 @@ function VoidWanderers:MissionCreate()
 			end
 			
 			CF_CreateAIUnitPresets(self.GS, self.AngriestPlayer, CF_GetTechLevelFromDifficulty(self.GS, self.AngriestPlayer, self.AngriestDifficulty, CF_MaxDifficulty))
+			print ("TEAM 2: "..CF_GetPlayerFaction(self.GS, self.AngriestPlayer).." - "..self.AngriestDifficulty)
 		else
 			self.AngriestPlayer = nil
 		end
@@ -123,6 +139,9 @@ function VoidWanderers:MissionCreate()
 	
 	self.MissionNextDropShip2 = self.Time + CF_AmbientReinforcementsInterval * 2.5
 	--self.MissionNextDropShip2 = self.Time + 10 -- Debug
+	
+	print ("TEAM 3: "..CF_GetPlayerFaction(self.GS, p1))
+	print ("TEAM 4: "..CF_GetPlayerFaction(self.GS, p2))
 end
 -----------------------------------------------------------------------------------------
 --
@@ -171,7 +190,7 @@ function VoidWanderers:MissionUpdate()
 	end
 	
 	-- Spawn green team dropship
-	if self.AngriestPlayer ~= nil and self.Time > self.MissionNextDropShip2 and #self.MissionLZs > 0 then
+	if self.MissionDifficulty >= 2 and self.AngriestPlayer ~= nil and self.Time > self.MissionNextDropShip2 and #self.MissionLZs > 0 then
 		self.MissionNextDropShip2 = self.Time + (CF_AmbientReinforcementsInterval + math.random(13)) * 2.75
 		
 		if MovableMan:GetMOIDCount() < CF_MOIDLimit then

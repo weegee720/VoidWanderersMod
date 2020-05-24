@@ -59,6 +59,7 @@ function VoidWanderers:FormLoad()
 				self.Slots[i]["Gold"] = config["Player0Gold"];
 				self.Slots[i]["Time"] = config["Time"];
 				self.Slots[i]["Reason"] = reason
+				self.Slots[i]["Planet"] = CF_PlanetName[ config["Planet"] ]
 				self.Slots[i]["TimeStamp"] = config["TimeStamp"];
 				self.Slots[i]["Empty"] = false;
 			else
@@ -117,6 +118,16 @@ function VoidWanderers:FormLoad()
 		el["Preset"] = nil
 		el["Pos"] = self.UI[i]["Pos"] + Vector(0, -15)
 		el["Text"] = self.Slots[i]["Reason"]
+		el["Width"] = 180;
+		el["Height"] = 70;
+		
+		self.UI[#self.UI + 1] = el;
+
+		el = {}
+		el["Type"] = self.ElementTypes.LABEL;
+		el["Preset"] = nil
+		el["Pos"] = self.UI[i]["Pos"] + Vector(0, -5)
+		el["Text"] = self.Slots[i]["Planet"]
 		el["Width"] = 180;
 		el["Height"] = 70;
 		
