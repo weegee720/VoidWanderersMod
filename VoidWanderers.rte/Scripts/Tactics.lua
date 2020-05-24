@@ -46,6 +46,7 @@ function VoidWanderers:StartActivity()
 	if self.GS["WasReset"] == "True" then
 		self.GS["Mode"] = "Vessel"
 		self.GS["SceneType"] = "Vessel"
+		self.GS["WasReset"] = nil
 	end
 
 	self.AlliedUnits = nil
@@ -193,6 +194,12 @@ function VoidWanderers:StartActivity()
 				end
 			end
 		end
+		
+		-- If we'er on temp-location then cancel this location
+		if CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.TEMPLOCATION) then
+			self.GS["Location"] = nil
+		end
+		
 		self.DeployedActors = nil
 		self:SaveCurrentGameState()
 	end
@@ -939,7 +946,7 @@ function VoidWanderers:UpdateActivity()
 	if self.GS["Mode"] == "Vessel" and self.FlightTimer:IsPastSimMS(CF_FlightTickInterval) then
 		self.FlightTimer:Reset()
 		-- Fly to new location
-		if self.GS["Destination"] ~= nil and self.Time > self.AssaultTime and self.RandomEncounterID == nil then
+		if self.GS["Destination"] ~= nil and self.GS["Location"] == nil and self.Time > self.AssaultTime and self.RandomEncounterID == nil then
 			-- Move ship
 			local dx = tonumber(self.GS["DestX"])
 			local dy = tonumber(self.GS["DestY"])
@@ -1479,11 +1486,11 @@ function VoidWanderers:GiveMissionRewards()
 	
 	local levelup = false;
 
-	if self.GS["BrainsOnMission"] then
+	if self.GS["BrainsOnMission"] == "True" then
 		for p = 0, 3 do
-			local curexp = self.GS["Brain"..p.."Exp"]
-			local cursklpts = self.GS["Brain"..p.."SkillPoints"]
-			local curlvl = self.GS["Brain"..p.."Level"]
+			local curexp = tonumber(self.GS["Brain"..p.."Exp"])
+			local cursklpts = tonumber(self.GS["Brain"..p.."SkillPoints"])
+			local curlvl = tonumber(self.GS["Brain"..p.."Level"])
 			
 			curexp = curexp + exppts
 			

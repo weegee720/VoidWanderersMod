@@ -239,12 +239,14 @@ CF_LocationPos[id] = Vector(0,0)
 CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = false
 CF_LocationScenes[id] = {"Abandoned Titan Vessel"}
-CF_LocationScript[id] = {"VoidWanderers.rte/Scripts/Mission_AbandonedVessel_Faction.lua"}
+CF_LocationScript[id] = {"VoidWanderers.rte/Scripts/Mission_AbandonedVessel_Faction.lua", "VoidWanderers.rte/Scripts/Mission_AbandonedVessel_Zombies.lua"}
+--CF_LocationScript[id] = {"VoidWanderers.rte/Scripts/Mission_AbandonedVessel_Faction.lua"} -- DEBUG
+--CF_LocationScript[id] = {"VoidWanderers.rte/Scripts/Mission_AbandonedVessel_Zombies.lua"} -- DEBUG
 CF_LocationAmbientScript[id] = "VoidWanderers.rte/Scripts/Ambient_Smokes.lua"
 CF_LocationPlanet[id] = ""
 CF_LocationPlayable[id] = true
 CF_LocationMissions[id] = {"Assassinate", "Zombies"}
-CF_LocationAttributes[id] = {CF_LocationAttributeTypes.VESSEL, CF_LocationAttributeTypes.NOTMISSIONASSIGNABLE, CF_LocationAttributeTypes.ALWAYSUNSEEN}
+CF_LocationAttributes[id] = {CF_LocationAttributeTypes.VESSEL, CF_LocationAttributeTypes.NOTMISSIONASSIGNABLE, CF_LocationAttributeTypes.ALWAYSUNSEEN, CF_LocationAttributeTypes.TEMPLOCATION}
 
 local id = "ABANDONED_VESSEL_GENERIC";
 CF_RandomEncounters[#CF_RandomEncounters + 1] = id
@@ -273,7 +275,6 @@ function (self, variant)
 
 	if variant == 1 then
 		self.GS["Location"] = self.AbandonedVesselLocation
-		self.GS["Destination"] = nil
 		
 		self.MissionReport = {}
 		self.MissionReport[#self.MissionReport + 1] = "Deploy your away team to the abandoned ship."
@@ -285,13 +286,18 @@ function (self, variant)
 	
 	if variant == 2 then
 		local devices = {"a zrbite reactor", "an elerium reactor", "a solar panel", "a warp projector", "an observation lens", "a hangar door", "a dust filter", "a neutrino collector", "a Higgs boson detector", "a microwave heater"}
-		if math.random() < 10.1 then
+		if math.random() < 0.125 then
 			local losstext
 			local r = math.random(5)
 			
 			for p = 0 , self.PlayerCount - 1 do
 				FrameMan:FlashScreen(p, 13, 1000)
 			end
+			
+			local charge = CreateMOSRotating("Explosion Sound "..math.random(10))
+			charge.Pos = self.ShipControlPanelPos
+			MovableMan:AddParticle(charge)
+			charge:GibThis();
 			
 			if r == 1 then
 				-- Destroy stored clone if any

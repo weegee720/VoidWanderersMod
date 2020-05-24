@@ -213,7 +213,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				
 				CF_DrawString("U/D - Select location, FIRE - Fly", pos + Vector(-62-71, 78), 270, 40)
 				
-				local shippos = Vector(0,0)
+				--local shippos = Vector(0,0)
 				
 				-- Select green current location preset if we're on mission location
 				local msn = false
@@ -232,7 +232,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 					shippreset = "ControlPanel_Ship_CurrentMissionLocation"
 				end
 				
-				if self.GS["Destination"] ~= nil then
+				--if self.GS["Destination"] ~= nil then
 					local sx = tonumber(self.GS["ShipX"])
 					local sy = tonumber(self.GS["ShipY"])
 
@@ -244,16 +244,18 @@ function VoidWanderers:ProcessShipControlPanelUI()
 					
 					self:PutGlow(shippreset, pos + Vector(sx,sy) + Vector(70,0))
 					
-					self:DrawDottedLine(cx + sx, cy + sy, cx + dx, cy + dy, "ControlPanel_Ship_DestDot",5)
-					
-					shippos = Vector(sx,sy)
-				else
-					local locpos = CF_LocationPos[ self.GS["Location"] ]
-					if locpos ~= nil then
-						self:PutGlow(shippreset, pos + locpos + Vector(70,0))
-						shippos = locpos
+					if dx ~= nil and dy ~= nil then
+						self:DrawDottedLine(cx + sx, cy + sy, cx + dx, cy + dy, "ControlPanel_Ship_DestDot",5)
 					end
-				end
+					
+					local shippos = Vector(sx,sy)
+				--else
+				--	local locpos = CF_LocationPos[ self.GS["Location"] ]
+				--	if locpos ~= nil then
+				--		self:PutGlow(shippreset, pos + locpos + Vector(70,0))
+				--		shippos = locpos
+				--	end
+				--end
 
 				local msn = false
 				local msntype
@@ -475,7 +477,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,78))
 				
 				if self.RandomEncounterID == nil then
-					CF_DrawString("MISSION REPORT", pos + Vector(-34,-77), 262, 141)
+					CF_DrawString("REPORT", pos + Vector(-10,-77), 262, 141)
 					CF_DrawString("AVAILABLE GOLD: "..CF_GetPlayerGold(self.GS, 0), pos + Vector(-130,-60), 262, 141)
 					
 					CF_DrawString("Press DOWN to save game", pos + Vector(-60,77), 262, 141)

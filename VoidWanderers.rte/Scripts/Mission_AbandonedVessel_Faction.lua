@@ -76,7 +76,6 @@ function VoidWanderers:MissionCreate()
 	end	
 	
 	self.MissionStart = self.Time
-	self.MissionNextDropShip = self.Time + CF_AmbientReinforcementsInterval
 end
 -----------------------------------------------------------------------------------------
 --

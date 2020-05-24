@@ -12,6 +12,7 @@ function VoidWanderers:AmbientCreate()
     end
 	
 	self.AmbientSmokesNextHealthDamage = self.Time
+	self.Ship = SceneMan.Scene:GetArea("Vessel")
 end
 -----------------------------------------------------------------------------------------
 --
@@ -42,7 +43,7 @@ function VoidWanderers:AmbientUpdate()
 				end
 			end
 		end
-	end
+	end--]]--
 end
 -----------------------------------------------------------------------------------------
 --
