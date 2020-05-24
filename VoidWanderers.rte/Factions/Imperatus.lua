@@ -1,6 +1,6 @@
 -- Unique Faction ID
 local factionid = "Imperatus";
-print ("Loading "..factionid)
+--print ("Loading "..factionid)
 
 CF_Factions[#CF_Factions + 1] = factionid
 	

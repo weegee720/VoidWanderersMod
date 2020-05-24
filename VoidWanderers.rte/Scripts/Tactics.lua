@@ -16,7 +16,7 @@ function VoidWanderers:StartActivity()
 	end
 
 	self.IsInitialized = true
-	self.SaveNextTime = false
+	self.ShopsCreated = false
 	
 	self.GS = {};
 	self.ModuleName = "VoidWanderers.rte";
@@ -249,7 +249,7 @@ function VoidWanderers:StartActivity()
 			local str = "";
 			
 			for y = 0, wy do
-				str = self.GS[SceneMan.Scene.PresetName.."-Fog"..tostring(y)];
+				str = self.GS[self.GS["Location"].."-Fog"..tostring(y)];
 				-- print (str);
 				if str ~= nil then
 					for x = 0, wx do
@@ -336,6 +336,9 @@ function VoidWanderers:DestroyConsoles()
 	self:DestroyStorageControlPanelUI()
 	self:DestroyClonesControlPanelUI()
 	self:DestroyBeamControlPanelUI()
+	
+	self:DestroyItemShopControlPanelUI()
+	self:DestroyCloneShopControlPanelUI()
 end
 -----------------------------------------------------------------------------------------
 -- 
@@ -428,7 +431,7 @@ function VoidWanderers:SaveFogOfWarState(config)
 				end
 			end
 			
-			config[SceneMan.Scene.PresetName.."-Fog"..tostring(y)] = str;
+			config[self.GS["Location"].."-Fog"..tostring(y)] = str;
 		end
 	end
 end
@@ -619,6 +622,8 @@ function VoidWanderers:UpdateActivity()
 			-- Process some control panels only when ship is not boarded
 			self:ProcessShipControlPanelUI()
 			self:ProcessBeamControlPanelUI()
+			self:ProcessItemShopControlPanelUI()
+			self:ProcessCloneShopControlPanelUI()
 		end
 		
 		-- Launch defense activity
@@ -627,11 +632,10 @@ function VoidWanderers:UpdateActivity()
 
 			-- Remove control actors
 			self:DestroyStorageControlPanelUI()
-			self.StorageControlPanelActor.ToDelete = true
 			self:DestroyClonesControlPanelUI()
-			self.ClonesControlPanelActor.ToDelete = true
 			self:DestroyBeamControlPanelUI()
-			self.BeamControlPanelActor.ToDelete = true
+			self:DestroyItemShopControlPanelUI()
+			self:DestroyCloneShopControlPanelUI()
 		end
 	end
 	
@@ -679,6 +683,24 @@ function VoidWanderers:UpdateActivity()
 				end
 			end
 		end
+		
+		-- Create or delete shops if we arrived/departed to/from Star base
+		if self.GS["Planet"] == "TradeStar" and self.GS["Location"] ~= nil then
+			if not self.ShopsCreated then
+				-- Destroy any previously created item shops and create a new one
+				self:DestroyItemShopControlPanelUI()
+				self:InitItemShopControlPanelUI()
+				self:DestroyCloneShopControlPanelUI()
+				self:InitCloneShopControlPanelUI()
+				self.ShopsCreated = true
+			end
+		else
+			if self.ShopsCreated then
+				self:DestroyItemShopControlPanelUI()
+				self:DestroyCloneShopControlPanelUI()
+				self.ShopsCreated = false
+			end
+		end
 	end
 	
 	-- Tick timer
@@ -687,7 +709,6 @@ function VoidWanderers:UpdateActivity()
 		self.Time = self.Time + 1
 		self.TickTimer:Reset();
 
-		-- Autosave game from time to time
 		if self.GS["Mode"] == "Vessel" then
 			if CF_CountActors(CF_PlayerTeam) > tonumber(self.GS["Player0VesselLifeSupport"]) then
 				self.OverCrowded = true

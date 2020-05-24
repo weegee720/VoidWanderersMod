@@ -23,6 +23,7 @@ function HumanBehaviors.GetAngleToHit(PrjDat, Dist)
 function HumanBehaviors.ShootArea(AI, Owner)
 function HumanBehaviors.FaceAlarm(AI, Owner) ]]--
 
+--print ("Custom AI")
 
 -- Change human behaviors anyway
 -- Save original human behaviors once
@@ -57,6 +58,16 @@ Custom_HumanBehaviors.FaceAlarm = HumanBehaviors.FaceAlarm
 
 HumanBehaviors = Custom_HumanBehaviors
 
+function RevealUnseenWhenShooting(Owner)
+	if CF_FogOfWarEnabled then
+		print ("Fire")
+		for x = -2, 2 do
+			for y = -2, 2 do
+				SceneMan:RevealUnseen(Owner.Pos.X - x * CF_FogOfWarResolution, Owner.Pos.Y - y * CF_FogOfWarResolution, CF_PlayerTeam)
+			end
+		end
+	end
+end
 
 function HumanBehaviors.LookForTargets(AI, Owner)
 	local Origin
@@ -712,16 +723,8 @@ function HumanBehaviors.ShootTarget(AI, Owner)
 				
 				if openFire > 0 then
 					AI.fire = true
-					
 					-- WEEGEE
-					if CF_FogOfWarEnabled then
-						--	print ("Fire")
-						for x = -2, 2 do
-							for y = -2, 2 do
-								SceneMan:RevealUnseen(Owner.Pos.X - x * CF_FogOfWarResolution, Owner.Pos.Y - y * CF_FogOfWarResolution, CF_PlayerTeam)
-							end
-						end
-					end
+					RevealUnseenWhenShooting(Owner)
 					-- WEEGEE
 				else
 					AI.fire = false
@@ -760,3 +763,146 @@ function HumanBehaviors.ShootTarget(AI, Owner)
 	
 	return true
 end
+
+-- open fire on the area around the selected target
+function HumanBehaviors.ShootArea(AI, Owner)
+	if not MovableMan:IsActor(AI.UnseenTarget) or not Owner.FirearmIsReady then
+		return true
+	end
+	
+	--WEEGEE
+	-- Don't area-shoot distant targets
+	if MovableMan:IsActor(AI.UnseenTarget) then
+		if SceneMan:ShortestDistance(Owner.Pos, AI.UnseenTarget.Pos, true) > FrameMan.PlayerScreenWidth * 0.95 then
+			return true
+		end
+	end
+	--WEEGEE
+	
+	-- see if we can shoot from the prone position
+	local ShootTimer = Timer()
+	local aimTime = RangeRand(100, 300)
+	if not AI.flying and AI.UnseenTarget.Vel.Largest < 12 and HumanBehaviors.GoProne(AI, Owner, AI.UnseenTarget.Pos, AI.UnseenTarget.ID) then
+		aimTime = aimTime + 500
+	end
+	
+	local StartPos = Vector(AI.UnseenTarget.Pos.X, AI.UnseenTarget.Pos.Y)
+	
+	-- aim at the target in case we can see it when sharp aiming
+	Owner:SetAimAngle(SceneMan:ShortestDistance(Owner.EyePos, StartPos, false).AbsRadAngle)
+	AI.deviceState = AHuman.AIMING
+	
+	-- aim for ~160ms
+	for _ = 1, 10 do
+		coroutine.yield()	-- wait until next frame
+	end
+	
+	if not Owner.FirearmIsReady then
+		return true
+	end
+	
+	local AimPoint
+	for _ = 1, 5 do	-- try up to five times to find a target area that is resonably close to the target
+		AimPoint = StartPos + Vector(RangeRand(-100, 100), RangeRand(-100, 50))
+		if AimPoint.X > SceneMan.SceneWidth then
+			AimPoint.X = SceneMan.SceneWidth - AimPoint.X
+		elseif AimPoint.X < 0 then
+			AimPoint.X = AimPoint.X + SceneMan.SceneWidth
+		end
+		
+		-- check if we can fire at the AimPoint
+		local Trace = SceneMan:ShortestDistance(Owner.EyePos, AimPoint, false)
+		local rayLenght = SceneMan:CastObstacleRay(Owner.EyePos, Trace, Vector(), Vector(), rte.NoMOID, Owner.IgnoresWhichTeam, rte.grassID, 11)
+		if Trace.Magnitude * 0.67 < rayLenght then
+			break	-- the AimPoint is close enough to the target, start shooting
+		end
+		
+		coroutine.yield()	-- wait until next frame
+	end
+	
+	if not Owner.FirearmIsReady then
+		return true
+	end
+	
+	local aim
+	local PrjDat = HumanBehaviors.GetProjectileData(Owner)
+	local Dist = SceneMan:ShortestDistance(Owner.EquippedItem.Pos, AimPoint, false)
+	if Dist.Magnitude < PrjDat.rng then
+		aim = HumanBehaviors.GetAngleToHit(PrjDat, Dist)
+	else
+		return true	-- target out of range
+	end
+	
+	local CheckTargetTimer = Timer()
+	local aimError = RangeRand(-0.25, 0.25)
+	
+	while aim do
+		if Owner.FirearmIsReady then
+			AI.deviceState = AHuman.AIMING
+			AI.Ctrl.AnalogAim = Vector(1,0):RadRotate(aim+aimError+RangeRand(-0.02, 0.02))
+			
+			if ShootTimer:IsPastSimMS(aimTime) then
+				AI.fire = true
+				-- WEEGEE
+				RevealUnseenWhenShooting(Owner)
+				-- WEEGEE
+				
+				aimError = aimError * 0.985
+			else
+				AI.fire = false
+			end
+		else
+			AI.deviceState = AHuman.POINTING
+			AI.fire = false
+			
+			ShootTimer:Reset()
+			if Owner.FirearmIsEmpty then
+				Owner:ReloadFirearm()
+			end
+			
+			break -- stop this behavior when the mag is empty
+		end
+		
+		coroutine.yield()	-- wait until next frame
+		
+		if AI.UnseenTarget and CheckTargetTimer:IsPastSimMS(400) then
+			if MovableMan:IsActor(AI.UnseenTarget) and (AI.UnseenTarget.ClassName == "AHuman" or AI.UnseenTarget.ClassName == "ACrab") then
+				CheckTargetTimer:Reset()
+				if AI.UnseenTarget:GetController():IsState(Controller.WEAPON_FIRE) then
+					-- compare the enemy aim angle with the angle of the alarm vector
+					local enemyAim = AI.UnseenTarget:GetAimAngle(true)
+					if enemyAim > math.pi*2 then	-- make sure the angle is in the [0..2*pi] range
+						enemyAim = enemyAim - math.pi*2
+					elseif enemyAim < 0 then
+						enemyAim = enemyAim + math.pi*2
+					end
+					
+					local angDiff = SceneMan:ShortestDistance(AI.UnseenTarget.Pos, Owner.Pos, false).AbsRadAngle - enemyAim
+					if angDiff > math.pi then	-- the difference between two angles can never be larger than pi
+						angDiff = angDiff - math.pi*2
+					elseif angDiff < -math.pi then
+						angDiff = angDiff + math.pi*2
+					end
+					
+					if math.abs(angDiff) < 0.5 then
+						-- this actor is shooting in our direction
+						AimPoint = AI.UnseenTarget.Pos + SceneMan:ShortestDistance(AI.UnseenTarget.Pos, AimPoint, false) / 2 + Vector(RangeRand(-30, 30), RangeRand(-30, 30))
+						aimError = RangeRand(-0.15, 0.15)
+						
+						Dist = SceneMan:ShortestDistance(Owner.EquippedItem.Pos, AimPoint, false)
+						if Dist.Magnitude < PrjDat.rng then
+							aim = HumanBehaviors.GetAngleToHit(PrjDat, Dist)
+						end
+					end
+				end
+			else
+				AI.UnseenTarget = nil
+			end
+		end
+	end
+	
+	return true
+end
+
+
+

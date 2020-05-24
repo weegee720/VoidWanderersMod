@@ -22,9 +22,13 @@ function VoidWanderers:StartActivity()
 	dofile(LIB_PATH.."Panel_Ship.lua");
 	dofile(LIB_PATH.."Panel_Beam.lua");
 	dofile(LIB_PATH.."Panel_Storage.lua");
+	dofile(LIB_PATH.."Panel_ItemShop.lua");
+	dofile(LIB_PATH.."Panel_CloneShop.lua");
 	dofile(LIB_PATH.."Panel_LZ.lua");
 	
 	-- Load custom AI
+	print (CF_UseCustomAI)
+	
 	if CF_UseCustomAI then
 		dofile(LIB_PATH.."AI_Human.lua")
 	end

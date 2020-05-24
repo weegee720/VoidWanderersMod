@@ -7,10 +7,10 @@ CF_VesselScene[id] = "Vessel Gryphon"
 CF_VesselModule[id] = "VoidWanderers.rte"
 
 CF_VesselMaxClonesCapacity[id] = 20
-CF_VesselStartClonesCapacity[id] = 6
+CF_VesselStartClonesCapacity[id] = 8
 
-CF_VesselMaxStorageCapacity[id] = 100
-CF_VesselStartStorageCapacity[id] = 20
+CF_VesselMaxStorageCapacity[id] = 140
+CF_VesselStartStorageCapacity[id] = 40
 
 CF_VesselMaxLifeSupport[id] = 8
 CF_VesselStartLifeSupport[id] = 4

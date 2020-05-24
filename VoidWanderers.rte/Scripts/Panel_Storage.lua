@@ -299,7 +299,7 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 			
 			-- Print description
 			if self.StorageSelectedItemDescription ~= nil then
-				CF_DrawString(self.StorageSelectedItemDescription, pos + Vector(10,-10) , 170, 120)
+				CF_DrawString(self.StorageSelectedItemDescription, pos + Vector(10,-10) , 170, 70)
 			end
 
 			-- Print manufacturer or price
@@ -351,7 +351,7 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 				--if CF_Dist(item.Pos, self.StorageInputPos) <= self.StorageInputRange then
 				local storable = true
 				
-				if self.StorageControlPanelObject~= nil and item.ID == self.StorageControlPanelObject.ID then
+				if (self.StorageControlPanelObject~= nil and item.ID == self.StorageControlPanelObject.ID) or (self.ItemShopControlPanelObject~= nil and item.ID == self.ItemShopControlPanelObject.ID) then
 					storable = false
 				end
 					

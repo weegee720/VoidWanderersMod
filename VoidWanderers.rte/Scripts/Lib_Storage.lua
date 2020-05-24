@@ -87,6 +87,150 @@ function CF_GetStorageArray(gs, makefilters)
 	return arr, arr2
 end
 -----------------------------------------------------------------------------------------
+--	
+--	
+-----------------------------------------------------------------------------------------
+function CF_GetItemShopArray(gs, makefilters)
+	local arr = {}
+	
+	for i = 1, tonumber(gs["ActiveCPUs"]) do
+		local f = CF_GetPlayerFaction(gs, i)
+	
+		for itm = 1, #CF_ItmNames[f] do
+			local isduplicate = false
+			
+			for j = 1, #arr do
+				if CF_ItmDescriptions[f][itm] == arr[j]["Description"] then
+					isduplicate = true
+				end
+			end
+		
+			if tonumber(gs["Player"..i.."Reputation"]) > 0 and tonumber(gs["Player"..i.."Reputation"]) >= CF_ItmUnlockData[f][itm] and not isduplicate then
+				local ii = #arr + 1
+				arr[ii] = {}
+				arr[ii]["Preset"] = CF_ItmPresets[f][itm]
+				arr[ii]["Class"] = CF_ItmClasses[f][itm]
+				arr[ii]["Faction"] = f
+				arr[ii]["Index"] = itm
+				arr[ii]["Description"] = CF_ItmDescriptions[f][itm]
+				arr[ii]["Price"] = CF_ItmPrices[f][itm]
+				arr[ii]["Type"] = CF_ItmTypes[f][itm]
+			end
+		end
+	end
+	
+	-- Sort items
+	for i = 1, #arr do
+		for j = 1, #arr  - 1 do
+			if arr[j]["Preset"] > arr[j + 1]["Preset"] then
+				local a = arr[j]
+				arr[j] = arr[j + 1]
+				arr[j + 1] = a
+			end
+		end
+	end
+	
+	local arr2
+	if makefilters then
+		arr2 = {}
+		
+		-- Array for all items
+		arr2[-1] = {}
+		-- Arrays for items by types
+		arr2[CF_WeaponTypes.PISTOL] = {}
+		arr2[CF_WeaponTypes.RIFLE] = {}
+		arr2[CF_WeaponTypes.SHOTGUN] = {}
+		arr2[CF_WeaponTypes.SNIPER] = {}
+		arr2[CF_WeaponTypes.HEAVY] = {}
+		arr2[CF_WeaponTypes.SHIELD] = {}
+		arr2[CF_WeaponTypes.DIGGER] = {}
+		arr2[CF_WeaponTypes.GRENADE] = {}
+		arr2[CF_WeaponTypes.TOOL] = {}
+		
+		for itm = 1, #arr do
+			-- Add item to 'all' list
+			local indx = #arr2[-1] + 1
+			arr2[-1][indx] = itm
+			
+			-- Add item to specific list
+			local tp = arr[itm]["Type"]
+			local indx = #arr2[tp] + 1
+			arr2[tp][indx] = itm
+		end
+	end
+	
+	return arr, arr2
+end
+-----------------------------------------------------------------------------------------
+--	
+-----------------------------------------------------------------------------------------
+function CF_GetCloneShopArray(gs, makefilters)
+	local arr = {}
+	
+	for i = 1, tonumber(gs["ActiveCPUs"]) do
+		local f = CF_GetPlayerFaction(gs, i)
+	
+		for itm = 1, #CF_ActNames[f] do
+			local isduplicate = false
+			
+			for j = 1, #arr do
+				if CF_ActDescriptions[f][itm] == arr[j]["Description"] then
+					isduplicate = true
+				end
+			end
+		
+			if tonumber(gs["Player"..i.."Reputation"]) > 0 and tonumber(gs["Player"..i.."Reputation"]) >= CF_ActUnlockData[f][itm] and not isduplicate then
+				local ii = #arr + 1
+				arr[ii] = {}
+				arr[ii]["Preset"] = CF_ActPresets[f][itm]
+				arr[ii]["Class"] = CF_ActClasses[f][itm]
+				arr[ii]["Faction"] = f
+				arr[ii]["Index"] = itm
+				arr[ii]["Description"] = CF_ActDescriptions[f][itm]
+				arr[ii]["Price"] = CF_ActPrices[f][itm]
+				arr[ii]["Type"] = CF_ActTypes[f][itm]
+			end
+		end
+	end
+	
+	-- Sort items
+	for i = 1, #arr do
+		for j = 1, #arr  - 1 do
+			if arr[j]["Preset"] > arr[j + 1]["Preset"] then
+				local a = arr[j]
+				arr[j] = arr[j + 1]
+				arr[j + 1] = a
+			end
+		end
+	end
+	
+	local arr2
+	if makefilters then
+		arr2 = {}
+		
+		-- Array for all items
+		arr2[-1] = {}
+		-- Arrays for items by types
+		arr2[CF_ActorTypes.LIGHT] = {}
+		arr2[CF_ActorTypes.HEAVY] = {}
+		arr2[CF_ActorTypes.ARMOR] = {}
+		arr2[CF_ActorTypes.TURRET] = {}
+		
+		for itm = 1, #arr do
+			-- Add item to 'all' list
+			local indx = #arr2[-1] + 1
+			arr2[-1][indx] = itm
+			
+			-- Add item to specific list
+			local tp = arr[itm]["Type"]
+			local indx = #arr2[tp] + 1
+			arr2[tp][indx] = itm
+		end
+	end
+	
+	return arr, arr2
+end
+-----------------------------------------------------------------------------------------
 --	Saves array of stored items to game state
 -----------------------------------------------------------------------------------------
 function CF_SetStorageArray(gs, arr)

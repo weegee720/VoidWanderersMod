@@ -447,7 +447,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self.ShipControlUpgrades[2]["Variable"] = "Player0VesselStorageCapacity"
 				self.ShipControlUpgrades[2]["Max"] = CF_VesselMaxStorageCapacity[ self.GS["Player0Vessel"] ]
 				self.ShipControlUpgrades[2]["Description"] = "How many items you can store"
-				self.ShipControlUpgrades[2]["Price"] = 350
+				self.ShipControlUpgrades[2]["Price"] = 200
 
 				self.ShipControlUpgrades[3] = {}
 				self.ShipControlUpgrades[3]["Name"] = "Life support"
