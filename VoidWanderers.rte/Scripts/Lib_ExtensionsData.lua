@@ -14,6 +14,7 @@ function CF_InitExtensionsData(activity)
 	CF_LocationDescription = {}
 	CF_LocationSecurity = {}
 	CF_LocationGoldPresent = {}
+	CF_LocationRemoveDoors = {}
 	CF_LocationScenes = {}
 	CF_LocationPlanet = {}
 	CF_LocationScript = {}

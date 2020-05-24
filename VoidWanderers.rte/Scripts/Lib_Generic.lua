@@ -31,13 +31,13 @@ function CF_InitFactions(activity)
 	CF_SecurityIncrementPerDeployment = 2
 	
 	CF_AssaultCheckInterval = 5
-	CF_ReputationPerDifficulty = 1000
+	CF_ReputationPerDifficulty = 800
 	
 	-- When reputation below this level enemy starts sending crafts after player
 	CF_ReputationHuntTreshold = -500
 	
 	-- When mission completed defines how many reputation points will be subtracted from target reputation	
-	CF_ReputationPenaltyRatio = 1.20
+	CF_ReputationPenaltyRatio = 1.85
 
 	-- When mission failed defines how many reputation points will be subtracted from both reputations
 	CF_MissionFailedReputationPenaltyRatio = 0.35
@@ -475,6 +475,12 @@ function CF_InitFactions(activity)
 						print ("ERROR!!! "..id.." DISABLED!!! "..CF_ActNames[id][i].." : "..err)
 						break;
 					end
+					
+				end
+				
+				-- For VoidWanderers we need to diable all factions with pre-equipped actors
+				if CF_PreEquippedActors[id] ~= nil and CF_PreEquippedActors[id] == true then
+					CF_FactionPlayable[id] = false;
 				end
 			end
 		else

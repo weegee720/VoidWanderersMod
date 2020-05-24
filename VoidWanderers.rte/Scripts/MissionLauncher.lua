@@ -85,10 +85,10 @@ function VoidWanderers:LaunchScript(scene , script)
 	
 	--Delete all added actors
 	for actor in MovableMan.AddedActors do
-		if actor.ClassName ~= "Adoor" then
+		if actor.ClassName ~= "ADoor" then
 			actor.ToDelete = true
 		end
-	end	
+	end
 end
 -----------------------------------------------------------------------------------------
 -- Pause Activity

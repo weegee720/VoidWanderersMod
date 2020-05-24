@@ -74,7 +74,7 @@ function VoidWanderers:SceneButton_OnClick()
 		self:SetPlayerBrain(nil, p)
 	end
 	
-	for actor in MovableMan.AddedActors do
+	--[[for actor in MovableMan.AddedActors do
 		--print (actor.PresetName)
 		if actor.ClassName == "AHuman" or actor.ClassName == "ACrab" or actor.PresetName == "Brain Case" then
 			actor.ToDelete = true

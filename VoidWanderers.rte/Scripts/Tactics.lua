@@ -185,6 +185,15 @@ function VoidWanderers:StartActivity()
 
 		self.Pts =  CF_ReadPtsData(scene, self.LS)
 		self.MissionDeploySet = CF_GetRandomMissionPointsSet(self.Pts, "Deploy")
+		
+		-- Remove non-CPU doors
+		if 	CF_LocationRemoveDoors[self.GS["Location"]] ~= nil and CF_LocationRemoveDoors[self.GS["Location"]] == true then
+			for actor in MovableMan.Actors do
+				if actor.Team ~= CF_CPUTeam and actor.ClassName == "ADoor" then
+					actor.ToDelete = true
+				end
+			end
+		end
 	
 		-- Find suitable LZ's
 		local lzs = CF_GetPointsArray(self.Pts, "Deploy", self.MissionDeploySet, "PlayerLZ")
@@ -389,6 +398,9 @@ function VoidWanderers:StartActivity()
 
 	self.AssaultTime = -100
 	
+	self.BrainSwitchTimer = Timer()
+	self.BrainSwitchTimer:Reset()
+	
 	self:DoBrainSelection()
 	self.EnableBrainSelection = true
 
@@ -396,15 +408,13 @@ function VoidWanderers:StartActivity()
 	self.IconPresets = {}
 	self.IconGroups = {}
 	
-	self.IconGroups[1] = "Diggers"
-	self.IconGroups[2] = "Sniper Weapons"
-	self.IconGroups[3] = "Heavy Weapons"
-	--self.IconGroups[4] = "Explosive Weapons"
+	self.IconGroups[1] = {"Diggers"}
+	self.IconGroups[2] = {"Sniper Weapons"}
+	self.IconGroups[3] = {"Heavy Weapons", "Explosive Weapons"}
 	
 	self.IconPresets[1] = "Icon_Digger"
 	self.IconPresets[2] = "Icon_Sniper"
 	self.IconPresets[3] = "Icon_Heavy"
-	--self.IconPresets[4] = "Icon_Heavy"
 	
 	print ("VoidWanderers:Tactics:StartActivity - End");
 end
@@ -505,6 +515,9 @@ function VoidWanderers:SaveFogOfWarState(config)
 	-- Save fog of war status
 	-- Since if we disable fog of war all map will be revealed we don't
 	-- need to save fog of war state at all
+	local tiles = 0
+	local revealed = 0
+	
 	if CF_FogOfWarEnabled then
 		local wx = SceneMan.Scene.Width / CF_FogOfWarResolution;
 		local wy = SceneMan.Scene.Height / CF_FogOfWarResolution;
@@ -513,14 +526,17 @@ function VoidWanderers:SaveFogOfWarState(config)
 		for y = 0, wy do
 			str = "";
 			for x = 0, wx do
+				tiles = tiles + 1
 				if SceneMan:IsUnseen(x * CF_FogOfWarResolution, y * CF_FogOfWarResolution, CF_PlayerTeam) then
 					str = str.."0";
 				else
 					str = str.."1";
+					revealed = revealed + 1
 				end
 			end
 			
 			config[self.GS["Location"].."-Fog"..tostring(y)] = str;
+			config[self.GS["Location"].."-FogRevealPercentage"] = math.floor(revealed / tiles * 100);
 		end
 	end
 end
@@ -536,34 +552,37 @@ function VoidWanderers:TriggerShipAssault()
 		local toassault = false
 		
 		-- First select random assault player
-		self.AssaultEnemyPlayer = math.random(tonumber(self.GS["ActiveCPUs"]))
+		-- Select angry CPU's
+		local angry = {}
+		
+		for i = 1, tonumber(self.GS["ActiveCPUs"]) do
+			local rep = tonumber(self.GS["Player"..i.."Reputation"])
+			if rep <= CF_ReputationHuntTreshold then
+				angry[#angry + 1] = i
+			end
+		end
+		
+		self.AssaultEnemyPlayer = angry[math.random(#angry)]
 		
 		local rep = tonumber(self.GS["Player"..self.AssaultEnemyPlayer.."Reputation"])
 		
-		--print (CF_GetPlayerFaction(self.GS,self.AssaultEnemyPlayer))
-		--print (rep)
+		self.AssaultDifficulty = math.floor(math.abs(rep / CF_ReputationPerDifficulty))
 		
-		if rep < CF_ReputationHuntTreshold then
-			self.AssaultDifficulty = math.floor(math.abs(rep / CF_ReputationPerDifficulty))
-			
-			if self.AssaultDifficulty <= 0 then
-				self.AssaultDifficulty = 1
-			end
-			
-			if self.AssaultDifficulty > CF_MaxDifficulty then
-				self.AssaultDifficulty = CF_MaxDifficulty
-			end
-			
-			local r = math.random(CF_MaxDifficulty * 40)
-			local tgt = ((CF_MaxDifficulty - self.AssaultDifficulty) * 4) + 4
-			
-			--print (self.AssaultDifficulty)
-			--print (r)
-			--print (tgt)
-			
-			if r < tgt then
-				toassault = true
-			end
+		if self.AssaultDifficulty <= 0 then
+			self.AssaultDifficulty = 1
+		end
+		
+		if self.AssaultDifficulty > CF_MaxDifficulty then
+			self.AssaultDifficulty = CF_MaxDifficulty
+		end
+		
+		local r = math.random(CF_MaxDifficulty * 30)
+		local tgt = ((CF_MaxDifficulty - self.AssaultDifficulty) * 4) + 4
+		
+		print (CF_GetPlayerFaction(self.GS, self.AssaultEnemyPlayer).." D - "..self.AssaultDifficulty.." R - "..r.." TGT - "..tgt)
+		
+		if r < tgt then
+			toassault = true
 		end
 	
 		if toassault then
@@ -689,10 +708,10 @@ function VoidWanderers:UpdateActivity()
 	if self.LastIncomeShowTime + self.LastIncomeShowInterval > self.Time then
 		local curactor = self:GetControlledActor(CF_PlayerTeam);
 		if MovableMan:IsActor(curactor) then
-			local s = CF_GetPlayerGold(self.GS, self.HumanPlayer) .. " oz [+"..math.ceil(self.LastPlayerIncome).."]"
+			local s = CF_GetPlayerGold(self.GS, self.HumanPlayer) .. " oz"-- [+"..math.ceil(self.LastPlayerIncome).."]"
 			local l = CF_GetStringPixelWidth(s)
 			
-			CF_DrawString(s, curactor.Pos + Vector(-l/2, -76), 200, 200)
+			CF_DrawString(s, curactor.Pos + Vector(-l/2, -80), 200, 200)
 		end
 	end
 
@@ -705,10 +724,17 @@ function VoidWanderers:UpdateActivity()
 				if actor.PresetName == "-" then
 					icons[#icons + 1] = "Icon_Ally"
 				end
+				
+				if actor:HasObject("Light Scanner") or actor:HasObject("Medium Scanner") or actor:HasObject("Heavy Scanner") then
+					icons[#icons + 1] = "Icon_Scanner"
+				end
 			
 				for i = 1, #self.IconPresets do
-					if actor:HasObjectInGroup(self.IconGroups[i]) then
-						icons[#icons + 1] = self.IconPresets[i]
+					for j = 1, #self.IconGroups[i] do
+						if actor:HasObjectInGroup(self.IconGroups[i][j]) then
+							icons[#icons + 1] = self.IconPresets[i]
+							break
+						end
 					end
 				end
 				
@@ -748,17 +774,23 @@ function VoidWanderers:UpdateActivity()
 		for plr = 0 , self.PlayerCount - 1 do
 			local act = self:GetControlledActor(plr);
 			
-			if act.PresetName == "Brain Case" and plrtoswitch == -1 then
-				plrtoswitch = plr
-			end
-			
-			if act.PresetName == "Ship Control Panel" then
-				bridgeempty = false
+			if act ~= nil and MovableMan:IsActor(act) then
+				if act.PresetName == "Brain Case" and plrtoswitch == -1 then
+					plrtoswitch = plr
+				end
+				
+				if act.PresetName == "Ship Control Panel" then
+					bridgeempty = false
+				end
 			end
 		end
 			
 		if plrtoswitch > -1 and bridgeempty and MovableMan:IsActor(self.ShipControlPanelActor) then
-			self:SwitchToActor(self.ShipControlPanelActor, plrtoswitch, CF_PlayerTeam);
+			if self.BrainSwitchTimer:IsPastSimMS(500) then
+				self:SwitchToActor(self.ShipControlPanelActor, plrtoswitch, CF_PlayerTeam);
+			end
+		else
+			self.BrainSwitchTimer:Reset()
 		end
 		
 		-- Show assault warning

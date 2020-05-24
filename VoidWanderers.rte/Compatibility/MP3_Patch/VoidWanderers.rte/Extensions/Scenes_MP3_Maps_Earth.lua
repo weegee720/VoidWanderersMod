@@ -29,9 +29,7 @@ CF_LocationScenes[id] = {"Wastelands"}
 CF_LocationPlanet[id] = "MP3-GTC-RTH"
 CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies"}
 
--- Enable only if MP3 patch installed
--- Will crash the game due to Base.rte/Mine if MP3 is not patched
---[[local id = "Excavation"
+local id = "Excavation"
 CF_Location[#CF_Location + 1] = id
 CF_LocationName[id] = "Excavation"
 CF_LocationPos[id] = Vector(-7 , 12)
@@ -41,7 +39,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Excavation"}
 CF_LocationPlanet[id] = "MP3-GTC-RTH"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies"}--]]--
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies"}
 
 local id = "Ragnarok"
 CF_Location[#CF_Location + 1] = id

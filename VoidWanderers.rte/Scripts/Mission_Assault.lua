@@ -70,7 +70,7 @@ function VoidWanderers:MissionUpdate()
 		local count = 0
 		
 		for actor in MovableMan.Actors do
-			if actor.Team == CF_CPUTeam then
+			if actor.Team == CF_CPUTeam and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") then
 				local inside = false
 			
 				for i = 1, #self.MissionBase do

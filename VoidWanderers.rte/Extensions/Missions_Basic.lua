@@ -7,7 +7,7 @@ CF_MissionScript[id] = "VoidWanderers.rte/Scripts/Mission_Assault.lua"
 CF_MissionMinReputation[id] = -10000 -- This mission is always available
 CF_MissionBriefingText[id] = "Attack the enemy installation and wipe out any enemy forces."
 CF_MissionGoldRewardPerDifficulty[id] = 0
-CF_MissionReputationRewardPerDifficulty[id] = 20
+CF_MissionReputationRewardPerDifficulty[id] = 75
 CF_MissionMaxSets[id] = 6
 CF_MissionRequiredData[id] = {}
 
@@ -19,8 +19,8 @@ CF_MissionName[id] = "Assassinate"
 CF_MissionScript[id] = "VoidWanderers.rte/Scripts/Mission_Assassinate.lua"
 CF_MissionMinReputation[id] = 0
 CF_MissionBriefingText[id] = "Locate and assassinate enemy commander."
-CF_MissionGoldRewardPerDifficulty[id] = 500
-CF_MissionReputationRewardPerDifficulty[id] = 10
+CF_MissionGoldRewardPerDifficulty[id] = 750
+CF_MissionReputationRewardPerDifficulty[id] = 50
 CF_MissionMaxSets[id] = 6
 CF_MissionRequiredData[id] = {}
 
@@ -40,7 +40,7 @@ CF_MissionScript[id] = "VoidWanderers.rte/Scripts/Mission_Mine.lua"
 CF_MissionMinReputation[id] = 1000
 CF_MissionBriefingText[id] = "Establish mining camp and protect enough miners from enemy."
 CF_MissionGoldRewardPerDifficulty[id] = 0
-CF_MissionReputationRewardPerDifficulty[id] = 60
+CF_MissionReputationRewardPerDifficulty[id] = 150
 CF_MissionMaxSets[id] = 6
 CF_MissionRequiredData[id] = {}
 
@@ -71,8 +71,8 @@ CF_MissionName[id] = "Disrupt Mining"
 CF_MissionScript[id] = "VoidWanderers.rte/Scripts/Mission_Dropships.lua"
 CF_MissionMinReputation[id] = 600
 CF_MissionBriefingText[id] = "Disrupt enemy mining operations and destroy all incoming dropships."
-CF_MissionGoldRewardPerDifficulty[id] = 650
-CF_MissionReputationRewardPerDifficulty[id] = 25
+CF_MissionGoldRewardPerDifficulty[id] = 1000
+CF_MissionReputationRewardPerDifficulty[id] = 175
 CF_MissionMaxSets[id] = 6
 CF_MissionRequiredData[id] = {}
 
@@ -85,7 +85,7 @@ CF_MissionScript[id] = "VoidWanderers.rte/Scripts/Mission_Zombies.lua"
 CF_MissionMinReputation[id] = 800
 CF_MissionBriefingText[id] = "Destroy hacked cloning vats producing agressive unbacked bodies."
 CF_MissionGoldRewardPerDifficulty[id] = 950
-CF_MissionReputationRewardPerDifficulty[id] = 50
+CF_MissionReputationRewardPerDifficulty[id] = 130
 CF_MissionMaxSets[id] = 6
 CF_MissionRequiredData[id] = {}
 

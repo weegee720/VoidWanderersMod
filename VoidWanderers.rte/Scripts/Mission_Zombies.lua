@@ -12,7 +12,7 @@ function VoidWanderers:MissionCreate()
 	setts = {}
 	setts[1] = {}
 	setts[1]["VatsCount"] = 3
-	setts[1]["MaxZombiesPerVat"] = 5
+	setts[1]["MaxZombiesPerVat"] = 6
 	
 	setts[2] = {}
 	setts[2]["VatsCount"] = 4

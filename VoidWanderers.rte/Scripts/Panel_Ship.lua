@@ -301,13 +301,22 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				local diff 
 				
 				if msn then
-					CF_DrawString("MISSION: "..msntype, pos + Vector(8, 50), 136, 182-34)
-					CF_DrawString("TARGET: "..CF_FactionNames[ CF_GetPlayerFaction(self.GS, msntgt) ], pos + Vector(8, 62), 136, 182-34)
+					CF_DrawString("MISSION: "..CF_MissionName[msntype], pos + Vector(8, 50), 120, 10)
+					CF_DrawString("TARGET: "..CF_FactionNames[ CF_GetPlayerFaction(self.GS, msntgt) ], pos + Vector(8, 62), 130, 10)
 					diff = msndiff
 				else
 					diff = CF_GetLocationDifficulty(self.GS, self.ShipControlLocationList[ self.ShipControlSelectedLocation ])
 				end
-				CF_DrawString("SECURITY: "..string.upper(CF_LocationDifficultyTexts[diff]), pos + Vector(8, -60), 136, 182-34)
+
+				CF_DrawString("SECURITY: "..string.upper(CF_LocationDifficultyTexts[diff]), pos + Vector(8, -60), 136, 10)
+
+				if self.ShipControlLocationList[ self.ShipControlSelectedLocation ] ~= nil then
+					local rev = self.GS[self.ShipControlLocationList[ self.ShipControlSelectedLocation ].."-FogRevealPercentage"]
+					if rev == nil then
+						rev = 0
+					end
+					CF_DrawString("INTEL: "..rev.."%", pos + Vector(8, -36), 136, 10)
+				end
 				
 				-- Write gold status
 				local gold = CF_LocationGoldPresent[ self.ShipControlLocationList[ self.ShipControlSelectedLocation ] ]
@@ -650,8 +659,8 @@ function VoidWanderers:ProcessShipControlPanelUI()
 
 				-- Show faction list
 				for i = 1, #self.ShipControlFactions do
-					CF_DrawString(self.ShipControlFactions[i]["Faction"], pos + Vector(-62 - 71, -76 + i * 15), 130, 12)
-					CF_DrawString(self.ShipControlFactions[i]["ReputationStr"], pos + Vector(-62 - 71 + 80, -76 + i * 15), 130, 12)
+					CF_DrawString(self.ShipControlFactions[i]["Faction"], pos + Vector(-62 - 71, -76 + i * 15), 80, 10)
+					CF_DrawString(self.ShipControlFactions[i]["ReputationStr"], pos + Vector(-62 - 71 + 80, -76 + i * 15), 130, 10)
 					
 					if self.ShipControlFactions[i]["Reputation"] < CF_ReputationHuntTreshold then
 						local diff = math.floor(math.abs(self.ShipControlFactions[i]["Reputation"] / CF_ReputationPerDifficulty))
