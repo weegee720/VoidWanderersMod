@@ -1,12 +1,10 @@
--- Integrity checks
-local extension = "Scenes_MP3_Maps_City" 
-local modules = {"Maps - City.rte"}
+--[[
+	Map Pack 3 by Gotcha!
+	http://forums.datarealms.com/viewtopic.php?f=24&t=12224
+	Supported out of the box
+]]--
 
-for m = 1, #modules do
-	if PresetMan:GetModuleID(modules[m]) == -1 then
-		error (extension..": ".."Can't  load module - "..modules[m])
-	end
-end
+if PresetMan:GetModuleID("Maps - City.rte") ~= -1 then
 
 -- Define planet
 local id = "MP3-GTC-CTY"
@@ -27,9 +25,10 @@ CF_LocationSecurity[id] = 10
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Suburbs"}
 CF_LocationPlanet[id] = "MP3-GTC-CTY"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy", "Squad"}
 
 -- Enable only if MP3 patch installed
+-- Will crash the game due to Brain Deployments if MP3 is not patched
 local id = "Tenements"
 CF_Location[#CF_Location + 1] = id
 CF_LocationName[id] = "Tenements"
@@ -40,7 +39,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Tenements"}
 CF_LocationPlanet[id] = "MP3-GTC-CTY"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy"}
 
 local id = "Towers"
 CF_Location[#CF_Location + 1] = id
@@ -52,7 +51,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Towers"}
 CF_LocationPlanet[id] = "MP3-GTC-CTY"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies"}--]]--
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy"}--]]--
 
 local id = "City Prison"
 CF_Location[#CF_Location + 1] = id
@@ -64,7 +63,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"City Prison"}
 CF_LocationPlanet[id] = "MP3-GTC-CTY"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy", "Squad"}
 
 local id = "The Bank"
 CF_Location[#CF_Location + 1] = id
@@ -76,7 +75,7 @@ CF_LocationSecurity[id] = 20
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"The Bank"}
 CF_LocationPlanet[id] = "MP3-GTC-CTY"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy", "Squad"}
 
 local id = "Skyrise"
 CF_Location[#CF_Location + 1] = id
@@ -88,7 +87,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Skyrise"}
 CF_LocationPlanet[id] = "MP3-GTC-CTY"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy", "Squad"}
 
 local id = "Office"
 CF_Location[#CF_Location + 1] = id
@@ -100,6 +99,5 @@ CF_LocationSecurity[id] = 10
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Office"}
 CF_LocationPlanet[id] = "MP3-GTC-CTY"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies"}
-
-
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy", "Squad"}
+end

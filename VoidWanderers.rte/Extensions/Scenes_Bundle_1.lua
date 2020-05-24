@@ -7,10 +7,6 @@
 	http://forums.datarealms.com/viewtopic.php?f=24&t=19321
 	Supported out of the box
 
-	RETARDS by Squeegy Mackpy
-	http://forums.datarealms.com/viewtopic.php?f=61&t=18915	
-	Supported out of the box
-	
 	Bunker Breach + by burningsky25
 	http://forums.datarealms.com/viewtopic.php?f=24&t=32135
 	Supported out of the box
@@ -56,24 +52,6 @@ if PresetMan:GetModuleID("MiroCliffside.rte") ~= -1 then
 	CF_LocationPlanet[id] = "Miranda"
 	CF_LocationMissions[id] = {"Assault", "Assassinate", "Zombies", "Defend", "Destroy", "Squad"}--]]--
 end
-
--- Requires RETARDS.rte
-if PresetMan:GetModuleID("RETARDS.rte") ~= -1 then
-	activated = true
-
-	local id = "Lake"
-	CF_Location[#CF_Location + 1] = id
-	CF_LocationName[id] = "Lake"
-	CF_LocationPos[id] = Vector(0 , -32)
-	CF_LocationRemoveDoors[id] = true
-	CF_LocationDescription[id] = ""
-	CF_LocationSecurity[id] = 35
-	CF_LocationGoldPresent[id] = false
-	CF_LocationScenes[id] = {"Lake"}
-	CF_LocationPlanet[id] = "Miranda"
-	CF_LocationMissions[id] = {"Assault", "Assassinate", "Zombies", "Defend", "Destroy", "Squad"}--]]--
-end
-
 
 -- Requires BB+.rte
 if PresetMan:GetModuleID("BB+.rte") ~= -1 then
