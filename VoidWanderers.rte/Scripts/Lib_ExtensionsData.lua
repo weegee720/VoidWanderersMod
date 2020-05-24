@@ -81,6 +81,12 @@ function CF_InitExtensionsData(activity)
 
 	CF_VesselMaxTurretStorage = {}
 	CF_VesselStartTurretStorage = {}
+
+	CF_VesselMaxBombBays = {}
+	CF_VesselStartBombBays = {}
+
+	CF_VesselMaxBombStorage = {}
+	CF_VesselStartBombStorage = {}
 	
 	CF_Mission = {}
 	

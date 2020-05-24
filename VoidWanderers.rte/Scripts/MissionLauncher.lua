@@ -235,21 +235,31 @@ function VoidWanderers:LoadCurrentGameState()
 			if val == nil then
 				self.GS["Brain"..plr.."QuantumCapacity"] = 0
 			end
-			
-			local arr = CF_GetAvailableQuantumItems(self.GS)
-			if #arr == 0 then
-				CF_UnlockRandomQuantumItem(self.GS)
-			end
-			
-			local val = self.GS["Player0VesselTurrets"]
-			if val == nil then
-				self.GS["Player0VesselTurrets"] = CF_VesselStartTurrets[ self.GS["Player0Vessel"] ]
-			end
+		end
 
-			local val = self.GS["Player0VesselTurretStorage"]
-			if val == nil then
-				self.GS["Player0VesselTurretStorage"] = CF_VesselStartTurretStorage[ self.GS["Player0Vessel"] ]
-			end
+		local arr = CF_GetAvailableQuantumItems(self.GS)
+		if #arr == 0 then
+			CF_UnlockRandomQuantumItem(self.GS)
+		end
+		
+		local val = self.GS["Player0VesselTurrets"]
+		if val == nil then
+			self.GS["Player0VesselTurrets"] = CF_VesselStartTurrets[ self.GS["Player0Vessel"] ]
+		end
+
+		local val = self.GS["Player0VesselTurretStorage"]
+		if val == nil then
+			self.GS["Player0VesselTurretStorage"] = CF_VesselStartTurretStorage[ self.GS["Player0Vessel"] ]
+		end
+
+		local val = self.GS["Player0VesselBombBays"]
+		if val == nil then
+			self.GS["Player0VesselBombBays"] = CF_VesselStartBombBays[ self.GS["Player0Vessel"] ]
+		end
+asd
+		local val = self.GS["Player0VesselBombStorage"]
+		if val == nil then
+			self.GS["Player0VesselBombStorage"] = CF_VesselStartBombStorage[ self.GS["Player0Vessel"] ]
 		end
 	end
 end

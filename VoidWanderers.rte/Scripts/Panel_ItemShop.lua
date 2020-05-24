@@ -28,7 +28,7 @@ function VoidWanderers:InitItemShopControlPanelUI()
 	self.ItemShopControlPanelItemsPerPage = 8
 	
 	-- Init variables
-	self.ItemShopControlPanelModes = {EVERYTHING = -1, PISTOL = 0, RIFLE = 1, SHOTGUN = 2, SNIPER = 3, HEAVY = 4, SHIELD = 5, DIGGER = 6, GRENADE = 7, TOOL = 8}
+	self.ItemShopControlPanelModes = {EVERYTHING = -1, PISTOL = 0, RIFLE = 1, SHOTGUN = 2, SNIPER = 3, HEAVY = 4, SHIELD = 5, DIGGER = 6, GRENADE = 7, TOOL = 8, BOMB = 9}
 	self.ItemShopControlPanelModesTexts = {}
 	
 	self.ItemShopControlPanelModesTexts[self.ItemShopControlPanelModes.EVERYTHING] = "All items"
@@ -41,6 +41,7 @@ function VoidWanderers:InitItemShopControlPanelUI()
 	self.ItemShopControlPanelModesTexts[self.ItemShopControlPanelModes.DIGGER] = "Diggers"
 	self.ItemShopControlPanelModesTexts[self.ItemShopControlPanelModes.GRENADE] = "Explosives"
 	self.ItemShopControlPanelModesTexts[self.ItemShopControlPanelModes.TOOL] = "Tools"
+	self.ItemShopControlPanelModesTexts[self.ItemShopControlPanelModes.BOMB] = "Bombs"
 	
 	self.ItemShopControlMode = self.ItemShopControlPanelModes.EVERYTHING
 

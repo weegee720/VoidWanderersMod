@@ -27,6 +27,13 @@ CF_VesselStartTurrets[id] = 0
 CF_VesselMaxTurretStorage[id] = 6
 CF_VesselStartTurretStorage[id] = 1
 
+CF_VesselMaxBombBays[id] = 1
+CF_VesselStartBombBays[id] = 0
+
+CF_VesselMaxBombStorage[id] = 15
+CF_VesselStartBombStorage[id] = 0
+
+
 
 local id = "Gryphon"
 CF_Vessel[#CF_Vessel + 1] = id
@@ -56,6 +63,12 @@ CF_VesselStartTurrets[id] = 0
 CF_VesselMaxTurretStorage[id] = 8
 CF_VesselStartTurretStorage[id] = 1
 
+CF_VesselMaxBombBays[id] = 2
+CF_VesselStartBombBays[id] = 0
+
+CF_VesselMaxBombStorage[id] = 30
+CF_VesselStartBombStorage[id] = 0
+
 
 local id = "Titan"
 CF_Vessel[#CF_Vessel + 1] = id
@@ -84,6 +97,12 @@ CF_VesselStartTurrets[id] = 0
 
 CF_VesselMaxTurretStorage[id] = 14
 CF_VesselStartTurretStorage[id] = 2
+
+CF_VesselMaxBombBays[id] = 4
+CF_VesselStartBombBays[id] = 2
+
+CF_VesselMaxBombStorage[id] = 100
+CF_VesselStartBombStorage[id] = 10
 
 
 -- Abandoned vessel scenes

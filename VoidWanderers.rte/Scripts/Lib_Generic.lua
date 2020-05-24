@@ -92,6 +92,8 @@ function CF_InitFactions(activity)
 	CF_EnginePrice = 500
 	CF_TurretPrice = 4000
 	CF_TurretStoragePrice = 2000
+	CF_BombBayPrice = 6000
+	CF_BombStoragePrice = 200
 	
 	CF_ShipSellCoeff = 0.25
 	CF_ShipDevInstallCoeff = 0.05
@@ -253,7 +255,7 @@ function CF_InitFactions(activity)
 
 	CF_FactionAIModels = {}
 	
-	CF_WeaponTypes = {PISTOL = 0, RIFLE = 1, SHOTGUN = 2, SNIPER = 3, HEAVY = 4, SHIELD = 5, DIGGER = 6, GRENADE = 7, TOOL = 8}
+	CF_WeaponTypes = {PISTOL = 0, RIFLE = 1, SHOTGUN = 2, SNIPER = 3, HEAVY = 4, SHIELD = 5, DIGGER = 6, GRENADE = 7, TOOL = 8, BOMB = 9}
 	CF_ActorTypes = {LIGHT = 0, HEAVY = 1, ARMOR = 2, TURRET = 3}
 	CF_FactionTypes = {ORGANIC = 0, SYNTHETIC = 1}
 
@@ -278,6 +280,16 @@ function CF_InitFactions(activity)
 	CF_EquipmentTypes = {} -- Factions with pre-equipped actors specify which weapons class this unit is equivalent
 	CF_ActPowers = {}
 	CF_ActOffsets = {}
+
+	-- Bombs, used only by VoidWanderers
+	CF_BombNames = {}
+	CF_BombPresets = {}
+	CF_BombModules = {}
+	CF_BombClasses = {}
+	CF_BombPrices = {}
+	CF_BombDescriptions = {}
+	CF_BombOwnerFactions = {}
+	CF_BombUnlockData = {}
 	
 	CF_RequiredModules	 = {}
 

@@ -86,7 +86,8 @@ function CF_GetItemShopArray(gs, makefilters)
 	
 	for i = 1, tonumber(gs["ActiveCPUs"]) do
 		local f = CF_GetPlayerFaction(gs, i)
-	
+		
+		-- Add generic items
 		for itm = 1, #CF_ItmNames[f] do
 			local isduplicate = false
 			
@@ -113,6 +114,48 @@ function CF_GetItemShopArray(gs, makefilters)
 				
 				--print(arr[ii]["Preset"])
 				--print(arr[ii]["Class"])
+			end
+		end
+		
+		-- Add bombs
+		for itm = 1, #CF_BombNames do
+			local allowed = true
+			local owner = ""
+			
+			if #CF_BombOwnerFactions[itm] > 0 then
+				allowed = false
+				for of = 1, #CF_BombOwnerFactions[i] do
+					if of == f then
+						if tonumber(gs["Player"..i.."Reputation"]) > 0 and tonumber(gs["Player"..i.."Reputation"]) >= CF_BombUnlockData[itm] then
+							allowed = true
+							owner = f
+						end
+					end
+				end
+			end
+
+			local isduplicate = false
+			
+			for j = 1, #arr do
+				if CF_BombDescriptions[itm] == arr[j]["Description"] and CF_BombPresets[itm] == arr[j]["Preset"] then
+					isduplicate = true
+				end
+			end
+			
+			if allowed and not isduplicate then
+				local ii = #arr + 1
+				arr[ii] = {}
+				arr[ii]["Preset"] = CF_BombPresets[itm]
+				if CF_BombClasses[itm] ~= nil then
+					arr[ii]["Class"] = CF_BombClasses[itm]
+				else
+					arr[ii]["Class"] = "TDExplosive"
+				end
+				arr[ii]["Faction"] = owner
+				arr[ii]["Index"] = itm
+				arr[ii]["Description"] = CF_BombDescriptions[itm]
+				arr[ii]["Price"] = CF_BombPrices[itm]
+				arr[ii]["Type"] = CF_WeaponTypes.BOMB
 			end
 		end
 	end
@@ -149,6 +192,7 @@ function CF_GetItemShopArray(gs, makefilters)
 		arr2[CF_WeaponTypes.DIGGER] = {}
 		arr2[CF_WeaponTypes.GRENADE] = {}
 		arr2[CF_WeaponTypes.TOOL] = {}
+		arr2[9] = {} -- Bombs
 		
 		for itm = 1, #arr do
 			-- Add item to 'all' list
