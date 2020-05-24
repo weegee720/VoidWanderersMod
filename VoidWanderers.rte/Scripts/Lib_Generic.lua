@@ -41,7 +41,7 @@ function CF_InitFactions(activity)
 	CF_BombSeenRange = 150
 	CF_BombUnseenRange = 400
 	
-	CF_KeyRepeatDelay = 100
+	CF_KeyRepeatDelay = 175
 	
 	CF_MaxLevel = 100
 	CF_ExpPerLevel = 500

@@ -1264,6 +1264,8 @@ function VoidWanderers:UpdateActivity()
 			if self.AssaultNextSpawnTime == self.Time then
 				-- Check end of assault conditions
 				if CF_CountActors(CF_CPUTeam) == 0 and self.AssaultEnemiesToSpawn == 0 then
+					self:StartMusic(CF_MusicTypes.VICTORY)
+
 					-- End of assault
 					self.GS["Mode"] = "Vessel"
 					

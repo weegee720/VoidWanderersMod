@@ -166,6 +166,10 @@ function VoidWanderers:ProcessItemShopControlPanelUI()
 				
 				if self.ItemShopControlMode == -2 then
 					self.ItemShopControlMode = self.ItemShopControlPanelModes.BOMB
+					
+					if self.ItemShopBlackMarket then
+						self.ItemShopControlMode = self.ItemShopControlPanelModes.TOOL
+					end
 				end
 			end	
 
@@ -174,8 +178,14 @@ function VoidWanderers:ProcessItemShopControlPanelUI()
 				self.ItemShopSelectedItem = 1
 				self.LastItemShopSelectedItem = 0
 				
-				if self.ItemShopControlMode == 10 then
-					self.ItemShopControlMode = self.ItemShopControlPanelModes.EVERYTHING
+				if self.ItemShopBlackMarket then
+					if self.ItemShopControlMode == 9 then
+						self.ItemShopControlMode = self.ItemShopControlPanelModes.EVERYTHING
+					end
+				else
+					if self.ItemShopControlMode == 10 then
+						self.ItemShopControlMode = self.ItemShopControlPanelModes.EVERYTHING
+					end
 				end
 			end
 			
