@@ -27,7 +27,7 @@ function VoidWanderers:InitShipControlPanelUI()
 	end
 	
 	-- Init variables
-	self.ShipControlPanelModes = {REPORT = 0, LOCATION = 1, PLANET = 2, MISSIONS = 3, REPUTATION = 4, UPGRADE = 5, SHIPYARD = 6}
+	self.ShipControlPanelModes = {REPORT = 0, LOCATION = 1, PLANET = 2, MISSIONS = 3, REPUTATION = 4, BRAIN = 5, UPGRADE = 6, SHIPYARD = 7}
 
 	-- Debug
 	--for i = 1, CF_MaxMissionReportLines do
@@ -58,6 +58,7 @@ function VoidWanderers:InitShipControlPanelUI()
 	self.ShipControlPlanetsPerPage = 10
 	
 	self.ShipControlSelectedUpgrade = 1
+	self.ShipControlSelectedSkillUpgrade = 1
 	self.ShipControlSelectedFaction = 1
 	self.ShipControlSelectedMission = 1
 	self.ShipControlSelectedShip = 1
@@ -755,6 +756,163 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,78))
 			end
 ---------------------------------------------------------------------------------------------------
+			if self.ShipControlMode == self.ShipControlPanelModes.BRAIN then
+				self.ShipControlSkillUpgrades = {}
+				-- Toughness
+				local nm = #self.ShipControlSkillUpgrades + 1
+				self.ShipControlSkillUpgrades[nm = {}
+				self.ShipControlSkillUpgrades[nm["Name"] = "Toughness"
+				self.ShipControlSkillUpgrades[nm]["Variable"] = "Brain"..plr.."Tougness"
+				self.ShipControlSkillUpgrades[nm]["Description"] = ""
+				local val = self.ShipControlSkillUpgrades[nm]["Variable"]
+				if val == nil then
+					val = 0
+				else
+					val = tonumber(val)
+				end
+				self.GS[self.ShipControlSkillUpgrades[nm]["Variable"]] = val
+				self.ShipControlSkillUpgrades[nm]["Price"] = val + 1 * 2
+
+				
+				local nm = #self.ShipControlSkillUpgrades + 1
+				self.ShipControlSkillUpgrades[nm] = {}
+				self.ShipControlSkillUpgrades[nm]["Name"] = "Force field"
+				self.ShipControlSkillUpgrades[nm]["Variable"] = "Brain"..plr.."Field"
+				self.ShipControlSkillUpgrades[nm]["Description"] = ""
+				self.ShipControlSkillUpgrades[nm]["Price"] = CF_StoragePrice
+				local val = self.ShipControlSkillUpgrades[nm]["Variable"]
+				if val == nil then
+					val = 0
+				else
+					val = tonumber(val)
+				end
+				self.GS[self.ShipControlSkillUpgrades[nm]["Variable"]] = val
+				self.ShipControlSkillUpgrades[nm]["Price"] = val + 1
+
+				
+				local nm = #self.ShipControlSkillUpgrades + 1
+				self.ShipControlSkillUpgrades[nm] = {}
+				self.ShipControlSkillUpgrades[nm]["Name"] = "Telekinesis"
+				self.ShipControlSkillUpgrades[nm]["Variable"] = "Brain"..plr.."Telekinesis"
+				self.ShipControlSkillUpgrades[nm]["Description"] = ""
+				self.ShipControlSkillUpgrades[nm]["Price"] = CF_StoragePrice
+				local val = self.ShipControlSkillUpgrades[nm]["Variable"]
+				if val == nil then
+					val = 0
+				else
+					val = tonumber(val)
+				end
+				self.GS[self.ShipControlSkillUpgrades[nm]["Variable"]] = val
+				self.ShipControlSkillUpgrades[nm]["Price"] = val + 1
+
+				
+				local nm = #self.ShipControlSkillUpgrades + 1
+				self.ShipControlSkillUpgrades[nm] = {}
+				self.ShipControlSkillUpgrades[nm]["Name"] = "Scaning"
+				self.ShipControlSkillUpgrades[nm]["Variable"] = "Brain"..plr.."Scaner"
+				self.ShipControlSkillUpgrades[nm]["Description"] = ""
+				self.ShipControlSkillUpgrades[nm]["Price"] = CF_StoragePrice
+				local val = self.ShipControlSkillUpgrades[nm]["Variable"]
+				if val == nil then
+					val = 0
+				else
+					val = tonumber(val)
+				end
+				self.GS[self.ShipControlSkillUpgrades[nm]["Variable"]] = val
+				self.ShipControlSkillUpgrades[nm]["Price"] = val + 1
+				
+				
+				local nm = #self.ShipControlSkillUpgrades + 1
+				self.ShipControlSkillUpgrades[nm] = {}
+				self.ShipControlSkillUpgrades[nm]["Name"] = "Healing"
+				self.ShipControlSkillUpgrades[nm]["Variable"] = "Brain"..plr.."Heal"
+				self.ShipControlSkillUpgrades[nm]["Description"] = ""
+				self.ShipControlSkillUpgrades[nm]["Price"] = CF_StoragePrice
+				local val = self.ShipControlSkillUpgrades[nm]["Variable"]
+				if val == nil then
+					val = 0
+				else
+					val = tonumber(val)
+				end
+				self.GS[self.ShipControlSkillUpgrades[nm]["Variable"]] = val
+				self.ShipControlSkillUpgrades[nm]["Price"] = val + 1
+
+
+				local nm = #self.ShipControlSkillUpgrades + 1
+				self.ShipControlSkillUpgrades[nm] = {}
+				self.ShipControlSkillUpgrades[nm]["Name"] = "Fixing"
+				self.ShipControlSkillUpgrades[nm]["Variable"] = "Brain"..plr.."Fix"
+				self.ShipControlSkillUpgrades[nm]["Description"] = ""
+				self.ShipControlSkillUpgrades[nm]["Price"] = CF_StoragePrice
+				local val = self.ShipControlSkillUpgrades[nm]["Variable"]
+				if val == nil then
+					val = 0
+				else
+					val = tonumber(val)
+				end
+				self.GS[self.ShipControlSkillUpgrades[nm]["Variable"]] = val
+				self.ShipControlSkillUpgrades[nm]["Price"] = val + 1
+
+				
+				if cont:IsState(Controller.PRESS_UP) then
+					self.ShipControlSelectedSkillUpgrade = self.ShipControlSelectedSkillUpgrade - 1
+					if self.ShipControlSelectedSkillUpgrade < 1 then
+						self.ShipControlSelectedSkillUpgrade = 1
+					end
+				end
+			
+				if cont:IsState(Controller.PRESS_DOWN) then
+					self.ShipControlSelectedSkillUpgrade = self.ShipControlSelectedSkillUpgrade + 1
+					if self.ShipControlSelectedSkillUpgrade > #self.ShipControlSkillUpgrades then
+						self.ShipControlSelectedSkillUpgrade = #self.ShipControlSkillUpgrades
+					end
+				end
+
+				local current = tonumber(self.GS[ self.ShipControlSkillUpgrades[self.ShipControlSelectedSkillUpgrade]["Variable"] ])
+				local maximum = 5
+				local price = self.ShipControlSkillUpgrades[self.ShipControlSelectedSkillUpgrade]["Price"]
+				
+				if cont:IsState(Controller.WEAPON_FIRE) then
+					if not self.FirePressed then
+						self.FirePressed = true;
+						
+						local sklpts = self.GS["Brain"..plr.."SkillPoints"]
+						if sklpts == nil then
+							sklpts = 0
+						else
+							sklpts = tonumber(sklpts)
+						end
+						
+						if current < maximum and price <= sklpts then
+							self.GS[ self.ShipControlSkillUpgrades[self.ShipControlSelectedSkillUpgrade]["Variable"] ] = current + 1
+							sklpts = sklpts - price
+							self.GS["Brain"..plr.."SkillPoints"] = sklpts
+						end
+					end
+				else
+					self.FirePressed = false
+				end				
+
+				-- Show list
+				for i = 1, #self.ShipControlSkillUpgrades do
+					if i == self.ShipControlSelectedSkillUpgrade then
+						CF_DrawString("> " .. self.ShipControlSkillUpgrades[i]["Name"], pos + Vector(-62 - 71, -40 + i * 11), 130, 12)
+					else
+						CF_DrawString(self.ShipControlSkillUpgrades[i]["Name"], pos + Vector(-62 - 71, -40 + i * 11), 130, 12)
+					end
+				end				
+				
+
+				CF_DrawString("Player "..plr.." brain skill management", pos + Vector(-62-71, -78), 270, 40)
+				CF_DrawString("U/D - Select upgrade, FIRE - Upgrade", pos + Vector(-62-71, 78), 270, 40)
+				self:PutGlow("ControlPanel_Ship_PlanetBack", pos + Vector(-71, 0))
+				self:PutGlow("ControlPanel_Ship_PlanetBack", pos + Vector(70, 0))
+				
+				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,-77))
+				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,78))
+
+			end
+-------------------------------------------------------------------------------
 			if self.ShipControlMode == self.ShipControlPanelModes.UPGRADE then
 				-- Create upgrades list
 				self.ShipControlUpgrades = {}
@@ -1134,11 +1292,11 @@ function VoidWanderers:ProcessShipControlPanelUI()
 					self.LastShipSelectedItem = 0
 					
 					if CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.SHIPYARD) then
-						if self.ShipControlMode == 7 then
+						if self.ShipControlMode == 8 then
 							self.ShipControlMode = self.ShipControlPanelModes.SHIPYARD
 						end
 					else
-						if self.ShipControlMode == 5 then
+						if self.ShipControlMode == 6 then
 							self.ShipControlMode = self.ShipControlPanelModes.REPUTATION
 						end
 					end

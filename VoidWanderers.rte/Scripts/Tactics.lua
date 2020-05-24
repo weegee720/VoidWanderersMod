@@ -1412,7 +1412,9 @@ function VoidWanderers:GiveMissionRewards()
 		self.MissionReport[#self.MissionReport + 1] = tostring(self.MissionGoldReward).."oz of gold received"
 	end
 	
-	local exppts = math.floor(self.MissionReputationReward + self.MissionGoldReward / 10)
+	local exppts = math.floor(self.MissionReputationReward + self.MissionGoldReward / 8)
+	
+	local levelup = false;
 
 	if self.GS["BrainsOnMission"] then
 		for p = 0, 3 do
@@ -1440,10 +1442,11 @@ function VoidWanderers:GiveMissionRewards()
 			curexp = curexp + exppts
 			
 			while math.floor(curexp / CF_ExpPerLevel) > 0 do
-				if curlvl < CF_MaxLevel
+				if curlvl < CF_MaxLevel then
 					curexp = curexp - CF_ExpPerLevel
 					cursklpts = cursklpts + 1
 					curlvl = curlvl + 1
+					levelup = true
 				end
 			end
 		
@@ -1452,7 +1455,10 @@ function VoidWanderers:GiveMissionRewards()
 			self.GS["Brain"..p.."Level"] = curlvl
 		end
 		
-		self.MissionReport[#self.MissionReport + 1] = tostring(exppts).."exp received"
+		self.MissionReport[#self.MissionReport + 1] = tostring(exppts).." exp received"
+		if levelup then
+			self.MissionReport[#self.MissionReport + 1] = "Brains leveled up!"
+		end
 	end
 	
 	if self.MissionReputationReward > 0 then

@@ -30,7 +30,7 @@ function CF_InitFactions(activity)
 	
 	CF_MaxMissions = 5
 	
-	CF_MaxLevel = 10
+	CF_MaxLevel = 100
 	CF_ExpPerLevel = 500
 	
 	CF_SecurityIncrementPerMission = 10
