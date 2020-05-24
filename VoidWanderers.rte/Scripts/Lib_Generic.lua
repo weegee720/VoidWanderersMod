@@ -21,8 +21,11 @@ function CF_InitFactions(activity)
 	CF_UnknownItemPrice = 250
 	CF_UnknownActorPrice = 500
 	
+	CF_MaxMissions = 5
+	
 	CF_AssaultCheckInterval = 5
 	CF_ReputationPerDifficulty = 1000
+	CF_ReputationHuntTreshold = -500
 	
 	CF_UseCustomAI = true
 	
@@ -49,7 +52,7 @@ function CF_InitFactions(activity)
 	
 	CF_EvacDist = 650
 	
-	CF_MaxMissionReportLines = 12
+	CF_MaxMissionReportLines = 13
 	
 	CF_AssaultDifficultyTexts = {}
 	CF_AssaultDifficultyTexts[1] = "scout"

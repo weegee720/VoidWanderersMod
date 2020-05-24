@@ -454,7 +454,7 @@ function VoidWanderers:TriggerShipAssault()
 		print (CF_GetPlayerFaction(self.GS,self.AssaultEnemyPlayer))
 		print (rep)
 		
-		if rep < 0 then
+		if rep < CF_ReputationHuntTreshold then
 			self.AssaultDifficulty = math.floor(math.abs(rep / CF_ReputationPerDifficulty))
 			
 			if self.AssaultDifficulty <= 0 then

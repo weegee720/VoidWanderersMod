@@ -145,7 +145,7 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 				config["Player".. i .."Reputation"] = 650
 			else
 				if CF_FactionNatures[config["Player0Faction"]] ~= CF_FactionNatures[config["Player"..i.."Faction"]] then
-					config["Player".. i .."Reputation"] = math.ceil(-1000 * CF_SynthetsToOrganicRatio )
+					config["Player".. i .."Reputation"] = CF_ReputationHuntTreshold--math.ceil(-1000 * CF_SynthetsToOrganicRatio )
 				else
 					config["Player".. i .."Reputation"] = 0
 				end
@@ -160,6 +160,8 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 	end
 	
 	config["ActiveCPUs"] = activecpus
+	
+	CF_GenerateRandomMissions(config)	
 
 	return config;
 end

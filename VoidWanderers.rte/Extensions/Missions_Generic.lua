@@ -54,37 +54,49 @@ CF_MissionRequiredData[id] = {}
 local i = 1
 CF_MissionRequiredData[id][i] = {}
 CF_MissionRequiredData[id][i]["Name"] = "Any"
+CF_MissionRequiredData[id][i]["Type"] = "Vector"
 CF_MissionRequiredData[id][i]["Max"] = 12
 
 local i = 2
 CF_MissionRequiredData[id][i] = {}
 CF_MissionRequiredData[id][i]["Name"] = "Rifle"
+CF_MissionRequiredData[id][i]["Type"] = "Vector"
 CF_MissionRequiredData[id][i]["Max"] = 6
 
 local i = 3
 CF_MissionRequiredData[id][i] = {}
 CF_MissionRequiredData[id][i]["Name"] = "Heavy"
+CF_MissionRequiredData[id][i]["Type"] = "Vector"
 CF_MissionRequiredData[id][i]["Max"] = 4
 
 local i = 4
 CF_MissionRequiredData[id][i] = {}
 CF_MissionRequiredData[id][i]["Name"] = "Shotgun"
+CF_MissionRequiredData[id][i]["Type"] = "Vector"
 CF_MissionRequiredData[id][i]["Max"] = 4
 
 local i = 5
 CF_MissionRequiredData[id][i] = {}
 CF_MissionRequiredData[id][i]["Name"] = "Defender"
+CF_MissionRequiredData[id][i]["Type"] = "Vector"
 CF_MissionRequiredData[id][i]["Max"] = 4
 
 local i = 6
 CF_MissionRequiredData[id][i] = {}
 CF_MissionRequiredData[id][i]["Name"] = "Armor"
+CF_MissionRequiredData[id][i]["Type"] = "Vector"
 CF_MissionRequiredData[id][i]["Max"] = 4
 
 local i = 7
 CF_MissionRequiredData[id][i] = {}
 CF_MissionRequiredData[id][i]["Name"] = "Sniper"
+CF_MissionRequiredData[id][i]["Type"] = "Vector"
 CF_MissionRequiredData[id][i]["Max"] = 4
 
+local i = 8
+CF_MissionRequiredData[id][i] = {}
+CF_MissionRequiredData[id][i]["Name"] = "Base"
+CF_MissionRequiredData[id][i]["Type"] = "Box"
+CF_MissionRequiredData[id][i]["Max"] = 16
 
 CF_GenericMissionCount = #CF_Mission

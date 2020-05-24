@@ -516,13 +516,60 @@ function VoidWanderers:FormDraw()
 	
 			-- Enum 
 			for k3,v3 in pairs(self.Pts[self.SelectedType][self.SelectedSet]) do
-				for k4,v4 in pairs(v3) do
-					local nm = CF_MissionRequiredData[self.SelectedType][k3]["Name"]
-					local s = nm.."-"..tostring(k4)
-					local l = CF_GetStringPixelWidth(s)
+				local tp = CF_MissionRequiredData[self.SelectedType][k3]["Type"]
 				
-					CF_DrawString(s, v4 + Vector(-l/2,-10), 150, 20)
-					self:PutGlow("ControlPanel_Ship_LocationDot", v4)
+				if tp == "Box" then
+					for k4,v4 in pairs(v3) do
+						local havepair = false
+						local pair
+						
+						if k4 % 2 == 0 then
+							pair = k4 - 1
+						else
+							pair = k4 + 1
+						end
+						
+						if v3[pair] == nil then
+							self:PutGlow("SceneEditor_Dot_Red", v4)
+						else
+							self:PutGlow("SceneEditor_Dot_Green", v4)
+							havepair = true
+						end
+						
+						if havepair then
+							local c1 = v4;
+							local c2 = v3[pair]
+						
+							--Draw box
+							local x1 = c1.X
+							local y1 = c1.Y
+							local x2 = c2.X
+							local y2 = c2.Y
+							
+							self:DrawDottedLine(x1,y1,x2,y2,"ControlPanel_Ship_DestDot",25)
+							self:DrawDottedLine(x2,y1,x1,y2,"ControlPanel_Ship_DestDot",25)
+							
+							self:DrawDottedLine(x1,y1,x1,y2,"ControlPanel_Ship_DestDot",25)
+							self:DrawDottedLine(x1,y1,x2,y1,"ControlPanel_Ship_DestDot",25)
+							self:DrawDottedLine(x2,y1,x2,y2,"ControlPanel_Ship_DestDot",25)
+							self:DrawDottedLine(x1,y2,x2,y2,"ControlPanel_Ship_DestDot",25)
+						end
+						
+						local nm = CF_MissionRequiredData[self.SelectedType][k3]["Name"]
+						local s = nm.."-"..tostring(k4)
+						local l = CF_GetStringPixelWidth(s)
+					
+						CF_DrawString(s, v4 + Vector(-l/2,-10), 150, 20)
+					end
+				else
+					for k4,v4 in pairs(v3) do
+						local nm = CF_MissionRequiredData[self.SelectedType][k3]["Name"]
+						local s = nm.."-"..tostring(k4)
+						local l = CF_GetStringPixelWidth(s)
+					
+						CF_DrawString(s, v4 + Vector(-l/2,-10), 150, 20)
+						self:PutGlow("SceneEditor_Dot_Green", v4)
+					end
 				end
 			end
 		end
@@ -557,7 +604,7 @@ function VoidWanderers:FormDraw()
 						local l = CF_GetStringPixelWidth(s)
 					
 						CF_DrawString(s, v4 + Vector(-l/2,-10), 150, 20)
-						self:PutGlow("ControlPanel_Ship_LocationDot", v4)
+						self:PutGlow("SceneEditor_Dot_Blue", v4)
 					end
 				end
 			end
@@ -580,8 +627,38 @@ end
 -----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
-
 function VoidWanderers:FormClose()
+end
+-----------------------------------------------------------------------------------------
+-- 
+-----------------------------------------------------------------------------------------
+function VoidWanderers:PutGlowWithModule(preset, pos, module)
+	local glow = CreateMOPixel(preset, module);
+	if glow then
+		glow.Pos = pos
+		MovableMan:AddParticle(glow);	
+	end
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
+function VoidWanderers:DrawDottedLine(x1 , y1  , x2 , y2 , dot , interval)
+	local d = CF_Dist(Vector(x1,y1), Vector(x2,y2))
+		
+	local ax = (x2 - x1) / d * interval
+	local ay = (y2 - y1) / d * interval
+	
+	local x = x1
+	local y = y1
+	
+	d = math.floor(d)
+	
+	for i = 1, d, interval do
+		self:PutGlowWithModule(dot, Vector(x,y), self.ModuleName)
+		
+		x = x + ax
+		y = y + ay
+	end
 end
 -----------------------------------------------------------------------------------------
 --

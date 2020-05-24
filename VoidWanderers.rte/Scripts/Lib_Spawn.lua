@@ -688,6 +688,132 @@ end
 -----------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------
-
-
-
+function CF_GenerateRandomMission(c)
+	local cpus = tonumber(c["ActiveCPUs"])
+	local mission = {}
+	local p = math.random(cpus)
+	
+	-- Make list of available missions
+	local rep = tonumber(c["Player"..p.."Reputation"])
+	
+	local missions = {}
+	
+	for m = 1, #CF_Mission do
+		local msnid = CF_Mission[m]
+		
+		if CF_MissionMinReputation[msnid] <= rep then
+			local newmsn = #missions + 1
+			
+			missions[newmsn] = {}
+			missions[newmsn]["MissionID"] = msnid
+			missions[newmsn]["Scenes"] = {}
+			
+			-- Search for locations for this mission and make a list of them
+			for l = 1, #CF_Location do
+				local locid = CF_Location[l]
+				local playable = true
+				
+				if CF_LocationPlayable[locid] ~= nil then
+					if CF_LocationPlayable[locid] == false then
+						playable = false
+					end
+				end
+				
+				if playable then
+					for lm = 1, #CF_LocationMissions[locid] do
+						if msnid == CF_LocationMissions[locid][lm] then
+							local newloc = #missions[newmsn]["Scenes"] + 1
+						
+							missions[newmsn]["Scenes"][newloc] = locid
+						end
+					end
+				end
+			end
+		end
+	end
+	
+	-- Pick some random mission for which we have locations
+	local ok = false
+	local rmsn
+	
+	while not ok do
+		ok = true
+		
+		rmsn = math.random(#missions)
+		
+		if #missions[rmsn]["Scenes"] == 0 then
+			ok = false
+		end
+	end
+	
+	-- Pick some random location for this mission
+	local rloc = math.random(#missions[rmsn]["Scenes"])
+	
+	-- Pick some random difficulty for this mission
+	local rdif = math.random(CF_MaxDifficulty)
+	
+	-- Pick some random target for this mission
+	local ok = false
+	local renm
+	
+	while not ok do
+		ok = true
+		
+		renm = math.random(cpus)
+		
+		if p == renm then
+			ok = false
+		end
+	end
+	
+	-- Return mission
+	mission["SourcePlayer"] = p
+	mission["TargetPlayer"] = renm
+	mission["Type"]= missions[rmsn]["MissionID"]
+	mission["Location"]= missions[rmsn]["Scenes"][rloc]
+	mission["Difficulty"]= rdif
+	
+	return mission;
+end
+-----------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------
+function CF_GenerateRandomMissions(c)
+	local missions = {}
+	
+	for i = 1, CF_MaxMissions do
+		local ok = false
+		local msn
+		
+		while not ok do
+			ok = true
+			
+			msn = CF_GenerateRandomMission(c)
+			
+			-- Make sure that we don't have multiple missions in single locations
+			if i > 1 then
+				for j = 1, i - 1 do
+					if missions[j]["Location"] == msn["Location"] then
+						ok = false
+					end
+				end
+			end
+		end
+		
+		missions[i] = msn
+	end
+	
+	-- Put missions to config
+	for i = 1, CF_MaxMissions do
+		c["Mission"..i.."SourcePlayer"] = missions[i]["SourcePlayer"]
+		c["Mission"..i.."TargetPlayer"] = missions[i]["TargetPlayer"]
+		c["Mission"..i.."Type"] = missions[i]["Type"]
+		c["Mission"..i.."Location"] = missions[i]["Location"]
+		c["Mission"..i.."Difficulty"] = missions[i]["Difficulty"]
+	end
+	
+	--return c
+end
+-----------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------

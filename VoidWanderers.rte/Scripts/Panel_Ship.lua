@@ -27,7 +27,7 @@ function VoidWanderers:InitShipControlPanelUI()
 	end
 	
 	-- Init variables
-	self.ShipControlPanelModes = {REPORT = 0, LOCATION = 1, PLANET = 2, SHIPYARD = 3}
+	self.ShipControlPanelModes = {REPORT = 0, LOCATION = 1, PLANET = 2, MISSIONS = 3, REPUTATION = 4, SHIPYARD = 5}
 
 	-- Debug
 	--for i = 1, CF_MaxMissionReportLines do
@@ -54,6 +54,10 @@ function VoidWanderers:InitShipControlPanelUI()
 	self.ShipControlPlanetsPerPage = 10
 	
 	self.ShipControlSelectedUpgrade = 1
+	self.ShipControlSelectedFaction = 1
+	self.ShipControlSelectedMission = 1
+	
+	CF_GenerateRandomMissions(self.GS)
 end
 -----------------------------------------------------------------------------------------
 --
@@ -71,7 +75,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 	local showidle = true
 	local resetlists = false;
 	
-	-- Forc-show report if we have some report array left from previous mission
+	-- Force-show report if we have some report array left from previous mission
 	if self.MissionReport ~= nil then
 		self:SwitchToActor(self.ShipControlPanelActor, 0, CF_PlayerTeam)
 		self.MissionReport = nil
@@ -237,7 +241,21 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				-- Show selected location dot
 				local locpos = CF_LocationPos[ self.ShipControlLocationList[ self.ShipControlSelectedLocation ] ]
 				if locpos ~= nil then
-					self:PutGlow("ControlPanel_Ship_LocationDot", pos + locpos + Vector(70,0))
+					local msn = false
+				
+					-- If we have mission in that location then draw red dot
+					for m = 1, CF_MaxMissions do
+						if self.ShipControlLocationList[ self.ShipControlSelectedLocation ] == self.GS["Mission"..m.."Location"] then
+							msn = true
+							break
+						end
+					end
+					
+					if msn then
+						self:PutGlow("ControlPanel_Ship_MissionDot", pos + locpos + Vector(70,0))
+					else
+						self:PutGlow("ControlPanel_Ship_LocationDot", pos + locpos + Vector(70,0))
+					end
 					
 					-- Draw line to location
 					local sx = shippos.X
@@ -289,10 +307,8 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				local plntmodeule = CF_PlanetGlowModule[ self.GS["Planet"] ]
 				self:PutGlow("ControlPanel_Ship_PlanetBack", pos + Vector(-71, 0))
 				self:PutGlow("ControlPanel_Ship_PlanetBack", pos + Vector(70, 0))
-				--self:PutGlow("ControlPanel_Ship_LocationList", pos + Vector(-71, 91))
 				self:PutGlow(plntpreset, pos + Vector(70,0), plntmodeule)
 				
-				--self:PutGlow("ControlPanel_Ship_Description", pos + Vector(70,21))
 				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,-77))
 				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,78))				
 			end
@@ -383,30 +399,24 @@ function VoidWanderers:ProcessShipControlPanelUI()
 					end
 				end
 				
-				--local plntpreset = CF_PlanetGlow[ self.ShipControlPlanetList [ self.ShipControlSelectedPlanet ] ]
-				--local plntmodeule = CF_PlanetGlowModule[ self.ShipControlPlanetList [ self.ShipControlSelectedPlanet ] ]
-
 				self:PutGlow("ControlPanel_Ship_PlanetBack", pos + Vector(-71, 0))
 				self:PutGlow("ControlPanel_Ship_GalaxyBack", pos + Vector(70,0))
-				--self:PutGlow("ControlPanel_Ship_LocationList", pos + Vector(-71, 91))
-				--self:PutGlow(plntpreset, pos + Vector(70,0), plntmodeule)
-				
-				--self:PutGlow("ControlPanel_Ship_Description", pos + Vector(70,21))
 				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,-77))
 				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,78))
-				
 			end
 ---------------------------------------------------------------------------------------------------
 			-- Show last mission report
 			if self.ShipControlMode == self.ShipControlPanelModes.REPORT then
 				-- Show current planet
 				self:PutGlow("ControlPanel_Ship_Report", pos)
-				CF_DrawString("MISSION REPORT", pos + Vector(-34,-60), 262, 141)
+				CF_DrawString("MISSION REPORT", pos + Vector(-34,-77), 262, 141)
 
+				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,-77))
 				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,78))
 				CF_DrawString("Press DOWN to save game", pos + Vector(-60,77), 262, 141)
 				
 				for i = 1, CF_MaxMissionReportLines do
+					--CF_DrawString("LINE"..i, pos + Vector(-130,-70 + i * 10), 262, 141) -- Debug
 					if self.GS["MissionReport"..i] ~= nil then
 						CF_DrawString(self.GS["MissionReport"..i], pos + Vector(-130,-56 + i * 10), 262, 141)
 					else
@@ -535,7 +545,155 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,78))
 			end
 ---------------------------------------------------------------------------------------------------
+			if self.ShipControlMode == self.ShipControlPanelModes.MISSIONS then
+				-- Create upgrades list
+				local cpus = tonumber(self.GS["ActiveCPUs"])
+				
+				self.ShipControlMissions = {}
+				for i = 1, CF_MaxMissions do
+					self.ShipControlMissions[i] = {}
+					self.ShipControlMissions[i]["SourcePlayer"] = tonumber(self.GS["Mission"..i.."SourcePlayer"])
+					self.ShipControlMissions[i]["TargetPlayer"] = tonumber(self.GS["Mission"..i.."TargetPlayer"])
+					self.ShipControlMissions[i]["Difficulty"] = tonumber(self.GS["Mission"..i.."Difficulty"])
+					self.ShipControlMissions[i]["Location"] = self.GS["Mission"..i.."Location"]
+					self.ShipControlMissions[i]["Type"] = self.GS["Mission"..i.."Type"]
+					
+					local rep = tonumber(self.GS["Player"..self.ShipControlMissions[i]["SourcePlayer"].."Reputation"])
+					local srep = ""
+					if rep > 0 then
+						srep = "+"..tostring(rep)
+					else
+						srep = tostring(rep)
+					end
+					self.ShipControlMissions[i]["SourceFactionRaputation"] = srep
+					self.ShipControlMissions[i]["SourceFaction"] = CF_FactionNames[CF_GetPlayerFaction(self.GS, self.ShipControlMissions[i]["SourcePlayer"])] 
+
+					local rep = tonumber(self.GS["Player"..self.ShipControlMissions[i]["TargetPlayer"].."Reputation"])
+					local srep = ""
+					if rep > 0 then
+						srep = "+"..tostring(rep)
+					else
+						srep = tostring(rep)
+					end
+					self.ShipControlMissions[i]["TargetFactionRaputation"] = srep
+					self.ShipControlMissions[i]["TargetFaction"] = CF_FactionNames[CF_GetPlayerFaction(self.GS, self.ShipControlMissions[i]["TargetPlayer"])]
+
+					self.ShipControlMissions[i]["Description"] = CF_MissionBriefingText[ self.ShipControlMissions[i]["Type"] ]
+				end
+				
+				if cont:IsState(Controller.PRESS_UP) then
+					-- Select planet
+					self.ShipControlSelectedMission = self.ShipControlSelectedMission - 1
+					if self.ShipControlSelectedMission < 1 then
+						self.ShipControlSelectedMission = 1
+					end
+				end
 			
+				if cont:IsState(Controller.PRESS_DOWN) then
+					-- Select planet
+					self.ShipControlSelectedMission = self.ShipControlSelectedMission + 1
+					if self.ShipControlSelectedMission > #self.ShipControlMissions then
+						self.ShipControlSelectedMission = #self.ShipControlMissions
+					end
+				end
+
+				if cont:IsState(Controller.WEAPON_FIRE) then
+					if not self.FirePressed then
+						self.FirePressed = true;
+						
+						CF_GenerateRandomMissions(self.GS)
+					end
+				else
+					self.FirePressed = false
+				end
+				
+				-- Show faction list
+				for i = 1, #self.ShipControlMissions do
+					if i == self.ShipControlSelectedMission then
+						CF_DrawString("> "..self.ShipControlMissions[i]["SourceFaction"], pos + Vector(-62 - 71, -86 + i * 25), 150, 12)
+						CF_DrawString(">   VS "..self.ShipControlMissions[i]["TargetFaction"], pos + Vector(-62 - 71, -86 + i * 25 + 10), 150, 12)
+					else
+						CF_DrawString(self.ShipControlMissions[i]["SourceFaction"], pos + Vector(-62 - 71, -86 + i * 25), 150, 12)
+						CF_DrawString("VS "..self.ShipControlMissions[i]["TargetFaction"], pos + Vector(-62 - 71 + 14, -86 + i * 25 + 10), 150, 12)
+					end
+				end
+
+				-- Show selected mission info
+				CF_DrawString("TARGET: "..self.ShipControlMissions[self.ShipControlSelectedMission]["TargetFaction"], pos + Vector(10, -61), 270, 40)
+				CF_DrawString("AT: "..self.ShipControlMissions[self.ShipControlSelectedMission]["Location"], pos + Vector(10, -51), 270, 40)
+				CF_DrawString("SECURITY: "..CF_LocationDifficultyTexts[ self.ShipControlMissions[self.ShipControlSelectedMission]["Difficulty"] ], pos + Vector(10, -41), 270, 40)
+				CF_DrawString(self.ShipControlMissions[self.ShipControlSelectedMission]["Description"], pos + Vector(10, -25), 135, 80)
+				
+				
+				CF_DrawString("Available missions", pos + Vector(-62-71, -78), 270, 40)
+				self:PutGlow("ControlPanel_Ship_PlanetBack", pos + Vector(-71, 0))
+				self:PutGlow("ControlPanel_Ship_PlanetBack", pos + Vector(70, 0))
+				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,-77))
+				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,78))
+			end
+---------------------------------------------------------------------------------------------------
+			if self.ShipControlMode == self.ShipControlPanelModes.REPUTATION then
+				-- Create upgrades list
+				local cpus = tonumber(self.GS["ActiveCPUs"])
+				
+				self.ShipControlFactions = {}
+				for i = 1, cpus do
+					self.ShipControlFactions[i] = {}
+					self.ShipControlFactions[i]["Faction"] = CF_FactionNames[CF_GetPlayerFaction(self.GS, i)]
+					self.ShipControlFactions[i]["Reputation"] = tonumber(self.GS["Player"..i.."Reputation"])
+					
+					if self.ShipControlFactions[i]["Reputation"] > 0 then
+						self.ShipControlFactions[i]["ReputationStr"] = "+"..tostring(self.ShipControlFactions[i]["Reputation"])
+					else
+						self.ShipControlFactions[i]["ReputationStr"] = tostring(self.ShipControlFactions[i]["Reputation"])
+					end
+				end
+				
+				if cont:IsState(Controller.PRESS_UP) then
+					-- Select faction
+					self.ShipControlSelectedFaction = self.ShipControlSelectedFaction - 1
+					if self.ShipControlSelectedFaction < 1 then
+						self.ShipControlSelectedFaction = 1
+					end
+				end
+			
+				if cont:IsState(Controller.PRESS_DOWN) then
+					-- Select faction
+					self.ShipControlSelectedFaction = self.ShipControlSelectedFaction + 1
+					if self.ShipControlSelectedFaction > #self.ShipControlFactions then
+						self.ShipControlSelectedFaction = #self.ShipControlFactions
+					end
+				end
+
+				-- Show faction list
+				for i = 1, #self.ShipControlFactions do
+					CF_DrawString(self.ShipControlFactions[i]["Faction"], pos + Vector(-62 - 71, -76 + i * 15), 130, 12)
+					CF_DrawString(self.ShipControlFactions[i]["ReputationStr"], pos + Vector(-62 - 71 + 80, -76 + i * 15), 130, 12)
+					
+					if self.ShipControlFactions[i]["Reputation"] < CF_ReputationHuntTreshold then
+						local diff = math.floor(math.abs(self.ShipControlFactions[i]["Reputation"] / CF_ReputationPerDifficulty))
+						
+						if diff <= 0 then
+							diff = 1
+						end
+						
+						if diff > CF_MaxDifficulty then
+							diff = CF_MaxDifficulty
+						end
+						
+						--diff = 6 -- Debug!!!
+
+						local s = "Sent "..CF_AssaultDifficultyTexts[diff].."s after you!"
+						CF_DrawString(s, pos + Vector(-62 - 71 + 120, -76 + i * 15), 160, 12)
+					end
+				end
+
+				CF_DrawString("Reputation intelligence report", pos + Vector(-62-71, -78), 270, 40)
+				self:PutGlow("ControlPanel_Ship_Report", pos)
+				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,-77))
+				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,78))
+			end
+---------------------------------------------------------------------------------------------------
 			if cont:IsState(Controller.PRESS_LEFT) then
 				self.ShipControlMode = self.ShipControlMode - 1
 				self.ShipSelectedItem = 1
@@ -552,12 +710,12 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self.LastShipSelectedItem = 0
 				
 				if self.GS["Planet"] == "TradeStar" and self.GS["Location"] ~= nil then
-					if self.ShipControlMode == 4 then
+					if self.ShipControlMode == 6 then
 						self.ShipControlMode = self.ShipControlPanelModes.SHIPYARD
 					end
 				else
-					if self.ShipControlMode == 3 then
-						self.ShipControlMode = self.ShipControlPanelModes.PLANET
+					if self.ShipControlMode == 5 then
+						self.ShipControlMode = self.ShipControlPanelModes.REPUTATION
 					end
 				end
 			end			

@@ -55,5 +55,7 @@ function CF_InitExtensionsData(activity)
 	CF_MissionScript = {}
 	CF_MissionMinReputation = {}
 	CF_MissionBriefingText = {}
+	CF_MissionGoldRewardPerDifficulty = {}
+	CF_MissionReputationRewardPerDifficulty = {}
 	CF_MissionMaxSets = {}
 end
