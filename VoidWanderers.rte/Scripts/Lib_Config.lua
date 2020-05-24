@@ -1,4 +1,10 @@
 -----------------------------------------------------------------------------
+-- Returns trimmed string
+-----------------------------------------------------------------------------
+function CF_StringTrim(s)
+	return s:gsub("^%s+", ""):gsub("%s+$", "")
+end
+-----------------------------------------------------------------------------
 -- Returns true if string ends with 'End'
 -----------------------------------------------------------------------------
 function CF_StringEnds(String,End)
@@ -29,9 +35,30 @@ function CF_ReadFactionsList(filename, defaultpath)
 				
 				if PresetMan:GetModuleID(s) then
 					if CF_IsFilePathExists(path) then
+						-- Add found .lua file if it exists
 						config[#config + 1] = path
 					else
-						print ("ERR: FILE "..path.." NOT FOUND, FACTION NOT AUTOLOADED")
+						-- Check support folder for special cases popular mods
+						-- if lua file don't exist
+						local supportpath = "./VoidWanderers.rte/Support/"..file..".lua"
+						if CF_IsFilePathExists(supportpath) then
+							print ("SUPPORT "..supportpath.." FOUND, EXECUTING")
+							local paths
+							f = loadfile(supportpath)
+							if f ~= nil then
+								paths = f()
+
+								if paths ~= nil then
+									for i = 1, #paths do
+										config[#config + 1] = paths[i]
+									end
+								end
+							else
+								print ("ERR: CAN'T LOAD "..supportpath.." SUPPORT, FACTIONS DISABLED")
+							end
+						else
+							print ("ERR: FILE "..path.." NOT FOUND, FACTION NOT AUTOLOADED")
+						end
 					end
 				else
 					print ("ERR: MODULE "..s.." NOT LOADED, FACTION NOT AUTOLOADED")
