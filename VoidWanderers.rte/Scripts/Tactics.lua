@@ -491,6 +491,7 @@ function VoidWanderers:InitConsoles()
 	self:InitStorageControlPanelUI()
 	self:InitClonesControlPanelUI()
 	self:InitBeamControlPanelUI()
+	self:InitTurretsControlPanelUI()
 end
 -----------------------------------------------------------------------------------------
 -- 
@@ -503,6 +504,8 @@ function VoidWanderers:DestroyConsoles()
 	
 	self:DestroyItemShopControlPanelUI()
 	self:DestroyCloneShopControlPanelUI()
+	
+	self:DestroyTurretsControlPanelUI()
 end
 -----------------------------------------------------------------------------------------
 -- 
@@ -926,6 +929,7 @@ function VoidWanderers:UpdateActivity()
 		self:ProcessClonesControlPanelUI()
 		self:ProcessStorageControlPanelUI()
 		self:ProcessBrainControlPanelUI()
+		self:ProcessTurretsControlPanelUI()
 		
 		-- Auto heal all actors when not in combat or random encounter
 		if not self.OverCrowded then

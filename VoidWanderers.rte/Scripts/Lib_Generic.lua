@@ -90,6 +90,7 @@ function CF_InitFactions(activity)
 	CF_LifeSupportPrice = 2500
 	CF_CommunicationPrice = 3000
 	CF_EnginePrice = 500
+	CF_TurretPrice = 4000
 	
 	CF_ShipSellCoeff = 0.25
 	CF_ShipDevInstallCoeff = 0.05

@@ -955,6 +955,15 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self.ShipControlUpgrades[5]["Description"] = "Speed of the vessel. Faster ships are harder to intercept."
 				self.ShipControlUpgrades[5]["Price"] = CF_EnginePrice
 				self.ShipControlUpgrades[5]["Bundle"] = 1
+
+				self.ShipControlUpgrades[6] = {}
+				self.ShipControlUpgrades[6]["Name"] = "Turrets"
+				self.ShipControlUpgrades[6]["Variable"] = "Player0VesselTurrets"
+				self.ShipControlUpgrades[6]["Max"] = CF_VesselMaxTurrets[ self.GS["Player0Vessel"] ]
+				self.ShipControlUpgrades[6]["Description"] = "How many turrets can be deployed inside the ship"
+				self.ShipControlUpgrades[6]["Price"] = CF_TurretPrice
+				self.ShipControlUpgrades[6]["Bundle"] = 1
+
 				
 				if cont:IsState(Controller.PRESS_UP) then
 					-- Select planet
@@ -1025,6 +1034,11 @@ function VoidWanderers:ProcessShipControlPanelUI()
 						if current < maximum and price <= CF_GetPlayerGold(self.GS, 0) then
 							self.GS[ self.ShipControlUpgrades[self.ShipControlSelectedUpgrade]["Variable"] ] = current + amount
 							CF_SetPlayerGold(self.GS, 0, CF_GetPlayerGold(self.GS, 0) - price)
+							
+							-- Re-init turrets panels to add new turrets to ship
+							if self.ShipControlSelectedUpgrade == 6 then
+								self:InitTurretsControlPanelUI()
+							end
 						end
 					end
 				else

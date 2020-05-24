@@ -70,7 +70,7 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 			
 			local count = 0
 			for actor in MovableMan.Actors do
-				if self.BeamControlPanelBox:WithinBox(actor.Pos) then
+				if actor.HitsMOs and actor.GetsHitByMOs and self.BeamControlPanelBox:WithinBox(actor.Pos) then
 					--actor:FlashWhite(50)
 					-- Create particle eddect around actors
 					if self.TeleportEffectTimer:IsPastSimMS(50) then
@@ -170,7 +170,7 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 
 					-- Save actors to config and transfer them to scene
 					for actor in MovableMan.Actors do
-						if actor.PresetName ~= "Brain Case" and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") then
+						if actor.HitsMOs and actor.GetsHitByMOs and actor.PresetName ~= "Brain Case" and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") then
 							local pre, cls = CF_GetInventory(actor)
 						
 							-- These actors must be deployed

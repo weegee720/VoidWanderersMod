@@ -28,6 +28,7 @@ function VoidWanderers:StartActivity()
 		dofile(LIB_PATH.."Panel_CloneShop.lua");
 		dofile(LIB_PATH.."Panel_LZ.lua");
 		dofile(LIB_PATH.."Panel_Brain.lua");
+		dofile(LIB_PATH.."Panel_Turrets.lua");
 	end
 	
 	SKIP_LIBRARIES = nil
@@ -238,6 +239,11 @@ function VoidWanderers:LoadCurrentGameState()
 			local arr = CF_GetAvailableQuantumItems(self.GS)
 			if #arr == 0 then
 				CF_UnlockRandomQuantumItem(self.GS)
+			end
+			
+			local val = self.GS["Player0VesselTurrets"]
+			if val == nil then
+				self.GS["Player0VesselTurrets"] = CF_VesselStartTurrets[ self.GS["Player0Vessel"] ]
 			end
 		end
 	end

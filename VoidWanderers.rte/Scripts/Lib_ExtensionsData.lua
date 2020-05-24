@@ -75,6 +75,9 @@ function CF_InitExtensionsData(activity)
 
 	CF_VesselMaxSpeed = {}
 	CF_VesselStartSpeed = {}
+
+	CF_VesselMaxTurrets = {}
+	CF_VesselStartTurrets = {}
 	
 	CF_Mission = {}
 	

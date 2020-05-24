@@ -569,7 +569,7 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 			
 			-- Search for body and put it in storage
 			for actor in MovableMan.Actors do
-				if CF_Dist(actor.Pos, self.ClonesInputPos) <= self.ClonesInputRange and actor.PresetName ~= "Clones Control Panel" and not actor:IsInGroup("Brains") then
+				if actor.HitsMOs and actor.GetsHitByMOs and CF_Dist(actor.Pos, self.ClonesInputPos) <= self.ClonesInputRange and actor.PresetName ~= "Clones Control Panel" and not actor:IsInGroup("Brains") then
 					toresettimer = false
 				
 					if self.ClonesLastDetectedBodyTime ~= nil then
