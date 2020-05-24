@@ -91,7 +91,7 @@ function CF_GetItemShopArray(gs, makefilters)
 			local isduplicate = false
 			
 			for j = 1, #arr do
-				if CF_ItmDescriptions[f][itm] == arr[j]["Description"] then
+				if CF_ItmDescriptions[f][itm] == arr[j]["Description"] and CF_ItmPresets[f][itm] == arr[j]["Preset"] then
 					isduplicate = true
 				end
 			end
@@ -181,10 +181,10 @@ function CF_GetItemBlackMarketArray(gs, makefilters)
 			tocreate = true
 		end
 	end
-
-	arr = {}
 	
 	--tocreate = true -- DEBUG
+
+	arr = {}
 	
 	-- Create list of items available in blackmarket
 	if tocreate then
@@ -197,7 +197,7 @@ function CF_GetItemBlackMarketArray(gs, makefilters)
 				local isduplicate = false
 				
 				for j = 1, #arr do
-					if CF_ItmDescriptions[f][itm] == arr[j]["Description"] then
+					if CF_ItmDescriptions[f][itm] == arr[j]["Description"]  and CF_ItmPresets[f][itm] == arr[j]["Preset"]  then
 						isduplicate = true
 					end
 				end--]]--
@@ -210,6 +210,7 @@ function CF_GetItemBlackMarketArray(gs, makefilters)
 					-- Store descriptions to get rid of duplicates
 					arr[count] = {}
 					arr[count]["Description"] = CF_ItmDescriptions[f][itm]
+					arr[count]["Preset"] = CF_ItmDescriptions[f][itm]
 				end
 			end
 		end
@@ -302,7 +303,7 @@ function CF_GetCloneShopArray(gs, makefilters)
 			local isduplicate = false
 			
 			for j = 1, #arr do
-				if CF_ActDescriptions[f][itm] == arr[j]["Description"] then
+				if CF_ActDescriptions[f][itm] == arr[j]["Description"] and CF_ActPresets[f][itm] == arr[j]["Preset"] then
 					isduplicate = true
 				end
 			end
@@ -379,10 +380,10 @@ function CF_GetCloneBlackMarketArray(gs, makefilters)
 			tocreate = true
 		end
 	end
-
-	arr = {}
 	
 	--tocreate = true -- DEBUG
+
+	arr = {}
 	
 	-- Create list of items available in blackmarket
 	if tocreate then
@@ -395,7 +396,7 @@ function CF_GetCloneBlackMarketArray(gs, makefilters)
 				local isduplicate = false
 				
 				for j = 1, #arr do
-					if CF_ActDescriptions[f][itm] == arr[j]["Description"] then
+					if CF_ActDescriptions[f][itm] == arr[j]["Description"] and CF_ActPresets[f][itm] == arr[j]["Preset"] then
 						isduplicate = true
 					end
 				end--]]--
@@ -408,6 +409,7 @@ function CF_GetCloneBlackMarketArray(gs, makefilters)
 					-- Store descriptions to get rid of duplicates
 					arr[count] = {}
 					arr[count]["Description"] = CF_ActDescriptions[f][itm]
+					arr[count]["Preset"] = CF_ActPresets[f][itm]
 				end
 			end
 		end

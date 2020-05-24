@@ -11,20 +11,24 @@ function VoidWanderers:StartActivity()
 	
 	LIB_PATH = self.ModuleName.."/Scripts/"
 	BASE_PATH = self.ModuleName.."/Scripts/"
+	
+	if SKIP_LIBRARIES == nil then
+		dofile(LIB_PATH.."Lib_Config.lua");
+		dofile(LIB_PATH.."Lib_Generic.lua");
+		dofile(LIB_PATH.."Lib_ExtensionsData.lua");
+		dofile(LIB_PATH.."Lib_Spawn.lua");
+		dofile(LIB_PATH.."Lib_Storage.lua");
 
-	dofile(LIB_PATH.."Lib_Config.lua");
-	dofile(LIB_PATH.."Lib_Generic.lua");
-	dofile(LIB_PATH.."Lib_ExtensionsData.lua");
-	dofile(LIB_PATH.."Lib_Spawn.lua");
-	dofile(LIB_PATH.."Lib_Storage.lua");
-
-	dofile(LIB_PATH.."Panel_Clones.lua");
-	dofile(LIB_PATH.."Panel_Ship.lua");
-	dofile(LIB_PATH.."Panel_Beam.lua");
-	dofile(LIB_PATH.."Panel_Storage.lua");
-	dofile(LIB_PATH.."Panel_ItemShop.lua");
-	dofile(LIB_PATH.."Panel_CloneShop.lua");
-	dofile(LIB_PATH.."Panel_LZ.lua");
+		dofile(LIB_PATH.."Panel_Clones.lua");
+		dofile(LIB_PATH.."Panel_Ship.lua");
+		dofile(LIB_PATH.."Panel_Beam.lua");
+		dofile(LIB_PATH.."Panel_Storage.lua");
+		dofile(LIB_PATH.."Panel_ItemShop.lua");
+		dofile(LIB_PATH.."Panel_CloneShop.lua");
+		dofile(LIB_PATH.."Panel_LZ.lua");
+	end
+	
+	SKIP_LIBRARIES = nil
 	
 	-- Load custom AI
 	--print (CF_UseCustomAI)

@@ -433,6 +433,10 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 			self.StorageLastDetectedItemTime = nil
 		end
 	end
+	
+	if MovableMan:IsActor(self.StorageControlPanelActor) then
+		self.StorageControlPanelActor.Health = 100
+	end
 end
 -----------------------------------------------------------------------------------------
 --

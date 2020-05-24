@@ -153,34 +153,36 @@ function VoidWanderers:ProcessShipControlPanelUI()
 					if not self.FirePressed then
 						self.FirePressed = true;
 						
-						--self.GS["Location"] = self.ShipControlLocationList [ self.ShipControlSelectedLocation ]
-						if self.GS["Location"] ~= nil then
-							local locpos = CF_LocationPos[ self.GS["Location"] ]
-							if locpos == nil then
-								locpos = Vector(0,0)
-							end
+						if self.RandomEncounterID == nil then
+							--self.GS["Location"] = self.ShipControlLocationList [ self.ShipControlSelectedLocation ]
+							if self.GS["Location"] ~= nil then
+								local locpos = CF_LocationPos[ self.GS["Location"] ]
+								if locpos == nil then
+									locpos = Vector(0,0)
+								end
 
-							self.GS["ShipX"] = math.floor(locpos.X)
-							self.GS["ShipY"] = math.floor(locpos.Y)
-						else
-							if self.GS["ShipX"] == nil or self.GS["ShipY"] == nil then
-								self.GS["ShipX"] = 0
-								self.GS["ShipY"] = 0
+								self.GS["ShipX"] = math.floor(locpos.X)
+								self.GS["ShipY"] = math.floor(locpos.Y)
+							else
+								if self.GS["ShipX"] == nil or self.GS["ShipY"] == nil then
+									self.GS["ShipX"] = 0
+									self.GS["ShipY"] = 0
+								end
 							end
-						end
-						
-						self.GS["Location"] = nil
-						self.GS["Destination"] = self.ShipControlLocationList [ self.ShipControlSelectedLocation ]
+							
+							self.GS["Location"] = nil
+							self.GS["Destination"] = self.ShipControlLocationList [ self.ShipControlSelectedLocation ]
 
-						local destpos = CF_LocationPos[ self.GS["Destination"] ]
-						if destpos == nil then
-							destpos = Vector(0,0)
+							local destpos = CF_LocationPos[ self.GS["Destination"] ]
+							if destpos == nil then
+								destpos = Vector(0,0)
+							end
+							
+							self.GS["DestX"] = math.floor(destpos.X)
+							self.GS["DestY"] = math.floor(destpos.Y)
+							
+							self.GS["Distance"] = CF_Dist(Vector(tonumber(self.GS["ShipX"]),tonumber(self.GS["ShipY"])), Vector(tonumber(self.GS["DestX"]),tonumber(self.GS["DestX"])))
 						end
-						
-						self.GS["DestX"] = math.floor(destpos.X)
-						self.GS["DestY"] = math.floor(destpos.Y)
-						
-						self.GS["Distance"] = CF_Dist(Vector(tonumber(self.GS["ShipX"]),tonumber(self.GS["ShipY"])), Vector(tonumber(self.GS["DestX"]),tonumber(self.GS["DestX"])))
 					end
 				else
 					self.FirePressed = false
@@ -398,15 +400,17 @@ function VoidWanderers:ProcessShipControlPanelUI()
 					if not self.FirePressed then
 						self.FirePressed = true;
 						
-						-- Travel to another planet
-						self.GS["Planet"] = self.ShipControlPlanetList [ self.ShipControlSelectedPlanet ]
-						self.GS["Location"] = nil
-						self.GS["Destination"] = nil
-						
-						self.GS["ShipX"] = 0
-						self.GS["ShipY"] = 0
-						-- Recreate all lists
-						resetlists = true
+						if self.RandomEncounterID == nil then
+							-- Travel to another planet
+							self.GS["Planet"] = self.ShipControlPlanetList [ self.ShipControlSelectedPlanet ]
+							self.GS["Location"] = nil
+							self.GS["Destination"] = nil
+							
+							self.GS["ShipX"] = 0
+							self.GS["ShipY"] = 0
+							-- Recreate all lists
+							resetlists = true
+						end
 					end
 				else
 					self.FirePressed = false
@@ -473,35 +477,40 @@ function VoidWanderers:ProcessShipControlPanelUI()
 			if self.ShipControlMode == self.ShipControlPanelModes.REPORT then
 				-- Show current planet
 				self:PutGlow("ControlPanel_Ship_Report", pos)
-				CF_DrawString("MISSION REPORT", pos + Vector(-34,-77), 262, 141)
-
-				CF_DrawString("AVAILABLE GOLD: "..CF_GetPlayerGold(self.GS, 0), pos + Vector(-130,-60), 262, 141)
-				
-				
 				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,-77))
 				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,78))
-				CF_DrawString("Press DOWN to save game", pos + Vector(-60,77), 262, 141)
 				
-				for i = 1, CF_MaxMissionReportLines do
-					--CF_DrawString("LINE"..i, pos + Vector(-130,-70 + i * 10), 262, 141) -- Debug
-					if self.GS["MissionReport"..i] ~= nil then
-						CF_DrawString(self.GS["MissionReport"..i], pos + Vector(-130,-56 + i * 10), 262, 141)
-					else
-						break
+				if self.RandomEncounterID == nil then
+					CF_DrawString("MISSION REPORT", pos + Vector(-34,-77), 262, 141)
+					CF_DrawString("AVAILABLE GOLD: "..CF_GetPlayerGold(self.GS, 0), pos + Vector(-130,-60), 262, 141)
+					
+					CF_DrawString("Press DOWN to save game", pos + Vector(-60,77), 262, 141)
+					
+					for i = 1, CF_MaxMissionReportLines do
+						--CF_DrawString("LINE"..i, pos + Vector(-130,-70 + i * 10), 262, 141) -- Debug
+						if self.GS["MissionReport"..i] ~= nil then
+							CF_DrawString(self.GS["MissionReport"..i], pos + Vector(-130,-56 + i * 10), 262, 141)
+						else
+							break
+						end
 					end
-				end
+					
+					if cont:IsState(Controller.PRESS_DOWN) then
+						self.FirePressed = true;
+						
+						self:SaveActors(false)
+						self:SaveCurrentGameState()
+						
+						self:LaunchScript("VoidWanderers Strategy Screen", "StrategyScreenMain.lua")
+						FORM_TO_LOAD = BASE_PATH.."FormSave.lua"
+						self.EnableBrainSelection = false
+						self:DestroyConsoles()
+						return
+					end
+				else
+					CF_DrawString("INCOMING TRANSMISSION", pos + Vector(-44,-77), 262, 141)
 				
-				if cont:IsState(Controller.PRESS_DOWN) then
-					self.FirePressed = true;
-					
-					self:SaveActors(false)
-					self:SaveCurrentGameState()
-					
-					self:LaunchScript("VoidWanderers Strategy Screen", "StrategyScreenMain.lua")
-					FORM_TO_LOAD = BASE_PATH.."FormSave.lua"
-					self.EnableBrainSelection = false
-					self:DestroyConsoles()
-					return
+					CF_DrawString(self.RandomEncounterText, pos + Vector(-130,-56), 262, 141)
 				end
 			end
 ---------------------------------------------------------------------------------------------------
@@ -1111,5 +1120,10 @@ function VoidWanderers:ProcessShipControlPanelUI()
 		self.ShipControlSelectedPlanet = 1
 		self.ShipControlPlanetListStart = 1
 		self.ShipControlPlanetList = nil
+	end
+	
+	
+	if MovableMan:IsActor(self.ShipControlPanelActor) then
+		self.ShipControlPanelActor.Health = 100
 	end
 end

@@ -226,6 +226,11 @@ function VoidWanderers:ProcessCloneShopControlPanelUI()
 
 		self.CloneShopControlPanelInitialized = false
 	end
+	
+	
+	if MovableMan:IsActor(self.CloneShopControlPanelActor) then
+		self.CloneShopControlPanelActor.Health = 100
+	end
 end
 -----------------------------------------------------------------------------------------
 --

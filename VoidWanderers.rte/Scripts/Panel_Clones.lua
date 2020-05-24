@@ -646,6 +646,11 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 			self.ClonesLastDetectedBodyTime = nil
 		end
 	end
+	
+	
+	if MovableMan:IsActor(self.CloneControlPanelActor) then
+		self.CloneControlPanelActor.Health = 100
+	end
 end
 -----------------------------------------------------------------------------------------
 --

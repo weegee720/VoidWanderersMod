@@ -597,6 +597,8 @@ function VoidWanderers:TriggerShipAssault()
 		if r < tgt then
 			toassault = true
 		end
+		
+		toassault = false-- DEBUG
 	
 		if toassault then
 			self.AssaultTime = self.Time + CF_ShipAssaultDelay
@@ -611,10 +613,68 @@ function VoidWanderers:TriggerShipAssault()
 			-- Remove some panel actors
 			self.ShipControlPanelActor.ToDelete = true
 			self.BeamControlPanelActor.ToDelete = true
+		else
+			-- Trigger random encounter
+			if #CF_RandomEncounters > 0 then
+				-- Find suitable random event
+				local r 
+				local id
+				local found = false
+				local brk = 1
+				
+				while not found do
+					r = math.random(#CF_RandomEncounters)
+					id = CF_RandomEncounters[r]
+					
+					if CF_RandomEncountersOneTime[id] == true then
+						if self.GS["Encounter"..id.."Happened"] == nil then
+							found = true
+						end
+					else
+						found = true
+					end
+					
+					brk = brk + 1
+					if brk > 30 then
+						break
+					end
+				end
+				
+				-- Launch encounter
+				if found then
+					self.RandomEncounterID = id
+					self.RandomEncounterVariant = 0
+					
+					self.RandomEncounterText = CF_RandomEncountersInitialTexts[id]
+					self.RandomEncounterVariants = CF_RandomEncountersInitialVariants[id]
+					
+					-- Switch to ship panel
+					local bridgeempty = true
+					local plrtoswitch = -1
+					
+					for plr = 0 , self.PlayerCount - 1 do
+						local act = self:GetControlledActor(plr);
+						
+						if act ~= nil and MovableMan:IsActor(act) then
+							if act.PresetName ~= "Ship Control Panel" and plrtoswitch == -1 then
+								plrtoswitch = plr
+							end
+							
+							if act.PresetName == "Ship Control Panel" then
+								bridgeempty = false
+							end
+						end
+					end
+						
+					if plrtoswitch > -1 and bridgeempty and MovableMan:IsActor(self.ShipControlPanelActor) then
+						self:SwitchToActor(self.ShipControlPanelActor, plrtoswitch, CF_PlayerTeam);
+					end
+					self.ShipControlMode = self.ShipControlPanelModes.REPORT
+				end
+			end
 		end
 	end
 end
-
 -----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
@@ -835,7 +895,7 @@ function VoidWanderers:UpdateActivity()
 	if self.GS["Mode"] == "Vessel" and self.FlightTimer:IsPastSimMS(CF_FlightTickInterval) then
 		self.FlightTimer:Reset()
 		-- Fly to new location
-		if self.GS["Destination"] ~= nil and self.Time > self.AssaultTime then
+		if self.GS["Destination"] ~= nil and self.Time > self.AssaultTime and self.RandomEncounterID == nil then
 			-- Move ship
 			local dx = tonumber(self.GS["DestX"])
 			local dy = tonumber(self.GS["DestY"])

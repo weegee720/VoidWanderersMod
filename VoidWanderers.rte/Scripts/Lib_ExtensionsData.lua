@@ -73,4 +73,13 @@ function CF_InitExtensionsData(activity)
 	CF_ArtActPresets = {}
 	CF_ArtActModules = {}
 	CF_ArtActClasses = {}
+	
+	-- Random encounters
+	CF_RandomEncounters = {}
+	CF_RandomEncounterIDs = {}
+	
+	CF_RandomEncountersInitialTexts = {}
+	CF_RandomEncountersInitialVariants = {}
+	CF_RandomEncountersFunctions = {}
+	CF_RandomEncountersOneTime = {}
 end

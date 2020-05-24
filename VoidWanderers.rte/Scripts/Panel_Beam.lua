@@ -204,4 +204,8 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 		self:PutGlow("ControlPanel_Beam", self.BeamControlPanelPos)
 		--CF_DrawString("DEPLOY",self.BeamControlPanelPos + Vector(-16,0),120,20 )
 	end
+	
+	if MovableMan:IsActor(self.BeamControlPanelActor) then
+		self.BeamControlPanelActor.Health = 100
+	end
 end

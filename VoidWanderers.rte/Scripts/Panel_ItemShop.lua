@@ -270,6 +270,10 @@ function VoidWanderers:ProcessItemShopControlPanelUI()
 			end
 		end
 	end
+	
+	if MovableMan:IsActor(self.ItemShopControlPanelActor) then
+		self.ItemShopControlPanelActor.Health = 100
+	end
 end
 -----------------------------------------------------------------------------------------
 --
