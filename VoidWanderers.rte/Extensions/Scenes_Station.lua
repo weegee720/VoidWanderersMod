@@ -6,7 +6,7 @@ CF_PlanetName[id] = "FreeTrade TradeStar"
 CF_PlanetGlow[id] = "Station"
 CF_PlanetPos[id] = Vector(25 , -20)
 CF_PlanetGlowModule[id] = "VoidWanderers.rte"
-
+CF_PlanetScale[id] = 0.05
 
 -- Add locations
 local id = "TradeStar Pier #792"

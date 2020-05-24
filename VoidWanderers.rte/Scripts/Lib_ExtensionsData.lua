@@ -3,8 +3,9 @@ function CF_InitExtensionsData(activity)
 	CF_Planet = {}
 	CF_PlanetName = {}
 	CF_PlanetGlow = {}
-	CF_PlanetPos = {}
 	CF_PlanetGlowModule = {}
+	CF_PlanetPos = {}
+	CF_PlanetScale = {} -- Used just to show realistic km distances when traveling near moons or stations
 	
 	-- Init locations data structures
 	CF_Location = {}

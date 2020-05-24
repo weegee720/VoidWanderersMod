@@ -22,26 +22,32 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 		PositiveIndex = 1.5;
 		NegativeIndex = 0.5;
 		
+		config["MissionDifficultyBonus"] = -2
 	elseif difficulty <= GameActivity.EASYDIFFICULTY then
 		PositiveIndex = 1.25;
 		NegativeIndex = 0.75;
-		
+
+		config["MissionDifficultyBonus"] = -1
 	elseif difficulty <= GameActivity.MEDIUMDIFFICULTY then
 		PositiveIndex = 1.0;
 		NegativeIndex = 1.0;
 		
+		config["MissionDifficultyBonus"] = -0
 	elseif difficulty <= GameActivity.HARDDIFFICULTY then
 		PositiveIndex = 0.90;
 		NegativeIndex = 1.10;	
 		
+		config["MissionDifficultyBonus"] = 1
 	elseif difficulty <= GameActivity.NUTSDIFFICULTY then
 		PositiveIndex = 0.80;
 		NegativeIndex = 1.20;
 		
+		config["MissionDifficultyBonus"] = 2
 	elseif difficulty <= GameActivity.MAXDIFFICULTY then
 		PositiveIndex = 0.70;
 		NegativeIndex = 1.30;
 		
+		config["MissionDifficultyBonus"] = 3
 	end			
 	
 	config["PositiveIndex"] = PositiveIndex
@@ -51,7 +57,7 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 	config["Player0Faction"] = f
 	config["Player0Active"] = "True"
 	config["Player0Type"] = "Player"
-	config["Player0Gold"] = math.floor(4000000 * PositiveIndex)
+	config["Player0Gold"] = math.floor(4000 * PositiveIndex)
 	
 	-- Assign player ship
 	config["Player0Vessel"] = "Gryphon"
@@ -73,8 +79,8 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 	config["Location"] = CF_Location[1]
 	
 	--Debug
-	config["Planet"] = "CC-11Y"
-	config["Location"] = "Ketanot Hills"
+	--config["Planet"] = "CC-11Y"
+	--config["Location"] = "Ketanot Hills"
 	
 	local found = 0
 	

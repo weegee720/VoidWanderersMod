@@ -191,7 +191,12 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				-- Draw mode specific elements
 				-- Write current location
 				if self.GS["Destination"] ~= nil then
-					local dst = math.ceil(tonumber(self.GS["Distance"]) * CF_KmPerPixel)
+					local scale = CF_PlanetScale[self.GS["Planet"]]
+					if scale == nil then
+						scale = 1
+					end
+				
+					local dst = math.ceil(tonumber(self.GS["Distance"]) * CF_KmPerPixel * scale)
 				
 					CF_DrawString("EN ROUTE TO: ", pos + Vector(-62-71, -78), 270, 40)
 					local locname = CF_LocationName[ self.GS["Destination"] ]

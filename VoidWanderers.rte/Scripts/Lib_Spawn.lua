@@ -795,7 +795,35 @@ end
 function CF_GenerateRandomMission(c)
 	local cpus = tonumber(c["ActiveCPUs"])
 	local mission = {}
-	local p = math.random(cpus)
+	
+	-- Select CPUs to choose mission. We'll give a bithigher priorities to CPU's with better reputation
+	local selp = {}
+	local r
+	
+	for i = 1, cpus do
+		local rep = tonumber(c["Player"..i.."Reputation"])
+		
+		if rep < -2000 then
+			r = 0.25
+		elseif rep < -1000 then
+			r = 0.50
+		elseif rep < 0 then
+			r = 0.75
+		else
+			r = 1
+		end
+		
+		if math.random() < r then
+			selp[#selp + 1] = i
+		end
+	end
+	
+	local p 
+	if #selp > 0 then
+		p = selp[math.random(#selp)]
+	else
+		p = math.random(cpus)
+	end
 	
 	-- Make list of available missions
 	local rep = tonumber(c["Player"..p.."Reputation"])
@@ -869,7 +897,15 @@ function CF_GenerateRandomMission(c)
 	-- Pick some random difficulty for this mission
 	-- Generate missions with CF_MaxDifficulty / 2 because additional difficulty 
 	-- will be applied by location security level
-	local rdif = math.random(3)
+	local rdif = tonumber(c["MissionDifficultyBonus"]) + math.random(3)
+	
+	if rdif < 1 then
+		rdif = 1
+	end
+	
+	if rdif > CF_MaxDifficulty then
+		rdif = CF_MaxDifficulty
+	end
 	
 	-- Pick some random target for this mission
 	local ok = false
