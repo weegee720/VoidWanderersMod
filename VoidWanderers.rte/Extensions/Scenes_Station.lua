@@ -4,6 +4,7 @@ local id = "TradeStar"
 CF_Planet[#CF_Planet + 1] = id
 CF_PlanetName[id] = "FreeTrade TradeStar"
 CF_PlanetGlow[id] = "Station"
+CF_PlanetPos[id] = Vector(0 , 0)
 CF_PlanetGlowModule[id] = "VoidWanderers.rte"
 
 

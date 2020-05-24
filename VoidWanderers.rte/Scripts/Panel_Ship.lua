@@ -133,22 +133,47 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				-- Write current location
 				local locname = CF_LocationName[ self.GS["Location"] ]
 				if locname ~= nil then
-					CF_DrawString(locname, pos + Vector(-62, -52), 130, 40)
+					CF_DrawString(locname, pos + Vector(-34, -78), 130, 40)
 				else
-					CF_DrawString("Distant orbit", pos + Vector(-62, -52), 130, 40)
+					CF_DrawString("Distant orbit", pos + Vector(-62-71, -52), 130, 40)
 				end
-				CF_DrawString("CURRENT LOCATION:", pos + Vector(-62, -62), 130, 40)
+				CF_DrawString("CURRENT LOCATION:", pos + Vector(-62-71, -78), 270, 40)
 				
-				-- Show current location dot
-				local locpos = CF_LocationPos[ self.GS["Location"] ]
-				if locpos ~= nil then
-					self:PutGlow("ControlPanel_Ship_CurrentLocation", pos + locpos)
+				-- Show current location dot as blinking
+				if self.Time % 2 == 0 then
+					local locpos = CF_LocationPos[ self.GS["Location"] ]
+					if locpos ~= nil then
+						self:PutGlow("ControlPanel_Ship_CurrentLocation", pos + locpos + Vector(-71,0))
+					end
 				end
 				
 				-- Show selected location dot
 				local locpos = CF_LocationPos[ self.ShipControlLocationList[ self.ShipControlSelectedLocation ] ]
 				if locpos ~= nil then
-					self:PutGlow("ControlPanel_Ship_LocationDot", pos + locpos)
+					self:PutGlow("ControlPanel_Ship_LocationDot", pos + locpos + Vector(-71,0))
+				end
+				
+				-- Self selected location description
+				local locdesc = CF_LocationDescription[ self.ShipControlLocationList[ self.ShipControlSelectedLocation ] ]
+				if locdesc ~= nil then
+					CF_DrawString(locdesc, pos + Vector(8,-30), 136, 182-40)
+				end
+				
+				-- Write security level
+				local diff = CF_GetLocationDifficulty(self.GS, self.ShipControlLocationList[ self.ShipControlSelectedLocation ])
+				CF_DrawString("SECURITY: "..string.upper(CF_LocationDifficultyTexts[diff]), pos + Vector(8, -60), 136, 182-34)
+				
+				-- Write gold status
+				local gold = CF_LocationGoldPresent[ self.ShipControlLocationList[ self.ShipControlSelectedLocation ] ]
+				if gold ~= nil then
+					local s = "ABSENT"
+					
+					if gold == true then
+						s = "PRESENT"
+					end
+					CF_DrawString("GOLD: "..s, pos + Vector(8, -48), 136, 182-34)
+				else
+					CF_DrawString("GOLD: UNKNOWN", pos + Vector(8, -48), 136, 182-34)
 				end
 				
 				-- Show location list
@@ -157,9 +182,9 @@ function VoidWanderers:ProcessShipControlPanelUI()
 						local pname = CF_LocationName[ self.ShipControlLocationList[i] ]
 						if pname ~= nil then
 							if i == self.ShipControlSelectedLocation then
-								CF_DrawString("> " .. pname, pos + Vector(-62, 77 + (i - self.ShipControlLocationListStart) * 11), 130, 12)
+								CF_DrawString("> " .. pname, pos + Vector(-62 - 71, 79 + (i - self.ShipControlLocationListStart) * 11), 130, 12)
 							else
-								CF_DrawString(pname, pos + Vector(-62, 77 + (i - self.ShipControlLocationListStart) * 11), 130, 12)
+								CF_DrawString(pname, pos + Vector(-62 - 71, 79 + (i - self.ShipControlLocationListStart) * 11), 130, 12)
 							end
 						end
 					end
@@ -169,9 +194,13 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				
 				local plntpreset = CF_PlanetGlow[ self.GS["Planet"] ]
 				local plntmodeule = CF_PlanetGlowModule[ self.GS["Planet"] ]
-				self:PutGlow("ControlPanel_Ship_PlanetBack", pos)
-				self:PutGlow("ControlPanel_Ship_LocationList", pos + Vector(0, 89))
-				self:PutGlow(plntpreset, pos, plntmodeule)
+				self:PutGlow("ControlPanel_Ship_PlanetBack", pos + Vector(-71, 0))
+				self:PutGlow("ControlPanel_Ship_LocationList", pos + Vector(-71, 91))
+				self:PutGlow(plntpreset, pos + Vector(-71,0), plntmodeule)
+				
+				self:PutGlow("ControlPanel_Ship_Description", pos + Vector(70,21))
+				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,-77))
+				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,78+41))				
 			end
 			
 ---------------------------------------------------------------------------------------------------
@@ -218,6 +247,20 @@ function VoidWanderers:ProcessShipControlPanelUI()
 					CF_DrawString(locname, pos + Vector(-62, -52), 130, 40)
 				end
 				CF_DrawString("NOW ORBITING:", pos + Vector(-62, -62), 130, 40)
+
+				-- Show current planet dot
+				if self.Time % 2 == 0 then
+					local locpos = CF_PlanetPos[ self.GS["Planet"] ]
+					if locpos ~= nil then
+						self:PutGlow("ControlPanel_Ship_CurrentLocation", pos + locpos)
+					end
+				end
+				
+				-- Show selected planet dot
+				local locpos = CF_PlanetPos[ self.ShipControlPlanetList[ self.ShipControlSelectedPlanet ] ]
+				if locpos ~= nil then
+					self:PutGlow("ControlPanel_Ship_LocationDot", pos + locpos)
+				end
 				
 				-- Show planet list
 				for i = self.ShipControlPlanetListStart, self.ShipControlPlanetListStart + 2 do
@@ -231,13 +274,14 @@ function VoidWanderers:ProcessShipControlPanelUI()
 					end
 				end
 				
-				local plntpreset = CF_PlanetGlow[ self.ShipControlPlanetList [ self.ShipControlSelectedPlanet ] ]
-				local plntmodeule = CF_PlanetGlowModule[ self.ShipControlPlanetList [ self.ShipControlSelectedPlanet ] ]
-				self:PutGlow("ControlPanel_Ship_PlanetBack", pos)
+				--local plntpreset = CF_PlanetGlow[ self.ShipControlPlanetList [ self.ShipControlSelectedPlanet ] ]
+				--local plntmodeule = CF_PlanetGlowModule[ self.ShipControlPlanetList [ self.ShipControlSelectedPlanet ] ]
+				--self:PutGlow("ControlPanel_Ship_PlanetBack", pos)
+				self:PutGlow("ControlPanel_Ship_GalaxyBack", pos)
 				self:PutGlow("ControlPanel_Ship_LocationList", pos + Vector(0, 89))
-				self:PutGlow(plntpreset, pos, plntmodeule)
+				--self:PutGlow(plntpreset, pos, plntmodeule)
 			end
-			
+---------------------------------------------------------------------------------------------------
 			-- Show last mission report
 			if self.ShipControlMode == self.ShipControlPanelModes.REPORT then
 				-- Show current planet

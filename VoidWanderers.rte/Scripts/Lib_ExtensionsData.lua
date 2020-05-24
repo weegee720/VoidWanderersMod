@@ -3,13 +3,16 @@ function CF_InitExtensionsData(activity)
 	CF_Planet = {}
 	CF_PlanetName = {}
 	CF_PlanetGlow = {}
+	CF_PlanetPos = {}
 	CF_PlanetGlowModule = {}
 	
 	-- Init locations data structures
 	CF_Location = {}
 	CF_LocationName = {}
 	CF_LocationPos = {}
+	CF_LocationDescription = {}
 	CF_LocationSecurity = {}
+	CF_LocationGoldPresent = {}
 	CF_LocationScenes = {}
 	CF_LocationPlanet = {}
 	CF_LocationScript = {}

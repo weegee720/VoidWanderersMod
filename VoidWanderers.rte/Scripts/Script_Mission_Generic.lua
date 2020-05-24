@@ -34,28 +34,16 @@ function VoidWanderers:MissionCreate()
 		pret = math.random(tonumber(self.GS["ActiveCPUs"]))
 	end
 	p2 = pret
+	
+	local diff, sec
+	
+	diff, sec = CF_GetLocationDifficulty(self.GS, self.GS["Location"])
+	-- Increase location security every time whe descend
+	sec = sec + 1
+	CF_SetLocationSecurity(self.GS, self.GS["Location"], sec)
 
-	local diff = CF_MaxDifficulty
-	local sec
-	
-	if self.GS["Security_"..self.GS["Location"]] ~= nil then
-		sec = tonumber(self.GS["Security_"..self.GS["Location"]]) + 1
-	else
-		sec = CF_LocationSecurity[ self.GS["Location"] ]
-	end
-	
-	self.GS["Security_"..self.GS["Location"]] = sec
-	
-	diff = math.floor(sec / 10)
-	if diff > CF_MaxDifficulty then
-		diff = CF_MaxDifficulty
-	end
-	
-	if diff < 1 then
-		diff = 1
-	end
-	
 	self.MissionDifficulty = diff
+	
 	print ("DIFF: "..self.MissionDifficulty)
 	
 	CF_CreateAIUnitPresets(self.GS, p1, CF_GetTechLevelFromDifficulty(self.GS, p1, diff, CF_MaxDifficulty))
@@ -305,7 +293,7 @@ function VoidWanderers:MissionUpdate()
 				end
 			end
 		end
-	end
+	end--]]--
 end
 -----------------------------------------------------------------------------------------
 --

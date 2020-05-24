@@ -716,12 +716,13 @@ function HumanBehaviors.ShootTarget(AI, Owner)
 					-- WEEGEE
 					if CF_FogOfWarEnabled then
 						--	print ("Fire")
-						for x = -1, 1 do
-							for y = -1, 1 do
+						for x = -2, 2 do
+							for y = -2, 2 do
 								SceneMan:RevealUnseen(Owner.Pos.X - x * CF_FogOfWarResolution, Owner.Pos.Y - y * CF_FogOfWarResolution, CF_PlayerTeam)
 							end
 						end
 					end
+					-- WEEGEE
 				else
 					AI.fire = false
 				end

@@ -48,6 +48,14 @@ function CF_InitFactions(activity)
 	CF_AssaultDifficultyTexts[5] = "cruiser"
 	CF_AssaultDifficultyTexts[6] = "battleship"
 
+	CF_LocationDifficultyTexts = {}
+	CF_LocationDifficultyTexts[1] = "minimum"
+	CF_LocationDifficultyTexts[2] = "low"
+	CF_LocationDifficultyTexts[3] = "moderate"
+	CF_LocationDifficultyTexts[4] = "high"
+	CF_LocationDifficultyTexts[5] = "extreme"
+	CF_LocationDifficultyTexts[6] = "maximum"
+	
 	CF_AssaultDifficultyUnitCount = {}
 	CF_AssaultDifficultyUnitCount[1] = 4
 	CF_AssaultDifficultyUnitCount[2] = 8

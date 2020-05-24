@@ -658,13 +658,36 @@ end
 -----------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------
-
-
-
-
-
-
-
+function CF_GetLocationDifficulty(c, loc)
+	local diff = CF_MaxDifficulty
+	local sec
+	
+	if c["Security_"..loc] ~= nil then
+		sec = tonumber(c["Security_"..loc])
+	else
+		sec = CF_LocationSecurity[ c["Location"] ]
+	end
+	
+	diff = math.floor(sec / 10)
+	if diff > CF_MaxDifficulty then
+		diff = CF_MaxDifficulty
+	end
+	
+	if diff < 1 then
+		diff = 1
+	end
+	
+	return diff, sec
+end
+-----------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------
+function CF_SetLocationSecurity(c, loc, newsec)
+	c["Security_"..loc] = newsec
+end
+-----------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------
 
 
 
