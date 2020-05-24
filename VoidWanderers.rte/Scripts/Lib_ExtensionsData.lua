@@ -23,7 +23,7 @@ function CF_InitExtensionsData(activity)
 	CF_LocationPlayable = {} -- Used by scene editor to discard service locations
 	CF_LocationAttributes = {}
 	
-	CF_LocationAttributeTypes = {BLACKMARKET = 0, TRADESTAR = 1, SHIPYARD = 2}
+	CF_LocationAttributeTypes = {BLACKMARKET = 0, TRADESTAR = 1, SHIPYARD = 2, VESSEL = 3, NOTMISSIONASSIGNABLE = 4, ALWAYSUNSEEN = 5}
 
 	-- Init ship data structures
 	CF_Vessel = {}

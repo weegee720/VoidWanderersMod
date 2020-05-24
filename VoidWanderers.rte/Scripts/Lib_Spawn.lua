@@ -857,6 +857,10 @@ function CF_GenerateRandomMission(c)
 					playable = false
 				end
 				
+				if CF_IsLocationHasAttribute(locid, CF_LocationAttributeTypes.NOTMISSIONASSIGNABLE) then
+					playable = false
+				end
+				
 				if playable then
 					for lm = 1, #CF_LocationMissions[locid] do
 						if msnid == CF_LocationMissions[locid][lm] then

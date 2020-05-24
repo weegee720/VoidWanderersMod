@@ -358,22 +358,26 @@ function VoidWanderers:StartActivity()
 			
 			-- Reveal previously saved fog of war
 			--print ("Reveal fog")
-			local wx = math.ceil(SceneMan.Scene.Width / CF_FogOfWarResolution);
-			local wy = math.ceil(SceneMan.Scene.Height / CF_FogOfWarResolution);
-			local str = "";
 			
-			for y = 0, wy do
-				str = self.GS[self.GS["Location"].."-Fog"..tostring(y)];
-				-- print (str);
-				if str ~= nil then
-					for x = 0, wx do
-						-- print(string.sub(str, x + 1 , x + 1))
-						if string.sub(str, x + 1, x + 1) == "1" then
-							SceneMan:RevealUnseen(x * CF_FogOfWarResolution , y * CF_FogOfWarResolution , CF_PlayerTeam);
+			-- Do not reveal on vessel maps
+			if not CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.ALWAYSUNSEEN) then
+				local wx = math.ceil(SceneMan.Scene.Width / CF_FogOfWarResolution);
+				local wy = math.ceil(SceneMan.Scene.Height / CF_FogOfWarResolution);
+				local str = "";
+				
+				for y = 0, wy do
+					str = self.GS[self.GS["Location"].."-Fog"..tostring(y)];
+					-- print (str);
+					if str ~= nil then
+						for x = 0, wx do
+							-- print(string.sub(str, x + 1 , x + 1))
+							if string.sub(str, x + 1, x + 1) == "1" then
+								SceneMan:RevealUnseen(x * CF_FogOfWarResolution , y * CF_FogOfWarResolution , CF_PlayerTeam);
+							end
 						end
 					end
 				end
-			end			
+			end
 		end
 		
 		-- Set unseen for AI (maybe some day it will matter ))))
@@ -667,6 +671,7 @@ function VoidWanderers:TriggerShipAssault()
 			end
 			
 			--id = "TEST" -- DEBUG
+			id = "ABANDONED_VESSEL_GENERIC"
 			
 			-- Launch encounter
 			if found and id ~= nil then
@@ -1165,6 +1170,24 @@ function VoidWanderers:UpdateActivity()
 			end
 		end
 	end
+	
+	-- DEBUG
+	-- Debug-print unit orders
+	--[[local arr = {}
+	arr[Actor.AIMODE_BRAINHUNT] = "Brainhunt"
+	arr[Actor.AIMODE_SENTRY] = "Sentry"
+	arr[Actor.AIMODE_GOLDDIG] = "Gold dig"
+	arr[Actor.AIMODE_GOTO] = "Goto"
+
+	for actor in MovableMan.Actors do
+		if actor.ClassName == "AHuman" or actor.ClassName == "ACrab" then
+			local s = arr[actor.AIMode]
+			
+			if s ~= nil then
+				CF_DrawString(s, actor.Pos + Vector(-20,30), 100, 100)
+			end
+		end
+	end--]]--
 
 	if self.GS["Mode"] == "Mission" then
 		self:ProcessLZControlPanelUI()
@@ -1186,7 +1209,7 @@ function VoidWanderers:UpdateActivity()
 		local count = 0;
 		local braincount = 0;
 		for actor in MovableMan.Actors do
-			if actor.Team == CF_PlayerTeam and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") and not self:IsAlly(actor) then
+			if actor.Team == CF_PlayerTeam and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") then
 				count = count + 1
 
 				if self.Time % 4 == 0 and count > tonumber(self.GS["Player0VesselCommunication"]) and self.GS["BrainsOnMission"] ~= "True" then

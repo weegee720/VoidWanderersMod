@@ -230,7 +230,83 @@ function (self, variant)
 		end
 	end
 end
+-------------------------------------------------------------------------------
+-- Abandoned ship exploration
+local id = "Abandoned Titan Vessel"
+CF_Location[#CF_Location + 1] = id
+CF_LocationName[id] = "Abandoned Titan Vessel"
+CF_LocationPos[id] = Vector(0,0)
+CF_LocationSecurity[id] = 0
+CF_LocationGoldPresent[id] = false
+CF_LocationScenes[id] = {"Abandoned Titan Vessel"}
+CF_LocationPlanet[id] = ""
+CF_LocationScript[id] = "VoidWanderers.rte/Scripts/Mission_VesselExploration.lua"
+CF_LocationPlayable[id] = true
+CF_LocationMissions[id] = {}
+CF_LocationAttributes[id] = {CF_LocationAttributeTypes.VESSEL, CF_LocationAttributeTypes.NOTMISSIONASSIGNABLE, CF_LocationAttributeTypes.ALWAYSUNSEEN}
+
+local id = "ABANDONED_VESSEL_GENERIC";
+CF_RandomEncounters[#CF_RandomEncounters + 1] = id
+CF_RandomEncountersInitialTexts[id] = "A dead vessel floats in the asteroid field, it might have been abandoned for years, though it does not mean that it's empty."
+CF_RandomEncountersInitialVariants[id] = {"Send away team immediately!", "Just cut off everything valuable from the hull", "Leave it alone"}
+CF_RandomEncountersVariantsInterval[id] = 24
+CF_RandomEncountersOneTime[id] = false
+CF_RandomEncountersFunctions[id] = 
+
+function (self, variant)
+	if not self.RandomEncounterIsInitialized then
+		local locations = {}
+	
+		-- Find usable scene
+		for i = 1, #CF_Location do
+			local id = CF_Location[i]
+			if CF_IsLocationHasAttribute(id, CF_LocationAttributeTypes.VESSEL) then
+				locations[#locations + 1] = id
+			end
+		end
+		
+		self.AbandonedVesselLocation = locations[math.random(#locations)]
+
+		self.RandomEncounterIsInitialized = true
+	end
+
+	if variant == 1 then
+		self.GS["Location"] = self.AbandonedVesselLocation
+		self.GS["Destination"] = nil
+		
+		self.MissionReport = {}
+		self.MissionReport[#self.MissionReport + 1] = "Deploy your away team to the abandoned ship."
+		CF_SaveMissionReport(self.GS, self.MissionReport)
+		
+		-- Finish encounter
+		self.RandomEncounterID = nil
+	end
+	
+	if variant == 2 then
+		self.GS["Location"] = self.AbandonedVesselLocation
+		self.GS["Destination"] = nil
+		
+		self.MissionReport = {}
+		self.MissionReport[#self.MissionReport + 1] = "TODO - Write something here"
+		CF_SaveMissionReport(self.GS, self.MissionReport)
+		
+		-- Finish encounter
+		self.RandomEncounterID = nil
+	end
+	
+	if variant == 3 then
+		self.MissionReport = {}
+		self.MissionReport[#self.MissionReport + 1] = "Farewell silent wanderer of the void."
+		CF_SaveMissionReport(self.GS, self.MissionReport)
+		
+		-- Finish encounter
+		self.RandomEncounterID = nil
+	end
+	
+end
 
 
 
+
+-------------------------------------------------------------------------------
 

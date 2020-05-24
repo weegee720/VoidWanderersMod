@@ -167,6 +167,10 @@ CF_LocationPlanet[id] = "CC-11Y"
 CF_LocationPlayable[id] = false
 CF_LocationAttributes[id] = {CF_LocationAttributeTypes.SHIPYARD}
 
+
+
+
+
 -- Define moon
 --local id = "Moon"
 --CF_Planet[#CF_Planet + 1] = id

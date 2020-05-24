@@ -240,16 +240,14 @@ function VoidWanderers:MissionUpdate()
 			if actor:HasObjectInGroup("Diggers") then 
 				if  actor.AIMode == Actor.AIMODE_SENTRY then
 					actor.AIMode = Actor.AIMODE_GOLDDIG
+					--print (actor)
+					--print ("GOLDDIG 1")
 				end
 				miners[#miners + 1] = actor
 			else
 				if actor.AIMode == Actor.AIMODE_SENTRY then
 					acts[#acts + 1] = actor
 				end
-			end
-		else
-			if actor.AIMode == Actor.AIMODE_GOLDDIG then 
-				enemyminers[#enemyminers + 1] = actor
 			end
 		end
 	end
@@ -304,6 +302,8 @@ function VoidWanderers:MissionUpdate()
 					rndact.AIMode = Actor.AIMODE_GOTO
 					rndact:ClearAIWaypoints()
 					rndact:AddAISceneWaypoint(nearest)
+					--print (rndact)
+					--print("GOTO 4")
 					--print (rndact)
 					--print (nearest)
 				end

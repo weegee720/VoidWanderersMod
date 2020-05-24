@@ -59,9 +59,17 @@ function VoidWanderers:FormLoad()
 				self.Slots[i]["Gold"] = config["Player0Gold"];
 				
 				local tm = tonumber(config["Time"]);
-				if tm > 3600 then
-					tm = tostring(math.floor(tm / 3600)).." Hrs"
+				local hrs;
+				local mins;
+			
+				hrs = math.floor(tm / 3600)
+				mins = math.floor((tm - hrs * 3600) / 60)
+				
+				if mins < 10 then
+					mins = "0"..mins
 				end
+			
+				tm = tostring(hrs)..":"..mins
 				
 				self.Slots[i]["Time"] = tm
 				self.Slots[i]["Reason"] = reason

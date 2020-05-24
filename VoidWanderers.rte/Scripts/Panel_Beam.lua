@@ -211,7 +211,7 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 
 					-- Set new operating mode
 					self.GS["Mode"] = "Mission"
-					self.GS["SceneType"] = "Mission"			
+					self.GS["SceneType"] = "Mission"
 					self:SaveCurrentGameState();
 
 					self:LaunchScript(scene, "Tactics.lua")
