@@ -236,6 +236,8 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 					self.StorageControlPanelObject = CF_MakeItem2(self.StorageItems[itm]["Preset"], self.StorageItems[itm]["Class"])
 					if self.StorageControlPanelObject ~= nil then
 						MovableMan:AddItem(self.StorageControlPanelObject)
+						self.StorageControlPanelObject.HitsMOs = false
+						self.StorageControlPanelObject.GetsHitByMOs = false
 					end
 				else
 					self.StorageSelectedItemDescription = ""

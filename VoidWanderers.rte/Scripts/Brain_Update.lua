@@ -226,7 +226,7 @@ function do_rpgbrain_update(self)
 
 			-- Find nearest weapon
 			for itm in MovableMan.Items do
-				if itm.ClassName == "HDFirearm" then
+				if itm.ClassName == "HDFirearm" and itm.HitsMOs ~= false then
 					local d = SceneMan:ShortestDistance(itm.Pos, self.ThisActor.Pos, true).Magnitude;
 					
 					if d < self.EffectiveDistance and d < nearestitmdist then
