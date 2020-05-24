@@ -30,7 +30,6 @@ function VoidWanderers:InitStorageControlPanelUI()
 	end
 	
 	-- Create actor
-	-- Ship
 	if self.StorageControlPanelPos ~= nil then
 		if not MovableMan:IsActor(self.StorageControlPanelActor) then
 			self.StorageControlPanelActor = CreateActor("Storage Control Panel")
@@ -40,6 +39,13 @@ function VoidWanderers:InitStorageControlPanelUI()
 				MovableMan:AddActor(self.StorageControlPanelActor)
 			end
 		end
+		
+		-- Crate debug
+		--local crt = CreateMOSRotating("Case", self.ModuleName)
+		--if crt then
+		--	crt.Pos = self.StorageControlPanelPos
+		--	MovableMan:AddParticle(crt)
+		--end		
 	end
 	
 	self.StorageControlPanelItemsPerPage = 9

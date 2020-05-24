@@ -133,18 +133,8 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 					local savedactor = 1
 
 					-- Clean previously saved actors and inventories in config
-					for i = 1, CF_MaxSavedActors do
-						self.GS["Actor"..i.."Preset"] = nil
-						self.GS["Actor"..i.."Class"] = nil
-						self.GS["Actor"..i.."X"] = nil
-						self.GS["Actor"..i.."Y"] = nil
-						
-						for j = 1, CF_MaxSavedItemsPerActor do
-							self.GS["Actor"..i.."Item"..j.."Preset"] = nil
-							self.GS["Actor"..i.."Item"..j.."Class"] = nil
-						end
-					end
-
+					self:ClearActors()
+					
 					self.DeployedActors = {}
 
 					-- Save actors to config and transfer them to scene

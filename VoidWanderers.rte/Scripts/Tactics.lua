@@ -16,6 +16,7 @@ function VoidWanderers:StartActivity()
 	end
 
 	self.IsInitialized = true
+	self.SaveNextTime = false
 	
 	self.GS = {};
 	self.ModuleName = "VoidWanderers.rte";
@@ -59,6 +60,8 @@ function VoidWanderers:StartActivity()
 			end
 		end
 		
+		local spawnedactors = 1
+		
 		-- Spawn previously saved actors
 		for i = 1, CF_MaxSavedActors do
 			if self.GS["Actor"..i.."Preset"] ~= nil then
@@ -67,6 +70,7 @@ function VoidWanderers:StartActivity()
 					actor.Pos = Vector(tonumber(self.GS["Actor"..i.."X"]), tonumber(self.GS["Actor"..i.."Y"]))
 					actor.Team = CF_PlayerTeam
 					for j = 1, CF_MaxSavedItemsPerActor do
+						--print(self.GS["Actor"..i.."Item"..j.."Preset"])
 						if self.GS["Actor"..i.."Item"..j.."Preset"] ~= nil then
 							local itm = CF_MakeItem2(self.GS["Actor"..i.."Item"..j.."Preset"], self.GS["Actor"..i.."Item"..j.."Class"])
 							if itm then
@@ -77,6 +81,7 @@ function VoidWanderers:StartActivity()
 						end
 					end
 					MovableMan:AddActor(actor)
+					spawnedactors = spawnedactors + 1
 				end
 			else
 				break
@@ -101,18 +106,30 @@ function VoidWanderers:StartActivity()
 				end
 			end
 			
+			-- Not only we need to spawn deployed actors but we also need to save them to config
+			-- if we don't do that once player will restart the game after mission away-team actors will disappear
 			for i = 1, #self.DeployedActors do
 				local actor = CF_MakeActor2(self.DeployedActors[i]["Preset"], self.DeployedActors[i]["Class"])
 				if actor then
 					actor.Pos = dsts[dest]
 					actor.Team = CF_PlayerTeam
+					
+					self.GS["Actor"..spawnedactors.."Preset"] = actor.PresetName
+					self.GS["Actor"..spawnedactors.."Class"] = actor.ClassName
+					self.GS["Actor"..spawnedactors.."X"] = math.ceil(actor.Pos.X)
+					self.GS["Actor"..spawnedactors.."Y"] = math.ceil(actor.Pos.Y)
+					
 					for j = 1, #self.DeployedActors[i]["InventoryPresets"] do
 						local itm = CF_MakeItem2(self.DeployedActors[i]["InventoryPresets"][j], self.DeployedActors[i]["InventoryClasses"][j])
 						if itm then
 							actor:AddInventoryItem(itm)
+							
+							self.GS["Actor"..spawnedactors.."Item"..j.."Preset"] = self.DeployedActors[i]["InventoryPresets"][j]
+							self.GS["Actor"..spawnedactors.."Item"..j.."Class"] = self.DeployedActors[i]["InventoryClasses"][j]
 						end
 					end
 					MovableMan:AddActor(actor)
+					spawnedactors = spawnedactors + 1
 				end
 			
 				dest = dest + 1
@@ -122,9 +139,10 @@ function VoidWanderers:StartActivity()
 			end
 		end
 		self.DeployedActors = nil
+		self:SaveCurrentGameState()
 	end
 	
-	-- Spawn away team objects
+	-- Spawn away-team objects
 	if self.GS["Mode"] == "Mission" then
 		local scene = SceneMan.Scene.PresetName
 
@@ -162,6 +180,20 @@ function VoidWanderers:StartActivity()
 			end
 		end
 		self.DeployedActors = nil
+		
+		-- Spawn crates
+		local crts = CF_GetPointsArray(self.Pts, "Deploy", set, "Crates")
+		local amount = math.ceil(CF_CratesRate * #crts)
+		--print ("Crates: "..amount)
+		local crtspos = CF_SelectRandomPoints(crts, amount)
+		
+		for i = 1, #crtspos do
+			local crt = CreateMOSRotating("Case", self.ModuleName)
+			if crt then
+				crt.Pos = crtspos[i]
+				MovableMan:AddParticle(crt)
+			end
+		end
 	end
 	
 	-- Load pre-spawned enemy locations. These locations also used during assaults to place teleported units
@@ -381,6 +413,49 @@ function VoidWanderers:SaveCurrentGameState()
 	CF_WriteConfigFile(self.GS , self.ModuleName , STATE_CONFIG_FILE);
 end
 -----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
+function VoidWanderers:ClearActors()
+	for i = 1, CF_MaxSavedActors do
+		self.GS["Actor"..i.."Preset"] = nil
+		self.GS["Actor"..i.."Class"] = nil
+		self.GS["Actor"..i.."X"] = nil
+		self.GS["Actor"..i.."Y"] = nil
+		
+		for j = 1, CF_MaxSavedItemsPerActor do
+			self.GS["Actor"..i.."Item"..j.."Preset"] = nil
+			self.GS["Actor"..i.."Item"..j.."Class"] = nil
+		end
+	end
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
+function VoidWanderers:SaveActors()
+	self:ClearActors()
+
+	local savedactor = 1
+
+	for actor in MovableMan.Actors do
+		if actor.PresetName ~= "Brain Case" and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") then
+			local pre, cls = CF_GetInventory(actor)
+		
+			-- Save actors to config
+			self.GS["Actor"..savedactor.."Preset"] = actor.PresetName
+			self.GS["Actor"..savedactor.."Class"] = actor.ClassName
+			self.GS["Actor"..savedactor.."X"] = math.floor(actor.Pos.X)
+			self.GS["Actor"..savedactor.."Y"] = math.floor(actor.Pos.Y)
+			
+			for j = 1, #pre do
+				self.GS["Actor"..savedactor.."Item"..j.."Preset"] = pre[j]
+				self.GS["Actor"..savedactor.."Item"..j.."Class"] = cls[j]
+			end
+
+			savedactor = savedactor + 1
+		end
+	end
+end
+-----------------------------------------------------------------------------------------
 -- Update Activity
 -----------------------------------------------------------------------------------------
 function VoidWanderers:UpdateActivity()
@@ -452,12 +527,22 @@ function VoidWanderers:UpdateActivity()
 	if self.TickTimer:IsPastSimMS(self.TickInterval) then
 		self.Time = self.Time + 1
 		self.TickTimer:Reset();
+
+		-- Autosave game from time to time
+		if self.GS["Mode"] == "Vessel" and (self.SaveNextTime or self.Time % CF_AutoSaveInterval == 0) then
+			if self.SaveNextTime then
+				self.SaveNextTime = false
+			end
+		
+			self:SaveActors()
+			self:SaveCurrentGameState()
+		end
 		
 		-- Process enemy spawn during assaults
 		if self.GS["Mode"] == "Assault" then
 			-- Spawn enemies
 			if self.AssaultNextSpawnTime == self.Time then
-				print ("Spawn")
+				--print ("Spawn")
 				self.AssaultNextSpawnTime = self.Time + CF_AssaultDifficultySpawnInterval[self.AssaultDifficulty]
 				
 				local cnt = math.random(CF_AssaultDifficultySpawnBurst[self.AssaultDifficulty])

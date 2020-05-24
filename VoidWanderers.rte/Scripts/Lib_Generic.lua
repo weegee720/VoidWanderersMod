@@ -28,6 +28,8 @@ function CF_InitFactions(activity)
 	
 	CF_TeamReturnDelay = 2--5
 	
+	CF_CratesRate = 0.35
+	
 	CF_AssaultDifficultyTexts = {}
 	CF_AssaultDifficultyTexts[1] = "scout"
 	CF_AssaultDifficultyTexts[2] = "corvette"
@@ -72,6 +74,8 @@ function CF_InitFactions(activity)
 	
 	CF_MaxSavedActors = 40
 	CF_MaxSavedItemsPerActor = 20
+
+	CF_AutoSaveInterval = 4500
 	
 	-- Set this to true to stop any UI processing. Useful when debuging and need to disable UI error message spam.
 	CF_StopUIProcessing = false

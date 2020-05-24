@@ -6,17 +6,6 @@ function VoidWanderers:FormLoad()
 	-- Clear old elements
 	local el;
 	self.UI = {}
-	
-	el = {}
-	el["Type"] = self.ElementTypes.LABEL;
-	el["Preset"] = "MainTitle"
-	el["Pos"] = self.Mid + Vector(0,-200)
-	el["Text"] = nil
-	el["Width"] = 800;
-	el["Height"] = 100;
-
-	self.UI[#self.UI + 1] = el;
-	self.LblHeader = el
 
 	if CF_IsFileExists(self.ModuleName , STATE_CONFIG_FILE) then
 		el = {}
@@ -94,6 +83,9 @@ end
 --
 -----------------------------------------------------------------------------------------
 function VoidWanderers:BtnContinueGame_OnClick()
+	config = CF_ReadConfigFile(self.ModuleName , STATE_CONFIG_FILE);
+	self:LaunchScript(config["Scene"], "Tactics.lua")
+
 	--self:FormClose();
 	--dofile(BASE_PATH.."FormDefault.lua")
 	--self:LoadCurrentGameState();
