@@ -65,6 +65,21 @@ function VoidWanderers:StartActivity()
 				break
 			end
 		end
+
+		self.AwayTeamPos = {}
+		
+		for i = 1, 16 do
+			local x,y;
+			
+			x = tonumber(self.LS["AwayTeamSpawn"..i.."X"])
+			y = tonumber(self.LS["AwayTeamSpawn"..i.."Y"])
+			
+			if x ~= nil and y ~= nil then
+				self.AwayTeamPos[i] = Vector(x,y)
+			else
+				break
+			end
+		end
 		
 		-- Create brains
 		--print ("Create brains")
@@ -80,13 +95,26 @@ function VoidWanderers:StartActivity()
 		self.Ship = SceneMan.Scene:GetArea("Vessel")
 		
 		local spawnedactors = 1
+		local dest = 1
 		
 		-- Spawn previously saved actors
 		for i = 1, CF_MaxSavedActors do
 			if self.GS["Actor"..i.."Preset"] ~= nil then
 				local actor = CF_MakeActor2(self.GS["Actor"..i.."Preset"], self.GS["Actor"..i.."Class"])
 				if actor then
-					actor.Pos = Vector(tonumber(self.GS["Actor"..i.."X"]), tonumber(self.GS["Actor"..i.."Y"]))
+					local x = self.GS["Actor"..i.."X"]
+					local y = self.GS["Actor"..i.."Y"]
+					
+					if x ~= nil and y ~= nil then
+						actor.Pos = Vector(tonumber(x), tonumber(y))
+					else
+						actor.Pos = self.AwayTeamPos[dest]
+						dest = dest + 1
+						
+						if dest > #self.AwayTeamPos then
+							dest = 1
+						end
+					end
 					actor.Team = CF_PlayerTeam
 					for j = 1, CF_MaxSavedItemsPerActor do
 						--print(self.GS["Actor"..i.."Item"..j.."Preset"])
@@ -110,27 +138,13 @@ function VoidWanderers:StartActivity()
 		-- Spawn previously deployed actors
 		if self.DeployedActors ~= nil then
 			local dest = 1;
-			local dsts = {}
-			
-			for i = 1, 16 do
-				local x,y;
-				
-				x = tonumber(self.LS["AwayTeamSpawn"..i.."X"])
-				y = tonumber(self.LS["AwayTeamSpawn"..i.."Y"])
-				
-				if x ~= nil and y ~= nil then
-					dsts[i] = Vector(x,y)
-				else
-					break
-				end
-			end
 			
 			-- Not only we need to spawn deployed actors but we also need to save them to config
 			-- if we don't do that once player will restart the game after mission away-team actors will disappear
 			for i = 1, #self.DeployedActors do
 				local actor = CF_MakeActor2(self.DeployedActors[i]["Preset"], self.DeployedActors[i]["Class"])
 				if actor then
-					actor.Pos = dsts[dest]
+					actor.Pos = self.AwayTeamPos[dest]
 					actor.Team = CF_PlayerTeam
 					
 					self.GS["Actor"..spawnedactors.."Preset"] = actor.PresetName
@@ -152,7 +166,7 @@ function VoidWanderers:StartActivity()
 				end
 			
 				dest = dest + 1
-				if dest > #dsts then
+				if dest > #self.AwayTeamPos then
 					dest = 1
 				end
 			end
@@ -233,7 +247,7 @@ function VoidWanderers:StartActivity()
 		
 		-- Find available mission
 		for m = 1, CF_MaxMissions do
-			--if self.GS["Location"] == self.GS["Mission"..m.."Location"] then
+			if self.GS["Location"] == self.GS["Mission"..m.."Location"] then
 			--if self.GS["Location"] == "Ketanot Hills" then -- DEBUG
 				self.MissionAvailable = true
 				
@@ -244,11 +258,11 @@ function VoidWanderers:StartActivity()
 				self.MissionTargetPlayer = tonumber(self.GS["Mission"..m.."TargetPlayer"])
 
 				-- DEBUG
-				self.MissionDifficulty = CF_MaxDifficulty -- DEBUG
+				--self.MissionDifficulty = CF_MaxDifficulty -- DEBUG
 				--self.MissionType = "Assault" -- DEBUG
 				--self.MissionType = "Assassinate" -- DEBUG
 				--self.MissionType = "Dropships" -- DEBUG
-				self.MissionType = "Mine" -- DEBUG
+				--self.MissionType = "Mine" -- DEBUG
 				
 				self.MissionScript = CF_MissionScript[ self.MissionType ]
 				self.MissionGoldReward = CF_MissionGoldRewardPerDifficulty[ self.MissionType ] * self.MissionDifficulty
@@ -261,7 +275,7 @@ function VoidWanderers:StartActivity()
 				CF_CreateAIUnitPresets(self.GS, self.MissionTargetPlayer , CF_GetTechLevelFromDifficulty(self.GS, self.MissionTargetPlayer, self.MissionDifficulty, CF_MaxDifficulty))
 				
 				break
-			--end
+			end
 		end
 		
 		if self.MissionAvailable then
@@ -597,7 +611,7 @@ end
 -----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
-function VoidWanderers:SaveActors()
+function VoidWanderers:SaveActors(clearpos)
 	self:ClearActors()
 
 	local savedactor = 1
@@ -609,8 +623,13 @@ function VoidWanderers:SaveActors()
 			-- Save actors to config
 			self.GS["Actor"..savedactor.."Preset"] = actor.PresetName
 			self.GS["Actor"..savedactor.."Class"] = actor.ClassName
-			self.GS["Actor"..savedactor.."X"] = math.floor(actor.Pos.X)
-			self.GS["Actor"..savedactor.."Y"] = math.floor(actor.Pos.Y)
+			if clearpos then
+				self.GS["Actor"..savedactor.."X"] = nil
+				self.GS["Actor"..savedactor.."Y"] = nil
+			else
+				self.GS["Actor"..savedactor.."X"] = math.floor(actor.Pos.X)
+				self.GS["Actor"..savedactor.."Y"] = math.floor(actor.Pos.Y)
+			end
 			
 			for j = 1, #pre do
 				self.GS["Actor"..savedactor.."Item"..j.."Preset"] = pre[j]

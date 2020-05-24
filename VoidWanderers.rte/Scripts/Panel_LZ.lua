@@ -178,6 +178,11 @@ function VoidWanderers:ProcessLZControlPanelUI()
 					if self.MissionAvailable and self.MissionFailed then
 						self:GiveMissionPenalties()
 					end
+
+					if self.MissionAvailable then
+						-- Generate new missions
+						CF_GenerateRandomMissions(self.GS)
+					end
 					
 					-- Update casualties report
 					if self.MissionDeployedTroops > #self.DeployedActors then
@@ -241,13 +246,8 @@ function VoidWanderers:ProcessLZControlPanelUI()
 					-- Set new operating mode
 					self.GS["Mode"] = "Vessel"
 					self.GS["SceneType"] = "Vessel"
-
-					self:SaveCurrentGameState();
 					
-					if self.MissionAvailable then
-						-- Generate new missions
-						CF_GenerateRandomMissions(self.GS)
-					end
+					self:SaveCurrentGameState();
 					
 					self:LaunchScript(scene, "Tactics.lua")
 					self.EnableBrainSelection = false

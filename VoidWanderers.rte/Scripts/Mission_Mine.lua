@@ -12,58 +12,52 @@ function VoidWanderers:MissionCreate()
 	
 	setts = {}
 	setts[1] = {}
-	setts[1]["SpawnRate"] = 0.40
 	setts[1]["AllyReinforcementsCount"] = 6
 	setts[1]["EnemyDropshipUnitCount"] = 1
-	setts[1]["Interval"] = 26
+	setts[1]["Interval"] = 32
 	setts[1]["MinersNeeded"] = 3
 	setts[1]["TimeToHold"] = 60
 	
 	setts[2] = {}
-	setts[2]["SpawnRate"] = 0.40
 	setts[2]["AllyReinforcementsCount"] = 6
 	setts[2]["EnemyDropshipUnitCount"] = 1
-	setts[2]["Interval"] = 26
+	setts[2]["Interval"] = 32
 	setts[2]["MinersNeeded"] = 3
 	setts[2]["TimeToHold"] = 70
 
 	setts[3] = {}
-	setts[3]["SpawnRate"] = 0.40
 	setts[3]["AllyReinforcementsCount"] = 6
 	setts[3]["EnemyDropshipUnitCount"] = 2
-	setts[3]["Interval"] = 26
+	setts[3]["Interval"] = 32
 	setts[3]["MinersNeeded"] = 4
 	setts[3]["TimeToHold"] = 80
 
 	setts[4] = {}
-	setts[4]["SpawnRate"] = 0.40
 	setts[4]["AllyReinforcementsCount"] = 6
 	setts[4]["EnemyDropshipUnitCount"] = 2
-	setts[4]["Interval"] = 26
+	setts[4]["Interval"] = 30
 	setts[4]["MinersNeeded"] = 5
 	setts[4]["TimeToHold"] = 90
 
 	setts[5] = {}
-	setts[5]["SpawnRate"] = 0.40
 	setts[5]["AllyReinforcementsCount"] = 6
 	setts[5]["EnemyDropshipUnitCount"] = 3
-	setts[5]["Interval"] = 32
+	setts[5]["Interval"] = 30
 	setts[5]["MinersNeeded"] = 6
 	setts[5]["TimeToHold"] = 100
 
 	setts[6] = {}
-	setts[6]["SpawnRate"] = 0.40
 	setts[6]["AllyReinforcementsCount"] = 6
 	setts[6]["EnemyDropshipUnitCount"] = 3
-	setts[6]["Interval"] = 32
+	setts[6]["Interval"] = 30
 	setts[6]["MinersNeeded"] = 6
 	setts[6]["TimeToHold"] = 120
 	
 	self.MissionSettings = setts[self.MissionDifficulty]
 	self.MissionStart = self.Time
 	self.MissionLastReinforcements = self.Time + self.MissionSettings["Interval"] * 2
-	self.MissionAllySpawnInterval = 25
-	self.MissionLastAllyReinforcements = self.Time + self.MissionAllySpawnInterval
+	self.MissionAllySpawnInterval = 40
+	self.MissionLastAllyReinforcements = self.Time - 1
 	
 	-- Use generic enemy set
 	local set = CF_GetRandomMissionPointsSet(self.Pts, "Enemy")
@@ -76,8 +70,7 @@ function VoidWanderers:MissionCreate()
 		self.MissionLZs = CF_GetPointsArray(self.Pts, "Deploy", self.MissionDeploySet, "PlayerLZ")	
 	end
 	
-	-- Find 2 biggest available point sets except snipers which may be located on some cliffs
-	-- From the first we'll spawn security and from the second miners
+	-- Select second biggest deployment set
 	local sets = {}
 	
 	sets[1] = CF_GetPointsArray(self.Pts, "Enemy", set, "Any")
@@ -96,27 +89,19 @@ function VoidWanderers:MissionCreate()
 		end
 	end
 	
-	local miners
-	local security = sets[1]
-	if #sets[2] > 0 then
-		miners = sets[2]
-	else
-		miners = sets[1]
-	end
+	local miners = CF_SelectRandomPoints(sets[1], 2)
 
 	-- Spawn miners
 	for i = 1, #miners do
-		if i < 3 or math.random() < self.MissionSettings["SpawnRate"] then
-			local nw = {}
-			nw["Preset"] = CF_PresetTypes.ENGINEER
-			nw["Team"] = CF_PlayerTeam
-			nw["Player"] = self.MissionSourcePlayer
-			nw["AIMode"] = Actor.AIMODE_GOLDDIG
-			nw["Pos"] = miners[i]
-			nw["RenamePreset"] = "-" -- Spawn as allies. Allies don't need comm-points to operate
-			
-			table.insert(self.SpawnTable, nw)
-		end
+		local nw = {}
+		nw["Preset"] = CF_PresetTypes.ENGINEER
+		nw["Team"] = CF_PlayerTeam
+		nw["Player"] = self.MissionSourcePlayer
+		nw["AIMode"] = Actor.AIMODE_GOLDDIG
+		nw["Pos"] = miners[i]
+		nw["RenamePreset"] = "-" -- Spawn as allies. Allies don't need comm-points to operate
+		
+		table.insert(self.SpawnTable, nw)
 	end
 	
 	self.MissionStages = {ACTIVE = 0, COMPLETED = 1, FAILED = 2}

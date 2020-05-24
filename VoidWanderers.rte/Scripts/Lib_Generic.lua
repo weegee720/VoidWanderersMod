@@ -67,6 +67,16 @@ function CF_InitFactions(activity)
 	
 	CF_MaxMissionReportLines = 13
 	
+	CF_ClonePrice = 1500
+	CF_StoragePrice = 200
+	CF_LifeSupportPrice = 2500
+	CF_CommunicationPrice = 3000
+	CF_EnginePrice = 500
+	
+	CF_ShipSellCoeff = 0.25
+	CF_ShipDevInstallCoeff = 0.05
+	
+	
 	CF_AssaultDifficultyTexts = {}
 	CF_AssaultDifficultyTexts[1] = "scout"
 	CF_AssaultDifficultyTexts[2] = "corvette"

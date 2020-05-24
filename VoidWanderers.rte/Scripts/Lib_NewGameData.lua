@@ -51,10 +51,11 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 	config["Player0Faction"] = f
 	config["Player0Active"] = "True"
 	config["Player0Type"] = "Player"
-	config["Player0Gold"] = math.floor(4000 * PositiveIndex)
+	config["Player0Gold"] = math.floor(4000000 * PositiveIndex)
 	
 	-- Assign player ship
 	config["Player0Vessel"] = "Gryphon"
+	--config["Player0Vessel"] = "Titan" -- DEBUG
 	
 	-- Set vessel attrs
 	config["Player0VesselStorageCapacity"] = CF_VesselStartStorageCapacity[ config["Player0Vessel"] ]
