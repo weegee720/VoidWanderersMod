@@ -55,11 +55,16 @@ function VoidWanderers:FormLoad()
 	
 	-- Create list of data objcets
 	-- Add generic mission types which must be present on any map
-	self.Data[1] = {}
-	self.Data[1]["Name"] = "Deploy"
+	--self.Data[1] = {}
+	--self.Data[1]["Name"] = "Deploy"
 
-	self.Data[2] = {}
-	self.Data[2]["Name"] = "Enemy"
+	--self.Data[2] = {}
+	--self.Data[2]["Name"] = "Enemy"
+	
+	for i = 1, CF_GenericMissionCount do
+		self.Data[i] = {}
+		self.Data[i]["Name"] = CF_Mission[i]
+	end
 	
 	for i = 1, #CF_LocationMissions[self.SelectedLocationID] do
 		self.Data[CF_GenericMissionCount + i] = {}

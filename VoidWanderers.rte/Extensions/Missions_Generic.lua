@@ -106,8 +106,43 @@ CF_MissionRequiredData[id][i]["Name"] = "LZ"
 CF_MissionRequiredData[id][i]["Type"] = "Vector"
 CF_MissionRequiredData[id][i]["Max"] = 12
 
-CF_GenericMissionCount = #CF_Mission
 
+
+local id = "Firefight"
+CF_Mission[#CF_Mission + 1] = id
+
+CF_MissionName[id] = "Vessel_Firefight"
+CF_MissionScript[id] = ""
+CF_MissionMinReputation[id] = 0
+CF_MissionBriefingText[id] = ""
+CF_MissionMaxSets[id] = 6
+CF_MissionRequiredData[id] = {}
+
+local i = 1
+CF_MissionRequiredData[id][i] = {}
+CF_MissionRequiredData[id][i]["Name"] = "Team 1"
+CF_MissionRequiredData[id][i]["Type"] = "Vector"
+CF_MissionRequiredData[id][i]["Max"] = 8
+
+local i = 2
+CF_MissionRequiredData[id][i] = {}
+CF_MissionRequiredData[id][i]["Name"] = "Team 2"
+CF_MissionRequiredData[id][i]["Type"] = "Vector"
+CF_MissionRequiredData[id][i]["Max"] = 8
+
+local i = 3
+CF_MissionRequiredData[id][i] = {}
+CF_MissionRequiredData[id][i]["Name"] = "Waypoint 1"
+CF_MissionRequiredData[id][i]["Type"] = "Vector"
+CF_MissionRequiredData[id][i]["Max"] = 6
+
+local i = 4
+CF_MissionRequiredData[id][i] = {}
+CF_MissionRequiredData[id][i]["Name"] = "Waypoint 2"
+CF_MissionRequiredData[id][i]["Type"] = "Vector"
+CF_MissionRequiredData[id][i]["Max"] = 6
+
+CF_GenericMissionCount = #CF_Mission
 
 -------------------------------------------------------------------------------
 -- Ship counterattack fake encounter

@@ -667,8 +667,8 @@ function VoidWanderers:TriggerShipAssault()
 		self.AssaultNextSpawnTime = self.AssaultTime + CF_AssaultDifficultySpawnInterval[self.AssaultDifficulty] + 1
 		self.AssaultNextSpawnPos = self.EnemySpawn[math.random(#self.EnemySpawn)]	
 
-		self.AssaultEnemiesToSpawn = 1 -- DEBUG
-		self.AssaultTime = self.Time + 3 -- DEBUG
+		--self.AssaultEnemiesToSpawn = 1 -- DEBUG
+		--self.AssaultTime = self.Time + 3 -- DEBUG
 
 		-- Create attacker's unit presets
 		CF_CreateAIUnitPresets(self.GS, self.AssaultEnemyPlayer, CF_GetTechLevelFromDifficulty(self.GS, self.AssaultEnemyPlayer, self.AssaultDifficulty, CF_MaxDifficulty))	
@@ -705,8 +705,8 @@ function VoidWanderers:TriggerShipAssault()
 			end
 			
 			--id = "TEST" -- DEBUG
-			--id = "PIRATE_GENERIC"
-			--id = "ABANDONED_VESSEL_GENERIC"
+			--id = "PIRATE_GENERIC" -- DEBUG
+			--id = "ABANDONED_VESSEL_GENERIC"  --DEBUG
 			
 			-- Launch encounter
 			if found and id ~= nil then
@@ -911,8 +911,15 @@ function VoidWanderers:UpdateActivity()
 				end
 			end
 		else
+			local count = CF_CountActors(CF_PlayerTeam) - tonumber(self.GS["Player0VesselLifeSupport"])
+			local s = "BODIES"
+			
+			if count == 1 then
+				s = "BODY"
+			end
+		
 			FrameMan:ClearScreenText(0);
-			FrameMan:SetScreenText("LIFE SUPPORT OVERLOADED\nSTORE OR DUMP SOME BODIES", 0, 0, 1000, true);
+			FrameMan:SetScreenText("LIFE SUPPORT OVERLOADED\nSTORE OR DUMP "..CF_CountActors(CF_PlayerTeam) - tonumber(self.GS["Player0VesselLifeSupport"]) .." "..s, 0, 0, 1000, true);
 		end
 		
 		-- Show assault warning

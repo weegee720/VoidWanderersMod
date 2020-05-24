@@ -52,9 +52,12 @@ CF_LocationPos[id] = Vector(0,0)
 CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = false
 CF_LocationScenes[id] = {"Abandoned Gryphon Vessel"}
-CF_LocationScript[id] = {"VoidWanderers.rte/Scripts/Mission_AbandonedVessel_Faction.lua", "VoidWanderers.rte/Scripts/Mission_AbandonedVessel_Zombies.lua"}
+CF_LocationScript[id] = {	"VoidWanderers.rte/Scripts/Mission_AbandonedVessel_Faction.lua", 
+							"VoidWanderers.rte/Scripts/Mission_AbandonedVessel_Zombies.lua",
+							"VoidWanderers.rte/Scripts/Mission_AbandonedVessel_Firefight.lua"}
 --CF_LocationScript[id] = {"VoidWanderers.rte/Scripts/Mission_AbandonedVessel_Faction.lua"} -- DEBUG
 --CF_LocationScript[id] = {"VoidWanderers.rte/Scripts/Mission_AbandonedVessel_Zombies.lua"} -- DEBUG
+--CF_LocationScript[id] = {"VoidWanderers.rte/Scripts/Mission_AbandonedVessel_Firefight.lua"} -- DEBUG
 CF_LocationAmbientScript[id] = "VoidWanderers.rte/Scripts/Ambient_Smokes.lua"
 CF_LocationPlanet[id] = ""
 CF_LocationPlayable[id] = true
@@ -68,13 +71,15 @@ CF_LocationPos[id] = Vector(0,0)
 CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = false
 CF_LocationScenes[id] = {"Abandoned Titan Vessel"}
-CF_LocationScript[id] = {"VoidWanderers.rte/Scripts/Mission_AbandonedVessel_Faction.lua", "VoidWanderers.rte/Scripts/Mission_AbandonedVessel_Zombies.lua"}
+CF_LocationScript[id] = {	"VoidWanderers.rte/Scripts/Mission_AbandonedVessel_Faction.lua", 
+							"VoidWanderers.rte/Scripts/Mission_AbandonedVessel_Zombies.lua",
+							"VoidWanderers.rte/Scripts/Mission_AbandonedVessel_Firefight.lua"}
 CF_LocationAmbientScript[id] = "VoidWanderers.rte/Scripts/Ambient_Smokes.lua"
 CF_LocationPlanet[id] = ""
 CF_LocationPlayable[id] = true
 CF_LocationMissions[id] = {"Assassinate", "Zombies"}
 CF_LocationAttributes[id] = {CF_LocationAttributeTypes.ABANDONEDVESSEL, CF_LocationAttributeTypes.NOTMISSIONASSIGNABLE, CF_LocationAttributeTypes.ALWAYSUNSEEN, CF_LocationAttributeTypes.TEMPLOCATION}
-
+--]]--
 
 -- Counterattack vessel scenes
 local id = "Vessel Gryphon"
