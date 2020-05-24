@@ -661,7 +661,7 @@ function VoidWanderers:TriggerShipAssault()
 		end
 	end
 	
-	--toassault = false -- DEBUG
+	toassault = false -- DEBUG
 	--toassault = true -- DEBUG
 
 	if toassault then
@@ -711,6 +711,7 @@ function VoidWanderers:TriggerShipAssault()
 			--id = "PIRATE_GENERIC" -- DEBUG
 			--id = "ABANDONED_VESSEL_GENERIC"  -- DEBUG
 			--id = "HOSTILE_DRONE" -- DEBUG
+			id = "REAVERS" -- DEBUG
 			
 			-- Launch encounter
 			if found and id ~= nil then

@@ -1,210 +1,302 @@
+-- Integrity checks
+local extension = "Encounters_Reavers" 
+local modules = {"MZR.rte"}
+
+for m = 1, #modules do
+	if PresetMan:GetModuleID(modules[m]) == -1 then
+		error (extension..": ".."Can't  load module - "..modules[m])
+	end
+end
+
 -------------------------------------------------------------------------------
--- Define pirate identities
-CF_RandomEncounterPirates = {}
-
 -- Generic organic mid-heavy pirates
-local pid = #CF_RandomEncounterPirates + 1
-CF_RandomEncounterPirates[pid] = {}
-CF_RandomEncounterPirates[pid]["Captain"] = "Apone"
-CF_RandomEncounterPirates[pid]["Ship"] = "Sulako"
-CF_RandomEncounterPirates[pid]["Org"] = "The Free Galactic Brotherhood"
-CF_RandomEncounterPirates[pid]["FeeInc"] = 500
-
-CF_RandomEncounterPirates[pid]["Act"] = 	{"Ronin Soldier", 	"Ronin Heavy", 	"Soldier Light", 	"Soldier Heavy", 	"Browncoat Light", 	"Browncoat Heavy"}
-CF_RandomEncounterPirates[pid]["ActMod"] = 	{"Ronin.rte", 		"Ronin.rte" , 	"Coalition.rte" , 	"Coalition.rte", 	"Browncoats.rte" , 	"Browncoats.rte"}	
-
-CF_RandomEncounterPirates[pid]["Itm"] = 	{"AR-25 Hammerfist", 	"PY-07 Trailblazer", 	"Compact Assault Rifle", 	"Assault Rifle", 	"Shotgun", 			"Uzi", 			"MP5K", 		"AK-47", 		"Thumper"}
-CF_RandomEncounterPirates[pid]["ItmMod"] = 	{"Browncoats.rte", 		"Browncoats.rte",		"Coalition.rte",			"Coalition.rte",	"Coalition.rte",	"Ronin.rte",	"Ronin.rte",	"Ronin.rte",	"Ronin.rte"}
-
-CF_RandomEncounterPirates[pid]["Units"] = 12
-CF_RandomEncounterPirates[pid]["Burst"] = 3
-CF_RandomEncounterPirates[pid]["Interval"] = 18
-
-local pid = #CF_RandomEncounterPirates + 1
-CF_RandomEncounterPirates[pid] = {}
-CF_RandomEncounterPirates[pid]["Captain"] = "SHODAN"
-CF_RandomEncounterPirates[pid]["Ship"] = "Von Braun"
-CF_RandomEncounterPirates[pid]["Org"] = "The Free Nexus"
-CF_RandomEncounterPirates[pid]["FeeInc"] = 500
-
-CF_RandomEncounterPirates[pid]["Act"] = 	{"Dummy", 		"Scouting Robot", 	"All Purpose Robot", 	"Combat Robot", 	"Whitebot", 	"Silver Man"}
-CF_RandomEncounterPirates[pid]["ActMod"] = 	{"Dummy.rte", 	"Imperatus.rte" , 	"Imperatus.rte" , 		"Imperatus.rte", 	"Techion.rte" ,	"Techion.rte"}	
-
-CF_RandomEncounterPirates[pid]["Itm"] = 	{"Blaster", 	"Repeater", 	"Bullpup AR-14", 	"Mauler SG-23", 	"Pulse Rifle", 	"Nucleo Swarm"}
-CF_RandomEncounterPirates[pid]["ItmMod"] = 	{"Dummy.rte", 	"Dummy.rte",	"Imperatus.rte",	"Imperatus.rte",	"Techion.rte",	"Techion.rte"}
-
-CF_RandomEncounterPirates[pid]["Units"] = 12
-CF_RandomEncounterPirates[pid]["Burst"] = 3
-CF_RandomEncounterPirates[pid]["Interval"] = 18
-
-
-local id = "PIRATE_GENERIC";
+local id = "REAVERS";
 CF_RandomEncounters[#CF_RandomEncounters + 1] = id
 CF_RandomEncountersInitialTexts[id] = ""
-CF_RandomEncountersInitialVariants[id] = {"I'm at your mercy, take whatever you want.", "Kid, don't threaten me. There are worse things than death and I can do all of them."}
+CF_RandomEncountersInitialVariants[id] = {"Fight the basterds!", "Stay low", "RUN!!!"}
 CF_RandomEncountersVariantsInterval[id] = 24
 CF_RandomEncountersOneTime[id] = false
 CF_RandomEncountersFunctions[id] = 
 
 function (self, variant)
 	if not self.RandomEncounterIsInitialized then
-		-- Select random pirate party
-		self.RandomEncounterSelectedPirate = math.random(#CF_RandomEncounterPirates)
-		self.RandomEncounterPirate = CF_RandomEncounterPirates[self.RandomEncounterSelectedPirate]
+		self.RandomEncounterReavers = {}
+
+		self.RandomEncounterReaversAct = 	{"Reaver"}
+		self.RandomEncounterReaversActMod = {"MZR.rte"}	
+
+		self.RandomEncounterReaversLight = 	{"JPL 10 Auto", "K-LDP 7.7mm"}
+		self.RandomEncounterReaversLightMod = 	{"MZR.rte", "MZR.rte"}
+
+		self.RandomEncounterReaversHeavy = 	{"K-HAR 10mm", "Shrike Mdl.G"}
+		self.RandomEncounterReaversHeavyMod = 	{"MZR.rte", "MZR.rte"}
 		
-		local fee = self.GS["RandomEncounter"..self.RandomEncounterID..self.RandomEncounterPirate["Captain"].."Fee"]
-		if fee == nil then
-			fee = self.RandomEncounterPirate["FeeInc"]
-		else
-			fee = tonumber(fee)
+		self.RandomEncounterReaversInterval = 12
+		
+		self.RandomEncounterDistance = math.random(200, 350)
+		
+		
+		local id = CF_Vessel[ math.random(#CF_Vessel) ]
+		
+		self.RandomEncounterShipId = id
+		self.RandomEncounterSpeed = math.random(CF_VesselStartSpeed[id] , CF_VesselMaxSpeed[id])
+		self.RandomEncounterReaversUnitCount =  math.random(math.ceil(CF_VesselStartClonesCapacity[id] / 1.5) , math.ceil(CF_VesselMaxClonesCapacity[id] / 1.5))
+		
+		self.RandomEncounterDifficulty = math.floor(self.RandomEncounterReaversUnitCount / 5)
+		if self.RandomEncounterDifficulty < 0 then
+			self.RandomEncounterDifficulty = 0
 		end
 		
-		-- If we killed selected pirate then show some info and give player some gold
-		if fee == -1 then
-			local gold = math.random(self.RandomEncounterPirate["FeeInc"])
-		
-			self.MissionReport = {}
-			self.MissionReport[#self.MissionReport + 1] = "Dead pirate vessel floats nearby, it was raided endless times, but you managed to scavenege "..gold.."oz of gold from it."
-			CF_SaveMissionReport(self.GS, self.MissionReport)
-			
-			self.RandomEncounterText = ""
-			
-			CF_SetPlayerGold(self.GS, 0, CF_GetPlayerGold(self.GS, 0) + gold)
-			
-			-- Finish encounter
-			self.RandomEncounterID = nil
-		else
-		-- If captain is still alive then initiate negotiations
-			fee = fee + self.RandomEncounterPirate["FeeInc"]
-			
-			self.GS["RandomEncounter"..self.RandomEncounterID..self.RandomEncounterPirate["Captain"].."Fee"] = fee
-			
-			if fee > CF_GetPlayerGold(self.GS, 0) then
-				fee = CF_GetPlayerGold(self.GS, 0)
-			end
-			
-			self.RandomEncounterPirateFee = fee
-			self.RandomEncounterPirateUnits = self.RandomEncounterPirate["Units"]
-			
-			-- Change initial text
-			self.RandomEncounterText = "This is captain "..self.RandomEncounterPirate["Captain"].." of ".. self.RandomEncounterPirate["Ship"] .." speaking. You are in the vicinity of "..self.RandomEncounterPirate["Org"].." and have to pay a small fee of "..self.RandomEncounterPirateFee .."oz of gold to pass. Comply at once and no one will get hurt."
+		if self.RandomEncounterDifficulty > CF_MaxDifficulty then
+			self.RandomEncounterDifficulty = CF_MaxDifficulty
 		end
 		
-		self.RandomEncounterPirateAttackLaunched = false
+		self.RandomEncounterText = "An unknown ".. CF_VesselName[id].." class ship detected, it must be Reavers!!! If we hide everything and stay low they might think it's a dead ship."
+		
+		self.RandomEncounterScanTime = 23
+		
+		if SceneMan.Scene:HasArea("LeftGates") then
+			self.RandomEncounterLeftGates = SceneMan.Scene:GetArea("LeftGates")
+		else
+			self.RandomEncounterLeftGates = nil
+		end
+
+		if SceneMan.Scene:HasArea("RightGates") then
+			self.RandomEncounterRightGates = SceneMan.Scene:GetArea("RightGates")
+		else
+			self.RandomEncounterRightGates = nil
+		end
+		
+		self.RandomEncounterAttackLaunched = false
+		self.RandomEncounterScanLaunched = false
+		self.RandomEncounterRunLaunched = false
+		self.RandomEncounterFightSelected = false
 		self.RandomEncounterIsInitialized = true
+		self.RandomEncounterAbortChase = false
 	end
 
-	if not self.RandomEncounterPirateAttackLaunched then
-		if variant == 1 then
-			self.MissionReport = {}
-			self.MissionReport[#self.MissionReport + 1] = self.RandomEncounterPirate["Org"].." is always at your service. "..self.RandomEncounterPirate["Captain"].." out."
-			
-			CF_SetPlayerGold(self.GS, 0, CF_GetPlayerGold(self.GS, 0) - self.RandomEncounterPirateFee)
-			
-			-- Finish encounter
-			self.RandomEncounterID = nil
-			CF_SaveMissionReport(self.GS, self.MissionReport)
-		end
-		
-		if variant == 2 then
-			self.RandomEncounterText = "Prepare to be punished! "..self.RandomEncounterPirate["Captain"].." out."
-			self.RandomEncounterVariants = {}
-			
-			-- Indicate thet we fought this pirate and defeated him
-			self.GS["RandomEncounter"..self.RandomEncounterID..self.RandomEncounterPirate["Captain"].."Fee"] = -1		
-			self.RandomEncounterPirateAttackLaunched = true
-
-			-- Disable consoles
-			self:DestroyStorageControlPanelUI()
-			self:DestroyClonesControlPanelUI()
-			self:DestroyBeamControlPanelUI()
-			
-			-- Set up assault
-			self.AssaultNextSpawnTime = self.Time + self.RandomEncounterPirate["Interval"]
-			self.AssaultNextSpawnPos = self.EnemySpawn[math.random(#self.EnemySpawn)]
-		end
-	else
-		local count = 0
-		
-		for actor in MovableMan.Actors do
-			if actor.Team == CF_CPUTeam then
-				count = count + 1
-				if actor.AIMode ~= Actor.AIMODE_BRAINHUNT then
-					actor.AIMode = Actor.AIMODE_BRAINHUNT
-				end
-			end
-		end
+	if variant == 1 then
+		self.RandomEncounterText = "BATTLESTATIONS!!!"
+		self.RandomEncounterVariants = {}
+		self.RandomEncounterChosenVariant = 0
+		self.RandomEncounterRunLaunched = true
+		self.RandomEncounterRunStarted = self.Time
+		self.RandomEncounterFightSelected = true
+		self.RandomEncounterChaseTimer = Timer()
+	end
 	
-		if self.RandomEncounterPirateUnits == 0 then
+	if variant == 2 then
+		self.RandomEncounterText = "They scanning us..."
+		self.RandomEncounterVariants = {}
+		self.RandomEncounterChosenVariant = 0
+		self.RandomEncounterScanLaunched = true
+		self.RandomEncounterScanStarted = self.Time
+	end	
+
+	if variant == 3 then
+		self.RandomEncounterText = "Let's pray we're faster..."
+		self.RandomEncounterVariants = {}
+		self.RandomEncounterChosenVariant = 0
+		self.RandomEncounterRunLaunched = true
+		self.RandomEncounterBoostTriggered = false
+		self.RandomEncounterRunStarted = self.Time
+		self.RandomEncounterChaseTimer = Timer()
+	end	
+	
+	if self.RandomEncounterScanLaunched == true then
+		local act = CF_CountActors(CF_PlayerTeam)
+		local prob = math.floor(act * 6.5)
 		
-			if count == 0 then
+		local progress = self.Time - self.RandomEncounterScanStarted
+	
+		FrameMan:SetScreenText("Scan progress "..math.floor(progress / self.RandomEncounterScanTime * 100).."%\nProbability to detect life signs: "..prob.."%", 0, 0, 1500, true);
+		
+		if self.Time >= self.RandomEncounterScanStarted + self.RandomEncounterScanTime then
+			local r = math.random(100)
+			
+			if r < prob then
+				self.RandomEncounterText = "BATTLESTATIONS!!!"
+				self.RandomEncounterVariants = {}
+				self.RandomEncounterChosenVariant = 0
+				self.RandomEncounterRunLaunched = true
+				self.RandomEncounterScanLaunched = false
+				self.RandomEncounterRunStarted = self.Time
+				self.RandomEncounterFightSelected = true
+				self.RandomEncounterChaseTimer = Timer()
+			else
 				self.MissionReport = {}
-				self.MissionReport[#self.MissionReport + 1] = "Fine, looks like you're a tough one. You can pass for free. "..self.RandomEncounterPirate["Captain"].." out."
+				self.MissionReport[#self.MissionReport + 1] = "We tricked them. Lucky we are."
+				CF_SaveMissionReport(self.GS, self.MissionReport)
+				
+				self.RandomEncounterText = ""
 				
 				-- Finish encounter
-				self.RandomEncounterID = nil
-				CF_SaveMissionReport(self.GS, self.MissionReport)
-				-- Rebuild destroyed consoles
-				self:InitStorageControlPanelUI()
-				self:InitClonesControlPanelUI()
-				self:InitBeamControlPanelUI()
+				self.RandomEncounterID = nil			
 			end
 		end
+	end
+
+	if self.RandomEncounterRunLaunched == true then
+		FrameMan:SetScreenText("Distance: "..self.RandomEncounterDistance.."km", 0, 0, 1500, true);
 	
-		if self.AssaultNextSpawnTime == self.Time then
-			--print ("Spawn")
-			self.AssaultNextSpawnTime = self.Time + self.RandomEncounterPirate["Interval"]
+		if self.RandomEncounterChaseTimer:IsPastSimMS(350) then
+			if self.RandomEncounterFightSelected then
+				self.RandomEncounterDistance = self.RandomEncounterDistance - self.RandomEncounterSpeed
+			else
+				self.RandomEncounterDistance = self.RandomEncounterDistance - self.RandomEncounterSpeed + tonumber(self.GS["Player0VesselSpeed"])
+			end
+			self.RandomEncounterChaseTimer:Reset()
 			
-			local cnt = math.random(self.RandomEncounterPirate["Burst"])
-			
-			for j = 1, cnt do
-				if MovableMan:GetMOIDCount() < CF_MOIDLimit and self.RandomEncounterPirateUnits > 0 then
-					self.RandomEncounterPirateUnits = self.RandomEncounterPirateUnits - 1
-					pos = self.AssaultNextSpawnPos
+			-- Boost reavers if they're too far
+			if not self.RandomEncounterBoostTriggered then
+				if self.RandomEncounterDistance > 400 or self.RandomEncounterSpeed == tonumber(self.GS["Player0VesselSpeed"]) then
+					self.RandomEncounterBoostTriggered = true
+					self.RandomEncounterSpeed = self.RandomEncounterSpeed + math.random(3,7)
 					
-					local r1 = math.random(#self.RandomEncounterPirate["Act"])
-					local r2 = math.random(#self.RandomEncounterPirate["Itm"])
-				
-					local act = CreateAHuman(self.RandomEncounterPirate["Act"][r1], self.RandomEncounterPirate["ActMod"][r1])
-					if act then
-						local weap = CreateHDFirearm(self.RandomEncounterPirate["Itm"][r2], self.RandomEncounterPirate["ItmMod"][r2])
-						if weap then
-							act:AddInventoryItem(weap)
-						end
+					self.RandomEncounterText = self.RandomEncounterText.." Oh crap, they overloaded their reactor to boost engines!!!"
 					
-						act.Pos = self.AssaultNextSpawnPos
-						act.Team = CF_CPUTeam
-						act.AIMode = Actor.AIMODE_BRAINHUNT
-						MovableMan:AddActor(act)
-						
-						local fxb = CreateAEmitter("Teleporter Effect A");
-						fxb.Pos = act.Pos;
-						MovableMan:AddParticle(fxb);
-						
-						act:FlashWhite(1500);
+					if self.RandomEncounterSpeed <= tonumber(self.GS["Player0VesselSpeed"]) then
+						self.RandomEncounterAbortChase = true
 					end
 				end
 			end
 			
-			self.AssaultNextSpawnPos = self.EnemySpawn[math.random(#self.EnemySpawn)]
-		end
-		
-		if self.Time % 10 == 0 and self.RandomEncounterPirateUnits > 0 then
-			FrameMan:SetScreenText("Remaining assault bots: "..self.RandomEncounterPirateUnits, 0, 0, 1500, true);
-		end
-		
-		-- Create teleportation effect
-		if self.RandomEncounterPirateUnits > 0 and self.AssaultNextSpawnTime - self.Time < 6 then
-			self:AddObjectivePoint("INTRUDER\nALERT", self.AssaultNextSpawnPos , CF_PlayerTeam, GameActivity.ARROWDOWN);
-		
-			if self.TeleportEffectTimer:IsPastSimMS(50) then
-				-- Create particle
-				local p = CreateMOSParticle("Tiny Blue Glow", self.ModuleName)
-				p.Pos = self.AssaultNextSpawnPos + Vector(-20 + math.random(40), 30 - math.random(20))
-				p.Vel = Vector(0,-2)
-				MovableMan:AddParticle(p)
-				self.TeleportEffectTimer:Reset()
+			-- Stop chasing if it's too long
+			if not self.RandomEncounterFightSelected then
+				if (self.Time > self.RandomEncounterRunStarted + 40 and self.RandomEncounterDistance > 150) or self.RandomEncounterDistance > 500 or self.RandomEncounterAbortChase then
+					self.MissionReport = {}
+					self.MissionReport[#self.MissionReport + 1] = "They stopped chasing us. Lucky we are."
+					CF_SaveMissionReport(self.GS, self.MissionReport)
+					
+					self.RandomEncounterText = ""
+					
+					-- Finish encounter
+					self.RandomEncounterID = nil
+				end
 			end
+			
+			if self.RandomEncounterDistance <= 0 then
+				self.RandomEncounterAttackLaunched = true
+				self.RandomEncounterRunLaunched = false
+				self.RandomEncounterNextAttackTime = self.Time
+				
+				-- Disable consoles
+				self:DestroyStorageControlPanelUI()
+				self:DestroyClonesControlPanelUI()
+				self:DestroyBeamControlPanelUI()				
+			end
+		end
+	end
+	
+	if self.RandomEncounterAttackLaunched then
+		if self.Time % 10 == 0 and self.RandomEncounterReaversUnitCount > 0 then
+			FrameMan:SetScreenText("Remaining reavers: "..self.RandomEncounterReaversUnitCount, 0, 0, 1500, true);
+		end
+	
+		if self.Time >= self.RandomEncounterNextAttackTime then
+			self.RandomEncounterNextAttackTime = self.Time + self.RandomEncounterReaversInterval
+			
+			-- Create assault bot
+			if MovableMan:GetMOIDCount() < CF_MOIDLimit and self.RandomEncounterReaversUnitCount > 0 then
+				local isleft
+			
+				if self.RandomEncounterLeftGates and self.RandomEncounterRightGates then
+					if math.random() < 0.5 then
+						isleft = true
+					else
+						isleft = false
+					end
+				elseif self.RandomEncounterLeftGates then
+					isleft = true
+				elseif self.RandomEncounterRightGates then
+					isleft = false
+				end
+				
+				rocket = CreateACRocket("Rocklet", "Dummy.lua")
+				if rocket then
+					if isleft then
+						rocket.Pos = Vector(0, self.RandomEncounterLeftGates:GetRandomPoint().Y)
+						rocket.Vel = Vector(50,0)
+						rocket.RotAngle = math.rad(270);
+					else
+						rocket.Pos = Vector(SceneMan.Scene.Width, self.RandomEncounterRightGates:GetRandomPoint().Y)
+						rocket.Vel = Vector(-50,0)
+						rocket.RotAngle = math.rad(90);
+					end
+					rocket.Team = CF_CPUTeam
+					rocket.AIMode = Actor.AIMODE_DELIVER
+					
+					for i = 1, 2 do
+						if self.RandomEncounterReaversUnitCount > 0 then
+							local r1 = math.random(#self.RandomEncounterReaversAct)
+							local r2 = math.random(#self.RandomEncounterReaversLight)
+							local r3 = math.random(#self.RandomEncounterReaversHeavy)
+						
+							local actor = CreateAHuman(self.RandomEncounterReaversAct[r1], self.RandomEncounterReaversActMod[r1])
+							if actor then
+								actor.Team = CF_CPUTeam
+								actor.AIMode = Actor.AIMODE_BRAINHUNT
+								
+								local itm = CreateHDFirearm(self.RandomEncounterReaversLight[r3], self.RandomEncounterReaversLightMod[r3])
+								if itm then
+									actor:AddInventoryItem(itm)
+								end
+
+								local itm = CreateHDFirearm(self.RandomEncounterReaversLight[r2], self.RandomEncounterReaversLightMod[r2])
+								if itm then
+									actor:AddInventoryItem(itm)
+								end
+								rocket:AddInventoryItem(actor)
+								self.RandomEncounterReaversUnitCount = self.RandomEncounterReaversUnitCount - 1
+							end
+						end
+					end
+					
+					MovableMan:AddActor(rocket)
+				
+					self.RandomEncounterRocket = rocket
+				end--]]--
+			end
+		end
+		
+		if self.RandomEncounterRocket ~= nil then
+			if MovableMan:IsActor(self.RandomEncounterRocket) then
+				self.RandomEncounterRocket.Vel.Y = 0
+				
+				if self.RandomEncounterLeftGates then
+					if self.RandomEncounterLeftGates:IsInside(self.RandomEncounterRocket.Pos) then
+						self.RandomEncounterRocket.Vel.X = self.RandomEncounterRocket.Vel.X / 3
+						self.RandomEncounterRocket:GibThis()
+						self.RandomEncounterRocket = nil
+					end
+				end
+
+				if self.RandomEncounterRightGates then
+					if self.RandomEncounterRightGates:IsInside(self.RandomEncounterRocket.Pos) then
+						self.RandomEncounterRocket.Vel.X = self.RandomEncounterRocket.Vel.X / 3
+						self.RandomEncounterRocket:GibThis()
+						self.RandomEncounterRocket = nil
+					end
+				end
+			else
+				self.RandomEncounterRocket = nil
+			end
+		end
+		
+		-- Check wining conditions
+		if self.RandomEncounterReaversUnitCount <= 0 and self.RandomEncounterRocket == nil and CF_CountActors(CF_CPUTeam) == 0 then
+			self.MissionReport = {}
+			self.MissionReport[#self.MissionReport + 1] = "Those were the last of them."
+
+			self:GiveRandomExperienceReward(self.RandomEncounterDifficulty)
+			
+			-- Finish encounter
+			self.RandomEncounterID = nil
+			CF_SaveMissionReport(self.GS, self.MissionReport)
+			-- Rebuild destroyed consoles
+			self:InitStorageControlPanelUI()
+			self:InitClonesControlPanelUI()
+			self:InitBeamControlPanelUI()		
 		end
 	end
 end

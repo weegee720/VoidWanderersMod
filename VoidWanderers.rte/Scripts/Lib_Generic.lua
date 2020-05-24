@@ -44,7 +44,7 @@ function CF_InitFactions(activity)
 	CF_ReputationPerDifficulty = 1000
 	
 	CF_DistanceToAttemptEvent = 50
-	CF_RandomEncounterProbability = 0.1 -- 1 -- DEBUG
+	CF_RandomEncounterProbability = 1--0.1 -- 1 -- DEBUG
 	
 	-- When reputation below this level enemy starts sending crafts after player
 	CF_ReputationHuntTreshold = -500

@@ -922,6 +922,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self.ShipControlUpgrades[1]["Max"] = CF_VesselMaxClonesCapacity[ self.GS["Player0Vessel"] ]
 				self.ShipControlUpgrades[1]["Description"] = "How many bodies you can store"
 				self.ShipControlUpgrades[1]["Price"] = CF_ClonePrice
+				self.ShipControlUpgrades[1]["Bundle"] = 1
 
 				self.ShipControlUpgrades[2] = {}
 				self.ShipControlUpgrades[2]["Name"] = "Storage"
@@ -929,6 +930,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self.ShipControlUpgrades[2]["Max"] = CF_VesselMaxStorageCapacity[ self.GS["Player0Vessel"] ]
 				self.ShipControlUpgrades[2]["Description"] = "How many items you can store"
 				self.ShipControlUpgrades[2]["Price"] = CF_StoragePrice
+				self.ShipControlUpgrades[2]["Bundle"] = 5
 
 				self.ShipControlUpgrades[3] = {}
 				self.ShipControlUpgrades[3]["Name"] = "Life support"
@@ -936,6 +938,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self.ShipControlUpgrades[3]["Max"] = CF_VesselMaxLifeSupport[ self.GS["Player0Vessel"] ]
 				self.ShipControlUpgrades[3]["Description"] = "How many bodies can be active on ship simultaneously"
 				self.ShipControlUpgrades[3]["Price"] = CF_LifeSupportPrice
+				self.ShipControlUpgrades[3]["Bundle"] = 1
 
 				self.ShipControlUpgrades[4] = {}
 				self.ShipControlUpgrades[4]["Name"] = "Communication"
@@ -943,6 +946,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self.ShipControlUpgrades[4]["Max"] = CF_VesselMaxCommunication[ self.GS["Player0Vessel"] ]
 				self.ShipControlUpgrades[4]["Description"] = "How many bodies you can control on planet surface"
 				self.ShipControlUpgrades[4]["Price"] = CF_CommunicationPrice
+				self.ShipControlUpgrades[4]["Bundle"] = 1
 
 				self.ShipControlUpgrades[5] = {}
 				self.ShipControlUpgrades[5]["Name"] = "Engine"
@@ -950,6 +954,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self.ShipControlUpgrades[5]["Max"] = CF_VesselMaxSpeed[ self.GS["Player0Vessel"] ]
 				self.ShipControlUpgrades[5]["Description"] = "Speed of the vessel. Faster ships are harder to intercept."
 				self.ShipControlUpgrades[5]["Price"] = CF_EnginePrice
+				self.ShipControlUpgrades[5]["Bundle"] = 1
 				
 				if cont:IsState(Controller.PRESS_UP) then
 					-- Select planet
@@ -980,7 +985,18 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				
 				local current = tonumber(self.GS[ self.ShipControlUpgrades[self.ShipControlSelectedUpgrade]["Variable"] ])
 				local maximum = self.ShipControlUpgrades[self.ShipControlSelectedUpgrade]["Max"]
-				local price = self.ShipControlUpgrades[self.ShipControlSelectedUpgrade]["Price"]
+				local bundle = self.ShipControlUpgrades[self.ShipControlSelectedUpgrade]["Bundle"]
+				local amount = 1
+				
+				for i = 2, bundle do
+					if current + i <= maximum then
+						amount = amount + 1
+					else
+						break
+					end
+				end
+				
+				local price = self.ShipControlUpgrades[self.ShipControlSelectedUpgrade]["Price"] * amount
 
 				if price > CF_GetPlayerGold(self.GS, 0) then
 					if self.Time % 2 == 0 then
@@ -993,17 +1009,21 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				CF_DrawString("Current: "..current, pos + Vector(10, -30), 270, 40)
 				CF_DrawString("Maximum: "..maximum, pos + Vector(10, -20), 270, 40)
 				if current < maximum then
-					CF_DrawString("Upgrade price: "..self.ShipControlUpgrades[self.ShipControlSelectedUpgrade]["Price"].." oz", pos + Vector(10, -10), 270, 40)
+					CF_DrawString("Upgrade price: "..price.." oz", pos + Vector(10, -10), 270, 40)
 				end
-
-				CF_DrawString(self.ShipControlUpgrades[self.ShipControlSelectedUpgrade]["Description"], pos + Vector(10, 10), 130, 80)
+				
+				if amount == 1 then
+					CF_DrawString(self.ShipControlUpgrades[self.ShipControlSelectedUpgrade]["Description"], pos + Vector(10, 10), 130, 80)
+				else
+					CF_DrawString(self.ShipControlUpgrades[self.ShipControlSelectedUpgrade]["Description"].." ( x"..amount.." )", pos + Vector(10, 10), 130, 80)
+				end
 				
 				if cont:IsState(Controller.WEAPON_FIRE) then
 					if not self.FirePressed then
 						self.FirePressed = true;
 						
 						if current < maximum and price <= CF_GetPlayerGold(self.GS, 0) then
-							self.GS[ self.ShipControlUpgrades[self.ShipControlSelectedUpgrade]["Variable"] ] = current + 1
+							self.GS[ self.ShipControlUpgrades[self.ShipControlSelectedUpgrade]["Variable"] ] = current + amount
 							CF_SetPlayerGold(self.GS, 0, CF_GetPlayerGold(self.GS, 0) - price)
 						end
 					end

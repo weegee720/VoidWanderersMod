@@ -1,7 +1,7 @@
 function do_rpgbrain_create(self)
 	-- Set up constants
 	self.DistPerPower = 75
-	self.CoolDownInterval = 4000
+	self.CoolDownInterval = 3000
 	self.PrintSkills = false;
 
 	self.WeaponTeleportEnabled = false;
