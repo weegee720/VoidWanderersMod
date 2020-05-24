@@ -48,12 +48,16 @@ function VoidWanderers:FormLoad()
 	
 	
 	-- Create list of data objcets
+	-- Add generic mission types which must be present on any map
 	self.Data[1] = {}
 	self.Data[1]["Name"] = "Deploy"
+
+	self.Data[2] = {}
+	self.Data[2]["Name"] = "Enemy"
 	
 	for i = 1, #CF_LocationMissions[self.SelectedLocationID] do
-		self.Data[i + 1] = {}
-		self.Data[i + 1]["Name"] = CF_LocationMissions[self.SelectedLocationID][i]
+		self.Data[CF_GenericMissionCount + i] = {}
+		self.Data[CF_GenericMissionCount + i]["Name"] = CF_LocationMissions[self.SelectedLocationID][i]
 	end
 
 	el = {}
@@ -71,6 +75,24 @@ function VoidWanderers:FormLoad()
 	el["OnClick"] = self.Save_OnClick;
 	
 	self.UI[#self.UI + 1] = el;	
+
+	el = {}
+	el["Type"] = self.ElementTypes.BUTTON;
+	el["Presets"] = {};
+	el["Presets"][self.ButtonStates.IDLE] = "ButtonSceneEditorWideIdle"
+	el["Presets"][self.ButtonStates.MOUSE_OVER] = "ButtonSceneEditorWideMouseOver"
+	el["Presets"][self.ButtonStates.PRESSED] = "ButtonSceneEditorWidePressed"
+	el["RelPos"] = Vector(-self.ResX2 + 20 + sx / 2 + 161 , -self.ResY2 + 20 )
+	el["Text"] = "Show Generic"
+	el["Width"] = sx;
+	el["Height"] = sy;
+	el["Visible"] = false
+	
+	el["OnClick"] = self.SlawaysShowGenericMarks_OnClick;
+	
+	self.UI[#self.UI + 1] = el;	
+	
+	self.ShowGeneric = true
 	
 	-- Create scene buttons
 	for i = 1, #self.Data do
@@ -402,6 +424,23 @@ function VoidWanderers:FormUpdate()
 		end
 	end
 	
+	-- Process numeric keys
+	for i = 1, 9 do
+		if UInputMan:KeyPressed(27 + i) then
+			if 	self.SelectedType ~= nil and
+				self.SelectedSet ~= nil and
+				self.SelectedPointType ~= nil and
+				self.SelectedPoint ~= nil then		
+				local mx = CF_MissionRequiredData[self.SelectedType][self.SelectedPointType]["Max"]
+			
+				if i <= mx then
+					self.SelectedPoint = i
+				end
+			end
+		end
+	end
+	
+	
 	if UInputMan:MouseButtonPressed(2) then
 		if self.SelectedType ~= nil then
 			if 	self.Pts[self.SelectedType] ~= nil and 
@@ -506,6 +545,24 @@ function VoidWanderers:FormDraw()
 	if self.SelectedPoint ~= nil then
 		s = s.." - "..self.SelectedPoint
 	end
+	
+	-- Draw generic points
+	if self.ShowGeneric then
+		for i = 1, CF_GenericMissionCount do
+			if self.SelectedType ~= self.Data[i]["Name"] and self.SelectedSet ~= nil and self.Pts[ self.Data[i]["Name"] ] ~= nil and self.Pts[ self.Data[i]["Name"] ][ self.SelectedSet ] ~= nil then
+				for k3,v3 in pairs(self.Pts[ self.Data[i]["Name"] ][self.SelectedSet]) do
+					for k4,v4 in pairs(v3) do
+						local nm = CF_MissionRequiredData[self.Data[i]["Name"]][k3]["Name"]
+						local s = nm.."-"..tostring(k4)
+						local l = CF_GetStringPixelWidth(s)
+					
+						CF_DrawString(s, v4 + Vector(-l/2,-10), 150, 20)
+						self:PutGlow("ControlPanel_Ship_LocationDot", v4)
+					end
+				end
+			end
+		end
+	end--]]--
 	
 	FrameMan:ClearScreenText(0);
 	FrameMan:SetScreenText(s, 0, 0, 1000, false);
