@@ -24,14 +24,15 @@ function CF_InitFactions(activity)
 	-- count frames so other function can decide if it's odd or even frame right now
 	CF_FrameCounter = 0
 	
-	CF_ShipAssaultDelay = 2--30
+	CF_ShipAssaultDelay = 30
 	
 	CF_TeamReturnDelay = 5
 	
-	CF_CratesRate = 0.35
+	CF_CratesRate = 0.35 -- Percentage of cases among available case spawn points
+	CF_ActorCratesRate = 0.15 -- Percentage of actor-cases among all deployed cases
 	CF_AmbientEnemyRate = 0.55
 	CF_AmbientEnemyDoubleSpawn = 0.25
-	CF_AmbientReinforcementsInterval = 50 -- In ticks
+	CF_AmbientReinforcementsInterval = 80 -- In ticks
 	
 	CF_EvacDist = 650
 	

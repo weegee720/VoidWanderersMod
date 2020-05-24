@@ -119,7 +119,7 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 					canbeam = false
 				end
 			else
-				CF_DrawString("Can't deploy units into space", pos, 130, 36)
+				CF_DrawString("Can't deploy units into space", pos + Vector(-50,0), 120, 36)
 				canbeam = false
 			end
 			

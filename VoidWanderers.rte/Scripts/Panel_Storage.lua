@@ -41,7 +41,8 @@ function VoidWanderers:InitStorageControlPanelUI()
 		end
 		
 		-- Crate debug
-		--[[local crt = CreateMOSRotating("Case", self.ModuleName)
+		--local crt = CreateMOSRotating("Case", self.ModuleName)
+		--[[local crt = CreateMOSRotating("Crate", self.ModuleName)
 		if crt then
 			crt.Pos = self.StorageControlPanelPos
 			MovableMan:AddParticle(crt)

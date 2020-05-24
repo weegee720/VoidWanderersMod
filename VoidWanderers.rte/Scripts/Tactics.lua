@@ -192,7 +192,12 @@ function VoidWanderers:StartActivity()
 		local crtspos = CF_SelectRandomPoints(crts, amount)
 		
 		for i = 1, #crtspos do
-			local crt = CreateMOSRotating("Case", self.ModuleName)
+			local crt 
+			if math.random() < CF_ActorCratesRate then
+				crt = CreateMOSRotating("Crate", self.ModuleName)
+			else
+				crt = CreateMOSRotating("Case", self.ModuleName)
+			end
 			if crt then
 				crt.Pos = crtspos[i]
 				MovableMan:AddParticle(crt)
@@ -225,6 +230,11 @@ function VoidWanderers:StartActivity()
 		
 		self:MissionCreate()
 		self:MissionUpdate()
+		
+		-- Set unseen
+		for p = 1, 3 do
+			SceneMan:MakeAllUnseen(Vector(CF_FogOfWarResolution, CF_FogOfWarResolution), p);
+		end
 	end
 	
 	-- Load pre-spawned enemy locations. These locations also used during assaults to place teleported units
@@ -402,7 +412,7 @@ function VoidWanderers:TriggerShipAssault()
 	--TODO Check reputation and trigger assaults accordingly
 	
 	self.AssaultTime = self.Time + CF_ShipAssaultDelay
-	self.AssaultEnemyPlayer = 1
+	self.AssaultEnemyPlayer = math.random(tonumber(self.GS["ActiveCPUs"]))
 	self.AssaultDifficulty = 1--math.random(CF_MaxDifficulty)
 	self.AssaultEnemiesToSpawn = CF_AssaultDifficultyUnitCount[self.AssaultDifficulty]
 	self.AssaultNextSpawnTime = self.AssaultTime + CF_AssaultDifficultySpawnInterval[self.AssaultDifficulty] + 1
@@ -532,8 +542,13 @@ function VoidWanderers:UpdateActivity()
 		self:ProcessStorageControlPanelUI()
 
 		-- Auto heall all actors when not in combat
-		for actor in MovableMan.Actors do
-			actor.Health = 100
+		if not self.OverCrowded then
+			for actor in MovableMan.Actors do
+				actor.Health = 100
+			end
+		else
+			FrameMan:ClearScreenText(0);
+			FrameMan:SetScreenText("LIFE SUPPORT OVERLOADED\nSTORE OR GET RID OF SOME BODIES", 0, 0, 1000, true);
 		end
 		
 		-- Show assault warning
@@ -563,13 +578,17 @@ function VoidWanderers:UpdateActivity()
 		self.TickTimer:Reset();
 
 		-- Autosave game from time to time
-		if self.GS["Mode"] == "Vessel" and (self.SaveNextTime or self.Time % CF_AutoSaveInterval == 0) then
-			if self.SaveNextTime then
-				self.SaveNextTime = false
+		if self.GS["Mode"] == "Vessel" then
+			
+			if CF_CountActors(CF_PlayerTeam) > tonumber(self.GS["Player0VesselLifeSupport"]) then
+				self.OverCrowded = true
+				
+				for actor in MovableMan.Actors do
+					actor.Health = actor.Health - 3
+				end				
+			else
+				self.OverCrowded = false
 			end
-		
-			self:SaveActors()
-			self:SaveCurrentGameState()
 		end
 		
 		-- Process enemy spawn during assaults

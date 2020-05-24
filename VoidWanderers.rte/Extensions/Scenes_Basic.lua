@@ -34,7 +34,7 @@ CF_LocationScenes[id] = {"Metankora Highlands"}
 CF_LocationPlanet[id] = "CC-11Y"
 CF_LocationMissions[id] = {"Assault"}
 
-local id = "Zekarra Lowlands"
+--[[local id = "Zekarra Lowlands"
 CF_Location[#CF_Location + 1] = id
 CF_LocationName[id] = "Zekarra Lowlands"
 CF_LocationPos[id] = Vector(-44 ,-18 )
@@ -183,4 +183,4 @@ CF_LocationName[id] = "Test 5"
 CF_LocationPos[id] = Vector( 25, 25)
 CF_LocationSecurity[id] = 0
 CF_LocationScenes[id] = {"TradeStar Pier #792"}
-CF_LocationPlanet[id] = "Moon"
+CF_LocationPlanet[id] = "Moon"]]--

@@ -108,14 +108,14 @@ function VoidWanderers:MissionUpdate()
 		
 		if MovableMan:GetMOIDCount() < CF_MOIDLimit then
 			local sel
-		
-			if self.Time % 2 == 0 then
+
+			if math.random() < 0.5 then
 				sel = 1
 			else
 				sel = 2
 			end
 			
-			local count = math.ceil(self.MissionDifficulty /2)
+			local count = math.ceil(self.MissionDifficulty / 2)
 			if count <= 0 then 
 				count = 1
 			end
@@ -227,9 +227,10 @@ function VoidWanderers:MissionUpdate()
 				if mindist > 150 and nearest ~= nil then
 					--rndact:FlashWhite(1500)
 					rndact.AIMode = Actor.AIMODE_GOTO
+					rndact:ClearAIWaypoints()
 					rndact:AddAISceneWaypoint(nearest)
-					print (rndact)
-					print (nearest)
+					--print (rndact)
+					--print (nearest)
 				end
 			end
 		end
