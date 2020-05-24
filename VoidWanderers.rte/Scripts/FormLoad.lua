@@ -64,6 +64,7 @@ function VoidWanderers:FormLoad()
 				self.Slots[i]["Empty"] = false;
 			else
 				self.Slots[i]["Faction"] = "Broken slot #"..i.."";
+				self.Slots[i]["Reason"] = reason
 			end
 		else
 			self.Slots[i]["Faction"] = "EMPTY";

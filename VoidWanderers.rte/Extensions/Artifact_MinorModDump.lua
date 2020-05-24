@@ -177,6 +177,25 @@ CF_ArtActPresets[id] = "Khandastar Medium Infantry"
 CF_ArtActModules[id] = "Khandari.rte"
 CF_ArtActClasses[id] = "AHuman"
 
+-- Add pirates only if pirate encounters are loaded
+if CF_RandomEncountersInitialTexts["PIRATE_GENERIC"] ~= nil then
+	local pid = #CF_RandomEncounterPirates + 1
+	CF_RandomEncounterPirates[pid] = {}
+	CF_RandomEncounterPirates[pid]["Captain"] = "Major"
+	CF_RandomEncounterPirates[pid]["Ship"] = "Jizzrah"
+	CF_RandomEncounterPirates[pid]["Org"] = "The Continent-Republic of Khandastar"
+	CF_RandomEncounterPirates[pid]["FeeInc"] = 650
+	
+	CF_RandomEncounterPirates[pid]["Act"] = 	{"Khandastar Medium Infantry"}
+	CF_RandomEncounterPirates[pid]["ActMod"] = 	{"Khandari.rte"}
+
+	CF_RandomEncounterPirates[pid]["Itm"] = 	{"RAM T98", "Talon KV"}
+	CF_RandomEncounterPirates[pid]["ItmMod"] = 	{"Khandari.rte", "Khandari.rte"}
+	
+	CF_RandomEncounterPirates[pid]["Units"] = 3
+	CF_RandomEncounterPirates[pid]["Burst"] = 1
+	CF_RandomEncounterPirates[pid]["Interval"] = 20
+end
 
 -------------------------------------------------------------------------------
 

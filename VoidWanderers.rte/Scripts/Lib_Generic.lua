@@ -33,8 +33,10 @@ function CF_InitFactions(activity)
 	CF_SecurityIncrementPerMission = 10
 	CF_SecurityIncrementPerDeployment = 2
 	
-	CF_AssaultCheckInterval = 5
 	CF_ReputationPerDifficulty = 1000
+	
+	CF_DistanceToAttemptEvent = 50
+	CF_RandomEncounterProbability = 0.1
 	
 	-- When reputation below this level enemy starts sending crafts after player
 	CF_ReputationHuntTreshold = -500

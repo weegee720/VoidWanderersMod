@@ -40,3 +40,26 @@ local id = #CF_ArtActPresets + 1
 CF_ArtActPresets[id] = "Nova Mind Medium"
 CF_ArtActModules[id] = "NovaMind.rte"
 CF_ArtActClasses[id] = "AHuman"
+
+-- Add pirates only if pirate encounters are loaded
+if CF_RandomEncountersInitialTexts["PIRATE_GENERIC"] ~= nil then
+	local pid = #CF_RandomEncounterPirates + 1
+	CF_RandomEncounterPirates[pid] = {}
+	CF_RandomEncounterPirates[pid]["Captain"] = "p3lb0x"
+	CF_RandomEncounterPirates[pid]["Ship"] = "NVS-1337"
+	CF_RandomEncounterPirates[pid]["Org"] = "Nova Mind Libertarians"
+	CF_RandomEncounterPirates[pid]["FeeInc"] = 650
+	
+	CF_RandomEncounterPirates[pid]["Act"] = 	{"NovaMind Light", 	"Nova Mind Medium"}
+	CF_RandomEncounterPirates[pid]["ActMod"] = 	{"NovaMind.rte", 	"NovaMind.rte"}
+
+	CF_RandomEncounterPirates[pid]["Itm"] = 	{"Garrett LMG","Garrett LMG","Garrett LMG", 	"SN-15"}
+	CF_RandomEncounterPirates[pid]["ItmMod"] = 	{"NovaMind.rte","NovaMind.rte","NovaMind.rte",	"NovaMind.rte"}
+	
+	CF_RandomEncounterPirates[pid]["Units"] = 3
+	CF_RandomEncounterPirates[pid]["Burst"] = 1
+	CF_RandomEncounterPirates[pid]["Interval"] = 20
+end
+	
+
+

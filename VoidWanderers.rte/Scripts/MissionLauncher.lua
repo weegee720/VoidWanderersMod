@@ -18,6 +18,7 @@ function VoidWanderers:StartActivity()
 		dofile(LIB_PATH.."Lib_ExtensionsData.lua");
 		dofile(LIB_PATH.."Lib_Spawn.lua");
 		dofile(LIB_PATH.."Lib_Storage.lua");
+		dofile(LIB_PATH.."Lib_Encounters.lua");
 
 		dofile(LIB_PATH.."Panel_Clones.lua");
 		dofile(LIB_PATH.."Panel_Ship.lua");

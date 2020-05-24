@@ -80,6 +80,7 @@ function CF_InitExtensionsData(activity)
 	
 	CF_RandomEncountersInitialTexts = {}
 	CF_RandomEncountersInitialVariants = {}
+	CF_RandomEncountersVariantsInterval = {}
 	CF_RandomEncountersFunctions = {}
 	CF_RandomEncountersOneTime = {}
 end

@@ -349,7 +349,7 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 		end
 	end
 	
-	if showidle and self.StorageControlPanelPos ~= nil then
+	if showidle and self.StorageControlPanelPos ~= nil and self.StorageControlPanelActor ~= nil then
 		self:PutGlow("ControlPanel_Storage", self.StorageControlPanelPos)
 		--CF_DrawString("STORAGE",self.StorageControlPanelPos + Vector(-16,0), 120, 20)
 
@@ -365,7 +365,7 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 	end
 	
 	-- Process weapons input
-	if self.ClonesInputPos ~= nil then
+	if self.ClonesInputPos ~= nil and self.StorageControlPanelActor ~= nil then
 		local count = CF_CountUsedStorageInArray(self.StorageItems)
 	
 		if  count < tonumber(self.GS["Player0VesselStorageCapacity"]) then

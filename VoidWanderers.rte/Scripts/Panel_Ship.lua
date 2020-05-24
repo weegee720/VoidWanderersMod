@@ -61,6 +61,8 @@ function VoidWanderers:InitShipControlPanelUI()
 	self.ShipControlSelectedFaction = 1
 	self.ShipControlSelectedMission = 1
 	self.ShipControlSelectedShip = 1
+
+	self.ShipControlSelectedEncounterVariant = 1
 end
 -----------------------------------------------------------------------------------------
 --
@@ -496,8 +498,6 @@ function VoidWanderers:ProcessShipControlPanelUI()
 					end
 					
 					if cont:IsState(Controller.PRESS_DOWN) then
-						self.FirePressed = true;
-						
 						self:SaveActors(false)
 						self:SaveCurrentGameState()
 						
@@ -508,9 +508,49 @@ function VoidWanderers:ProcessShipControlPanelUI()
 						return
 					end
 				else
-					CF_DrawString("INCOMING TRANSMISSION", pos + Vector(-44,-77), 262, 141)
-				
+					CF_DrawString("INCOMING TRANSMISSION", pos + Vector(-56,-77), 262, 141)
 					CF_DrawString(self.RandomEncounterText, pos + Vector(-130,-56), 262, 141)
+					
+					if self.RandomEncounterVariants ~= nil then
+						if cont:IsState(Controller.PRESS_UP) then
+							-- Select planet
+							self.ShipControlSelectedEncounterVariant = self.ShipControlSelectedEncounterVariant - 1
+							if self.ShipControlSelectedEncounterVariant < 1 then
+								self.ShipControlSelectedEncounterVariant = 1
+							end
+						end
+					
+						if cont:IsState(Controller.PRESS_DOWN) then
+							-- Select planet
+							self.ShipControlSelectedEncounterVariant = self.ShipControlSelectedEncounterVariant + 1
+							if self.ShipControlSelectedEncounterVariant > #self.RandomEncounterVariants then
+								self.ShipControlSelectedEncounterVariant = #self.RandomEncounterVariants
+							end
+						end
+						
+						if cont:IsState(Controller.WEAPON_FIRE) then
+							if not self.FirePressed then
+								self.FirePressed = true;
+								
+								self.RandomEncounterChosenVariant = self.ShipControlSelectedEncounterVariant;
+							end
+						else
+							self.FirePressed = false
+						end
+
+						CF_DrawString("U/D - Select, FIRE - Send reply", pos + Vector(-62-71, 78), 270, 40)
+						
+						local l = #self.RandomEncounterVariants * self.RandomEncounterVariantsInterval + (self.RandomEncounterVariantsInterval / 2)
+					
+						for i = 1, #self.RandomEncounterVariants do
+							if self.ShipControlSelectedEncounterVariant == i then
+								CF_DrawString(">", pos + Vector(-130,58 - l + i * self.RandomEncounterVariantsInterval), 262, 141)
+								CF_DrawString(self.RandomEncounterVariants[i], pos + Vector(-120,58 - l + i * self.RandomEncounterVariantsInterval), 262, 141)
+							else
+								CF_DrawString(self.RandomEncounterVariants[i], pos + Vector(-130,58 - l + i * self.RandomEncounterVariantsInterval), 262, 141)
+							end
+						end
+					end
 				end
 			end
 ---------------------------------------------------------------------------------------------------
@@ -1076,35 +1116,40 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,-77))
 			end
 ---------------------------------------------------------------------------------------------------
-			if cont:IsState(Controller.PRESS_LEFT) then
-				self.ShipControlMode = self.ShipControlMode - 1
-				self.ShipSelectedItem = 1
-				self.LastShipSelectedItem = 0
-				
-				if self.ShipControlMode == -1 then
-					self.ShipControlMode = self.ShipControlPanelModes.REPORT
-				end
-			end	
 
-			if cont:IsState(Controller.PRESS_RIGHT) then
-				self.ShipControlMode = self.ShipControlMode + 1
-				self.ShipSelectedItem = 1
-				self.LastShipSelectedItem = 0
-				
-				if CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.SHIPYARD) then
-					if self.ShipControlMode == 7 then
-						self.ShipControlMode = self.ShipControlPanelModes.SHIPYARD
+			if self.RandomEncounterID == nil then
+				if cont:IsState(Controller.PRESS_LEFT) then
+					self.ShipControlMode = self.ShipControlMode - 1
+					self.ShipSelectedItem = 1
+					self.LastShipSelectedItem = 0
+					
+					if self.ShipControlMode == -1 then
+						self.ShipControlMode = self.ShipControlPanelModes.REPORT
 					end
-				else
-					if self.ShipControlMode == 5 then
-						self.ShipControlMode = self.ShipControlPanelModes.REPUTATION
+				end	
+
+				if cont:IsState(Controller.PRESS_RIGHT) then
+					self.ShipControlMode = self.ShipControlMode + 1
+					self.ShipSelectedItem = 1
+					self.LastShipSelectedItem = 0
+					
+					if CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.SHIPYARD) then
+						if self.ShipControlMode == 7 then
+							self.ShipControlMode = self.ShipControlPanelModes.SHIPYARD
+						end
+					else
+						if self.ShipControlMode == 5 then
+							self.ShipControlMode = self.ShipControlPanelModes.REPUTATION
+						end
 					end
 				end
-			end			
+			else
+				self.ShipControlMode = self.ShipControlPanelModes.REPORT
+			end
 		end
 	end
 
-	if showidle and self.ShipControlPanelPos ~= nil then
+	if showidle and self.ShipControlPanelPos ~= nil and self.ShipControlPanelActor ~= nil then
 		self:PutGlow("ControlPanel_Ship", self.ShipControlPanelPos)
 		--CF_DrawString("BRIDGE",self.ShipControlPanelPos + Vector(-15,0),120,20 )
 		resetlists = true

@@ -514,7 +514,11 @@ function CF_CountUsedStorageInArray(arr)
 	local count = 0
 	
 	for i = 1, #arr do
-		count = count + arr[i]["Count"]
+		if  arr[i]["Class"] ~= "TDExplosive" then
+			count = count + arr[i]["Count"]
+		else
+			count = count + math.floor(arr[i]["Count"] / 10)
+		end
 	end
 	
 	return count

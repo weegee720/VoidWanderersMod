@@ -249,13 +249,7 @@ function VoidWanderers:ProcessLZControlPanelUI()
 					end
 					
 					-- Dump mission report to config to be saved 
-					for i = 1, CF_MaxMissionReportLines do
-						self.GS["MissionReport"..i] = nil
-					end					
-					
-					for i = 1, #self.MissionReport do
-						self.GS["MissionReport"..i] = self.MissionReport[i]
-					end
+					CF_SaveMissionReport(self.GS, self.MissionReport)
 					
 					local scene = CF_VesselScene[self.GS["Player0Vessel"]]
 					-- Set new operating mode

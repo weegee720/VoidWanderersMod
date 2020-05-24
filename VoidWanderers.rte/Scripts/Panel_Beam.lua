@@ -200,7 +200,7 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 		end
 	end
 	
-	if showidle and self.BeamControlPanelPos ~= nil then
+	if showidle and self.BeamControlPanelPos ~= nil and self.BeamControlPanelActor ~= nil then
 		self:PutGlow("ControlPanel_Beam", self.BeamControlPanelPos)
 		--CF_DrawString("DEPLOY",self.BeamControlPanelPos + Vector(-16,0),120,20 )
 	end

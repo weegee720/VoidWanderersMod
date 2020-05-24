@@ -561,116 +561,120 @@ function VoidWanderers:TriggerShipAssault()
 		return
 	end
 	
-	if self.Time % CF_AssaultCheckInterval == 0 then
-		local toassault = false
-		
-		-- First select random assault player
-		-- Select angry CPU's
-		local angry = {}
-		
-		for i = 1, tonumber(self.GS["ActiveCPUs"]) do
-			local rep = tonumber(self.GS["Player"..i.."Reputation"])
-			if rep <= CF_ReputationHuntTreshold then
-				angry[#angry + 1] = i
-			end
-		end
-		
-		self.AssaultEnemyPlayer = angry[math.random(#angry)]
-		
-		local rep = tonumber(self.GS["Player"..self.AssaultEnemyPlayer.."Reputation"])
-		
-		self.AssaultDifficulty = math.floor(math.abs(rep / CF_ReputationPerDifficulty))
-		
-		if self.AssaultDifficulty <= 0 then
-			self.AssaultDifficulty = 1
-		end
-		
-		if self.AssaultDifficulty > CF_MaxDifficulty then
-			self.AssaultDifficulty = CF_MaxDifficulty
-		end
-		
-		local r = math.random(CF_MaxDifficulty * 55)
-		local tgt = ((CF_MaxDifficulty - self.AssaultDifficulty) * 4) + 10
-		
-		print (CF_GetPlayerFaction(self.GS, self.AssaultEnemyPlayer).." D - "..self.AssaultDifficulty.." R - "..r.." TGT - "..tgt)
-		
-		if r < tgt then
-			toassault = true
-		end
-		
-		toassault = false-- DEBUG
+	local toassault = false
 	
-		if toassault then
-			self.AssaultTime = self.Time + CF_ShipAssaultDelay
+	-- First select random assault player
+	-- Select angry CPU's
+	local angry = {}
+	
+	for i = 1, tonumber(self.GS["ActiveCPUs"]) do
+		local rep = tonumber(self.GS["Player"..i.."Reputation"])
+		if rep <= CF_ReputationHuntTreshold then
+			angry[#angry + 1] = i
+		end
+	end
+	
+	self.AssaultEnemyPlayer = angry[math.random(#angry)]
+	
+	local rep = tonumber(self.GS["Player"..self.AssaultEnemyPlayer.."Reputation"])
+	
+	self.AssaultDifficulty = math.floor(math.abs(rep / CF_ReputationPerDifficulty))
+	
+	if self.AssaultDifficulty <= 0 then
+		self.AssaultDifficulty = 1
+	end
+	
+	if self.AssaultDifficulty > CF_MaxDifficulty then
+		self.AssaultDifficulty = CF_MaxDifficulty
+	end
+	
+	local r = math.random(CF_MaxDifficulty * 55)
+	local tgt = ((CF_MaxDifficulty - self.AssaultDifficulty) * 4) + 10
+	
+	print (CF_GetPlayerFaction(self.GS, self.AssaultEnemyPlayer).." D - "..self.AssaultDifficulty.." R - "..r.." TGT - "..tgt)
+	
+	if r < tgt then
+		toassault = true
+	end
+	
+	--toassault = false-- DEBUG
+
+	if toassault then
+		self.AssaultTime = self.Time + CF_ShipAssaultDelay
+		
+		self.AssaultEnemiesToSpawn = CF_AssaultDifficultyUnitCount[self.AssaultDifficulty]
+		self.AssaultNextSpawnTime = self.AssaultTime + CF_AssaultDifficultySpawnInterval[self.AssaultDifficulty] + 1
+		self.AssaultNextSpawnPos = self.EnemySpawn[math.random(#self.EnemySpawn)]	
+		
+		-- Create attacker's unit presets
+		CF_CreateAIUnitPresets(self.GS, self.AssaultEnemyPlayer, CF_GetTechLevelFromDifficulty(self.GS, self.AssaultEnemyPlayer, self.AssaultDifficulty, CF_MaxDifficulty))	
+		
+		-- Remove some panel actors
+		self.ShipControlPanelActor.ToDelete = true
+		self.BeamControlPanelActor.ToDelete = true
+	else
+		-- Trigger random encounter
+		if math.random() < CF_RandomEncounterProbability and #CF_RandomEncounters > 0 then
+			-- Find suitable random event
+			local r 
+			local id
+			local found = false
+			local brk = 1
 			
-			self.AssaultEnemiesToSpawn = CF_AssaultDifficultyUnitCount[self.AssaultDifficulty]
-			self.AssaultNextSpawnTime = self.AssaultTime + CF_AssaultDifficultySpawnInterval[self.AssaultDifficulty] + 1
-			self.AssaultNextSpawnPos = self.EnemySpawn[math.random(#self.EnemySpawn)]	
-			
-			-- Create attacker's unit presets
-			CF_CreateAIUnitPresets(self.GS, self.AssaultEnemyPlayer, CF_GetTechLevelFromDifficulty(self.GS, self.AssaultEnemyPlayer, self.AssaultDifficulty, CF_MaxDifficulty))	
-			
-			-- Remove some panel actors
-			self.ShipControlPanelActor.ToDelete = true
-			self.BeamControlPanelActor.ToDelete = true
-		else
-			-- Trigger random encounter
-			if #CF_RandomEncounters > 0 then
-				-- Find suitable random event
-				local r 
-				local id
-				local found = false
-				local brk = 1
+			while not found do
+				r = math.random(#CF_RandomEncounters)
+				id = CF_RandomEncounters[r]
 				
-				while not found do
-					r = math.random(#CF_RandomEncounters)
-					id = CF_RandomEncounters[r]
-					
-					if CF_RandomEncountersOneTime[id] == true then
-						if self.GS["Encounter"..id.."Happened"] == nil then
-							found = true
-						end
-					else
+				if CF_RandomEncountersOneTime[id] == true then
+					if self.GS["Encounter"..id.."Happened"] == nil then
 						found = true
 					end
-					
-					brk = brk + 1
-					if brk > 30 then
-						break
-					end
+				else
+					found = true
 				end
 				
-				-- Launch encounter
-				if found then
-					self.RandomEncounterID = id
-					self.RandomEncounterVariant = 0
+				brk = brk + 1
+				if brk > 30 then
+					break
+				end
+			end
+			
+			--id = "TEST" -- DEBUG
+			
+			-- Launch encounter
+			if found and id ~= nil then
+				self.RandomEncounterID = id
+				self.RandomEncounterVariant = 0
+				
+				self.RandomEncounterText = CF_RandomEncountersInitialTexts[id]
+				self.RandomEncounterVariants = CF_RandomEncountersInitialVariants[id]
+				self.RandomEncounterVariantsInterval = CF_RandomEncountersVariantsInterval[id]
+				self.RandomEncounterChosenVariant = 0
+				self.RandomEncounterIsInitialized = false
+				self.ShipControlSelectedEncounterVariant = 1
+				
+				-- Switch to ship panel
+				local bridgeempty = true
+				local plrtoswitch = -1
+				
+				for plr = 0 , self.PlayerCount - 1 do
+					local act = self:GetControlledActor(plr);
 					
-					self.RandomEncounterText = CF_RandomEncountersInitialTexts[id]
-					self.RandomEncounterVariants = CF_RandomEncountersInitialVariants[id]
-					
-					-- Switch to ship panel
-					local bridgeempty = true
-					local plrtoswitch = -1
-					
-					for plr = 0 , self.PlayerCount - 1 do
-						local act = self:GetControlledActor(plr);
+					if act ~= nil and MovableMan:IsActor(act) then
+						if act.PresetName ~= "Ship Control Panel" and plrtoswitch == -1 then
+							plrtoswitch = plr
+						end
 						
-						if act ~= nil and MovableMan:IsActor(act) then
-							if act.PresetName ~= "Ship Control Panel" and plrtoswitch == -1 then
-								plrtoswitch = plr
-							end
-							
-							if act.PresetName == "Ship Control Panel" then
-								bridgeempty = false
-							end
+						if act.PresetName == "Ship Control Panel" then
+							bridgeempty = false
 						end
 					end
-						
-					if plrtoswitch > -1 and bridgeempty and MovableMan:IsActor(self.ShipControlPanelActor) then
-						self:SwitchToActor(self.ShipControlPanelActor, plrtoswitch, CF_PlayerTeam);
-					end
-					self.ShipControlMode = self.ShipControlPanelModes.REPORT
 				end
+					
+				if plrtoswitch > -1 and bridgeempty and MovableMan:IsActor(self.ShipControlPanelActor) then
+					self:SwitchToActor(self.ShipControlPanelActor, plrtoswitch, CF_PlayerTeam);
+				end
+				self.ShipControlMode = self.ShipControlPanelModes.REPORT
 			end
 		end
 	end
@@ -881,14 +885,17 @@ function VoidWanderers:UpdateActivity()
 		if self.AssaultTime == self.Time then
 			self.GS["Mode"] = "Assault"
 			
-			print ("Assault detroy")
-
 			-- Remove control actors
 			self:DestroyStorageControlPanelUI()
 			self:DestroyClonesControlPanelUI()
 			self:DestroyBeamControlPanelUI()
 			self:DestroyItemShopControlPanelUI()
 			self:DestroyCloneShopControlPanelUI()
+		end
+		
+		-- Process random encounter function
+		if self.RandomEncounterID ~= nil then
+			CF_RandomEncountersFunctions[self.RandomEncounterID](self, self.RandomEncounterChosenVariant)
 		end
 	end--]]--
 	
@@ -936,12 +943,23 @@ function VoidWanderers:UpdateActivity()
 				self.GS["ShipX"] = sx
 				self.GS["ShipY"] = sy
 				
+				
+				self.LastTrigger = self.GS["DistanceTraveled"]
+				
+				if self.LastTrigger == nil then
+					self.LastTrigger = 0
+				else
+					self.LastTrigger = tonumber(self.LastTrigger)
+				end
+				
 				self.LastTrigger = self.LastTrigger + 1
 				
-				if self.LastTrigger > 25 then
+				if self.LastTrigger > CF_DistanceToAttemptEvent then
 					self.LastTrigger = 0
 					self:TriggerShipAssault()
 				end
+
+				self.GS["DistanceTraveled"] = self.LastTrigger
 				
 				-- Create emitters if nessesary
 				if self.EngineEmitters == nil then
@@ -1085,6 +1103,10 @@ function VoidWanderers:UpdateActivity()
 		end
 		
 		-- Create teleportation effect
+		print ("-")
+		print (AssaultEnemiesToSpawn)
+		print (self.AssaultNextSpawnTime)
+		
 		if self.AssaultEnemiesToSpawn > 0 and self.AssaultNextSpawnTime - self.Time < 6 then
 			self:AddObjectivePoint("INTRUDER\nALERT", self.AssaultNextSpawnPos , CF_PlayerTeam, GameActivity.ARROWDOWN);
 		

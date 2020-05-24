@@ -550,7 +550,7 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 		end
 	end
 	
-	if showidle and self.ClonesControlPanelPos ~= nil then
+	if showidle and self.ClonesControlPanelPos ~= nil and self.ClonesControlPanelActor ~= nil then
 		self.ClonesControlPanelInitialized = false
 		self:PutGlow("ControlPanel_Clones", self.ClonesControlPanelPos)
 		--CF_DrawString("CLONES",self.ClonesControlPanelPos + Vector(-16,0),120,20 )
@@ -558,7 +558,7 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 	end
 	
 	-- Process clones input
-	if self.ClonesInputPos ~= nil then
+	if self.ClonesInputPos ~= nil and self.ClonesControlPanelActor ~= nil then
 		local count = CF_CountUsedClonesInArray(self.Clones)
 		local toresettimer = true
 	
