@@ -30,6 +30,9 @@ function CF_InitFactions(activity)
 	
 	CF_MaxMissions = 5
 	
+	CF_MaxLevel = 10
+	CF_ExpPerLevel = 500
+	
 	CF_SecurityIncrementPerMission = 10
 	CF_SecurityIncrementPerDeployment = 2
 	
@@ -994,7 +997,7 @@ function CF_CountActors(team)
 	local c = 0
 
 	for actor in MovableMan.Actors do
-		if actor.Team == team and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") then
+		if actor.Team == team and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") and not actor:IsInGroup("Brains") then
 			c = c + 1
 		end
 	end

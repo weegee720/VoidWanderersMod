@@ -87,14 +87,19 @@ function VoidWanderers:StartActivity()
 			end
 		end
 		
+		self.CreatedBrains = {}
+		
 		-- Create brains
 		--print ("Create brains")
 		for player = 0, self.PlayerCount - 1 do
-			local a = CreateActor("Brain Case", "Base.rte")
-			if a ~= nil then
-				a.Team = CF_PlayerTeam;
-				a.Pos = self.BrainPos[player+1];
-				MovableMan:AddActor(a)
+			if self.GS["Brain"..player.."Detached"] ~= "True" then
+				local a = CreateActor("Brain Case", "Base.rte")
+				if a ~= nil then
+					a.Team = CF_PlayerTeam;
+					a.Pos = self.BrainPos[player + 1];
+					MovableMan:AddActor(a)
+					self.CreatedBrains[player] = a
+				end
 			end
 		end
 		
@@ -326,6 +331,8 @@ function VoidWanderers:StartActivity()
 		if ambientscript == nil then
 			ambientscript = "VoidWanderers.rte/Scripts/Ambient_Generic.lua"
 		end
+		
+		self.MissionStartTime = tonumber(self.GS["Time"])
 		
 		self.SpawnTable = {}
 		
@@ -674,7 +681,7 @@ function VoidWanderers:TriggerShipAssault()
 				if plrtoswitch > -1 and bridgeempty and MovableMan:IsActor(self.ShipControlPanelActor) then
 					self:SwitchToActor(self.ShipControlPanelActor, plrtoswitch, CF_PlayerTeam);
 				end
-				self.ShipControlMode = self.ShipControlPanelModes.REPORT
+				self.ShipControlMode = self.ShipControlPanelModes.REPORT--]]--
 			end
 		end
 	end
@@ -830,7 +837,8 @@ function VoidWanderers:UpdateActivity()
 	if self.GS["Mode"] == "Vessel" then
 		self:ProcessClonesControlPanelUI()
 		self:ProcessStorageControlPanelUI()
-
+		self:ProcessBrainControlPanelUI()
+		
 		-- Auto heal all actors when not in combat
 		if not self.OverCrowded then
 			for actor in MovableMan.Actors do
@@ -844,7 +852,7 @@ function VoidWanderers:UpdateActivity()
 		end
 		
 		-- Switch players from brain to bridge
-		local bridgeempty = true
+		--[[local bridgeempty = true
 		local plrtoswitch = -1
 		
 		for plr = 0 , self.PlayerCount - 1 do
@@ -867,7 +875,7 @@ function VoidWanderers:UpdateActivity()
 			end
 		else
 			self.BrainSwitchTimer:Reset()
-		end
+		end--]]--
 		
 		-- Show assault warning
 		if self.AssaultTime > self.Time then
@@ -1103,9 +1111,9 @@ function VoidWanderers:UpdateActivity()
 		end
 		
 		-- Create teleportation effect
-		print ("-")
-		print (AssaultEnemiesToSpawn)
-		print (self.AssaultNextSpawnTime)
+		--print ("-")
+		--print (AssaultEnemiesToSpawn)
+		--print (self.AssaultNextSpawnTime)
 		
 		if self.AssaultEnemiesToSpawn > 0 and self.AssaultNextSpawnTime - self.Time < 6 then
 			self:AddObjectivePoint("INTRUDER\nALERT", self.AssaultNextSpawnPos , CF_PlayerTeam, GameActivity.ARROWDOWN);
@@ -1137,14 +1145,14 @@ function VoidWanderers:UpdateActivity()
 			self:MissionUpdate()
 		end
 		
-		
 		-- Make actors glitch if there are too many of them
 		local count = 0;
+		local braincount = 0;
 		for actor in MovableMan.Actors do
 			if actor.Team == CF_PlayerTeam and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") and not self:IsAlly(actor) then
 				count = count + 1
 
-				if self.Time % 4 == 0 and count > tonumber(self.GS["Player0VesselCommunication"]) then
+				if self.Time % 4 == 0 and count > tonumber(self.GS["Player0VesselCommunication"]) and self.GS["BrainsOnMission"] ~= "True" then
 					local cont = actor:GetController();
 					if cont ~= nil then
 						if cont:IsState(Controller.WEAPON_FIRE) then
@@ -1156,6 +1164,10 @@ function VoidWanderers:UpdateActivity()
 					
 					self:AddObjectivePoint("CONNECTION LOST", actor.AboveHUDPos , CF_PlayerTeam, GameActivity.ARROWUP);
 				end
+				
+				if actor:IsInGroup("Brains") then
+					braincount  = braincount + 1
+				end
 			end
 			
 			-- Add allied units to array when they are actually spawned
@@ -1165,6 +1177,14 @@ function VoidWanderers:UpdateActivity()
 					self.AlliedUnits[nw] = actor
 					actor.PresetName = string.sub(actor.PresetName , 2 , string.len(actor.PresetName))
 				end
+			end
+		end
+		
+		-- Check loosing conditions
+		if self.GS["BrainsOnMission"] ~= "False" and self.ActivityState ~= Activity.OVER then
+			if braincount < self.PlayerCount and self.EnableBrainSelection and self.Time > self.MissionStartTime + 1 then
+				self.WinnerTeam = CF_CPUTeam;
+				ActivityMan:EndActivity();
 			end
 		end
 	end
@@ -1390,6 +1410,49 @@ function VoidWanderers:GiveMissionRewards()
 	self.MissionReport[#self.MissionReport + 1] = "MISSION COMPLETED"
 	if self.MissionGoldReward > 0 then
 		self.MissionReport[#self.MissionReport + 1] = tostring(self.MissionGoldReward).."oz of gold received"
+	end
+	
+	local exppts = math.floor(self.MissionReputationReward + self.MissionGoldReward / 10)
+
+	if self.GS["BrainsOnMission"] then
+		for p = 0, 3 do
+			local curexp = self.GS["Brain"..p.."Exp"]
+			if curexp == nil then
+				curexp = 0
+			else
+				curexp = tonumber(curexp)
+			end
+
+			local cursklpts = self.GS["Brain"..p.."SkillPoints"]
+			if cursklpts == nil then
+				cursklpts = 0
+			else
+				cursklpts = tonumber(cursklpts)
+			end
+
+			local curlvl = self.GS["Brain"..p.."Level"]
+			if curlvl == nil then
+				curlvl = 0
+			else
+				curlvl = tonumber(cursklpts)
+			end
+			
+			curexp = curexp + exppts
+			
+			while math.floor(curexp / CF_ExpPerLevel) > 0 do
+				if curlvl < CF_MaxLevel
+					curexp = curexp - CF_ExpPerLevel
+					cursklpts = cursklpts + 1
+					curlvl = curlvl + 1
+				end
+			end
+		
+			self.GS["Brain"..p.."SkillPoints"] = cursklpts
+			self.GS["Brain"..p.."Exp"] = curexp
+			self.GS["Brain"..p.."Level"] = curlvl
+		end
+		
+		self.MissionReport[#self.MissionReport + 1] = tostring(exppts).."exp received"
 	end
 	
 	if self.MissionReputationReward > 0 then

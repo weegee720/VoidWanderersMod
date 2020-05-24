@@ -66,6 +66,8 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 			local cont = act:GetController()
 			local canbeam = false
 			
+			local braincount = 0
+			
 			local count = 0
 			for actor in MovableMan.Actors do
 				if self.BeamControlPanelBox:WithinBox(actor.Pos) then
@@ -83,6 +85,10 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 					end
 					
 					count = count + 1
+					
+					if actor:IsInGroup("Brains") then
+						braincount = braincount + 1
+					end
 				end
 			end
 
@@ -100,32 +106,52 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 			
 			--print (CF_LocationName[ self.GS["Location"] ])
 			
-			local locname = CF_LocationName[ self.GS["Location"] ]
-			if locname ~= nil then
-				if CF_LocationPlayable[ self.GS["Location"] ] == nil or CF_LocationPlayable[ self.GS["Location"] ] == true then
-					
-					if count <= tonumber(self.GS["Player0VesselCommunication"]) then
-						if count > 0 then
-							CF_DrawString("Deploy away team on "..CF_LocationName[ self.GS["Location"] ], pos + Vector(-55, -6), 130, 36)
-							canbeam = true
+			-- Search for detached brains
+			local anybraindetached = false
+			
+			for p = 0 , self.PlayerCount - 1 do
+				if self.GS["Brain"..p.."Detached"] == "True" then
+					anybraindetached = true
+				end
+			end
+			
+			if anybraindetached and braincount < self.PlayerCount then
+				CF_DrawString("All brains must be on the landing deck", pos + Vector(-54, -6), 124, 36)
+				canbeam = false
+			else
+				local locname = CF_LocationName[ self.GS["Location"] ]
+				if locname ~= nil then
+					if CF_LocationPlayable[ self.GS["Location"] ] == nil or CF_LocationPlayable[ self.GS["Location"] ] == true then
+						
+						if count <= tonumber(self.GS["Player0VesselCommunication"]) then
+							if count > 0 then
+								CF_DrawString("Deploy away team on "..CF_LocationName[ self.GS["Location"] ], pos + Vector(-55, -6), 124, 36)
+								canbeam = true
+							else
+								CF_DrawString("No units on the landing deck", pos + Vector(-50, -6), 124, 36)
+								canbeam = false
+							end
 						else
-							CF_DrawString("No units on landing deck", pos + Vector(-50, -6), 130, 36)
-							canbeam = false
+							if not anybraindetached then
+								CF_DrawString("Too many units!", pos + Vector(-35, -6), 124, 36)
+								canbeam = false
+							end
 						end
 					else
-						CF_DrawString("Too many units!", pos + Vector(-35, -6), 130, 36)
+						CF_DrawString("Can't deploy to "..CF_LocationName[ self.GS["Location"] ], pos + Vector(-50, -6), 124, 36)
 						canbeam = false
 					end
 				else
-					CF_DrawString("Can't deploy to "..CF_LocationName[ self.GS["Location"] ], pos + Vector(-50, -6), 130, 36)
+					CF_DrawString("Can't deploy units into space", pos + Vector(-50,0), 124, 36)
 					canbeam = false
 				end
-			else
-				CF_DrawString("Can't deploy units into space", pos + Vector(-50,0), 120, 36)
-				canbeam = false
 			end
 			
-			CF_DrawString("DEPLOY [ "..tostring(count).."/"..self.GS["Player0VesselCommunication"].." ]", pos + Vector(-30, -16), 130, 36)
+			if not anybraindetached then
+				CF_DrawString("DEPLOY [ "..tostring(count).."/"..self.GS["Player0VesselCommunication"].." ]", pos + Vector(-30, -16), 130, 36)
+			else
+				CF_DrawString("DEPLOY", pos + Vector(-16, -16), 130, 36)
+			end
 			
 			-- Deploy units
 			if cont:IsState(Controller.WEAPON_FIRE) and canbeam then
@@ -170,9 +196,15 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 					end
 					
 					-- Prepare for transfer
-					--Select scene
+					-- Select scene
 					local r = math.random(#CF_LocationScenes[ self.GS["Location"] ])
 					local scene = CF_LocationScenes[ self.GS["Location"] ][r]
+					
+					if anybraindetached then
+						self.GS["BrainsOnMission"] = "True"
+					else
+						self.GS["BrainsOnMission"] = "False"
+					end
 					
 					--print (self.GS["Location"])
 					--print (scene)

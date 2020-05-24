@@ -27,6 +27,7 @@ function VoidWanderers:StartActivity()
 		dofile(LIB_PATH.."Panel_ItemShop.lua");
 		dofile(LIB_PATH.."Panel_CloneShop.lua");
 		dofile(LIB_PATH.."Panel_LZ.lua");
+		dofile(LIB_PATH.."Panel_Brain.lua");
 	end
 	
 	SKIP_LIBRARIES = nil

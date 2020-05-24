@@ -36,7 +36,7 @@ end
 --
 -----------------------------------------------------------------------------------------
 function VoidWanderers:ProcessLZControlPanelUI()
-	if self.LZControlPanelActor == nil then
+	if self.LZControlPanelActor == nil or self.ActivityState == Activity.OVER then
 		return 
 	end
 
