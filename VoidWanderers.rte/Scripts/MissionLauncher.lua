@@ -146,6 +146,14 @@ function VoidWanderers:LoadCurrentGameState()
 			self.GS["Planet"] = CF_Planet[1]
 			self.GS["Location"] = nil
 		end
+		
+		-- Check missions for missing scenes, if any of them found - recreate missions
+		for i = 1, CF_MaxMissions do
+			if CF_LocationName[self.GS["Mission"..i.."Location"]] == nil then
+				CF_GenerateRandomMissions(self.GS)
+				break
+			end
+		end
 	end
 end
 -----------------------------------------------------------------------------------------
