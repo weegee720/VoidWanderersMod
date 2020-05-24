@@ -66,11 +66,11 @@ CF_Location[#CF_Location + 1] = id
 CF_LocationName[id] = "Old Dam"
 CF_LocationPos[id] = Vector(23 , -22)
 CF_LocationDescription[id] = ""
-CF_LocationSecurity[id] = 0
-CF_LocationGoldPresent[id] = true
+CF_LocationSecurity[id] = 20
+CF_LocationGoldPresent[id] = false
 CF_LocationScenes[id] = {"Old Dam"}
 CF_LocationPlanet[id] = "MP3-GTC-RTH"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine"}
+CF_LocationMissions[id] = {"Assault", "Assassinate"}
 
 local id = "Station 134"
 CF_Location[#CF_Location + 1] = id

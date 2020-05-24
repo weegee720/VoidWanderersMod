@@ -42,7 +42,7 @@ function CF_InitFactions(activity)
 	-- When mission failed defines how many reputation points will be subtracted from both reputations
 	CF_MissionFailedReputationPenaltyRatio = 0.35
 	
-	CF_UseCustomAI = true
+	CF_EnableIcons = true
 	
 	-- When enabled UL2 will use special rendering techniques to improve UI rendering
 	-- performance on weaker machines. Some artifacts may appear though.

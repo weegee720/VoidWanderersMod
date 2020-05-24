@@ -574,8 +574,6 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 						if self.Time >= self.ClonesLastDetectedBodyTime + self.ClonesInputDelay and CF_CountUsedClonesInArray(self.Clones) < tonumber(self.GS["Player0VesselClonesCapacity"]) then
 							local c = #self.Clones + 1
 							
-							print (c)
-							
 							self.Clones[c] = {}
 							self.Clones[c]["Preset"] = actor.PresetName
 							self.Clones[c]["Class"] = actor.ClassName

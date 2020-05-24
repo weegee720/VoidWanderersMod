@@ -29,7 +29,7 @@ CF_LocationPlanet[id] = "MP3-GTC-CTY"
 CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine"}
 
 -- Enable only if MP3 patch installed
---[[local id = "Tenements"
+local id = "Tenements"
 CF_Location[#CF_Location + 1] = id
 CF_LocationName[id] = "Tenements"
 CF_LocationPos[id] = Vector(-2 , 54)

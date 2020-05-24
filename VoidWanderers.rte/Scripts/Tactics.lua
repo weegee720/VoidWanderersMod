@@ -390,6 +390,20 @@ function VoidWanderers:StartActivity()
 	
 	self:DoBrainSelection()
 	self.EnableBrainSelection = true
+
+	-- Init icon display data
+	self.IconPresets = {}
+	self.IconGroups = {}
+	
+	self.IconGroups[1] = "Diggers"
+	self.IconGroups[2] = "Sniper Weapons"
+	self.IconGroups[3] = "Heavy Weapons"
+	--self.IconGroups[4] = "Explosive Weapons"
+	
+	self.IconPresets[1] = "Icon_Digger"
+	self.IconPresets[2] = "Icon_Sniper"
+	self.IconPresets[3] = "Icon_Heavy"
+	--self.IconPresets[4] = "Icon_Heavy"
 	
 	print ("VoidWanderers:Tactics:StartActivity - End");
 end
@@ -678,6 +692,33 @@ function VoidWanderers:UpdateActivity()
 			local l = CF_GetStringPixelWidth(s)
 			
 			CF_DrawString(s, curactor.Pos + Vector(-l/2, -76), 200, 200)
+		end
+	end
+
+	-- Display icons
+	if CF_EnableIcons then
+		for actor in MovableMan.Actors do
+			if actor.Team == CF_PlayerTeam then
+				local icons = {}
+				
+				if actor.PresetName == "-" then
+					icons[#icons + 1] = "Icon_Ally"
+				end
+			
+				for i = 1, #self.IconPresets do
+					if actor:HasObjectInGroup(self.IconGroups[i]) then
+						icons[#icons + 1] = self.IconPresets[i]
+					end
+				end
+				
+				local l = #icons
+				
+				if l > 0 then
+					for i = 1, l do
+						self:PutGlow(icons[i], actor.Pos + Vector( -(13 * l / 2) + ((i - 1) * 13) + 7, -67))
+					end
+				end
+			end
 		end
 	end
 	

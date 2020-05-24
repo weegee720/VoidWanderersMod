@@ -37,7 +37,7 @@ function VoidWanderers:InitBeamControlPanelUI()
 				MovableMan:AddActor(self.BeamControlPanelActor)
 			end
 		else
-			print (self.BeamControlPanelActor)
+			--print (self.BeamControlPanelActor)
 		end
 	end	
 end

@@ -61,7 +61,7 @@ function VoidWanderers:DestroyItemShopControlPanelUI()
 			self.ItemShopControlPanelObject = nil
 		end
 	end	
-	print (self.ItemShopControlPanelActor)
+	--print (self.ItemShopControlPanelActor)
 end
 -----------------------------------------------------------------------------------------
 --
