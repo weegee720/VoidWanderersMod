@@ -1,19 +1,15 @@
 Planned features:
 
-- Reinforcements?
-- Vessel guns
-- UL2 superweapons support
-- Fast vessel unit deployment
-- Campaigns?
-- Built in good old CCRPG and CCRTS systems?
-- Way to recon before misison starts?
-
+- Built in CCRTS
+- Matter processing, fix, heal and self-repair skills
+- Scanner skill
+- Points of interest during vessel exploration missions
+- Reaver attacks
+- Artifacts
 
 Planned missions:
 
-Train chase
-Console hunt (UL2 maps only)
-Chip steal
+One man army
 
 
 

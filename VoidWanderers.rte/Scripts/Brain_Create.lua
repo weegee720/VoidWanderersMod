@@ -35,12 +35,18 @@ function do_rpgbrain_create(self)
 	self.Timer = Timer();
 	self.CoolDownTimer = Timer()
 	self.RegenTimer = Timer();
+	self.BlinkTimer = Timer();
 	
 	if self.ThisActor then
 		self.TelekinesisLvl = 0
 		self.ShieldLvl = 0
 		self.MaxHealth = 100
 		self.RegenInterval = 0
+		self.RepairCount = 0
+		self.HealCount = 0
+		self.SelfHealCount = 0
+		self.ScanRange = 0
+		self.ScanLevel = 0
 	
 		-- Calculate actor base power
 		local s = self.ThisActor.PresetName
@@ -55,6 +61,11 @@ function do_rpgbrain_create(self)
 				
 				self.MaxHealth = 100 + tonumber(CF_GS["Brain".. bplr .."Level"])
 				self.RegenInterval = 1500 - tonumber(CF_GS["Brain".. bplr .."Level"]) * 10
+				
+				self.RepairCount = tonumber(CF_GS["Brain".. bplr .."Fix"]) * 3
+				self.HealCount = tonumber(CF_GS["Brain".. bplr .."Heal"]) * 2
+				self.SelfHealCount = tonumber(CF_GS["Brain".. bplr .."SelfHeal"])
+				self.ScanLevel = tonumber(CF_GS["Brain".. bplr .."Scanner"])
 			else
 				--print ("Preset")
 				local pos = string.find(s ,"SHLD");
@@ -74,8 +85,31 @@ function do_rpgbrain_create(self)
 					self.MaxHealth = 100 + val
 					self.RegenInterval = 1500 - val * 10
 				end
+				
+				local pos = string.find(s ,"FIXW");
+				if pos ~= nil then
+					self.RepairCount = tonumber(string.sub(s, pos + 4, pos + 4 )) * 3
+				end
+				
+				local pos = string.find(s ,"HEAL");
+				if pos ~= nil then
+					self.HealCount = tonumber(string.sub(s, pos + 4, pos + 4 )) * 2
+				end
+				
+				local pos = string.find(s ,"RGEN");
+				if pos ~= nil then
+					self.SelfHealCount = tonumber(string.sub(s, pos + 4, pos + 4 ))
+				end
+				
+				local pos = string.find(s ,"SCAN");
+				if pos ~= nil then
+					self.ScanLevel = tonumber(string.sub(s, pos + 4, pos + 4 ))
+				end				
 			end
 		end
+
+		self.ScanEnabled = true
+		self.ScanRange = 200 + self.ScanLevel * 160
 		
 		self.ThisActor.Health = self.MaxHealth
 		
@@ -83,6 +117,49 @@ function do_rpgbrain_create(self)
 		--print ("Shield: "..self.ShieldLvl)
 		--print ("Kinesis: "..self.TelekinesisLvl)
 		--print ("MaxHealth: "..self.MaxHealth)
+		
+		-- Create skills menu
+		self.Skills = {}
+		local count = 0
+
+		if self.RepairCount > 0 then
+			count = count + 1
+			self.Skills[count] = {}
+			
+			self.Skills[count]["Text"] = "Toggle scanner"
+			self.Skills[count]["Count"] = -1
+			self.Skills[count]["Function"] = rpgbrain_skill_scanner
+		end
+		
+		if self.RepairCount > 0 then
+			count = count + 1
+			self.Skills[count] = {}
+			
+			self.Skills[count]["Text"] = "Repair weapon"
+			self.Skills[count]["Count"] = self.RepairCount
+			self.Skills[count]["Function"] = rpgbrain_skill_repair
+		end
+
+		if self.HealCount > 0 then
+			count = count + 1
+			self.Skills[count] = {}
+			
+			self.Skills[count]["Text"] = "Heal unit"
+			self.Skills[count]["Count"] = self.HealCount
+			self.Skills[count]["Function"] = rpgbrain_skill_heal
+			self.Skills[count]["ActorDetectRange"] = 50
+		end
+		
+		if self.SelfHealCount > 0 then
+			count = count + 1
+			self.Skills[count] = {}
+			
+			self.Skills[count]["Text"] = "Heal brain"
+			self.Skills[count]["Count"] = self.SelfHealCount
+			self.Skills[count]["Function"] = rpgbrain_skill_heal
+			self.Skills[count]["ActorDetectRange"] = 0.1
+			self.Skills[count]["AffectsBrains"] = true
+		end
 		
 		if self.ShieldLvl > 0 then
 			self.ShieldEnabled = true

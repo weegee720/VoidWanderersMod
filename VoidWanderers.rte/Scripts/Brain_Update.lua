@@ -400,5 +400,246 @@ function do_rpgbrain_update(self)
 			CF_DrawString("E "..math.floor(self.Energy), self.Pos + Vector(0,-50), 200, 200)
 			CF_DrawString("P "..self.FullPower, self.Pos + Vector(0,-40), 200, 200)
 		end
+		
+		-- Process scanner
+		if self.ScanLevel > 0 and self.ScanEnabled then
+			for actor in MovableMan.Actors do
+				if actor.ClassName ~= "ADoor" and actor.ClassName ~= "Actor" and actor.ID ~= self.ThisActor.ID then
+					local d = CF_Dist(actor.Pos, self.Pos)
+				
+					if d < self.ScanRange then
+						local a = VoidWanderersRPG_GetAngle(self.Pos, actor.Pos)
+						local relpos = Vector(math.cos(-a) * (20 + (d * 0.1)), math.sin(-a) * (20 + (d * 0.1)))
+						
+						local effect = "Blue Glow"
+						
+						if actor.Team ~= self.ThisActor.Team then
+							local pos = self.Pos + Vector(math.cos(-a) * 20, math.sin(-a) * 20)
+							local actorpos = pos
+							local vectortoactor = actor.Pos - actorpos;
+							local moid = SceneMan:CastMORay(actorpos , vectortoactor , self.ThisActor.ID , -2 , -1, false , 4);
+							local mo = MovableMan:GetMOFromID(moid);
+							
+							if mo ~= nil then
+								effect = "Red Glow"
+							else
+								effect = "Yellow Glow"
+							end
+						end
+						
+						VoidWanderersRPG_AddEffect(self.Pos + relpos, effect)--]]--
+					end
+				end
+			end
+			
+			-- Show eye pos
+			local a = VoidWanderersRPG_GetAngle(self.Pos, self.ThisActor.ViewPoint)
+			local d = CF_Dist(self.ThisActor.ViewPoint, self.Pos)
+			local relpos = Vector(math.cos(-a) * (20 + (d * 0.1)), math.sin(-a) * (20 + (d * 0.1)))
+			local effect = "Green Glow"
+
+			VoidWanderersRPG_AddEffect(self.Pos + relpos, effect)
+		end
+		
+		-- Process PDA input
+		if self.ThisActor:IsPlayerControlled() then
+			if CF_PDAInitiator ~= nil and CF_PDAInitiator.ID == self.ThisActor.ID then
+				-- Enable PDA only if we're not flying or something
+				if self.PDAEnabled then
+					self.PDAEnabled = false
+				else
+					if self.ThisActor.Vel.Magnitude < 3 then
+						self.PDAEnabled = true
+					end
+				end
+				CF_PDAInitiator = nil
+				self.SelectedSkill = 1
+				self.PinPoint = Vector(self.ThisActor.Pos.X, self.ThisActor.Pos.Y)
+			end
+		else
+			self.PDAEnabled = false
+		end
+		
+		if self.PDAEnabled then
+			do_rpgbrain_pda(self)
+		end
 	end
+end
+
+function do_rpgbrain_pda(self)
+	self.ThisActor.Vel = Vector(0,0)
+	self.ThisActor.Pos = self.PinPoint
+	
+	local pos = self.ThisActor.Pos + Vector(0,-40)
+	
+	-- Draw skills menu
+	if self.Skills == nil or #self.Skills == 0 then
+		local s = "NO SKILLS"
+		local l = CF_GetStringPixelWidth(s)
+		
+		CF_DrawString(s, pos + Vector(-l / 2, -80), 100 , 8)
+	else
+		for i = 1, #self.Skills do
+			local s = self.Skills[i]["Text"]
+			
+			if self.Skills[i]["Count"] ~= nil and self.Skills[i]["Count"] ~= -1 then
+				s = s .." "..self.Skills[i]["Count"]
+			end
+		
+			if i == self.SelectedSkill then
+				CF_DrawString("> "..s, pos + Vector(-50, i * 10), 150 , 8)
+			else
+				CF_DrawString(s, pos + Vector(-50, i * 10), 150 , 8)
+			end
+		end
+	end
+	
+	self.SkillTargetActor = nil
+	
+	-- Detect nearby target actor
+	if self.Skills[self.SelectedSkill]["ActorDetectRange"] ~= nil then
+		local dist = self.Skills[self.SelectedSkill]["ActorDetectRange"]
+		local a = nil
+
+		for actor in MovableMan.Actors do
+			local brainonly = false
+			
+			if self.Skills[self.SelectedSkill]["AffectsBrains"] ~= nil and self.Skills[self.SelectedSkill]["AffectsBrains"] == true then
+				brainonly = true
+			end
+		
+			local acceptable = true
+			
+			if brainonly then
+				if actor:IsInGroup("Brains") then
+					acceptable = true
+				else
+					acceptable = false
+				end
+			else
+				if actor:IsInGroup("Brains") then
+					acceptable = false
+				else
+					acceptable = true
+				end
+			end
+		
+			if actor.Team == self.ThisActor.Team and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") and acceptable then
+				local d = CF_Dist(self.ThisActor.Pos, actor.Pos)
+				if d <= dist then
+					a = actor;
+					dist = d
+				end
+			end
+		end
+		
+		if a ~= nil then
+			self.SkillTargetActor = a
+			
+			if self.BlinkTimer:IsPastSimMS(500) then
+				self.SkillTargetActor:FlashWhite(25)
+				self.BlinkTimer:Reset()
+			end
+		end
+	end
+	
+	local cont = self.ThisActor:GetController()
+	if cont:IsState(Controller.PRESS_UP) then
+		cont:SetState(Controller.PRESS_UP, false)
+		cont:SetState(Controller.MOVE_UP, false)
+		cont:SetState(Controller.BODY_JUMPSTART, false)
+		cont:SetState(Controller.BODY_JUMP, false)
+
+		self.SelectedSkill = self.SelectedSkill - 1
+		if self.SelectedSkill < 1 then
+			self.SelectedSkill = 1
+		end		
+	end
+
+	if cont:IsState(Controller.PRESS_DOWN) then
+		cont:SetState(Controller.PRESS_DOWN, false)
+		cont:SetState(Controller.MOVE_DOWN, false)
+		cont:SetState(Controller.BODY_CROUCH, false)
+
+		self.SelectedSkill = self.SelectedSkill + 1
+		if self.SelectedSkill > #self.Skills then
+			self.SelectedSkill = #self.Skills
+		end		
+	end
+	
+	if cont:IsState(Controller.WEAPON_FIRE) then
+		cont:SetState(Controller.WEAPON_FIRE, false)
+		
+		if not self.FirePressed then
+			self.FirePressed = true;
+			
+			-- Execute skill function
+			if self.Skills[self.SelectedSkill]["Function"] ~= nil then
+				self.Skills[self.SelectedSkill]["Function"](self)
+			end
+		end
+	else
+		self.FirePressed = false
+	end
+end
+
+function rpgbrain_skill_heal(self)
+	if self.Skills[self.SelectedSkill]["Count"] > 0 then
+		if self.SkillTargetActor ~= nil and MovableMan:IsActor(self.SkillTargetActor) and self.SkillTargetActor.Health > 0 then
+			self.Skills[self.SelectedSkill]["Count"] = self.Skills[self.SelectedSkill]["Count"] - 1
+
+			local presets, classes
+			if self.SkillTargetActor.ClassName == "AHuman" then
+				presets, classes = CF_GetInventory(self.SkillTargetActor)
+			end
+			local preset = self.SkillTargetActor.PresetName
+			local class = self.SkillTargetActor.ClassName
+			local pos = Vector(self.SkillTargetActor.Pos.X, self.SkillTargetActor.Pos.Y)
+			local mode = self.SkillTargetActor.AIMode
+			
+			self.SkillTargetActor.Pos = Vector(0,-1000)
+			self.SkillTargetActor.ToDelete = true
+			self.SkillTargetActor = nil
+			
+			local actor = CF_MakeActor2(preset,class)
+			if actor then
+				actor.Pos = pos
+				actor.Team = self.ThisActor.Team
+				actor.AIMode = mode
+				
+				if actor.ClassName == "AHuman" then
+					for i = 1, #presets do
+						local itm = CF_MakeItem2(presets[i], classes[i])
+						if itm then
+							actor:AddInventoryItem(itm)
+						end
+					end
+				end
+				
+				MovableMan:AddActor(actor)
+			end
+		end
+	end
+end
+
+function rpgbrain_skill_repair(self)
+	if self.Skills[self.SelectedSkill]["Count"] > 0 then
+		if self.ThisActor.EquippedItem ~= nil then
+			self.Skills[self.SelectedSkill]["Count"] = self.Skills[self.SelectedSkill]["Count"] - 1
+			local preset = self.ThisActor.EquippedItem.PresetName
+			local class = self.ThisActor.EquippedItem.ClassName
+			
+			self.ThisActor.EquippedItem.ToDelete = true;
+			
+			local newgun = CF_MakeItem2(preset, class)
+			if newgun then
+				self.ThisActor:AddInventoryItem(newgun)
+				self.ThisActor:GetController():SetState(Controller.WEAPON_CHANGE_PREV,true);
+			end
+		end
+	end
+end
+
+function rpgbrain_skill_scanner(self)
+	self.ScanEnabled = not self.ScanEnabled
 end

@@ -204,6 +204,11 @@ function VoidWanderers:LoadCurrentGameState()
 				self.GS["Brain"..plr.."Heal"] = 0
 			end
 
+			local val = self.GS["Brain"..plr.."SelfHeal"]
+			if val == nil then
+				self.GS["Brain"..plr.."SelfHeal"] = 0
+			end
+			
 			local val = self.GS["Brain"..plr.."Fix"]
 			if val == nil then
 				self.GS["Brain"..plr.."Fix"] = 0

@@ -905,7 +905,7 @@ function VoidWanderers:UpdateActivity()
 		if not self.OverCrowded then
 			if self.RandomEncounterID == nil then
 				for actor in MovableMan.Actors do
-					if actor.Health > 0 and actor.Team == CF_PlayerTeam and self.Ship:IsInside(actor.Pos) then
+					if actor.Health > 0 and actor.Health < 100 and actor.Team == CF_PlayerTeam and self.Ship:IsInside(actor.Pos) then
 						actor.Health = 100
 					end
 				end
@@ -1094,7 +1094,7 @@ function VoidWanderers:UpdateActivity()
 				
 				if self.Time % 3 == 0 then
 					for actor in MovableMan.Actors do
-						if actor.ClassName == "AHuman" or actor.ClassName == "ACrab" then
+						if (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") and not actor:IsInGroup("Brains") then
 							if actor:IsInGroup("Heavy Infantry") then
 								actor.Health = actor.Health - math.random(2)
 							else
