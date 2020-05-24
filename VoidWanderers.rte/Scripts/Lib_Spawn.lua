@@ -462,13 +462,163 @@ function CF_MakeUnitFromPreset(c, p, pre)
 	
 	return actor, offset;
 end
+
+
+
+-----------------------------------------------------------------------------
+--	
+-----------------------------------------------------------------------------
+function CF_ReadPtsData(scene, ls)
+	local pts = {}
+
+	-- Create list of data objcets
+	-- Add generic mission types which must be present on any map
+	for i = 1, CF_GenericMissionCount do
+		pts[ CF_Mission[i] ] = {}
+	end
+	
+	for i = 1, #CF_LocationMissions[scene] do
+		pts[ CF_LocationMissions[scene][i] ] = {}
+	end
+
+	-- Load level data
+	for k1, v1 in pairs(pts) do
+		local msntype = k1
+		
+		--print (msntype)
+		
+		for k2 = 1, CF_MissionMaxSets[msntype] do -- Enum sets
+			local setnum = k2
+			
+			--print ("  "..setnum)
+		
+			for k3 = 1, #CF_MissionRequiredData[msntype] do -- Enum Point types
+				local pttype = CF_MissionRequiredData[msntype][k3]["Name"]
+
+				--print ("    "..pttype)
+				
+				--print (k3)
+				--print (msntype)
+				--print (pttype)
+				
+				for k4 = 1, CF_MissionRequiredData[msntype][k3]["Max"] do -- Enum points
+					local id = msntype..tostring(setnum)..pttype..tostring(k4)
+					
+					local x = ls[id.."X"]
+					local y = ls[id.."Y"]
+
+					if x ~= nil and y ~= nil then
+						if pts[msntype] == nil then
+							pts[msntype] = {}
+						end
+						if pts[msntype][setnum] == nil then
+							pts[msntype][setnum] = {}
+						end
+						if pts[msntype][setnum][pttype] == nil then
+							pts[msntype][setnum][pttype] = {}
+						end
+						if pts[msntype][setnum][pttype][k4] == nil then
+							pts[msntype][setnum][pttype][k4] = {}
+						end
+					
+						pts[msntype][setnum][pttype][k4] = Vector(tonumber(x), tonumber(y))
+					end
+				end
+			end
+		end
+	end
+
+	--print ("---")
+	
+	--[[for k,v in pairs(pts) do
+		print (k)
+		
+		for k2,v2 in pairs(v) do
+			print ("  " .. k2)
+			
+			for k3,v3 in pairs(v2) do
+				print ("    " ..k3)
+				
+				for k4,v4 in pairs(v3) do
+					print (k4)
+					print (v4)
+				end
+			end
+		end
+	end	--]]--
+	
+	return pts
+end
+-----------------------------------------------------------------------------
+--	Returns available points set for specified mission from pts array 
+-----------------------------------------------------------------------------
+function CF_GetRandomMissionPointsSet(pts, msntype)
+	local sets = {};
+	
+	for k, v in pairs(pts[msntype]) do
+		sets[#sets + 1] = k
+	end
+	
+	local r = math.random(#sets)
+	
+	return sets[r]
+end
+-----------------------------------------------------------------------------
+--	Returns int indexed array of vectors with available points of specified 
+--	mission type, points set and points type
+-----------------------------------------------------------------------------
+function CF_GetPointsArray(pts, msntype, setnum, ptstype)
+	local vectors = {};
+	
+	--print (msntype)
+	--print (setnum)
+	--print (ptstype)
+	
+	for k, v in pairs(pts[msntype][setnum][ptstype]) do
+		vectors[#vectors + 1] = v
+	end
+	
+	return vectors;
+end
+-----------------------------------------------------------------------------
+--	Returns array of n random points from array pts
+-----------------------------------------------------------------------------
+function CF_SelectRandomPoints(pts, n)
+	local res = {};
+	local isused = {}
+	local issued = 0
+	local retries
+	
+	-- If length of array = n then we don't need to find random and can simply return this array
+	if #pts == n then
+		return pts
+	else
+		-- Start selecting random values
+		for i = 1, #pts do
+			isused[i] = false;
+		end
+
+		local retries = 0
+	
+		while issued < n do
+			retries = retries + 1
+			local good = false
+			local r = math.random(#pts)
+			
+			if not isused[r] or retries > 50 then
+				isused[r] = true
+				good = true
+				issued = issued + 1
+				res[issued] = pts[r]
+			end
+		end
+	end
+	
+	return res;
+end
 -----------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------
-
-
-
-
 
 
 

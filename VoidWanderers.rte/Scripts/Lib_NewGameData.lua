@@ -76,6 +76,10 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 	config["Planet"] = CF_Planet[1]
 	config["Location"] = CF_Location[1]
 	
+	--Debug
+	config["Planet"] = "CC-11Y"
+	config["Location"] = "Ketanot Hills"
+	
 	local found = 0
 	
 	-- Find available player actor

@@ -20,6 +20,7 @@ function VoidWanderers:StartActivity()
 	dofile(LIB_PATH.."Panel_Ship.lua");
 	dofile(LIB_PATH.."Panel_Beam.lua");
 	dofile(LIB_PATH.."Panel_Storage.lua");
+	dofile(LIB_PATH.."Panel_LZ.lua");
 	
 	if TRANSFER_IN_PROGRESS == nil then
 		TRANSFER_IN_PROGRESS = false

@@ -2,41 +2,31 @@
 --
 -----------------------------------------------------------------------------------------
 function VoidWanderers:InitLZControlPanelUI()
+	self.LZControlPanelActor = {}
 
-	-- LZ Control Panel
-	local x,y;
-			
-	x = tonumber(self.LS["LZControlPanelX"])
-	y = tonumber(self.LS["LZControlPanelY"])
-	if x~= nil and y ~= nil then
-		self.LZControlPanelPos = Vector(x,y)
-	else
-		self.LZControlPanelPos = nil
-	end
-
-	-- Create actor
-	-- Ship
-	if self.LZControlPanelPos ~= nil then
-		if not MovableMan:IsActor(self.LZControlPanelActor) then
-			self.LZControlPanelActor = CreateActor("LZ Control Panel")
-			if self.LZControlPanelActor ~= nil then
-				self.LZControlPanelActor.Pos = self.LZControlPanelPos
-				self.LZControlPanelActor.Team = CF_PlayerTeam
-				MovableMan:AddActor(self.LZControlPanelActor)
+	for plr = 0 , self.PlayerCount - 1 do
+		-- Create actor
+		if not MovableMan:IsActor(self.LZControlPanelActor[plr + 1]) then
+			self.LZControlPanelActor[plr + 1] = CreateActor("LZ Control Panel")
+			--self.LZControlPanelActor[plr + 1] = CreateActor("Brain Case")
+			if self.LZControlPanelActor[plr + 1] ~= nil then
+				self.LZControlPanelActor[plr + 1].Pos = self.LZControlPanelPos[plr + 1]
+				self.LZControlPanelActor[plr + 1].Team = CF_PlayerTeam
+				MovableMan:AddActor(self.LZControlPanelActor[plr + 1])
 			end
 		end
-	end	
+		
+		print (self.LZControlPanelActor[plr + 1])
+	end
 end
 -----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
 function VoidWanderers:ProcessLZControlPanelUI()
-	local showidle = true
-
 	for plr = 0 , self.PlayerCount - 1 do
 		local act = self:GetControlledActor(plr);
 	
-		if MovableMan:IsActor(act) and act.PresetName == "LZ" then
+		if MovableMan:IsActor(act) and act.PresetName == "LZ Control Panel" then
 			showidle = false
 			
 			pos = self.LZControlPanelPos
@@ -47,7 +37,9 @@ function VoidWanderers:ProcessLZControlPanelUI()
 		end
 	end
 	
-	--if showidle and self.LZControlPanelPos ~= nil then
-	--	self:PutGlow("ControlPanel_LZ", self.LZControlPanelPos)
-	--end
+	if showidle and self.LZControlPanelPos ~= nil then
+		for i = 1, #self.LZControlPanelPos do
+			self:PutGlow("ControlPanel_LZ", self.LZControlPanelPos[i])
+		end
+	end
 end

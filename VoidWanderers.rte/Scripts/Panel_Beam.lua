@@ -2,7 +2,6 @@
 --
 -----------------------------------------------------------------------------------------
 function VoidWanderers:InitBeamControlPanelUI()
-
 	-- Beam Control Panel
 	local x,y;
 			
@@ -53,25 +52,39 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 			showidle = false
 			
 			local pos = self.BeamControlPanelPos
-			
+			local cont = act:GetController()
 			local canbeam = false
 			
+			local count = 0
+			for actor in MovableMan.Actors do
+				if self.BeamControlPanelBox:WithinBox(actor.Pos) then
+					--actor:FlashWhite(50)
+					-- Create particle eddect around actors
+					if self.TeleportEffectTimer:IsPastSimMS(50) then
+						for pp = 1, 3 do
+							local p = CreateMOSParticle("Tiny Blue Glow", self.ModuleName)
+							p.Pos = actor.Pos + Vector(-25 + math.random(50), 7 + math.random(7))
+							p.Vel = Vector(0,-2)
+							p.HitsMOs = false
+							p.GetsHitMyMOs = false
+							MovableMan:AddParticle(p)
+						end
+					end
+					
+					count = count + 1
+				end
+			end
+
 			-- Create teleport effects
 			if self.TeleportEffectTimer:IsPastSimMS(50) then
 				-- Create particle
 				local p = CreateMOSParticle("Tiny Blue Glow", self.ModuleName)
 				p.Pos = self.BeamControlPanelBox:GetRandomPoint()
 				p.Vel = Vector(0,-2)
+				p.HitsMOs = false
+				p.GetsHitMyMOs = false
 				MovableMan:AddParticle(p)
 				self.TeleportEffectTimer:Reset()
-			end
-			
-			local count = 0
-			for actor in MovableMan.Actors do
-				if self.BeamControlPanelBox:WithinBox(actor.Pos) then
-					actor:FlashWhite(50)
-					count = count + 1
-				end
 			end
 			
 			local locname = CF_LocationName[ self.GS["Location"] ]
@@ -124,7 +137,7 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 					self.DeployedActors = {}
 
 					-- Save actors to config and transfer them to scene
-					for actor in MovableMan:Actors() do
+					for actor in MovableMan.Actors do
 						if actor.PresetName ~= "Brain Case" and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") then
 							-- Save actors to config
 							self.GS["Actor"..savedactor.."Status"] = "Boarded"
@@ -145,7 +158,7 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 							-- These actors must be deployed
 							if self.BeamControlPanelBox:WithinBox(actor.Pos) then
 								self.GS["Actor"..savedactor.."Status"] = "Deployed"
-								local = n #self.DeployedActors + 1
+								local n =  #self.DeployedActors + 1
 								self.DeployedActors[n] = {}
 								self.DeployedActors[n]["Preset"] = actor.PresetName
 								self.DeployedActors[n]["Class"] = actor.ClassName
@@ -159,11 +172,12 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 					--Select scene
 					local r = math.random(#CF_LocationScenes[ self.GS["Location"] ])
 					local scene = CF_LocationScenes[ self.GS["Location"] ][r]
-
-					self:SaveGameState();
 					
 					-- Set new operating mode
 					self.GS["Mode"] = "Mission"
+					self.GS["SceneType"] = "Mission"					
+
+					self:SaveCurrentGameState();
 					
 					self:LaunchScript(scene, "Tactics.lua")
 				end
@@ -177,9 +191,6 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 			else
 				self:PutGlow("ControlPanel_Beam_ButtonRed", pos)
 			end
-			
-			
-			
 		end
 	end
 	

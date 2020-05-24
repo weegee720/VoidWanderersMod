@@ -68,7 +68,7 @@ function VoidWanderers:SceneButton_OnClick()
 	local el = self.MousePressedElement;
 	
 	self:FormClose();
-	SceneMan:LoadScene(self.UI[el]["Text"], false)
+	SceneMan:LoadScene(self.UI[el]["Text"], true)
 	self.SelectedLocationID = self.UI[el]["LocationID"]
 	dofile(BASE_PATH.."FormSceneEditor.lua")
 	self:FormLoad();

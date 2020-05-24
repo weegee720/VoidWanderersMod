@@ -24,7 +24,6 @@ function VoidWanderers:StartActivity()
 	self.TickTimer:Reset();
 	self.TickInterval = CF_TickInterval;
 	
-	
 	self.TeleportEffectTimer = Timer()
 	self.TeleportEffectTimer:Reset()
 	
@@ -63,56 +62,17 @@ function VoidWanderers:StartActivity()
 	
 	-- Spawn mission objects
 	if self.GS["Mode"] == "Mission" then
-		-- Data array will be indexed Data[mission][]
-		self.MissionTypes = {}
-		self.Pts = {}
-		
-		-- Create list of data objcets
-		-- Add generic mission types which must be present on any map
-		self.MissionTypes[1] = "Deploy"
-		self.MissionTypes[2] = "Enemy"
-		
-		for i = 1, #CF_LocationMissions[self.SelectedLocationID] do
-			self.MissionTypes[CF_GenericMissionCount + i] = CF_LocationMissions[self.SelectedLocationID][i]
-		end
-	
-		-- Load level data
-		for k1 = 1, #self.MissionTypes do
-			local msntype = self.MissionTypes[k1]
-			
-			for k2 = 1, CF_MissionMaxSets[msntype] do
-			
-				for k3 = 1, #CF_MissionRequiredData[msntype] do
-					local pttype = CF_MissionRequiredData[msntype][k3]["Name"]
-					
-					for k4 = 1, CF_MissionRequiredData[msntype][k3]["Max"] do
-						local id = msntype..tostring(k2)..pttype..tostring(k4)
-						
-						local x = self.LS[id.."X"]
-						local y = self.LS[id.."Y"]
+		local scene = SceneMan.Scene.PresetName
 
-						if x ~= nil and y ~= nil then
-							if self.Pts[msntype] == nil then
-								self.Pts[msntype] = {}
-							end
-							if self.Pts[msntype][k2] == nil then
-								self.Pts[msntype][k2] = {}
-							end
-							if self.Pts[msntype][k2][k3] == nil then
-								self.Pts[msntype][k2][k3] = {}
-							end
-							if self.Pts[msntype][k2][k3][k4] == nil then
-								self.Pts[msntype][k2][k3][k4] = {}
-							end
-						
-							self.Pts[msntype][k2][k3][k4] = Vector(tonumber(x), tonumber(y))
-						end
-					end
-				end
-			end
-		end
+		self.Pts =  CF_ReadPtsData(scene, self.LS)
+		local set = CF_GetRandomMissionPointsSet(self.Pts, "Deploy")
 	
 		-- Find suitable LZ's
+		local lzs = CF_GetPointsArray(self.Pts, "Deploy", set, "PlayerLZ")
+		self.LZControlPanelPos  = CF_SelectRandomPoints(lzs, self.PlayerCount)
+		
+		-- Init LZ's
+		self:InitLZControlPanelUI()
 	end
 	
 	-- Load pre-spawned enemy locations. These locations also used during assaults to place teleported units
@@ -155,7 +115,7 @@ function VoidWanderers:StartActivity()
 	self:SaveCurrentGameState();
 	
 	-- Init consoles if in Vessel mode
-	if self.GS["Mode"] == "Vessel" then
+	if self.GS["Mode"] == "Vessel" and self.GS["SceneType"] == "Vessel" then
 		self:InitConsoles()
 	end
 
@@ -444,11 +404,15 @@ function VoidWanderers:UpdateActivity()
 	end
 	
 	-- After assault prevent friendly bleeding units from dying
-	if self.GS["Mode"] == "Assault" then
+	if self.GS["Mode"] == "Vessel" then
 		for actor in MovableMan.Actors do
 			actor.Health = 100
 		end
 	end
+	
+	--for actor in MovableMan.Actors do
+	--	print (actor)
+	--end
 	
 	self:DoBrainSelection()
 	self:CheckWinningConditions();
@@ -505,6 +469,13 @@ function VoidWanderers:DoBrainSelection()
 				if newBrain then
 					self:SetPlayerBrain(newBrain, player);
 					self:SwitchToActor(newBrain, player, team);
+					
+					-- Looks like a brain actor can't become a brain actor if it can't hit MO's
+					-- so we'll define LZ actors as hittable but then change this once our brains are assigned to cheat
+					if newBrain.PresetName == "LZ Control Panel" then
+						newBrain.HitsMOs = false
+						newBrain.GetsHitByMOs = false
+					end
 					
 					if team == CF_PlayerTeam then
 						self.PlayerBrainDead = false
