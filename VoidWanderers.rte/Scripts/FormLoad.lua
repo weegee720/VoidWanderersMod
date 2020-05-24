@@ -57,7 +57,13 @@ function VoidWanderers:FormLoad()
 			if not isbroken then
 				self.Slots[i]["Faction"] = CF_FactionNames[config["Player0Faction"]];
 				self.Slots[i]["Gold"] = config["Player0Gold"];
-				self.Slots[i]["Time"] = config["Time"];
+				
+				local tm = tonumber(config["Time"]);
+				if tm > 3600 then
+					tm = tostring(math.floor(tm / 3600)).." Hrs"
+				end
+				
+				self.Slots[i]["Time"] = tm
 				self.Slots[i]["Reason"] = reason
 				self.Slots[i]["Planet"] = CF_PlanetName[ config["Planet"] ]
 				self.Slots[i]["TimeStamp"] = config["TimeStamp"];

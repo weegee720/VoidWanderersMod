@@ -1,4 +1,4 @@
-function do_create(self)
+function do_rpgbrain_create(self)
 	-- Set up constants
 	self.DistPerPower = 75
 	self.CoolDownInterval = 4000
@@ -46,15 +46,33 @@ function do_create(self)
 		-- Calculate actor base power
 		local s = self.ThisActor.PresetName
 		local pos = string.find(s ,"RPG Brain Robot");
-		if pos == 1 then
-			local bplr = tonumber(string.sub(s, string.len(s), string.len(s) ))
+		if pos ~= nil and pos == 1 then
+			if CF_GS ~= nil and self.ThisActor.Team == 0 then
+				--print ("GS")
+				local bplr = tonumber(string.sub(s, string.len(s), string.len(s) ))
+				
+				self.TelekinesisLvl = tonumber(CF_GS["Brain".. bplr .."Telekinesis"])
+				self.ShieldLvl = tonumber(CF_GS["Brain".. bplr .."Field"])
+				
+				self.MaxHealth = 100 + tonumber(CF_GS["Brain".. bplr .."Level"])
+				self.RegenInterval = 1500 - tonumber(CF_GS["Brain".. bplr .."Level"]) * 10
+			else
+				--print ("Preset")
+				local pos = string.find(s ,"SHLD");
+				if pos ~= nil then
+					self.ShieldLvl = tonumber(string.sub(s, string.len(s), string.len(s) ))
+				end
 			
-			self.TelekinesisLvl = tonumber(CF_GS["Brain".. bplr .."Telekinesis"])
-			self.ShieldLvl = tonumber(CF_GS["Brain".. bplr .."Field"])
-			
-			self.MaxHealth = 100 + tonumber(CF_GS["Brain".. bplr .."Level"])
-			self.RegenInterval = 1500 - tonumber(CF_GS["Brain".. bplr .."Level"]) * 10
+				local pos = string.find(s ,"TLKN");
+				if pos ~= nil then
+					self.TelekinesisLvl = tonumber(string.sub(s, string.len(s), string.len(s) ))
+				end
+			end
 		end
+		
+		--print (self.ThisActor.PresetName)
+		--print ("Sheild: "..self.ShieldLvl)
+		--print ("Kinesis: "..self.TelekinesisLvl)
 		
 		if self.ShieldLvl > 0 then
 			self.ShieldEnabled = true
@@ -91,6 +109,9 @@ function do_create(self)
 			if G_VW_Pressure == nil then
 				G_VW_Pressure = {}
 			end
+			if G_VW_Power == nil then
+				G_VW_Power = {}
+			end
 			if G_VW_Timer == nil then
 				G_VW_Timer = Timer()
 				G_VW_ThisFrameTime = 0
@@ -102,9 +123,46 @@ function do_create(self)
 			G_VW_ShieldRadius = 150
 			G_VW_MinVelocity = 10
 			
-			G_VW_Shields[#G_VW_Shields + 1] = self.ThisActor
-			G_VW_Active[#G_VW_Shields] = true
-			G_VW_Pressure[#G_VW_Shields] = 0
+			local shld = #G_VW_Shields + 1
+			
+			G_VW_Shields[shld] = self.ThisActor
+			G_VW_Active[shld] = true
+			G_VW_Pressure[shld] = 0
+			G_VW_Power[shld] = self.ShieldLvl
+			
+			-- Remove inactive shields from the global list
+			local shields ={}
+			local active = {}
+			local pressure = {}
+			local power = {}
+			
+			local j = 0
+			
+			for i = 1, #G_VW_Shields do
+				-- Remove shield duplicates
+				for ii = 1, i - 1 do
+					if MovableMan:IsActor(G_VW_Shields[ii]) and MovableMan:IsActor(G_VW_Shields[i]) then
+						if G_VW_Shields[ii].ID == G_VW_Shields[i].ID then
+							G_VW_Active[ii] = false
+						end
+					end
+				end
+			
+				if G_VW_Active[i] then
+					j = j + 1
+					shields[j] = G_VW_Shields[i]
+					active[j] = G_VW_Active[i]
+					pressure[j] = G_VW_Pressure[i]
+					power[j] = G_VW_Power[i]
+				end
+			end
+			
+			G_VW_Shields = shields
+			G_VW_Active = active
+			G_VW_Pressure = pressure
+			G_VW_Power = power--]]--
+			
+			print ("Shield count: "..#G_VW_Shields)
 		end
 	else 
 		--print (self.ThisActor)

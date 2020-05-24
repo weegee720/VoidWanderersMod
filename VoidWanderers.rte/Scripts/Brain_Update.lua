@@ -1,4 +1,4 @@
-function do_shield()
+function do_rpgbrain_shield()
 	local radius = 0
 	local dist = 0
 	local glownum =0
@@ -12,27 +12,30 @@ function do_shield()
 	local n = 0
 	
 	local depressure = false
-	if G_VW_DepressureTimer:IsPastSimMS(75) then
+	-- Looks like global timers will show negative values, generated during previous activty run or something
+	if G_VW_DepressureTimer.ElapsedSimTimeMS < 0 then
+		G_VW_DepressureTimer:Reset()
+	end
+	
+	if G_VW_DepressureTimer:IsPastSimMS(25) then
 		depressure = true
 		G_VW_DepressureTimer:Reset()
 	end
 	
 	for i = 1, #G_VW_Active do
-		if G_VW_Active[i] and MovableMan:IsActor(G_VW_Shields[i]) and G_VW_Shields[i].Health > 0 then
+		if G_VW_Active[i] and MovableMan:IsActor(G_VW_Shields[i]) and G_VW_Shields[i].Health > 0 and G_VW_Shields[i]:IsInGroup("Brains") and string.find(G_VW_Shields[i].PresetName ,"RPG Brain Robot") ~= nil then
 			n = #shields + 1
 		
 			shields[n] = G_VW_Shields[i]
 			active[n] = true
 			
-			--print (G_VW_Pressure[i])
-			
-			rads[n] = G_VW_ShieldRadius * G_VW_Shields[i].Health / 100 - G_VW_Pressure[i] / 10
+			rads[n] = G_VW_ShieldRadius - G_VW_Pressure[i] / 10
 			
 			if rads[n] < 0 then
 				rads[n] = 0
 			end
 			
-			if G_VW_Pressure[i] > 7 then
+			if G_VW_Pressure[i] > 7 and rads[n] > 5 then
 				for i = 1, 4 do
 					local a = math.random(360) / (180 / 3.14)
 					local pos = shields[n].Pos + Vector(math.cos(a) * rads[n], math.sin(a) * rads[n])
@@ -44,13 +47,14 @@ function do_shield()
 
 			pressure[n] = G_VW_Pressure[i]
 			if depressure then
-				pressure[n] = G_VW_Pressure[i] - 5--G_VW_Pressure[i] * 0.01
+				--pressure[n] = G_VW_Pressure[i] - G_VW_Pressure[i] * (0.020 * G_VW_Power[i])
+				pressure[n] = G_VW_Pressure[i] - 3 * G_VW_Power[i]
 				if pressure[n] < 0 then
 					pressure[n] = 0
 				end
 			end
 			
-			CF_DrawString(tostring(math.ceil(G_VW_Pressure[i])), shields[n].Pos + Vector(0,-50), 200, 200)
+			--CF_DrawString(tostring(math.ceil(G_VW_Pressure[i])), shields[n].Pos + Vector(0,-50), 200, 200)
 		else
 			G_VW_Active[i] = false;
 		end
@@ -72,10 +76,10 @@ function do_shield()
 						
 						radius = rads[i]
 					
-						if dist <= radius and dist > radius * 0.5 then
+						if dist <= radius and dist > radius * 0.50 then
 							pr = pr + (p.Mass * p.Vel.Magnitude)
 						
-							if math.random(2) == 1 then
+							if math.random(3) == 1 then
 								glownum = math.floor(p.Vel.Magnitude / 5)
 							
 								if glownum > 20 then
@@ -87,7 +91,7 @@ function do_shield()
 								end
 							end
 						
-							p.Vel = p.Vel - Vector(p.Vel.X * 0.45, p.Vel.Y * 0.45)
+							p.Vel = p.Vel - Vector(p.Vel.X * 0.75, p.Vel.Y * 0.75)
 						end
 					end
 				else
@@ -100,7 +104,7 @@ function do_shield()
 	end
 end
 
-function do_update(self)
+function do_rpgbrain_update(self)
 	-- Don't do anything when in edit mode
 	if ActivityMan:GetActivity().ActivityState ~= Activity.RUNNING then
 		return
@@ -112,7 +116,7 @@ function do_update(self)
 		-- get current timer value
 		if G_VW_ThisFrameTime ~= G_VW_Timer.ElapsedSimTimeMS then
 			G_VW_ThisFrameTime = G_VW_Timer.ElapsedSimTimeMS;
-			do_shield()
+			do_rpgbrain_shield()
 			--print ("Do "..G_VW_Timer.ElapsedSimTimeMS)
 		else
 			--print ("Skip "..G_VW_Timer.ElapsedSimTimeMS)

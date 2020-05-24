@@ -38,8 +38,15 @@ function VoidWanderers:ProcessBrainControlPanelUI()
 						bplr = b
 					end
 				end
-
-				local rb = CreateAHuman("RPG Brain Robot LVL1 PLR"..bplr)
+				
+				local tough = tonumber(self.GS["Brain"..plr.."Tougness"])
+				if tough < 0 then
+					tough = 0
+				elseif tough > 5 then
+					tough = 5
+				end
+				
+				local rb = CreateAHuman("RPG Brain Robot LVL"..tough.." PLR"..bplr)
 				if rb then
 					rb.Team = CF_PlayerTeam
 					rb.Pos = act.Pos + Vector(0,46)
