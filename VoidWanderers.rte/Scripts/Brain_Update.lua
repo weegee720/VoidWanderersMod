@@ -29,17 +29,26 @@ function do_rpgbrain_shield()
 			shields[n] = G_VW_Shields[i]
 			active[n] = true
 			
-			--rads[n] = G_VW_ShieldRadius - G_VW_Pressure[i] / 10
 			rads[n] = (100 + (G_VW_Power[i] - 1) * G_VW_ShieldRadiusPerPower) - (G_VW_Pressure[i] / 10)
 			
 			if rads[n] < 0 then
 				rads[n] = 0
 			end
 			
-			if G_VW_Pressure[i] > 7 and rads[n] > 5 then
-				for i = 1, 4 do
+			if G_VW_Pressure[i] > 7 then
+				if rads[n] > 5 then
+					for i = 1, 4 do
+						local a = math.random(360) / (180 / math.pi)
+						--a = 0 / (180 / math.pi)
+						local pos = shields[n].Pos + Vector(math.cos(a) * rads[n], math.sin(a) * rads[n])
+						if SceneMan:GetTerrMatter(pos.X, pos.Y) == 0 then
+							VoidWanderersRPG_AddEffect(pos, "Purple Glow 1")
+						end
+					end
+				else
 					local a = math.random(360) / (180 / math.pi)
-					local pos = shields[n].Pos + Vector(math.cos(a) * rads[n], math.sin(a) * rads[n])
+					local r = math.random(50)
+					local pos = shields[n].Pos + Vector(math.cos(a) * r, math.sin(a) * r)
 					if SceneMan:GetTerrMatter(pos.X, pos.Y) == 0 then
 						VoidWanderersRPG_AddEffect(pos, "Purple Glow 1")
 					end
@@ -48,12 +57,12 @@ function do_rpgbrain_shield()
 
 			pressure[n] = G_VW_Pressure[i]
 			if depressure then
-				--pressure[n] = G_VW_Pressure[i] - G_VW_Pressure[i] * (0.020 * G_VW_Power[i])
 				pressure[n] = G_VW_Pressure[i] - 3 * G_VW_Power[i]
 				if pressure[n] < 0 then
 					pressure[n] = 0
 				end
 			end
+			--pressure[n] = 15000
 			
 			--CF_DrawString(tostring(math.ceil(G_VW_Pressure[i])), shields[n].Pos + Vector(0,-50), 200, 200)
 		else
@@ -73,44 +82,46 @@ function do_rpgbrain_shield()
 		G_VW_Switch = 0
 	end
 	
+	local effectcount = 0
 	for p in MovableMan.Particles do
 		counter = counter + 1
 	
 		if counter % 2 == G_VW_Switch and p.HitsMOs and p.Vel.Magnitude >= G_VW_MinVelocity then
+			tobreak = false
 			for i = 1, #G_VW_Shields do
-				s = G_VW_Shields[i]
-				pr = G_VW_Pressure[i]
-			
 				if G_VW_Active[i] then
-					if G_VW_Shields[i].Team ~= p.Team then
-						dist = SceneMan:ShortestDistance(s.Pos , p.Pos,true).Magnitude
-						
-						radius = rads[i]
+					radius = rads[i]
+
+					if radius > 5 then
+						s = G_VW_Shields[i]
 					
-						if dist <= radius and dist > radius * 0.1 then
-							pr = pr + (p.Mass * p.Vel.Magnitude)
-						
-							if math.random(3) == 1 then
-								glownum = math.floor(p.Vel.Magnitude / 5)
+						if G_VW_Shields[i].Team ~= p.Team then
+							pr = G_VW_Pressure[i]
+							dist = SceneMan:ShortestDistance(s.Pos , p.Pos,true).Magnitude
 							
-								if glownum > 20 then
-									glownum = 20
-								end
+							if dist <= radius and dist > radius * 0.1 then
+								pr = pr + (p.Mass * p.Vel.Magnitude)
+							
+								if effectcount < 10 then
+									glownum = math.floor(p.Vel.Magnitude / 10)
 								
-								if glownum >= 1 then
-									VoidWanderersRPG_AddEffect(p.Pos, "Purple Glow "..tostring(glownum))
+									if glownum > 20 then
+										glownum = 20
+									end
+									
+									if glownum >= 1 then
+										VoidWanderersRPG_AddEffect(p.Pos, "Purple Glow "..tostring(glownum))
+										effectcount = effectcount + 1
+									end
 								end
+							
+								p.Vel = Vector(p.Vel.X * 0.001, p.Vel.Y * 0.001)
 							end
-						
-							--p.Vel = p.Vel - Vector(p.Vel.X * 0.95, p.Vel.Y * 0.95)
-							p.Vel = Vector(p.Vel.X * 0.001, p.Vel.Y * 0.001)
+							G_VW_Pressure[i] = pr
+							break
 						end
 					end
-				else
-					G_VW_Active[i] = false
 				end
-				
-				G_VW_Pressure[i] = pr
 			end
 		end
 	end
@@ -390,9 +401,7 @@ function do_rpgbrain_update(self)
 			end
 			
 			if glownum > 0 then
-				local pix = CreateMOPixel("Purple Glow "..glownum);
-				pix.Pos = self.Pos + Vector(1, -2)
-				MovableMan:AddParticle(pix);
+				VoidWanderersRPG_AddEffect(self.Pos, "Purple Glow "..glownum)				
 			end
 		end
 		
@@ -477,7 +486,7 @@ function do_rpgbrain_pda(self)
 	self.SkillTargetActor = nil
 	
 	-- Detect nearby target actor
-	if self.ActiveMenu[self.SelectedMenuItem]["ActorDetectRange"] ~= nil then
+	if #self.ActiveMenu > 0 and self.ActiveMenu[self.SelectedMenuItem]["ActorDetectRange"] ~= nil then
 		local dist = self.ActiveMenu[self.SelectedMenuItem]["ActorDetectRange"]
 		local a = nil
 
@@ -577,7 +586,7 @@ function do_rpgbrain_pda(self)
 		local s = "NO SKILLS"
 		local l = CF_GetStringPixelWidth(s)
 		
-		CF_DrawString(s, pos + Vector(-l / 2, -80), 100 , 8)
+		CF_DrawString(s, pos + Vector(-l / 2, 2), 100 , 8)
 	else
 		for i = self.MenuItemsListStart, self.MenuItemsListStart + 6 - 1 do
 			if i <= #self.ActiveMenu then

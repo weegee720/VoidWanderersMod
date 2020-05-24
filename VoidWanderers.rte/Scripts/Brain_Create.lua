@@ -336,7 +336,7 @@ function do_rpgbrain_create(self)
 end
 
 function VoidWanderersRPG_AddEffect(pos, preset)
-	local pix = CreateMOPixel(preset);
+	local pix = CreateMOPixel(preset, "VoidWanderers.rte");
 	pix.Pos = pos
 	MovableMan:AddParticle(pix);
 end

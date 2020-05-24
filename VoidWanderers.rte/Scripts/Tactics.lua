@@ -635,27 +635,29 @@ function VoidWanderers:TriggerShipAssault()
 		end
 	end
 	
-	self.AssaultEnemyPlayer = angry[math.random(#angry)]
-	
-	local rep = tonumber(self.GS["Player"..self.AssaultEnemyPlayer.."Reputation"])
-	
-	self.AssaultDifficulty = math.floor(math.abs(rep / CF_ReputationPerDifficulty))
-	
-	if self.AssaultDifficulty <= 0 then
-		self.AssaultDifficulty = 1
-	end
-	
-	if self.AssaultDifficulty > CF_MaxDifficulty then
-		self.AssaultDifficulty = CF_MaxDifficulty
-	end
-	
-	local r = math.random(CF_MaxDifficulty * 50)
-	local tgt = ((CF_MaxDifficulty - self.AssaultDifficulty) * 4) + 10
-	
-	print (CF_GetPlayerFaction(self.GS, self.AssaultEnemyPlayer).." D - "..self.AssaultDifficulty.." R - "..r.." TGT - "..tgt)
-	
-	if r < tgt then
-		toassault = true
+	if #angry > 0 then
+		self.AssaultEnemyPlayer = angry[math.random(#angry)]
+		
+		local rep = tonumber(self.GS["Player"..self.AssaultEnemyPlayer.."Reputation"])
+		
+		self.AssaultDifficulty = math.floor(math.abs(rep / CF_ReputationPerDifficulty))
+		
+		if self.AssaultDifficulty <= 0 then
+			self.AssaultDifficulty = 1
+		end
+		
+		if self.AssaultDifficulty > CF_MaxDifficulty then
+			self.AssaultDifficulty = CF_MaxDifficulty
+		end
+		
+		local r = math.random(CF_MaxDifficulty * 50)
+		local tgt = ((CF_MaxDifficulty - self.AssaultDifficulty) * 4) + 10
+		
+		print (CF_GetPlayerFaction(self.GS, self.AssaultEnemyPlayer).." D - "..self.AssaultDifficulty.." R - "..r.." TGT - "..tgt)
+		
+		if r < tgt then
+			toassault = true
+		end
 	end
 	
 	--toassault = false -- DEBUG
