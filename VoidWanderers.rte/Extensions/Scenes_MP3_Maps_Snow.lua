@@ -4,15 +4,7 @@
 	Supported out of the box
 ]]--
 
--- Integrity checks
-local extension = "Scenes_MP3_Maps_Snow" 
-local modules = {"Maps - Snow.rte"}
-
-for m = 1, #modules do
-	if PresetMan:GetModuleID(modules[m]) == -1 then
-		error (extension..": ".."Can't  load module - "..modules[m])
-	end
-end
+if PresetMan:GetModuleID("Maps - Snow.rte") ~= -1 then
 
 -- Define planet
 local id = "MP3-GTC-SNW"
@@ -108,5 +100,5 @@ CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Cold Slabs"}
 CF_LocationPlanet[id] = "MP3-GTC-SNW"
 CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy", "Squad"}
-
+end
 

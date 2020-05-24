@@ -711,7 +711,6 @@ function VoidWanderers:TriggerShipAssault()
 				end
 			end
 			
-			--id = "TEST" -- DEBUG
 			--id = "PIRATE_GENERIC" -- DEBUG
 			--id = "ABANDONED_VESSEL_GENERIC"  -- DEBUG
 			--id = "HOSTILE_DRONE" -- DEBUG
@@ -930,6 +929,7 @@ function VoidWanderers:UpdateActivity()
 		self:ProcessClonesControlPanelUI()
 		self:ProcessStorageControlPanelUI()
 		self:ProcessBrainControlPanelUI()
+		self:ProcessTurretsControlPanelUI()
 		
 		-- Auto heal all actors when not in combat or random encounter
 		if not self.OverCrowded then
@@ -962,7 +962,6 @@ function VoidWanderers:UpdateActivity()
 			self:ProcessBeamControlPanelUI()
 			self:ProcessItemShopControlPanelUI()
 			self:ProcessCloneShopControlPanelUI()
-			self:ProcessTurretsControlPanelUI()
 		end
 		
 		-- Launch defense activity

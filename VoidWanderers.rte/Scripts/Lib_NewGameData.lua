@@ -60,7 +60,7 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 	config["Player0Gold"] = math.floor(4000 * PositiveIndex)
 	
 	-- Assign player ship
-	config["Player0Vessel"] = "Gryphon"
+	config["Player0Vessel"] = "Lynx"
 	--config["Player0Vessel"] = "Titan" -- DEBUG
 	--config["Player0Vessel"] = "Ager 9th" -- DEBUG
 	

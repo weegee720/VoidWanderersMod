@@ -1338,6 +1338,13 @@ function VoidWanderers:ProcessShipControlPanelUI()
 						if ok then
 							-- Pay
 							CF_SetPlayerGold(self.GS, 0, CF_GetPlayerGold(self.GS, 0) - total)
+							
+							-- Clear turrets pos
+							local count = tonumber(self.GS["Player0VesselTurrets"])
+							for i = 1, count do
+								self.GS["Turret"..i.."X"] = nil
+								self.GS["Turret"..i.."Y"] = nil
+							end
 						
 							-- Assign new ship
 							self.GS["Player0Vessel"] = id

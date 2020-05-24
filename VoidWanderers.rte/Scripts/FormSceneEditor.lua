@@ -66,6 +66,8 @@ function VoidWanderers:FormLoad()
 		self.Data[i]["Name"] = CF_Mission[i]
 	end
 	
+	print (self.SelectedLocationID)
+	
 	for i = 1, #CF_LocationMissions[self.SelectedLocationID] do
 		self.Data[CF_GenericMissionCount + i] = {}
 		self.Data[CF_GenericMissionCount + i]["Name"] = CF_LocationMissions[self.SelectedLocationID][i]
