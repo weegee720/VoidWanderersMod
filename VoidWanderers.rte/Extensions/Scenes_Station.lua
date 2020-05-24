@@ -13,6 +13,6 @@ CF_Location[#CF_Location + 1] = id
 CF_LocationName[id] = "TradeStar Pier #792"
 CF_LocationPos[id] = nil
 CF_LocationSecurity[id] = 0
-CF_LocationScene[id] = "TradeStar Pier #792"
+CF_LocationScenes[id] = {"TradeStar Pier #792"}
 CF_LocationPlanet[id] = "TradeStar"
 CF_LocationPlayable[id] = false

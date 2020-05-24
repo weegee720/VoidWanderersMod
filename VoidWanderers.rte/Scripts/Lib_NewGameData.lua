@@ -31,16 +31,16 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 		NegativeIndex = 1.0;
 		
 	elseif difficulty <= GameActivity.HARDDIFFICULTY then
-		PositiveIndex = 0.85;
-		NegativeIndex = 1.15;	
+		PositiveIndex = 0.90;
+		NegativeIndex = 1.10;	
 		
 	elseif difficulty <= GameActivity.NUTSDIFFICULTY then
-		PositiveIndex = 0.70;
-		NegativeIndex = 1.3;
+		PositiveIndex = 0.80;
+		NegativeIndex = 1.20;
 		
 	elseif difficulty <= GameActivity.MAXDIFFICULTY then
-		PositiveIndex = 0.55;
-		NegativeIndex = 1.45;
+		PositiveIndex = 0.70;
+		NegativeIndex = 1.30;
 		
 	end			
 	
@@ -68,7 +68,7 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 	config["Player0VesselClonesCapacity"] = CF_VesselStartClonesCapacity[ config["Player0Vessel"] ]
 
 	config["Player0VesselLifeSupport"] = CF_VesselStartLifeSupport[ config["Player0Vessel"] ]
-
+	config["Player0VesselCommunication"] = CF_VesselStartCommunication[ config["Player0Vessel"] ]
 	
 	config["Time"] = 1
 	

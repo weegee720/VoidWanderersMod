@@ -10,7 +10,7 @@ function CF_InitExtensionsData(activity)
 	CF_LocationName = {}
 	CF_LocationPos = {}
 	CF_LocationSecurity = {}
-	CF_LocationScene = {}
+	CF_LocationScenes = {}
 	CF_LocationPlanet = {}
 	CF_LocationMissions = {}
 	CF_LocationPlayable = {} -- Used by scene editor to discard service locations
@@ -41,9 +41,6 @@ function CF_InitExtensionsData(activity)
 	CF_VesselStartCommunication = {}
 
 	CF_VesselMaxFuel = {}
-	
-	-- Mission types data
-	CF_DataTypes = {VECTOR = 1, BOX = 2, MULTIBOX = 3}
 	
 	CF_Mission = {}
 	
