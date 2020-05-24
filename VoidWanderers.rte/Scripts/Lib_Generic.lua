@@ -13,6 +13,8 @@ function CF_InitFactions(activity)
 	CF_MOIDLimit = 220;
 	CF_ModuleName = "VoidWanderers.rte"
 	
+	CF_UseCustomAI = true
+	
 	-- When enabled UL2 will use special rendering techniques to improve UI rendering
 	-- performance on weaker machines. Some artifacts may appear though.
 	CF_LowPerformance = false

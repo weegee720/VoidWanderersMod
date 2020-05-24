@@ -447,16 +447,6 @@ function VoidWanderers:SpawnFromTable()
 	end
 end
 -----------------------------------------------------------------------------------------
--- Pause Activity
------------------------------------------------------------------------------------------
-function VoidWanderers:PauseActivity(pause)
-end
------------------------------------------------------------------------------------------
--- End Activity
------------------------------------------------------------------------------------------
-function VoidWanderers:EndActivity()
-end
------------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
 function VoidWanderers:ClearActors()
@@ -514,6 +504,10 @@ function VoidWanderers:UpdateActivity()
 	end
 
 	self:ClearObjectivePoints();
+
+	if self.WasPaused then
+		self:RestoreAI()
+	end
 	
 	-- Clear player's money to avoid buying via Trade Star
 	local gold2add = self:GetTeamFunds(CF_PlayerTeam);

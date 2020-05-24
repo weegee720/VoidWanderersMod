@@ -2,6 +2,8 @@ function VoidWanderers:StartActivity()
 	self.ModuleName = "VoidWanderers.rte";
 	self.IsInitialized = false;
 
+	self.WasPaused = false
+	
 	LAUNCH_MISSION_PACK = nil;
 	STATE_CONFIG_FILE = "current.dat"
 	
@@ -21,6 +23,11 @@ function VoidWanderers:StartActivity()
 	dofile(LIB_PATH.."Panel_Beam.lua");
 	dofile(LIB_PATH.."Panel_Storage.lua");
 	dofile(LIB_PATH.."Panel_LZ.lua");
+	
+	-- Load custom AI
+	if CF_UseCustomAI then
+		dofile(LIB_PATH.."AI_Human.lua")
+	end
 	
 	if TRANSFER_IN_PROGRESS == nil then
 		TRANSFER_IN_PROGRESS = false
@@ -75,6 +82,24 @@ end
 -----------------------------------------------------------------------------------------
 function VoidWanderers:PauseActivity(pause)
     print("PAUSE! -- VoidWanderers:PauseActivity()!");
+	
+	-- Restore original AI
+	if Original_HumanBehaviors ~= nil then
+		HumanBehaviors = Original_HumanBehaviors
+	end
+	self.WasPaused = true
+	
+	print ("Original AI restored")
+end
+-----------------------------------------------------------------------------------------
+-- Restore cripled AI
+-----------------------------------------------------------------------------------------
+function VoidWanderers:RestoreAI()
+	if Custom_HumanBehaviors ~= nil and not self:Paused()  then
+		print ("Custom AI restored")
+		HumanBehaviors = Custom_HumanBehaviors
+		self.WasPaused = false
+	end
 end
 -----------------------------------------------------------------------------------------
 -- End Activity

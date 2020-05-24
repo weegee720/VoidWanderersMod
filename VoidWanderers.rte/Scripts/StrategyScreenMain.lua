@@ -141,16 +141,6 @@ function VoidWanderers:StartActivity()
 	self.IsInitialized = true	
 end
 -----------------------------------------------------------------------------------------
--- Pause Activity
------------------------------------------------------------------------------------------
-function VoidWanderers:PauseActivity(pause)
-end
------------------------------------------------------------------------------------------
--- End Activity
------------------------------------------------------------------------------------------
-function VoidWanderers:EndActivity()
-end
------------------------------------------------------------------------------------------
 -- 
 -----------------------------------------------------------------------------------------
 function VoidWanderers:ClearMessages()
@@ -389,6 +379,10 @@ function VoidWanderers:UpdateActivity()
 	end
 
 	self:ClearObjectivePoints();
+	
+	if self.WasPaused then
+		self:RestoreAI()
+	end
 	
 	--Read standard input, ugly but at least it will be operational if mouse fail for
 	-- whatever reason
