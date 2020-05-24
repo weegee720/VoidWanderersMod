@@ -80,7 +80,6 @@ function CF_GetStorageArray(gs, makefilters)
 end
 -----------------------------------------------------------------------------------------
 --	
---	
 -----------------------------------------------------------------------------------------
 function CF_GetItemShopArray(gs, makefilters)
 	local arr = {}
@@ -168,6 +167,131 @@ end
 -----------------------------------------------------------------------------------------
 --	
 -----------------------------------------------------------------------------------------
+function CF_GetItemBlackMarketArray(gs, makefilters)
+	-- Find out if we need to create a list of available items for this black market
+	local loc = gs["Location"]
+	local tocreate = false
+	
+	if gs["BlackMarket"..loc.."ItemsLastRefresh"] == nil then
+		tocreate = true
+	else
+		local last = tonumber(gs["BlackMarket"..loc.."ItemsLastRefresh"])
+		
+		if last + CF_BlackMarketRefreshInterval < tonumber(gs["Time"]) then
+			tocreate = true
+		end
+	end
+
+	arr = {}
+	
+	--tocreate = true -- DEBUG
+	
+	-- Create list of items available in blackmarket
+	if tocreate then
+		local count = 0
+	
+		for i = 1, tonumber(gs["ActiveCPUs"]) do
+			local f = CF_GetPlayerFaction(gs, i)
+		
+			for itm = 1, #CF_ItmNames[f] do
+				local isduplicate = false
+				
+				for j = 1, #arr do
+					if CF_ItmDescriptions[f][itm] == arr[j]["Description"] then
+						isduplicate = true
+					end
+				end--]]--
+			
+				if CF_ItmPowers[f][itm] > 6 and math.random() < 0.15 and not isduplicate then
+					count = count + 1
+					gs["BlackMarket"..loc.."Item"..count.."Faction"] = f
+					gs["BlackMarket"..loc.."Item"..count.."Index"] = itm
+					
+					-- Store descriptions to get rid of duplicates
+					arr[count] = {}
+					arr[count]["Description"] = CF_ItmDescriptions[f][itm]
+				end
+			end
+		end
+		
+		gs["BlackMarket"..loc.."ItemCount"] = count
+		gs["BlackMarket"..loc.."ItemsLastRefresh"] = gs["Time"]
+	end
+	
+	-- Fill array
+	local count = tonumber(gs["BlackMarket"..loc.."ItemCount"])
+	arr = nil
+	arr = {}
+	
+	for i = 1, count do
+		local ii = #arr + 1
+		arr[ii] = {}
+		local f = gs["BlackMarket"..loc.."Item"..i.."Faction"]
+		local itm = tonumber(gs["BlackMarket"..loc.."Item"..i.."Index"])
+		
+		if CF_ItmPresets[f][itm] ~= nil then
+			arr[ii]["Faction"] = f
+			arr[ii]["Index"] = itm
+			
+			-- In case somebody will change number of items in faction file check
+			-- every item
+			arr[ii]["Preset"] = CF_ItmPresets[f][itm]
+			if CF_ItmClasses[f][itm] ~= nil then
+				arr[ii]["Class"] = CF_ItmClasses[f][itm]
+			else
+				arr[ii]["Class"] = "HDFirearm"
+			end
+			arr[ii]["Description"] = CF_ItmDescriptions[f][itm]
+			arr[ii]["Price"] = CF_ItmPrices[f][itm] * CF_BlackMarketPriceMultiplier
+			arr[ii]["Type"] = CF_ItmTypes[f][itm]
+		end
+	end
+
+	-- Sort items
+	for i = 1, #arr do
+		for j = 1, #arr  - 1 do
+			if arr[j]["Preset"] > arr[j + 1]["Preset"] then
+				local a = arr[j]
+				arr[j] = arr[j + 1]
+				arr[j + 1] = a
+			end
+		end
+	end
+	
+	local arr2
+	if makefilters then
+		arr2 = {}
+		
+		-- Array for all items
+		arr2[-1] = {}
+		-- Arrays for items by types
+		arr2[CF_WeaponTypes.PISTOL] = {}
+		arr2[CF_WeaponTypes.RIFLE] = {}
+		arr2[CF_WeaponTypes.SHOTGUN] = {}
+		arr2[CF_WeaponTypes.SNIPER] = {}
+		arr2[CF_WeaponTypes.HEAVY] = {}
+		arr2[CF_WeaponTypes.SHIELD] = {}
+		arr2[CF_WeaponTypes.DIGGER] = {}
+		arr2[CF_WeaponTypes.GRENADE] = {}
+		arr2[CF_WeaponTypes.TOOL] = {}
+		
+		for itm = 1, #arr do
+			-- Add item to 'all' list
+			local indx = #arr2[-1] + 1
+			arr2[-1][indx] = itm
+			
+			-- Add item to specific list
+			local tp = arr[itm]["Type"]
+			local indx = #arr2[tp] + 1
+			arr2[tp][indx] = itm
+		end
+	end
+	
+	return arr, arr2
+end
+-----------------------------------------------------------------------------------------
+--	
+-----------------------------------------------------------------------------------------
 function CF_GetCloneShopArray(gs, makefilters)
 	local arr = {}
 	
@@ -198,6 +322,126 @@ function CF_GetCloneShopArray(gs, makefilters)
 				arr[ii]["Price"] = CF_ActPrices[f][itm]
 				arr[ii]["Type"] = CF_ActTypes[f][itm]
 			end
+		end
+	end
+	
+	-- Sort items
+	for i = 1, #arr do
+		for j = 1, #arr  - 1 do
+			if arr[j]["Preset"] > arr[j + 1]["Preset"] then
+				local a = arr[j]
+				arr[j] = arr[j + 1]
+				arr[j + 1] = a
+			end
+		end
+	end
+	
+	local arr2
+	if makefilters then
+		arr2 = {}
+		
+		-- Array for all items
+		arr2[-1] = {}
+		-- Arrays for items by types
+		arr2[CF_ActorTypes.LIGHT] = {}
+		arr2[CF_ActorTypes.HEAVY] = {}
+		arr2[CF_ActorTypes.ARMOR] = {}
+		arr2[CF_ActorTypes.TURRET] = {}
+		
+		for itm = 1, #arr do
+			-- Add item to 'all' list
+			local indx = #arr2[-1] + 1
+			arr2[-1][indx] = itm
+			
+			-- Add item to specific list
+			local tp = arr[itm]["Type"]
+			local indx = #arr2[tp] + 1
+			arr2[tp][indx] = itm
+		end
+	end
+	
+	return arr, arr2
+end
+-----------------------------------------------------------------------------------------
+--	
+-----------------------------------------------------------------------------------------
+function CF_GetCloneBlackMarketArray(gs, makefilters)
+	-- Find out if we need to create a list of available items for this black market
+	local loc = gs["Location"]
+	local tocreate = false
+	
+	if gs["BlackMarket"..loc.."ActorsLastRefresh"] == nil then
+		tocreate = true
+	else
+		local last = tonumber(gs["BlackMarket"..loc.."ActorsLastRefresh"])
+		
+		if last + CF_BlackMarketRefreshInterval < tonumber(gs["Time"]) then
+			tocreate = true
+		end
+	end
+
+	arr = {}
+	
+	--tocreate = true -- DEBUG
+	
+	-- Create list of items available in blackmarket
+	if tocreate then
+		local count = 0
+	
+		for i = 1, tonumber(gs["ActiveCPUs"]) do
+			local f = CF_GetPlayerFaction(gs, i)
+		
+			for itm = 1, #CF_ActNames[f] do
+				local isduplicate = false
+				
+				for j = 1, #arr do
+					if CF_ActDescriptions[f][itm] == arr[j]["Description"] then
+						isduplicate = true
+					end
+				end--]]--
+			
+				if CF_ActPowers[f][itm] > 5 and CF_ActTypes[f][itm] ~= CF_ActorTypes.TURRET and math.random() < 0.25 and not isduplicate then
+					count = count + 1
+					gs["BlackMarket"..loc.."Actor"..count.."Faction"] = f
+					gs["BlackMarket"..loc.."Actor"..count.."Index"] = itm
+					
+					-- Store descriptions to get rid of duplicates
+					arr[count] = {}
+					arr[count]["Description"] = CF_ActDescriptions[f][itm]
+				end
+			end
+		end
+		
+		gs["BlackMarket"..loc.."ActorsCount"] = count
+		gs["BlackMarket"..loc.."ActorsLastRefresh"] = gs["Time"]
+	end
+	
+	-- Fill array
+	local count = tonumber(gs["BlackMarket"..loc.."ActorsCount"])
+	arr = nil
+	arr = {}
+	
+	for i = 1, count do
+		local ii = #arr + 1
+		arr[ii] = {}
+		local f = gs["BlackMarket"..loc.."Actor"..i.."Faction"]
+		local itm = tonumber(gs["BlackMarket"..loc.."Actor"..i.."Index"])
+		
+		if CF_ActPresets[f][itm] ~= nil then
+			arr[ii]["Faction"] = f
+			arr[ii]["Index"] = itm
+			
+			-- In case somebody will change number of items in faction file check
+			-- every actor
+			arr[ii]["Preset"] = CF_ActPresets[f][itm]
+			if CF_ActClasses[f][itm] ~= nil then
+				arr[ii]["Class"] = CF_ActClasses[f][itm]
+			else
+				arr[ii]["Class"] = "AHuman"
+			end
+			arr[ii]["Description"] = CF_ActDescriptions[f][itm]
+			arr[ii]["Price"] = CF_ActPrices[f][itm] * CF_BlackMarketPriceMultiplier
+			arr[ii]["Type"] = CF_ActTypes[f][itm]
 		end
 	end
 	

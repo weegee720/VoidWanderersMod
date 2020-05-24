@@ -18,6 +18,7 @@ CF_LocationGoldPresent[id] = false
 CF_LocationScenes[id] = {"TradeStar Pier #792"}
 CF_LocationPlanet[id] = "TradeStar"
 CF_LocationPlayable[id] = false
+CF_LocationAttributes[id] = {CF_LocationAttributeTypes.TRADESTAR}
 
 local id = "TradeStar Pier #625"
 CF_Location[#CF_Location + 1] = id
@@ -28,3 +29,4 @@ CF_LocationGoldPresent[id] = false
 CF_LocationScenes[id] = {"TradeStar Pier #625"}
 CF_LocationPlanet[id] = "TradeStar"
 CF_LocationPlayable[id] = false
+CF_LocationAttributes[id] = {CF_LocationAttributeTypes.TRADESTAR}

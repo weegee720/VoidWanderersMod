@@ -17,6 +17,9 @@ function CF_InitFactions(activity)
 	CF_KmPerPixel = 100
 	
 	CF_SellPriceCoeff = 0.25
+
+	CF_BlackMarketRefreshInterval = 3000
+	CF_BlackMarketPriceMultiplier = 6
 	
 	CF_MissionResultShowInterval = 10
 	
@@ -1029,12 +1032,20 @@ end
 -----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
+function CF_IsLocationHasAttribute(loc, attr)
+	local attrs = CF_LocationAttributes[loc]
+	
+	if attrs ~= nil then
+		for i = 1, #attrs do
+			if attrs[i] == attr then
+				return true
+			end
+		end
+	end
+	
+	return false
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
 

@@ -38,8 +38,19 @@ function VoidWanderers:InitCloneShopControlPanelUI()
 	self.CloneShopControlPanelModesTexts[self.CloneShopControlPanelModes.TURRET] = "Turrets"
 	
 	self.CloneShopControlMode = self.CloneShopControlPanelModes.EVERYTHING
+
+	self.CloneShopTradeStar = false
+	self.CloneShopBlackMarket = false
 	
-	self.CloneShopItems, self.CloneShopFilters = CF_GetCloneShopArray(self.GS, true)
+	if CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.TRADESTAR) then
+		self.CloneShopItems, self.CloneShopFilters = CF_GetCloneShopArray(self.GS, true)
+		self.CloneShopTradeStar = true
+	end
+	
+	if CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.BLACKMARKET) then
+		self.CloneShopItems, self.CloneShopFilters = CF_GetCloneBlackMarketArray(self.GS, true)
+		self.CloneShopBlackMarket = true
+	end
 end
 -----------------------------------------------------------------------------------------
 --
@@ -74,7 +85,12 @@ function VoidWanderers:ProcessCloneShopControlPanelUI()
 			-- Draw generic UI
 			local pos = act.Pos
 			self:PutGlow("ControlPanel_Storage_List", pos + Vector(-71,0))
-			self:PutGlow("ControlPanel_CloneShop_Description", pos + Vector(90,0))
+			if self.CloneShopTradeStar then
+				self:PutGlow("ControlPanel_CloneShop_Description", pos + Vector(90,0))
+			end
+			if self.CloneShopBlackMarket then
+				self:PutGlow("ControlPanel_CloneBlackMarket_Description", pos + Vector(90,0))
+			end
 			self:PutGlow("ControlPanel_Storage_HorizontalPanel", pos + Vector(20,-77))
 			self:PutGlow("ControlPanel_Storage_HorizontalPanel", pos + Vector(20,78))
 			

@@ -43,8 +43,19 @@ function VoidWanderers:InitItemShopControlPanelUI()
 	self.ItemShopControlPanelModesTexts[self.ItemShopControlPanelModes.TOOL] = "Tools"
 	
 	self.ItemShopControlMode = self.ItemShopControlPanelModes.EVERYTHING
+
+	self.ItemShopTradeStar = false
+	self.ItemShopBlackMarket = false
 	
-	self.ItemShopItems, self.ItemShopFilters = CF_GetItemShopArray(self.GS, true)
+	if CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.TRADESTAR) then
+		self.ItemShopItems, self.ItemShopFilters = CF_GetItemShopArray(self.GS, true)
+		self.ItemShopTradeStar = true
+	end
+	
+	if CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.BLACKMARKET) then
+		self.ItemShopItems, self.ItemShopFilters = CF_GetItemBlackMarketArray(self.GS, true)
+		self.ItemShopBlackMarket = true
+	end
 end
 -----------------------------------------------------------------------------------------
 --
@@ -87,7 +98,12 @@ function VoidWanderers:ProcessItemShopControlPanelUI()
 			-- Draw generic UI
 			local pos = act.Pos
 			self:PutGlow("ControlPanel_Storage_List", pos + Vector(-71,0))
-			self:PutGlow("ControlPanel_ItemShop_Description", pos + Vector(90,0))
+			if self.ItemShopTradeStar then
+				self:PutGlow("ControlPanel_ItemShop_Description", pos + Vector(90,0))
+			end
+			if self.ItemShopBlackMarket then
+				self:PutGlow("ControlPanel_ItemBlackMarket_Description", pos + Vector(90,0))
+			end
 			self:PutGlow("ControlPanel_Storage_HorizontalPanel", pos + Vector(20,-77))
 			self:PutGlow("ControlPanel_Storage_HorizontalPanel", pos + Vector(20,78))
 			
@@ -228,7 +244,7 @@ function VoidWanderers:ProcessItemShopControlPanelUI()
 
 			-- Print manufacturer or price
 			if self.ItemShopSelectedItemManufacturer ~= nil then
-				CF_DrawString("Manufacturer: "..self.ItemShopSelectedItemManufacturer, pos + Vector(10,-25) , 170, 120)
+				CF_DrawString("Manufacturer: "..self.ItemShopSelectedItemManufacturer, pos + Vector(10,-25) , 170, 10)
 			end
 			
 			-- Print Selected mode text

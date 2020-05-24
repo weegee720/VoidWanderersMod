@@ -307,28 +307,48 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				else
 					diff = CF_GetLocationDifficulty(self.GS, self.ShipControlLocationList[ self.ShipControlSelectedLocation ])
 				end
-
-				CF_DrawString("SECURITY: "..string.upper(CF_LocationDifficultyTexts[diff]), pos + Vector(8, -60), 136, 10)
-
-				if self.ShipControlLocationList[ self.ShipControlSelectedLocation ] ~= nil then
-					local rev = self.GS[self.ShipControlLocationList[ self.ShipControlSelectedLocation ].."-FogRevealPercentage"]
-					if rev == nil then
-						rev = 0
-					end
-					CF_DrawString("INTEL: "..rev.."%", pos + Vector(8, -36), 136, 10)
-				end
 				
-				-- Write gold status
-				local gold = CF_LocationGoldPresent[ self.ShipControlLocationList[ self.ShipControlSelectedLocation ] ]
-				if gold ~= nil then
-					local s = "ABSENT"
-					
-					if gold == true then
-						s = "PRESENT"
+				local playable = true
+				
+				if CF_LocationPlayable[self.ShipControlLocationList[ self.ShipControlSelectedLocation ]] ~= nil then
+					playable = CF_LocationPlayable[ self.ShipControlLocationList[ self.ShipControlSelectedLocation ] ]
+				end
+
+				if playable then
+					CF_DrawString("SECURITY: "..string.upper(CF_LocationDifficultyTexts[diff]), pos + Vector(8, -60), 136, 10)
+
+					if self.ShipControlLocationList[ self.ShipControlSelectedLocation ] ~= nil then
+						local rev = self.GS[self.ShipControlLocationList[ self.ShipControlSelectedLocation ].."-FogRevealPercentage"]
+						if rev == nil then
+							rev = 0
+						end
+						CF_DrawString("INTEL: "..rev.."%", pos + Vector(8, -36), 136, 10)
 					end
-					CF_DrawString("GOLD: "..s, pos + Vector(8, -48), 136, 182-34)
+					
+					-- Write gold status
+					local gold = CF_LocationGoldPresent[ self.ShipControlLocationList[ self.ShipControlSelectedLocation ] ]
+					if gold ~= nil then
+						local s = "ABSENT"
+						
+						if gold == true then
+							s = "PRESENT"
+						end
+						CF_DrawString("GOLD: "..s, pos + Vector(8, -48), 136, 182-34)
+					else
+						CF_DrawString("GOLD: UNKNOWN", pos + Vector(8, -48), 136, 182-34)
+					end
 				else
-					CF_DrawString("GOLD: UNKNOWN", pos + Vector(8, -48), 136, 182-34)
+					if CF_IsLocationHasAttribute(self.ShipControlLocationList[ self.ShipControlSelectedLocation ], CF_LocationAttributeTypes.TRADESTAR) then
+						CF_DrawString("TRADE STAR", pos + Vector(8, -60), 136, 10)
+					end
+					
+					if CF_IsLocationHasAttribute(self.ShipControlLocationList[ self.ShipControlSelectedLocation ], CF_LocationAttributeTypes.BLACKMARKET) then
+						CF_DrawString("BLACK MARKET", pos + Vector(8, -60), 136, 10)
+					end
+
+					if CF_IsLocationHasAttribute(self.ShipControlLocationList[ self.ShipControlSelectedLocation ], CF_LocationAttributeTypes.SHIPYARD) then
+						CF_DrawString("SHIPYARD", pos + Vector(8, -60), 136, 10)
+					end
 				end
 				
 				-- Show location list

@@ -137,7 +137,7 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 				
 				self.StorageControlPanelModesTexts[self.StorageControlPanelModes.SELL] = "DUMP ITEMS"
 				
-				if self.GS["Planet"] == "TradeStar" and self.GS["Location"] ~= nil then
+				if CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.TRADESTAR) or CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.BLACKMARKET) then
 					self.StorageControlPanelModesTexts[self.StorageControlPanelModes.SELL] = "SELL ITEMS Gold: "..CF_GetPlayerGold(self.GS, 0).."oz"
 					CF_DrawString("L/R - Change filter, U/D - Select, FIRE - Sell", pos + Vector(-130,78) , 300, 10)
 				else
@@ -280,7 +280,7 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 									end
 								end
 							else
-								if self.GS["Planet"] == "TradeStar" and self.GS["Location"] ~= nil then
+								if CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.TRADESTAR) or CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.BLACKMARKET) then
 									if self.StorageSelectedItemPrice ~= nil then
 										CF_SetPlayerGold(self.GS, 0, CF_GetPlayerGold(self.GS, 0) + self.StorageSelectedItemPrice)
 									end
@@ -334,7 +334,7 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 					CF_DrawString("Manufacturer: "..self.StorageSelectedItemManufacturer, pos + Vector(10,-25) , 170, 120)
 				end
 			else
-				if self.GS["Planet"] == "TradeStar" and self.GS["Location"] ~= nil then
+				if CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.TRADESTAR) or CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.BLACKMARKET) then
 					if self.StorageSelectedItemPrice ~= nil then
 						CF_DrawString("Sell price: "..self.StorageSelectedItemPrice.." oz", pos + Vector(10,-25) , 170, 120)
 					end

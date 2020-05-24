@@ -74,7 +74,7 @@ function VoidWanderers:ProcessLZControlPanelUI()
 			local unsafe = {}
 			
 			for actor in MovableMan.Actors do
-				if actor.PresetName ~= "-" and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") then
+				if not self:IsAlly(actor) and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") then
 					if actor.Team ~= CF_PlayerTeam then
 						enemies = enemies + 1
 						targets[#targets + 1] = actor.Pos
@@ -148,7 +148,7 @@ function VoidWanderers:ProcessLZControlPanelUI()
 							end
 							
 							-- Don't bring back allied units
-							if actor.PresetName == "-" then
+							if self:IsAlly(actor) then
 								assignable = false
 							end
 							

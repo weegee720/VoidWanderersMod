@@ -43,6 +43,8 @@ function VoidWanderers:StartActivity()
 		self.GS["SceneType"] = "Vessel"
 	end
 
+	self.AlliedUnits = nil
+	
 	-- Load level data
 	self.LS = CF_ReadSceneConfigFile(self.ModuleName , SceneMan.Scene.PresetName..".dat");
 	
@@ -188,6 +190,8 @@ function VoidWanderers:StartActivity()
 		-- All mission related final message will be accumulated in mission report list
 		self.MissionReport = {}
 		self.MissionDeployedTroops = #self.DeployedActors
+		
+		self.AlliedUnits = {}
 	
 		local scene = SceneMan.Scene.PresetName
 
@@ -624,7 +628,7 @@ function VoidWanderers:SpawnFromTable()
 				MovableMan:AddActor(act)
 			end
 			if nm["RenamePreset"] ~= nil then
-				act.PresetName = nm["RenamePreset"]
+				act.PresetName = nm["RenamePreset"]..act.PresetName
 			end
 			table.remove(self.SpawnTable, 1)
 		else
@@ -730,7 +734,7 @@ function VoidWanderers:UpdateActivity()
 			if actor.Team == CF_PlayerTeam then
 				local icons = {}
 				
-				if actor.PresetName == "-" then
+				if self:IsAlly(actor) then
 					icons[#icons + 1] = "Icon_Ally"
 				end
 				
@@ -774,7 +778,6 @@ function VoidWanderers:UpdateActivity()
 			FrameMan:ClearScreenText(0);
 			FrameMan:SetScreenText("LIFE SUPPORT OVERLOADED\nSTORE OR DUMP SOME BODIES", 0, 0, 1000, true);
 		end
-		
 		
 		-- Switch players from brain to bridge
 		local bridgeempty = true
@@ -898,7 +901,8 @@ function VoidWanderers:UpdateActivity()
 		end
 		
 		-- Create or delete shops if we arrived/departed to/from Star base
-		if self.GS["Planet"] == "TradeStar" and self.GS["Location"] ~= nil then
+		--if self.GS["Planet"] == "TradeStar" and self.GS["Location"] ~= nil then
+		if CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.TRADESTAR) or CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.BLACKMARKET) then
 			if not self.ShopsCreated then
 				-- Destroy any previously created item shops and create a new one
 				self:DestroyItemShopControlPanelUI()
@@ -1052,10 +1056,11 @@ function VoidWanderers:UpdateActivity()
 			self:MissionUpdate()
 		end
 		
+		
 		-- Make actors glitch if there are too many of them
 		local count = 0;
 		for actor in MovableMan.Actors do
-			if actor.Team == CF_PlayerTeam and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") and actor.PresetName ~= "-" then
+			if actor.Team == CF_PlayerTeam and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") and not self:IsAlly(actor) then
 				count = count + 1
 
 				if self.Time % 4 == 0 and count > tonumber(self.GS["Player0VesselCommunication"]) then
@@ -1069,6 +1074,15 @@ function VoidWanderers:UpdateActivity()
 					end
 					
 					self:AddObjectivePoint("CONNECTION LOST", actor.AboveHUDPos , CF_PlayerTeam, GameActivity.ARROWUP);
+				end
+			end
+			
+			-- Add allied units to array when they are actually spawned
+			if actor.Team == CF_PlayerTeam and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") then
+				if string.find(actor.PresetName , "-") == 1 then
+					local nw = #self.AlliedUnits + 1
+					self.AlliedUnits[nw] = actor
+					actor.PresetName = string.sub(actor.PresetName , 2 , string.len(actor.PresetName))
 				end
 			end
 		end
@@ -1318,6 +1332,24 @@ function VoidWanderers:GiveMissionPenalties()
 		self.MissionReport[#self.MissionReport + 1] = "-"..math.ceil(self.MissionReputationReward * CF_MissionFailedReputationPenaltyRatio).." "..CF_FactionNames[ CF_GetPlayerFaction(self.GS, self.MissionSourcePlayer) ].." reputation"
 		self.MissionReport[#self.MissionReport + 1] = "-"..math.ceil(self.MissionReputationReward * CF_MissionFailedReputationPenaltyRatio).." "..CF_FactionNames[ CF_GetPlayerFaction(self.GS, self.MissionTargetPlayer) ].." reputation"
 	end
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
+function VoidWanderers:IsAlly(actor)
+	if self.AlliedUnits ~= nil then
+		local l = #self.AlliedUnits
+		for i = 1, l do
+			if self.AlliedUnits[i] ~= nil and MovableMan:IsActor(self.AlliedUnits[i]) then
+				if self.AlliedUnits[i].ID == actor.ID then
+					return true
+				end
+			else
+				self.AlliedUnits[i] = nil
+			end
+		end
+	end
+	return false
 end
 -----------------------------------------------------------------------------------------
 --

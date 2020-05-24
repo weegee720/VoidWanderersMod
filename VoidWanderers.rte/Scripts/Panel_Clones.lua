@@ -150,7 +150,7 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 			-- Clones list screen
 			if self.ClonesControlMode == self.ClonesControlPanelModes.CLONES or self.ClonesControlMode == self.ClonesControlPanelModes.SELL then
 				if self.ClonesControlMode == self.ClonesControlPanelModes.SELL then
-					if self.GS["Planet"] == "TradeStar" and self.GS["Location"] ~= nil then
+					if CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.TRADESTAR) or CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.BLACKMARKET) then
 						self.ClonesControlPanelModesTexts[self.ClonesControlPanelModes.SELL] = "SELL BODIES "..CF_GetPlayerGold(self.GS, 0).." oz"
 						self.ClonesControlPanelModesHelpTexts[self.ClonesControlPanelModes.SELL] = "L/R/U/D - Select, FIRE - Sell"
 					else
@@ -227,7 +227,7 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 						
 						local prefix = ""
 						if self.ClonesControlMode == self.ClonesControlPanelModes.SELL then
-							if self.GS["Planet"] == "TradeStar" and self.GS["Location"] ~= nil then
+							if CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.TRADESTAR) or CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.BLACKMARKET) then
 								prefix = tostring(price).."oz "
 							end
 						end
@@ -237,7 +237,7 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 				end
 
 				if self.ClonesControlMode == self.ClonesControlPanelModes.SELL then
-					if self.GS["Planet"] == "TradeStar" and self.GS["Location"] ~= nil then
+					if CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.TRADESTAR) or CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.BLACKMARKET) then
 						CF_DrawString("Sell price: "..self.SelectedClonePrice, pos + Vector(12,60) , 300, 10)
 					end
 				end
@@ -254,7 +254,7 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 						
 						if self.ClonesControlMode == self.ClonesControlPanelModes.SELL then
 							if self.SelectedClone ~= 0 then
-								if self.GS["Planet"] == "TradeStar" and self.GS["Location"] ~= nil then
+								if CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.TRADESTAR) or CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.BLACKMARKET) then
 									CF_SetPlayerGold(self.GS, 0 , CF_GetPlayerGold(self.GS, 0) + self.SelectedClonePrice)
 								end
 							
