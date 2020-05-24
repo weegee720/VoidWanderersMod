@@ -91,6 +91,19 @@ function VoidWanderers:ProcessTurretsControlPanelUI()
 							self.TurretsControlPanelInitialized[turr] = true
 						end
 
+						-- Add or delete 'remove turret' menu item
+						if self.GS["DeployedTurret"..turr.."Preset"] ~= nil then
+							if self.Turrets[#self.Turrets]["Preset"] ~= "Remove turret" then
+								local n = #self.Turrets + 1
+								
+								self.Turrets[n] = {}
+								self.Turrets[n]["Preset"] = "Remove turret"
+								self.Turrets[n]["Class"] = ""
+								self.Turrets[n]["Count"] = 0
+							end
+						else
+						end
+						
 						if cont:IsState(Controller.PRESS_UP) then
 							if #self.Turrets > 0 then
 								self.SelectedTurret = self.SelectedTurret - 1
@@ -116,14 +129,35 @@ function VoidWanderers:ProcessTurretsControlPanelUI()
 								self.FirePressed = true;
 								
 								if self.SelectedTurret > 0 then
-									if self.Turrets[self.SelectedTurret]["Count"] > 0 then
+									-- Remove current turret  if 'remove turret' was selected
+									if self.Turrets[self.SelectedTurret]["Preset"] == "Remove turret" then
 										if self.GS["DeployedTurret"..turr.."Preset"] ~= nil and self.GS["DeployedTurret"..turr.."Class"] ~= nil then
-										
+											if CF_CountUsedTurretsInArray(self.Turrets) < tonumber(self.GS["Player0VesselTurretStorage"]) then
+												if self.Turrets[#self.Turrets]["Preset"] == "Remove turret" then
+													self.Turrets[#self.Turrets] = nil
+												end
+
+												self.SelectedTurret = #self.Turrets
+												
+												CF_PutTurretToStorageArray(self.Turrets, self.GS["DeployedTurret"..turr.."Preset"], self.GS["DeployedTurret"..turr.."Class"])
+
+												self.GS["DeployedTurret"..turr.."Preset"] = nil
+												self.GS["DeployedTurret"..turr.."Class"] = nil
+												CF_SetTurretsArray(self.GS, self.Turrets)
+											end
 										end
-									
-										self.GS["DeployedTurret"..turr.."Preset"] = self.Turrets[self.SelectedTurret]["Preset"]
-										self.GS["DeployedTurret"..turr.."Class"] = self.Turrets[self.SelectedTurret]["Class"]
-										self.Turrets[self.SelectedTurret]["Count"] = self.Turrets[self.SelectedTurret]["Count"] - 1
+									else
+										if self.Turrets[self.SelectedTurret]["Count"] > 0 then
+											if self.GS["DeployedTurret"..turr.."Preset"] ~= nil and self.GS["DeployedTurret"..turr.."Class"] ~= nil then
+												CF_PutTurretToStorageArray(self.Turrets, self.GS["DeployedTurret"..turr.."Preset"], self.GS["DeployedTurret"..turr.."Class"])
+											end
+										
+											self.GS["DeployedTurret"..turr.."Preset"] = self.Turrets[self.SelectedTurret]["Preset"]
+											self.GS["DeployedTurret"..turr.."Class"] = self.Turrets[self.SelectedTurret]["Class"]
+											self.Turrets[self.SelectedTurret]["Count"] = self.Turrets[self.SelectedTurret]["Count"] - 1
+											
+											CF_SetTurretsArray(self.GS, self.Turrets)
+										end
 									end
 								end
 							end
@@ -135,10 +169,14 @@ function VoidWanderers:ProcessTurretsControlPanelUI()
 
 						local pre = self.GS["DeployedTurret"..turr.."Preset"]
 						
-						if pre ~= nil then
-							CF_DrawString("Current: "..pre, pos + Vector(-60,-20), 120, 10)
+						if self.Time % 2 == 0 then
+							if pre ~= nil then
+								CF_DrawString("Active: "..pre, pos + Vector(-60,-24), 136, 10)
+							else
+								CF_DrawString("Active: NONE", pos + Vector(-60,-24), 136, 10)
+							end
 						else
-							CF_DrawString("Current: NONE", pos + Vector(-60,-24), 120, 10)
+							CF_DrawString("Storage: "..CF_CountUsedTurretsInArray(self.Turrets) .." / ".. self.GS["Player0VesselTurretStorage"], pos + Vector(-60,-24), 136, 10)
 						end
 						
 						-- Draw list
@@ -151,7 +189,9 @@ function VoidWanderers:ProcessTurretsControlPanelUI()
 								else
 									CF_DrawString(self.Turrets[i]["Preset"], pos + Vector(-60,-8) + Vector(0, (loc) * 12), 120, 10)
 								end
-								CF_DrawString(tostring(self.Turrets[i]["Count"]), pos + Vector(56,-8) + Vector(0, (loc) * 12), 120, 10)
+								if self.Turrets[i]["Preset"] ~= "Remove turret" then
+									CF_DrawString(tostring(self.Turrets[i]["Count"]), pos + Vector(56,-8) + Vector(0, (loc) * 12), 120, 10)
+								end
 							end
 						end
 
@@ -177,7 +217,7 @@ function VoidWanderers:ProcessTurretsControlPanelUI()
 						end					
 						
 						if ax ~= 0 or ay ~= 0 then
-							local newpos = Vector(self.TurretsControlPanelActor[turr].Pos.X + ax * 12, self.TurretsControlPanelActor[turr].Pos.Y + ay * 12)
+							local newpos = Vector(self.TurretsControlPanelActor[turr].Pos.X + ax * 8, self.TurretsControlPanelActor[turr].Pos.Y + ay * 8)
 							
 							--if self.Ship:IsInside(newpos) and SceneMan:GetTerrMatter(newpos.X, newpos.Y) == 0 then
 							if self.Ship:IsInside(newpos) then
@@ -203,6 +243,11 @@ function VoidWanderers:ProcessTurretsControlPanelUI()
 						if empty then
 							self:PutGlow("ControlPanel_Turret_EmptyMove", self.TurretsControlPanelPos[turr])
 						else
+							if self.GS["DeployedTurret"..turr.."Preset"] ~= nil and self.GS["DeployedTurret"..turr.."Class"] ~= nil then
+								local l = CF_GetStringPixelWidth(self.GS["DeployedTurret"..turr.."Preset"])
+								CF_DrawString(self.GS["DeployedTurret"..turr.."Preset"], self.TurretsControlPanelPos[turr] + Vector( -l/2, -28), 120,10)
+							end
+
 							self:PutGlow("ControlPanel_Turret_Move", self.TurretsControlPanelPos[turr])
 						end
 					end
@@ -228,3 +273,50 @@ function VoidWanderers:ProcessTurretsControlPanelUI()
 		end
 	end
 end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
+function VoidWanderers:DeployTurrets()
+	self.TurretsDeployedActors = {}
+	local count = tonumber(self.GS["Player0VesselTurrets"])
+
+	for turr = 1, count do
+		local pre = self.GS["DeployedTurret"..turr.."Preset"]
+		local cls = self.GS["DeployedTurret"..turr.."Class"]
+	
+		if pre ~= nil and cls ~= nil then
+			local a = CF_MakeActor2(pre, cls)
+			if a then
+				a.Team = CF_PlayerTeam
+				a.Pos = self.TurretsControlPanelPos[turr]
+				a.AIMode = Actor.AIMODE_SENTRY
+				self.TurretsDeployedActors[turr] = a
+				MovableMan:AddActor(a)
+			else
+				print ("Can't create turret "..pre.." "..cls)
+			end
+		end
+	end
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
+function VoidWanderers:RemoveDeployedTurrets()
+	if self.TurretsDeployedActors ~= nil then
+		local count = tonumber(self.GS["Player0VesselTurrets"])
+
+		for turr = 1, count do
+			if MovableMan:IsActor(self.TurretsDeployedActors[turr]) then
+				self.TurretsDeployedActors[turr].ToDelete = true
+			else
+				self.GS["DeployedTurret"..turr.."Preset"] = nil
+				self.GS["DeployedTurret"..turr.."Class"] = nil
+			end
+		end
+		
+		self.TurretsDeployedActors = nil
+	end
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------

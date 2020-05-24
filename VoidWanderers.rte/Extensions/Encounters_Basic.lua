@@ -136,10 +136,14 @@ function (self, variant)
 			self.GS["RandomEncounter"..self.RandomEncounterID..self.RandomEncounterPirate["Captain"].."Fee"] = -1		
 			self.RandomEncounterPirateAttackLaunched = true
 
+			--Deploy turrets
+			self:DeployTurrets()				
+			
 			-- Disable consoles
 			self:DestroyStorageControlPanelUI()
 			self:DestroyClonesControlPanelUI()
 			self:DestroyBeamControlPanelUI()
+			self:DestroyTurretsControlPanelUI()
 			
 			-- Set up assault
 			self.AssaultNextSpawnTime = self.Time + self.RandomEncounterPirate["Interval"]
@@ -172,6 +176,7 @@ function (self, variant)
 				self:InitStorageControlPanelUI()
 				self:InitClonesControlPanelUI()
 				self:InitBeamControlPanelUI()
+				self:InitTurretsControlPanelUI()
 			end
 		end
 	

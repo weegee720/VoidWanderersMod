@@ -929,7 +929,6 @@ function VoidWanderers:UpdateActivity()
 		self:ProcessClonesControlPanelUI()
 		self:ProcessStorageControlPanelUI()
 		self:ProcessBrainControlPanelUI()
-		self:ProcessTurretsControlPanelUI()
 		
 		-- Auto heal all actors when not in combat or random encounter
 		if not self.OverCrowded then
@@ -962,11 +961,14 @@ function VoidWanderers:UpdateActivity()
 			self:ProcessBeamControlPanelUI()
 			self:ProcessItemShopControlPanelUI()
 			self:ProcessCloneShopControlPanelUI()
+			self:ProcessTurretsControlPanelUI()
 		end
 		
 		-- Launch defense activity
 		if self.AssaultTime == self.Time then
 			self.GS["Mode"] = "Assault"
+			
+			self:DeployTurrets()
 			
 			-- Remove control actors
 			self:DestroyStorageControlPanelUI()
@@ -974,11 +976,16 @@ function VoidWanderers:UpdateActivity()
 			self:DestroyBeamControlPanelUI()
 			self:DestroyItemShopControlPanelUI()
 			self:DestroyCloneShopControlPanelUI()
+			self:DestroyTurretsControlPanelUI()
 		end
 		
 		-- Process random encounter function
 		if self.RandomEncounterID ~= nil then
 			CF_RandomEncountersFunctions[self.RandomEncounterID](self, self.RandomEncounterChosenVariant)
+			-- If incounter was finished then remove turrets
+			if self.RandomEncounterID == nil then
+				self:RemoveDeployedTurrets()
+			end
 		end
 	end--]]--
 	
@@ -1125,7 +1132,32 @@ function VoidWanderers:UpdateActivity()
 		end
 		
 		if self.GS["Mode"] == "Vessel" then
-			if CF_CountActors(CF_PlayerTeam) > tonumber(self.GS["Player0VesselLifeSupport"]) then
+			local count = 0 
+		
+			-- Count actors except turrets
+			for actor in MovableMan.Actors do
+				if actor.Team == CF_PlayerTeam and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") and not actor:IsInGroup("Brains") then
+					local isturret = false
+				
+					if self.TurretsDeployedActors ~= nil then
+						local count = tonumber(self.GS["Player0VesselTurrets"])
+
+						for turr = 1, count do
+							if MovableMan:IsActor(self.TurretsDeployedActors[turr]) then
+								if actor.ID == self.TurretsDeployedActors[turr].ID then
+									isturret = true
+								end
+							end
+						end
+					end
+					
+					if not isturret then
+						count = count + 1
+					end
+				end
+			end
+		
+			if count > tonumber(self.GS["Player0VesselLifeSupport"]) then
 				self.OverCrowded = true
 				
 				if self.Time % 3 == 0 then
@@ -1192,6 +1224,9 @@ function VoidWanderers:UpdateActivity()
 					self.MissionReport[#self.MissionReport + 1] = "We survived this assault."
 					self:GiveRandomExperienceReward(self.AssaultDifficulty)
 					
+					-- Remove turrets
+					self:RemoveDeployedTurrets()
+
 					-- Re-init consoles back
 					self:InitConsoles()
 					
@@ -1302,6 +1337,15 @@ function VoidWanderers:UpdateActivity()
 		end
 	end--]]--
 
+	-- Deploy turrets when key pressed
+	--[[if UInputMan:KeyPressed(75) then
+		if self.TurretsDeployedActors == nil then
+			self:DeployTurrets()
+		else
+			self:RemoveDeployedTurrets()
+		end
+	end--]]--
+	
 	if self.GS["Mode"] == "Mission" then
 		self:ProcessLZControlPanelUI()
 		

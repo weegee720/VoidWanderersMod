@@ -743,7 +743,7 @@ function CF_GetTurretsArray(gs)
 			arr[i] = {}
 			arr[i]["Preset"] = gs["TurretsStorage"..i.."Preset"]
 			arr[i]["Class"] = gs["TurretsStorage"..i.."Class"]
-			arr[i]["Count"] = gs["TurretsStorage"..i.."Count"]
+			arr[i]["Count"] = tonumber(gs["TurretsStorage"..i.."Count"])
 		else
 			break
 		end
@@ -788,9 +788,13 @@ function CF_SetTurretsArray(gs, arr)
 	
 	-- Save
 	for i = 1, #arr do
-		gs["TurretsStorage"..i.."Preset"] = arr[i]["Preset"]
-		gs["TurretsStorage"..i.."Class"] = arr[i]["Class"]
-		gs["TurretsStorage"..i.."Count"] = arr[i]["Count"]
+		if gs["TurretsStorage"..i.."Preset"] == "Remove turret" then
+			break
+		else
+			gs["TurretsStorage"..i.."Preset"] = arr[i]["Preset"]
+			gs["TurretsStorage"..i.."Class"] = arr[i]["Class"]
+			gs["TurretsStorage"..i.."Count"] = arr[i]["Count"]
+		end
 		
 		--print (tostring(i).." "..arr[i]["Preset"])
 		--print (tostring(i).." "..arr[i]["Class"])

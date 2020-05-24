@@ -708,7 +708,7 @@ function CF_GetStringPixelWidth(str)
 		local cindex, cwidth, coffset = CF_GetCharData(string.sub(str , i , i))
 		len = len + cwidth;
 	end
-	return len;
+	return len - #str;
 end
 -----------------------------------------------------------------------------
 --

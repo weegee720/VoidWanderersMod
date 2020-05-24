@@ -31,7 +31,7 @@ function (self, variant)
 		self.RandomEncounterReaversHeavy = 	{"K-HAR 10mm", "Shrike Mdl.G"}
 		self.RandomEncounterReaversHeavyMod = 	{"MZR.rte", "MZR.rte"}
 		
-		self.RandomEncounterReaversInterval = 12
+		self.RandomEncounterReaversInterval = 8
 		
 		self.RandomEncounterDistance = math.random(200, 350)
 		
@@ -179,11 +179,15 @@ function (self, variant)
 				self.RandomEncounterAttackLaunched = true
 				self.RandomEncounterRunLaunched = false
 				self.RandomEncounterNextAttackTime = self.Time
+
+				--Deploy turrets
+				self:DeployTurrets()
 				
 				-- Disable consoles
 				self:DestroyStorageControlPanelUI()
 				self:DestroyClonesControlPanelUI()
-				self:DestroyBeamControlPanelUI()				
+				self:DestroyBeamControlPanelUI()
+				self:DestroyTurretsControlPanelUI()
 			end
 		end
 	end
@@ -226,7 +230,7 @@ function (self, variant)
 					rocket.Team = CF_CPUTeam
 					rocket.AIMode = Actor.AIMODE_DELIVER
 					
-					for i = 1, 2 do
+					for i = 1, 3 do
 						if self.RandomEncounterReaversUnitCount > 0 then
 							local r1 = math.random(#self.RandomEncounterReaversAct)
 							local r2 = math.random(#self.RandomEncounterReaversLight)
@@ -297,6 +301,7 @@ function (self, variant)
 			self:InitStorageControlPanelUI()
 			self:InitClonesControlPanelUI()
 			self:InitBeamControlPanelUI()		
+			self:InitTurretsControlPanelUI()		
 		end
 	end
 end
