@@ -12,6 +12,24 @@ function VoidWanderers:InitStorageControlPanelUI()
 	else
 		self.StorageControlPanelPos = nil
 	end
+
+	x = tonumber(self.LS["StorageInputX"])
+	y = tonumber(self.LS["StorageInputY"])
+	print (x)
+	print (y)
+	if x~= nil and y ~= nil then
+		self.StorageInputPos = Vector(x,y)
+	else
+		self.StorageInputPos = nil
+	end
+	
+	x = tonumber(self.LS["StorageDeployX"])
+	y = tonumber(self.LS["StorageDeployY"])
+	if x~= nil and y ~= nil then
+		self.StorageDeployPos = Vector(x,y)
+	else
+		self.StorageDeployPos = nil
+	end
 	
 	-- Create actor
 	-- Ship
@@ -27,6 +45,9 @@ function VoidWanderers:InitStorageControlPanelUI()
 	end
 	
 	self.StorageControlPanelItemsPerPage = 9
+	
+	self.StorageInputRange = 50
+	self.StorageInputDelay = 3
 	
 	-- Init variables
 	self.StorageControlPanelModes = {UNKNOWN = -2, EVERYTHING = -1, PISTOL = 0, RIFLE = 1, SHOTGUN = 2, SNIPER = 3, HEAVY = 4, SHIELD = 5, DIGGER = 6, GRENADE = 7, TOOL = 8}
@@ -45,6 +66,8 @@ function VoidWanderers:InitStorageControlPanelUI()
 	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.TOOL] = "Tools"
 	
 	self.StorageControlMode = self.StorageControlPanelModes.EVERYTHING
+	
+	self.StorageItems, self.StorageFilters = CF_GetStorageArray(self.GS, true)
 end
 -----------------------------------------------------------------------------------------
 --
@@ -62,13 +85,9 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 			
 			-- Init control panel
 			if not self.StorageControlPanelInitialized then
-				if self.StorageItems == nil then
-					self.StorageItems, self.StorageFilters = CF_GetStorageArray(self.GS, true)
-				end
 				self.StorageSelectedItem = 1
 				self.LastStorageSelectedItem = 0
 				self.StorageControlPanelInitialized = true
-				self.StorageItemsUsedByStorage = true
 			end
 			
 			-- Draw generic UI
@@ -81,6 +100,49 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 			-- Process controls
 			local cont = act:GetController()
 
+			if cont:IsState(Controller.WEAPON_FIRE) then
+				if not self.FirePressed then
+					self.FirePressed = true;
+					
+					if self.StorageSelectedItem > 0 then
+						local itm = self.StorageFilters[self.StorageControlMode][self.StorageSelectedItem]
+						
+						if self.StorageItems[itm]["Count"] > 0 then
+							-- Remove item from storage and spawn it
+							self.StorageItems[itm]["Count"] = self.StorageItems[itm]["Count"] - 1
+							
+							local hasactor = false
+							local foundactor = nil
+							
+							-- Try to find actor or put item as is otherwise
+							for actor in MovableMan.Actors do
+								if CF_Dist(actor.Pos, self.StorageInputPos) <= self.StorageInputRange then
+									hasactor = true
+									foundactor = actor
+									break;
+								end
+							end
+							
+							local item = CF_MakeItem2(self.StorageItems[itm]["Preset"], self.StorageItems[itm]["Class"])
+							if item ~= nil then
+								if hasactor then
+									foundactor:AddInventoryItem(item)
+									foundactor:FlashWhite(250)
+								else
+									item.Pos = self.StorageDeployPos
+									MovableMan:AddItem(item)
+								end
+							end
+							-- Update game state
+							CF_SetStorageArray(self.GS, self.StorageItems)
+						end
+					end
+				end
+			else
+				self.FirePressed = false
+			end			
+			
+			
 			if cont:IsState(Controller.PRESS_UP) then
 				if #self.StorageFilters[self.StorageControlMode] > 0 then
 					self.StorageSelectedItem = self.StorageSelectedItem - 1
@@ -165,8 +227,6 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 					self.StorageControlPanelObject = CF_MakeItem2(self.StorageItems[itm]["Preset"], self.StorageItems[itm]["Class"])
 					if self.StorageControlPanelObject ~= nil then
 						MovableMan:AddItem(self.StorageControlPanelObject)
-						--self.StorageControlPanelObject.HitsMOs = false
-						--self.StorageControlPanelObject.GetsHitByMOs = false
 					end
 				else
 					self.StorageSelectedItemDescription = ""
@@ -213,12 +273,53 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 				self.StorageControlPanelObject.ToDelete = true
 			end
 		end
-		
-		self.StorageItemsUsedByStorage = nil
-		
-		-- Delete storage data array
-		if self.StorageItems ~= nil and self.StorageItemsUsedByStorage == nil and self.StorageItemsUsedByClones == nil then
-			self.StorageItems = nil
+	end
+	
+	-- Process weapons input
+	if self.ClonesInputPos ~= nil then
+		local count = CF_CountUsedStorageInArray(self.StorageItems)
+	
+		if  count < tonumber(self.GS["Player0VesselStorageCapacity"]) then
+			local hasitem = false
+			
+			-- Search for item and put it in storage
+			for item in MovableMan.Items do
+				if CF_Dist(item.Pos, self.StorageInputPos) <= self.StorageInputRange then
+					if self.StorageLastDetectedItemTime ~= nil then
+						-- Put item to storage
+						if self.Time >= self.StorageLastDetectedItemTime + self.StorageInputDelay and CF_CountUsedStorageInArray(self.StorageItems) < tonumber(self.GS["Player0VesselStorageCapacity"]) then
+							local needrefresh = CF_PutItemToStorageArray(self.StorageItems, item.PresetName, item.ClassName)
+							
+							item.ToDelete = true
+
+							-- Store everything
+							CF_SetStorageArray(self.GS, self.StorageItems)
+							
+							-- Refresh storage items array and filters
+							if needrefresh then
+								self.StorageItems, self.StorageFilters = CF_GetStorageArray(self.GS, true)
+							end
+							
+							self.StorageLastDetectedItemTime = nil
+						end
+						
+						hasitem = true
+					else
+						self.StorageLastDetectedItemTime = self.Time
+					end
+				end
+			end
+			
+			if showidle then
+				if hasitem and self.ClonesLastDetectedBodyTime ~= nil then
+					self:AddObjectivePoint("Store in "..self.ClonesLastDetectedBodyTime + self.ClonesInputDelay - self.Time, self.StorageDeployPos , CF_PlayerTeam, GameActivity.ARROWDOWN);
+				else
+					self:AddObjectivePoint("Stand here to receive items\nor place items here to store\n"..count.." / "..self.GS["Player0VesselStorageCapacity"], self.StorageDeployPos , CF_PlayerTeam, GameActivity.ARROWDOWN);
+				end
+			end
+		else
+			self:AddObjectivePoint("Storage is full", self.StorageInputPos + Vector(0,-40), CF_PlayerTeam, GameActivity.ARROWUP);
+			self.StorageLastDetectedItemTime = nil
 		end
 	end
 end

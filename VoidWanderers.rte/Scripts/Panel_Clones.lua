@@ -21,6 +21,14 @@ function VoidWanderers:InitClonesControlPanelUI()
 		self.ClonesDeployPos = nil
 	end
 
+	x = tonumber(self.LS["ClonesInputX"])
+	y = tonumber(self.LS["ClonesInputY"])
+	if x~= nil and y ~= nil then
+		self.ClonesInputPos = Vector(x,y)
+	else
+		self.ClonesInputPos = nil
+	end
+	
 	-- Create actor
 	-- Ship
 	if self.ClonesControlPanelPos ~= nil then
@@ -34,6 +42,8 @@ function VoidWanderers:InitClonesControlPanelUI()
 		end
 	end
 	
+	self.ClonesInputDelay = 3
+	self.ClonesInputRange = 35
 	self.ClonesControlLastMessageTime = -1000
 	self.ClonesControlMessageIntrval = 3
 	self.ClonesControlMessageText = ""
@@ -51,6 +61,8 @@ function VoidWanderers:InitClonesControlPanelUI()
 	self.ClonesControlPanelModesHelpTexts[self.ClonesControlPanelModes.CLONES] = "L/R/U/D - Select, FIRE - Deploy"
 	self.ClonesControlPanelModesHelpTexts[self.ClonesControlPanelModes.INVENTORY] = "L/R/U/D - Select, FIRE - Remove from inventory"
 	self.ClonesControlPanelModesHelpTexts[self.ClonesControlPanelModes.ITEMS] = "L/R/U/D - Select, FIRE - Add to inventory"
+	
+	self.Clones = CF_GetClonesArray(self.GS)
 end
 -----------------------------------------------------------------------------------------
 --
@@ -72,12 +84,6 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 			-- Clone selection screen
 			-- Init control panel
 			if not self.ClonesControlPanelInitialized then
-				self.Clones = CF_GetClonesArray(self.GS)
-				
-				if self.StorageItems == nil then
-					self.StorageItems, self.StorageFilters = CF_GetStorageArray(self.GS, true)
-				end				
-				
 				if #self.Clones > 0 then
 					self.SelectedClone = 1
 				else
@@ -88,7 +94,6 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 				self.ClonesInventorySelectedItem = 1
 				
 				self.ClonesControlPanelInitialized = true
-				self.StorageItemsUsedByClones = true
 				
 				self.ClonesControlMode = self.ClonesControlPanelModes.CLONES
 			end			
@@ -308,20 +313,25 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 					if not self.FirePressed then
 						self.FirePressed = true;
 						
-						if self.SelectedClone > 0 then
+						if self.SelectedClone > 0 and #self.StorageFilters[self.StorageControlPanelModes.EVERYTHING] > 0 then
 							local itm = self.StorageFilters[self.StorageControlPanelModes.EVERYTHING][self.ClonesStorageSelectedItem]
 							
 							--Add item to unit's inventory
-							if #self.Clones[self.SelectedClone]["Items"] < CF_MaxItems and self.StorageItems[itm]["Count"] > 0 then
-								local newitm = #self.Clones[self.SelectedClone]["Items"] + 1
-								self.StorageItems[itm]["Count"] = self.StorageItems[itm]["Count"] - 1
-								self.Clones[self.SelectedClone]["Items"][newitm] = {}
-								self.Clones[self.SelectedClone]["Items"][newitm]["Preset"] = self.StorageItems[itm]["Preset"]
-								self.Clones[self.SelectedClone]["Items"][newitm]["Class"] = self.StorageItems[itm]["Class"]
-								
-								-- Update game state
-								CF_SetClonesArray(self.GS, self.Clones)
-								CF_SetStorageArray(self.GS, self.StorageItems)
+							if #self.Clones[self.SelectedClone]["Items"] < CF_MaxItems then
+								if self.StorageItems[itm]["Count"] > 0 then
+									local newitm = #self.Clones[self.SelectedClone]["Items"] + 1
+									self.StorageItems[itm]["Count"] = self.StorageItems[itm]["Count"] - 1
+									self.Clones[self.SelectedClone]["Items"][newitm] = {}
+									self.Clones[self.SelectedClone]["Items"][newitm]["Preset"] = self.StorageItems[itm]["Preset"]
+									self.Clones[self.SelectedClone]["Items"][newitm]["Class"] = self.StorageItems[itm]["Class"]
+									
+									-- Update game state
+									CF_SetClonesArray(self.GS, self.Clones)
+									CF_SetStorageArray(self.GS, self.StorageItems)
+								else
+									self.ClonesControlLastMessageTime = self.Time
+									self.ClonesControlMessageText = "No more items in storage"
+								end
 							else
 								self.ClonesControlLastMessageTime = self.Time
 								self.ClonesControlMessageText = "Unit inventory full"
@@ -336,18 +346,22 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 				end
 				
 				if cont:IsState(Controller.PRESS_UP) then
-					self.ClonesStorageSelectedItem = self.ClonesStorageSelectedItem - 1
-					
-					if self.ClonesStorageSelectedItem < 1 then
-						self.ClonesStorageSelectedItem = 1
+					if #self.StorageFilters[self.StorageControlPanelModes.EVERYTHING] > 0 then
+						self.ClonesStorageSelectedItem = self.ClonesStorageSelectedItem - 1
+						
+						if self.ClonesStorageSelectedItem < 1 then
+							self.ClonesStorageSelectedItem = 1
+						end
 					end
 				end
 
 				if cont:IsState(Controller.PRESS_DOWN) then
-					self.ClonesStorageSelectedItem = self.ClonesStorageSelectedItem + 1
-					
-					if self.ClonesStorageSelectedItem > #self.StorageFilters[self.StorageControlPanelModes.EVERYTHING] then
-						self.ClonesStorageSelectedItem = #self.StorageFilters[self.StorageControlPanelModes.EVERYTHING]
+					if #self.StorageFilters[self.StorageControlPanelModes.EVERYTHING] > 0 then
+						self.ClonesStorageSelectedItem = self.ClonesStorageSelectedItem + 1
+						
+						if self.ClonesStorageSelectedItem > #self.StorageFilters[self.StorageControlPanelModes.EVERYTHING] then
+							self.ClonesStorageSelectedItem = #self.StorageFilters[self.StorageControlPanelModes.EVERYTHING]
+						end
 					end
 				end		
 			end
@@ -413,16 +427,102 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 	if showidle and self.ClonesControlPanelPos ~= nil then
 		self.ClonesControlPanelInitialized = false
 		self:PutGlow("ControlPanel_Clones", self.ClonesControlPanelPos)
-
-		self.StorageItemsUsedByClones = nil
-		
-		-- Delete storage data array
-		if self.StorageItems ~= nil and self.StorageItemsUsedByStorage == nil and self.StorageItemsUsedByClones == nil then
-			self.StorageItems = nil
-		end
-
-		if self.Clones ~= nil  then
-			self.Clones = nil
+	end
+	
+	-- Process clones input
+	if self.ClonesInputPos ~= nil then
+		local count = CF_CountUsedClonesInArray(self.Clones)
+	
+		if  count < tonumber(self.GS["Player0VesselClonesCapacity"]) then
+			local hasactor = false
+			
+			-- Search for body and put it in storage
+			for actor in MovableMan.Actors do
+				if CF_Dist(actor.Pos, self.ClonesInputPos) <= self.ClonesInputRange then
+					if self.ClonesLastDetectedBodyTime ~= nil then
+						-- Put clone to storage
+						if self.Time >= self.ClonesLastDetectedBodyTime + self.ClonesInputDelay and CF_CountUsedClonesInArray(self.Clones) < tonumber(self.GS["Player0VesselClonesCapacity"]) then
+							local c = #self.Clones + 1
+							
+							self.Clones[c] = {}
+							self.Clones[c]["Preset"] = actor.PresetName
+							self.Clones[c]["Class"] = actor.ClassName
+							
+							-- Store inventory
+							local inv, cls = CF_GetInventory(actor)
+							
+							for i = 1, #inv do
+								-- First store items in clone storage
+								if i <= CF_MaxItems then
+									if self.Clones[c]["Items"] == nil then
+										self.Clones[c]["Items"] = {}
+									end
+																			
+									self.Clones[c]["Items"][i] = {}
+									self.Clones[c]["Items"][i]["Preset"] = inv[i]
+									self.Clones[c]["Items"][i]["Class"] = cls[i]
+								else
+									-- Try to store other items in items storage
+									-- If we have free space add items to storage, spawn nearby otherwise
+									if CF_CountUsedStorageInArray(self.StorageItems) < tonumber(self.GS["Player0VesselStorageCapacity"]) then
+										-- Put item to storage array
+										-- Find item in storage array
+										local found = 0
+										
+										for j = 1, #self.StorageItems do
+											if self.StorageItems[j]["Preset"] == inv[i] then
+												found = j
+											end
+										end
+										
+										if found == 0 then
+											found = #self.StorageItems + 1
+											self.StorageItems[found] = {}
+											self.StorageItems[found]["Count"] = 1
+											self.StorageItems[found]["Preset"] = inv[i]
+											self.StorageItems[found]["Class"] = cls[i]
+										else
+											self.StorageItems[found]["Count"] = self.StorageItems[found]["Count"] + 1
+										end									
+									else
+										local itm = CF_MakeItem2(inv[i], cls[i])
+										if itm ~= nil then
+											itm.Pos = self.ClonesInputPos
+											MovableMan:AddItem(itm)
+										end
+									end
+								end
+							end
+							actor.ToDelete = true
+							
+							-- Store everything
+							CF_SetClonesArray(self.GS, self.Clones)
+							CF_SetStorageArray(self.GS, self.StorageItems)
+							
+							-- Refresh storage items array and filters
+							self.StorageItems, self.StorageFilters = CF_GetStorageArray(self.GS, true)
+							self.Clones = CF_GetClonesArray(self.GS, true)
+							
+							self.ClonesLastDetectedBodyTime = nil
+						end
+						
+						hasactor = true
+					else
+						self.ClonesLastDetectedBodyTime = self.Time
+					end
+				end
+			end
+			
+			if showidle then
+				if hasactor and self.ClonesLastDetectedBodyTime ~= nil then
+					self:AddObjectivePoint("Store in "..self.ClonesLastDetectedBodyTime + self.ClonesInputDelay - self.Time, self.ClonesInputPos , CF_PlayerTeam, GameActivity.ARROWDOWN);
+				else
+					self:AddObjectivePoint("Stand here to store body\n"..count.." / "..self.GS["Player0VesselClonesCapacity"], self.ClonesInputPos , CF_PlayerTeam, GameActivity.ARROWDOWN);
+				end
+			end
+		else
+			self:AddObjectivePoint("Clone storage is full", self.ClonesInputPos + Vector(0,-40) , CF_PlayerTeam, GameActivity.ARROWUP);
+			self.ClonesLastDetectedBodyTime = nil
 		end
 	end
 end

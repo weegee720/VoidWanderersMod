@@ -135,6 +135,35 @@ function CF_FindItemInFactions(preset, class)
 	return nil, nil
 end
 -----------------------------------------------------------------------------------------
+--	Put item to storage array. You still need to update filters array if this is a new item. 
+--	Returns true if added item is new item and you need to sort and update filters
+-----------------------------------------------------------------------------------------
+function CF_PutItemToStorageArray(arr, preset, class)
+	-- Put item to storage array
+	-- Find item in storage array
+	local found = 0
+	local isnew = false
+	
+	for j = 1, #arr do
+		if arr[j]["Preset"] == preset then
+			found = j
+		end
+	end
+	
+	if found == 0 then
+		found = #arr + 1
+		arr[found] = {}
+		arr[found]["Count"] = 1
+		arr[found]["Preset"] = preset
+		arr[found]["Class"] = class
+		isnew = true
+	else
+		arr[found]["Count"] = arr[found]["Count"] + 1
+	end
+
+	return isnew
+end
+-----------------------------------------------------------------------------------------
 --	Searches for given actor in all faction files and returns it's factions and index if found
 -----------------------------------------------------------------------------------------
 function CF_FindActorInFactions(preset, class)
@@ -209,6 +238,7 @@ end
 function CF_CountUsedClonesInArray(arr)
 	return #arr
 end
+
 -----------------------------------------------------------------------------------------
 --	Saves array of stored items to game state
 -----------------------------------------------------------------------------------------

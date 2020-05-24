@@ -26,7 +26,7 @@ function CF_InitFactions(activity)
 	
 	CF_MaxCPUPlayers = 8
 	CF_MaxSaveGames = 6
-	CF_MaxItems = 6
+	CF_MaxItems = 6 -- Max items per clone in clone storage
 	CF_MaxStorageItems = 1000
 	CF_MaxClones = 1000
 	CF_MaxUnitsPerDropship = 3
