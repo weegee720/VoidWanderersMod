@@ -21,6 +21,8 @@ function do_rpgbrain_create(self)
 	
 	self.LinkedActors = nil
 	
+	self.HoldTimer = Timer()
+	
 	-- Find our owner actor
 	local found = MovableMan:GetMOFromID(self.RootID);
 
