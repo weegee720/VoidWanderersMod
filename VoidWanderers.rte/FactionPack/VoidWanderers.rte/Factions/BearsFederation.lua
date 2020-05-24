@@ -145,6 +145,11 @@ CF_ActTypes[factionid][i] = CF_ActorTypes.ARMOR;
 CF_ActPowers[factionid][i] = 6
 CF_ActOffsets[factionid][i] = Vector(0,-10)
 
+-- Void wanderers pre-equipped weapons compatibility
+if CF_DiscardableItems then
+	CF_DiscardableItems["ST1"] = {"APR-t \"Dyatel\""}
+end
+
 i = #CF_ActNames[factionid] + 1
 CF_ActNames[factionid][i] = "ST2"
 CF_ActPresets[factionid][i] = "ST2"
@@ -155,6 +160,11 @@ CF_ActUnlockData[factionid][i] = 4000
 CF_ActTypes[factionid][i] = CF_ActorTypes.ARMOR;
 CF_ActPowers[factionid][i] = 8
 CF_ActOffsets[factionid][i] = Vector(0,-10)
+
+-- Void wanderers pre-equipped weapons compatibility
+if CF_DiscardableItems then
+	CF_DiscardableItems["ST2"] = {"Dolbak-5m", "Anyusha-D7"}
+end
 
 -- Define buyable items available for purchase or unlocks
 CF_ItmNames[factionid] = {}

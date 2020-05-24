@@ -82,6 +82,10 @@ CF_ActTypes[factionid][i] = CF_ActorTypes.LIGHT;
 CF_EquipmentTypes[factionid][i] = CF_WeaponTypes.RIFLE;
 CF_ActPowers[factionid][i] = 3
 
+if CF_DiscardableItems then
+	CF_DiscardableItems["Prime Hover Drone"] = {"Hover Drone Laser","Hover Drone Digger"}
+end
+
 i = #CF_ActNames[factionid] + 1
 CF_ActNames[factionid][i] = "Micro Hover Drone"
 CF_ActPresets[factionid][i] = "Micro Hover Drone"
@@ -92,6 +96,10 @@ CF_ActUnlockData[factionid][i] = 500
 CF_ActTypes[factionid][i] = CF_ActorTypes.LIGHT;
 CF_EquipmentTypes[factionid][i] = CF_WeaponTypes.RIFLE;
 CF_ActPowers[factionid][i] = 1
+
+if CF_DiscardableItems then
+	CF_DiscardableItems["Micro Hover Drone"] = {"Micro Hover Drone Laser"}
+end
 
 i = #CF_ActNames[factionid] + 1
 CF_ActNames[factionid][i] = "Micro Punter Hover Drone"
@@ -104,6 +112,10 @@ CF_ActTypes[factionid][i] = CF_ActorTypes.LIGHT;
 CF_EquipmentTypes[factionid][i] = CF_WeaponTypes.SHOTGUN;
 CF_ActPowers[factionid][i] = 2
 
+if CF_DiscardableItems then
+	CF_DiscardableItems[""] = {"Micro Hover Drone Laser"}
+end
+
 i = #CF_ActNames[factionid] + 1
 CF_ActNames[factionid][i] = "Longbow Hover Drone"
 CF_ActPresets[factionid][i] = "Longbow Hover Drone"
@@ -114,6 +126,10 @@ CF_ActUnlockData[factionid][i] = 1500
 CF_ActTypes[factionid][i] = CF_ActorTypes.LIGHT;
 CF_EquipmentTypes[factionid][i] = CF_WeaponTypes.SNIPER;
 CF_ActPowers[factionid][i] = 4
+
+if CF_DiscardableItems then
+	CF_DiscardableItems["Longbow Hover Drone"] = {"Hover Drone Long Laser"}
+end
 
 i = #CF_ActNames[factionid] + 1
 CF_ActNames[factionid][i] = "Heavy Hover Drone"
@@ -126,6 +142,10 @@ CF_ActTypes[factionid][i] = CF_ActorTypes.HEAVY;
 CF_EquipmentTypes[factionid][i] = CF_WeaponTypes.HEAVY;
 CF_ActPowers[factionid][i] = 5
 
+if CF_DiscardableItems then
+	CF_DiscardableItems["Heavy Hover Drone"] = {"RailGun"}
+end
+
 i = #CF_ActNames[factionid] + 1
 CF_ActNames[factionid][i] = "Rocket Hover Drone"
 CF_ActPresets[factionid][i] = "Rocket Hover Drone"
@@ -137,6 +157,9 @@ CF_ActTypes[factionid][i] = CF_ActorTypes.HEAVY;
 CF_EquipmentTypes[factionid][i] = CF_WeaponTypes.HEAVY;
 CF_ActPowers[factionid][i] = 6
 
+if CF_DiscardableItems then
+	CF_DiscardableItems["Rocket Hover Drone"] = {"Drone Rocket Launcher"}
+end
 
 i = #CF_ActNames[factionid] + 1
 CF_ActNames[factionid][i] = "Thumper Turret"
@@ -150,6 +173,10 @@ CF_ActTypes[factionid][i] = CF_ActorTypes.TURRET;
 CF_EquipmentTypes[factionid][i] = CF_WeaponTypes.HEAVY;
 CF_ActPowers[factionid][i] = 9
 --CF_ActOffsets[factionid][i] = Vector(0,16)
+
+if CF_DiscardableItems then
+	CF_DiscardableItems["Thumper Turret"] = {"Thumper Cannon"}
+end
 
 
 -- Define buyable items available for purchase or unlocks

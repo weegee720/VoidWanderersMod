@@ -216,7 +216,7 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 
 					self:LaunchScript(scene, "Tactics.lua")
 					self.EnableBrainSelection = false
-					self:DestroyConsoles()
+					self:DestroyConsoles()--]]--
 					return
 				end
 			else

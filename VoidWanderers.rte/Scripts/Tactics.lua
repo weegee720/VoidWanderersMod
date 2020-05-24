@@ -31,16 +31,19 @@ function VoidWanderers:StartActivity()
 	self.FlightTimer = Timer()
 	self.FlightTimer:Reset()
 	self.LastTrigger = 0
+
+	-- All items in this queue will be removed
+	self.ItemRemoveQueue = {}
 	
 	-- Factions are already initialized by strategic part
 	self:LoadCurrentGameState();
-	
+
 	CF_GS = self.GS
 	
 	self.PlayerFaction = self.GS["Player0Faction"]
 	
 	-- If activity was reset during mission switch back to mission mode
-	if 	self.GS["WasReset"] == "True" then
+	if self.GS["WasReset"] == "True" then
 		self.GS["Mode"] = "Vessel"
 		self.GS["SceneType"] = "Vessel"
 	end
@@ -109,7 +112,7 @@ function VoidWanderers:StartActivity()
 		
 		local spawnedactors = 1
 		local dest = 1
-		
+
 		-- Spawn previously saved actors
 		for i = 1, CF_MaxSavedActors do
 			if self.GS["Actor"..i.."Preset"] ~= nil then
@@ -141,6 +144,8 @@ function VoidWanderers:StartActivity()
 						end
 					end
 					MovableMan:AddActor(actor)
+					self:AddPreEquippedItemsToRemovalQueue(actor)
+
 					spawnedactors = spawnedactors + 1
 				end
 			else
@@ -177,6 +182,8 @@ function VoidWanderers:StartActivity()
 						end
 					end
 					MovableMan:AddActor(actor)
+					self:AddPreEquippedItemsToRemovalQueue(actor)
+					
 					spawnedactors = spawnedactors + 1
 				end
 			
@@ -189,7 +196,7 @@ function VoidWanderers:StartActivity()
 		self.DeployedActors = nil
 		self:SaveCurrentGameState()
 	end
-	
+
 	-- Spawn away-team objects
 	if self.GS["Mode"] == "Mission" then
 		self.GS["WasReset"] = "True"
@@ -238,6 +245,7 @@ function VoidWanderers:StartActivity()
 					end
 				end
 				MovableMan:AddActor(actor)
+				self:AddPreEquippedItemsToRemovalQueue(actor)
 			end
 		
 			dest = dest + 1
@@ -484,9 +492,11 @@ end
 -----------------------------------------------------------------------------------------
 -- Removes specified item from actor's inventory, returns number of removed items
 -----------------------------------------------------------------------------------------
-function VoidWanderers:RemoveInventoryItem(actor , itempreset)
+function VoidWanderers:RemoveInventoryItem(actor , itempreset, maxcount)
 	local count = 0;
 	local toabort = 0
+	
+	--print ("Remove "..itempreset)
 	
 	if MovableMan:IsActor(actor) and actor.ClassName == "AHuman" then
 		if actor:HasObject(itempreset) then
@@ -498,6 +508,8 @@ function VoidWanderers:RemoveInventoryItem(actor , itempreset)
 					count = 1;
 				end
 			end
+			
+			human:UnequipBGArm()
 
 			if not actor:IsInventoryEmpty() then
 				actor:AddInventoryItem(CreateTDExplosive("VoidWanderersInventoryMarker" , self.ModuleName));
@@ -506,9 +518,15 @@ function VoidWanderers:RemoveInventoryItem(actor , itempreset)
 				while not enough do
 					local weap = actor:Inventory();
 					
+					--print (weap.PresetName)
+					
 					if weap.PresetName == itempreset then
-						weap = actor:SwapNextInventory(nil, true);
-						count = count + 1;
+						if count < maxcount then
+							weap = actor:SwapNextInventory(nil, true);
+							count = count + 1;
+						else
+							weap = actor:SwapNextInventory(weap, true);
+						end
 					else
 						if weap.PresetName == "VoidWanderersInventoryMarker" then
 							enough = true;
@@ -1006,6 +1024,23 @@ function VoidWanderers:UpdateActivity()
 			end
 		end
 	end--]]--
+
+		
+	-- Remove pre-eqipped items from inventories
+	if #self.ItemRemoveQueue > 0 then
+		for i = 1, #self.ItemRemoveQueue do
+			if MovableMan:IsActor(self.ItemRemoveQueue[i]["Actor"]) then
+				self:RemoveInventoryItem(self.ItemRemoveQueue[i]["Actor"], self.ItemRemoveQueue[i]["Preset"], 1)
+				table.remove(self.ItemRemoveQueue, i)
+				print ("Removed")
+				break;
+			else
+				table.remove(self.ItemRemoveQueue, i)
+				break;
+			end
+		end		
+	end--]]--
+
 	
 	-- Tick timer
 	--if self.TickTimer:IsPastSimMS(self.TickInterval) then
@@ -1485,6 +1520,20 @@ function VoidWanderers:IsAlly(actor)
 		end
 	end
 	return false
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
+function VoidWanderers:AddPreEquippedItemsToRemovalQueue(a)
+	-- Mark actor's pre-equipped items for deletion
+	if CF_ItemsToRemove[a.PresetName] then
+		for i = 1, #CF_ItemsToRemove[a.PresetName] do
+			local nw = #self.ItemRemoveQueue + 1
+			self.ItemRemoveQueue[nw] = {}
+			self.ItemRemoveQueue[nw]["Preset"] = CF_ItemsToRemove[a.PresetName][i]
+			self.ItemRemoveQueue[nw]["Actor"] = a
+		end
+	end
 end
 -----------------------------------------------------------------------------------------
 --

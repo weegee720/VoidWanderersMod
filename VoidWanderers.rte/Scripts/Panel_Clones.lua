@@ -308,6 +308,8 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 											
 											MovableMan:AddActor(a)
 											
+											self:AddPreEquippedItemsToRemovalQueue(a)
+											
 											-- Remove actor from array
 											local newarr = {}
 											local ii = 1

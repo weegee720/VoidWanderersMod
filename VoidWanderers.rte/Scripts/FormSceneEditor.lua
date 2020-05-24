@@ -552,6 +552,8 @@ end
 --
 -----------------------------------------------------------------------------------------
 function VoidWanderers:FormDraw()
+	self:ClearObjectivePoints();
+
 	if not self.ButtonPressed then
 		local ms;
 		
@@ -628,6 +630,14 @@ function VoidWanderers:FormDraw()
 					
 						CF_DrawString(s, v4 + Vector(-l/2,-10), 150, 20)
 						self:PutGlow("SceneEditor_Dot_Green", v4)
+						
+						if self.SelectedPointType == k3 and self.SelectedPoint == k4 then
+							self:AddObjectivePoint(s, v4 + Vector(0,-15) , CF_PlayerTeam, GameActivity.ARROWDOWN);
+						end
+						
+						if self.SelectedPointType == k3 and self.SelectedPoint ~= k4 then
+							self:AddObjectivePoint(s, v4 + Vector(0,15) , CF_PlayerTeam, GameActivity.ARROWUP);
+						end
 					end
 				end
 			end

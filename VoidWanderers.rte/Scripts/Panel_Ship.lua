@@ -774,14 +774,14 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self.ShipControlSkillUpgrades[nm]["Description"] = "How much punishment your brain robot can take."
 				local val = tonumber(self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ])
 				self.GS[self.ShipControlSkillUpgrades[nm]["Variable"]] = val
-				self.ShipControlSkillUpgrades[nm]["Price"] = val + 1 * 2
+				self.ShipControlSkillUpgrades[nm]["Price"] = (val + 1) * 2
 
 				
 				local nm = #self.ShipControlSkillUpgrades + 1
 				self.ShipControlSkillUpgrades[nm] = {}
 				self.ShipControlSkillUpgrades[nm]["Name"] = "Force field"
 				self.ShipControlSkillUpgrades[nm]["Variable"] = "Brain"..plr.."Field"
-				self.ShipControlSkillUpgrades[nm]["Description"] = "Strength of force field."
+				self.ShipControlSkillUpgrades[nm]["Description"] = "Regeneration speed of force field."
 				self.ShipControlSkillUpgrades[nm]["Price"] = CF_StoragePrice
 				local val = tonumber(self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ])
 				self.GS[self.ShipControlSkillUpgrades[nm]["Variable"]] = val
@@ -799,14 +799,14 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self.ShipControlSkillUpgrades[nm]["Price"] = val + 1
 
 				
-				local nm = #self.ShipControlSkillUpgrades + 1
+				--[[local nm = #self.ShipControlSkillUpgrades + 1
 				self.ShipControlSkillUpgrades[nm] = {}
 				self.ShipControlSkillUpgrades[nm]["Name"] = "Scaning"
 				self.ShipControlSkillUpgrades[nm]["Variable"] = "Brain"..plr.."Scanner"
 				self.ShipControlSkillUpgrades[nm]["Description"] = "Built-in scanner range."
 				self.ShipControlSkillUpgrades[nm]["Price"] = CF_StoragePrice
 				local val = tonumber(self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ])
-				self.GS[self.ShipControlSkillUpgrades[nm]["Variable"]] = val
+				self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ] = val
 				self.ShipControlSkillUpgrades[nm]["Price"] = val + 1
 				
 				
@@ -817,7 +817,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self.ShipControlSkillUpgrades[nm]["Description"] = "How many times brain-robot can fully heal a unit."
 				self.ShipControlSkillUpgrades[nm]["Price"] = CF_StoragePrice
 				local val = tonumber(self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ])
-				self.GS[self.ShipControlSkillUpgrades[nm]["Variable"]] = val
+				self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ] = val
 				self.ShipControlSkillUpgrades[nm]["Price"] = val + 1
 
 
@@ -828,8 +828,8 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self.ShipControlSkillUpgrades[nm]["Description"] = "How many times brain-robot can fix a weapon."
 				self.ShipControlSkillUpgrades[nm]["Price"] = CF_StoragePrice
 				local val = tonumber(self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ])
-				self.GS[self.ShipControlSkillUpgrades[nm]["Variable"]] = val
-				self.ShipControlSkillUpgrades[nm]["Price"] = val + 1
+				self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ] = val
+				self.ShipControlSkillUpgrades[nm]["Price"] = val + 1--]]--
 
 				
 				if cont:IsState(Controller.PRESS_UP) then

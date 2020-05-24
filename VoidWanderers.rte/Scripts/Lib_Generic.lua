@@ -30,7 +30,7 @@ function CF_InitFactions(activity)
 	
 	CF_MaxMissions = 5
 	
-	CF_MaxLevel = 100
+	CF_MaxLevel = 60
 	CF_ExpPerLevel = 500
 	
 	CF_SecurityIncrementPerMission = 10
@@ -188,8 +188,15 @@ function CF_InitFactions(activity)
 
 	CF_HackTimeBonuses = {}
 	CF_HackRewardBonuses = {}
+
 	
 	CF_DropShipCapacityBonuses = {}
+	
+	-- Special arrays for factions with pre-equipped items
+	-- Everything in this array (indexed by preset name) will not be included by inventory saving routines
+	CF_DiscardableItems = {}
+	-- Everything in this array will be marked for deletion after actor is created
+	CF_ItemsToRemove = {}
 	
 	CF_BrainHuntRatios = {}
 	
@@ -485,12 +492,6 @@ function CF_InitFactions(activity)
 						print ("ERROR!!! "..id.." DISABLED!!! "..CF_ActNames[id][i].." : "..err)
 						break;
 					end
-					
-				end
-				
-				-- For VoidWanderers we need to diable all factions with pre-equipped actors
-				if CF_PreEquippedActors[id] ~= nil and CF_PreEquippedActors[id] == true then
-					CF_FactionPlayable[id] = false;
 				end
 			end
 		else
@@ -954,8 +955,21 @@ function CF_GetInventory(actor)
 			
 			if human ~= nil then
 				if human.EquippedItem ~= nil then
-					inventory[#inventory + 1] = human.EquippedItem.PresetName;
-					classes[#classes + 1] = human.EquippedItem.ClassName;
+					local skip = false
+					
+					if CF_DiscardableItems[actor.PresetName] ~= nil then
+						for i = 1, #CF_DiscardableItems[actor.PresetName] do
+							if CF_DiscardableItems[actor.PresetName][i] == human.EquippedItem.PresetName then
+								skip = true
+								break
+							end
+						end
+					end
+				
+					if not skip then
+						inventory[#inventory + 1] = human.EquippedItem.PresetName;
+						classes[#classes + 1] = human.EquippedItem.ClassName;
+					end
 				end
 				
 				human:UnequipBGArm()
@@ -972,8 +986,21 @@ function CF_GetInventory(actor)
 				if weap == nil then
 					enough = true;
 				else
-					inventory[#inventory + 1] = weap.PresetName;
-					classes[#classes + 1] = weap.ClassName;
+					local skip = false
+					
+					if CF_DiscardableItems[actor.PresetName] ~= nil then
+						for i = 1, #CF_DiscardableItems[actor.PresetName] do
+							if CF_DiscardableItems[actor.PresetName][i] == weap.PresetName then
+								skip = true
+								break
+							end
+						end
+					end
+					
+					if not skip then
+						inventory[#inventory + 1] = weap.PresetName;
+						classes[#classes + 1] = weap.ClassName;
+					end
 				end
 			end
 		end

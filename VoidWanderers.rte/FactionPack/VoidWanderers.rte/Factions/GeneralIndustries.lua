@@ -75,6 +75,10 @@ CF_ActTypes[factionid][i] = CF_ActorTypes.LIGHT;
 CF_EquipmentTypes[factionid][i] = CF_WeaponTypes.RIFLE;
 CF_ActPowers[factionid][i] = 6
 
+if CF_ItemsToRemove then
+	CF_ItemsToRemove["Mercenary"] = {"HK416", "G17C"}
+end
+
 i = #CF_ActNames[factionid] + 1
 CF_ActNames[factionid][i] = "Point Man"
 CF_ActPresets[factionid][i] = "Point Man"
@@ -85,6 +89,10 @@ CF_ActUnlockData[factionid][i] = 800
 CF_ActTypes[factionid][i] = CF_ActorTypes.LIGHT;
 CF_EquipmentTypes[factionid][i] = CF_WeaponTypes.SHOTGUN;
 CF_ActPowers[factionid][i] = 5
+
+if CF_ItemsToRemove then
+	CF_ItemsToRemove["Point Man"] = {"FP6 Breaching Shotgun", "G17C"}
+end
 
 i = #CF_ActNames[factionid] + 1
 CF_ActNames[factionid][i] = "Grenadier"
@@ -97,6 +105,10 @@ CF_ActTypes[factionid][i] = CF_ActorTypes.LIGHT;
 CF_EquipmentTypes[factionid][i] = CF_WeaponTypes.HEAVY;
 CF_ActPowers[factionid][i] = 6
 
+if CF_ItemsToRemove then
+	CF_ItemsToRemove["Grenadier"] = {"G18C Offhand", "Milkor MGL", "G18C"}
+end
+
 i = #CF_ActNames[factionid] + 1
 CF_ActNames[factionid][i] = "Scout Sniper"
 CF_ActPresets[factionid][i] = "Scout Sniper"
@@ -107,6 +119,10 @@ CF_ActUnlockData[factionid][i] = 1200
 CF_ActTypes[factionid][i] = CF_ActorTypes.LIGHT;
 CF_EquipmentTypes[factionid][i] = CF_WeaponTypes.SNIPER;
 CF_ActPowers[factionid][i] = 6
+
+if CF_ItemsToRemove then
+	CF_ItemsToRemove["Scout Sniper"] = {"OTs-03 SVU", "G18C"}
+end
 
 -- Disabled due to 1.05 incompatibility
 --i = #CF_ActNames[factionid] + 1
@@ -131,6 +147,9 @@ CF_ActTypes[factionid][i] = CF_ActorTypes.ARMOR;
 CF_EquipmentTypes[factionid][i] = CF_WeaponTypes.RIFLE;
 CF_ActPowers[factionid][i] = 9
 
+if CF_ItemsToRemove then
+	CF_ItemsToRemove["Juggernaut"] = {"RPK-74", "M79"}
+end
 
 -- Define buyable items available for purchase or unlocks
 CF_ItmNames[factionid] = {}

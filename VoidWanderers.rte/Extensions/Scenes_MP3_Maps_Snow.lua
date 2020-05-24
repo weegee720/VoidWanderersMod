@@ -71,7 +71,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = false
 CF_LocationScenes[id] = {"Missile Silo"}
 CF_LocationPlanet[id] = "MP3-GTC-SNW"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Zombies", "Defend", "Destroy"}]]--
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Zombies", "Defend", "Destroy"}--]]--
 
 local id = "Glacier"
 CF_Location[#CF_Location + 1] = id
