@@ -53,13 +53,6 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 	config["Player0Type"] = "Player"
 	config["Player0Gold"] = math.floor(4000 * PositiveIndex)
 	
-	-- Set initial reputation
-	for i = 1, CF_MaxCPUPlayers do
-		
-		
-	end
-	
-	
 	-- Assign player ship
 	config["Player0Vessel"] = "Gryphon"
 	
@@ -138,6 +131,7 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 	-- Set operation mode
 	config["Mode"] = "Vessel"
 
+	local activecpus = 0
 	
 	for i = 1, CF_MaxCPUPlayers do
 		if cpus[i] then
@@ -150,12 +144,16 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 			else
 				config["Player".. i .."Reputation"] = "0"
 			end
+			
+			activecpus = activecpus + 1
 		else
 			config["Player".. i .."Faction"] = "Nobody"
 			config["Player".. i .."Active"] = "False"
 			config["Player".. i .."Type"] = "None"
 		end
 	end
+	
+	config["ActiveCPUs"] = activecpus
 	
 	return config;
 end

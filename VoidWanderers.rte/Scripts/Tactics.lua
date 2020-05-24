@@ -198,6 +198,33 @@ function VoidWanderers:StartActivity()
 				MovableMan:AddParticle(crt)
 			end
 		end
+		
+		--	Prepare for mission, load scripts
+		local missionavailable = false
+		local missionscript
+		local ambientscript
+		
+		if missionavailable then
+		else
+			missionscript = CF_LocationScript[ self.GS["Location"] ]
+			ambientscript = CF_LocationAmbientScript[ self.GS["Location"] ]
+		end
+		
+		if missionscript == nil then
+			missionscript = "VoidWanderers.rte/Scripts/Script_Mission_Generic.lua"
+		end
+		
+		if ambientscript == nil then
+			ambientscript = "VoidWanderers.rte/Scripts/Script_Ambient_Generic.lua"
+		end
+		
+		self.SpawnTable = {}
+		
+		dofile(missionscript)
+		dofile(ambientscript)
+		
+		self:MissionCreate()
+		self:MissionUpdate()
 	end
 	
 	-- Load pre-spawned enemy locations. These locations also used during assaults to place teleported units
@@ -389,6 +416,26 @@ function VoidWanderers:TriggerShipAssault()
 	self.ShipControlPanelActor.ToDelete = true
 	self.BeamControlPanelActor.ToDelete = true
 end
+
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
+function VoidWanderers:SpawnFromTable()
+	if #self.SpawnTable > 0 then
+		if MovableMan:GetMOIDCount() < CF_MOIDLimit then
+			local nm = self.SpawnTable[1]
+		
+			local act = CF_SpawnAIUnitWithPreset(self.GS, nm["Player"], nm["Team"], nm["Pos"], nm["AIMode"], nm["Preset"])
+			if act then
+				MovableMan:AddActor(act)
+			end
+			table.remove(self.SpawnTable, 1)
+		else
+			print ("MOID LIMIT REACHED!!!")
+			self.SpawnTable = nil
+		end
+	end
+end
 -----------------------------------------------------------------------------------------
 -- Pause Activity
 -----------------------------------------------------------------------------------------
@@ -462,7 +509,7 @@ function VoidWanderers:UpdateActivity()
 	local gold2add = self:GetTeamFunds(CF_PlayerTeam);
 	self:SetTeamFunds(0, CF_PlayerTeam);
 	if gold2add ~= 0 then
-		CF_SetPlayerGold(self.GS, self.HumanPlayer, CF_GetPlayerGold(self.GS, self.HumanPlayer) + gold2add);
+		CF_SetPlayerGold(self.GS, CF_PlayerTeam, CF_GetPlayerGold(self.GS, CF_PlayerTeam) + gold2add);
 		
 		self.LastIncomeShowTime = self.Time
 		self.LastPlayerIncome = gold2add;
@@ -583,6 +630,19 @@ function VoidWanderers:UpdateActivity()
 
 	if self.GS["Mode"] == "Mission" then
 		self:ProcessLZControlPanelUI()
+		
+		-- Spawn units from table while it have some left
+		if self.SpawnTable ~= nil then
+			self:SpawnFromTable()
+		end
+		
+		if self.AmbientUpdate ~= nil then
+			self:AmbientUpdate()
+		end
+		
+		if self.MissionUpdate ~= nil then
+			self:MissionUpdate()
+		end
 	end
 	
 	if self.EnableBrainSelection then

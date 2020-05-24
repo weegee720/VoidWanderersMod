@@ -183,7 +183,8 @@ function VoidWanderers:SaveSlots_OnClick()
 	CF_WriteConfigFile(self.GS , self.ModuleName , "savegame"..self.MouseOverElement..".dat");
 
 	self:FormClose();
-
+	self:LoadCurrentGameState()
+	self:LaunchScript(self.GS["Scene"], "Tactics.lua")
 end
 -----------------------------------------------------------------------------------------
 --

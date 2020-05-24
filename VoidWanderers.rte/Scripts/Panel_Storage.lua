@@ -41,11 +41,11 @@ function VoidWanderers:InitStorageControlPanelUI()
 		end
 		
 		-- Crate debug
-		--local crt = CreateMOSRotating("Case", self.ModuleName)
-		--if crt then
-		--	crt.Pos = self.StorageControlPanelPos
-		--	MovableMan:AddParticle(crt)
-		--end		
+		--[[local crt = CreateMOSRotating("Case", self.ModuleName)
+		if crt then
+			crt.Pos = self.StorageControlPanelPos
+			MovableMan:AddParticle(crt)
+		end		--]]--
 	end
 	
 	self.StorageControlPanelItemsPerPage = 9

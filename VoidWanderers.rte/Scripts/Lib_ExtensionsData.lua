@@ -12,6 +12,8 @@ function CF_InitExtensionsData(activity)
 	CF_LocationSecurity = {}
 	CF_LocationScenes = {}
 	CF_LocationPlanet = {}
+	CF_LocationScript = {}
+	CF_LocationAmbientScript = {}
 	CF_LocationMissions = {}
 	CF_LocationPlayable = {} -- Used by scene editor to discard service locations
 

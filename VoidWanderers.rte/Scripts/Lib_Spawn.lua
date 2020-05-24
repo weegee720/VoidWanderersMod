@@ -1,6 +1,25 @@
 -----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
+function CF_SpawnAIUnitWithPreset(c, p, team, pos, aimode, pre)
+	local act = CF_MakeUnitFromPreset(c, p, pre)
+	
+	if act ~= nil then
+		act.Team = team
+		if pos ~= nil then
+			act.Pos = pos
+		end
+		
+		if aimode ~= nil then
+			act.AIMode = aimode
+		end
+	end
+	
+	return act
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
 function CF_SpawnAIUnit(c, p, team, pos, aimode)
 	local pre = math.random(CF_PresetTypes.ENGINEER)
 	local act = CF_MakeUnitFromPreset(c, p, pre)
@@ -574,8 +593,10 @@ function CF_GetPointsArray(pts, msntype, setnum, ptstype)
 	--print (setnum)
 	--print (ptstype)
 	
-	for k, v in pairs(pts[msntype][setnum][ptstype]) do
-		vectors[#vectors + 1] = v
+	if pts[msntype][setnum][ptstype] ~= nil then
+		for k, v in pairs(pts[msntype][setnum][ptstype]) do
+			vectors[#vectors + 1] = v
+		end
 	end
 	
 	return vectors;

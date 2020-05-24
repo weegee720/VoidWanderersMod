@@ -10,7 +10,7 @@ function CF_InitFactions(activity)
    	CF_CPUTeam = Activity.TEAM_2;
 	CF_PlayerTeam = Activity.TEAM_1;
 	CF_RogueTeam = -1;
-	CF_MOIDLimit = 200;
+	CF_MOIDLimit = 220;
 	CF_ModuleName = "VoidWanderers.rte"
 	
 	-- When enabled UL2 will use special rendering techniques to improve UI rendering
@@ -26,9 +26,12 @@ function CF_InitFactions(activity)
 	
 	CF_ShipAssaultDelay = 2--30
 	
-	CF_TeamReturnDelay = 2--5
+	CF_TeamReturnDelay = 5
 	
 	CF_CratesRate = 0.35
+	CF_AmbientEnemyRate = 0.55
+	CF_AmbientEnemyDoubleSpawn = 0.25
+	CF_AmbientReinforcementsInterval = 50 -- In ticks
 	
 	CF_EvacDist = 650
 	

@@ -100,7 +100,13 @@ function VoidWanderers:ProcessLZControlPanelUI()
 			else
 				self:PutGlow("ControlPanel_LZ_ButtonRed", pos)
 				if unsafefriends > 0 then
-					CF_DrawString("AND ABANDON "..unsafedriends.." UNITS" , pos + Vector(-30, -0), 130, 20)
+					local s = "";
+					
+					if unsafefriends > 1 then
+						s = "S"
+					end
+				
+					CF_DrawString("AND ABANDON "..unsafefriends.." UNIT"..s , pos + Vector(-54, 4), 130, 20)
 				end
 				
 				if self.Time % 2 == 0 then
@@ -110,7 +116,7 @@ function VoidWanderers:ProcessLZControlPanelUI()
 					end
 				else
 					-- Show hostiles to indicate that they prevent from returning safely
-					for i = 1, #targets do
+					for i = 1, #unsafe do
 						self:AddObjectivePoint("ABANDONED", unsafe[i] + Vector(0,-40), CF_PlayerTeam, GameActivity.ARROWDOWN);
 					end
 				end
@@ -141,6 +147,11 @@ function VoidWanderers:ProcessLZControlPanelUI()
 								end
 							end
 							
+							-- Don't bring back allied units
+							if actor.PresetName == "-" then
+								assignable = false
+							end
+							
 							-- Check if unit is safe
 							local actorsafe = true
 							if not safe then
@@ -151,7 +162,7 @@ function VoidWanderers:ProcessLZControlPanelUI()
 								end
 							end
 						
-							if assignable and actor.PresetName ~= "LZ Control Panel" and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") then
+							if actorsafe and assignable and actor.PresetName ~= "LZ Control Panel" and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") then
 								local pre, cls = CF_GetInventory(actor)
 								-- These actors must be deployed
 								local n =  #self.DeployedActors + 1
@@ -166,7 +177,16 @@ function VoidWanderers:ProcessLZControlPanelUI()
 
 					-- Update casualties report
 					if self.MissionDeployedTroops > #self.DeployedActors then
-						self.MissionReport[#self.MissionReport + 1] = tostring(self.MissionDeployedTroops - #self.DeployedActors) .. " UNITS LOST"
+						local s = ""
+						if self.MissionDeployedTroops - #self.DeployedActors > 1 then
+							s = "S"
+						end
+						
+						if #self.DeployedActors == 0 then
+							self.MissionReport[#self.MissionReport + 1] = "ALL UNIT"..s.." LOST"
+						else
+							self.MissionReport[#self.MissionReport + 1] = tostring(self.MissionDeployedTroops - #self.DeployedActors) .. " UNIT"..s.." LOST"
+						end
 					else
 						self.MissionReport[#self.MissionReport + 1] = "NO CASUALTIES"
 					end
@@ -189,7 +209,14 @@ function VoidWanderers:ProcessLZControlPanelUI()
 					
 						CF_SetStorageArray(self.GS, storage)
 						
-						self.MissionReport[#self.MissionReport + 1] = tostring(itemcount).." items collected"
+						if itemcount > 0 then
+							local s = ""
+							if itemcount > 1 then
+								s = "s"
+							end
+						
+							self.MissionReport[#self.MissionReport + 1] = tostring(itemcount).." item"..s.." collected"
+						end
 					end
 					
 					-- Dump mission report to config to be saved 
