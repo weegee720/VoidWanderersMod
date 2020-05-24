@@ -17,7 +17,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Ketanot Hills"}
 CF_LocationPlanet[id] = "CC-11Y"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Squad"}
 
 local id = "Mt. Imdunt"
 CF_Location[#CF_Location + 1] = id

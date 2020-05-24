@@ -121,3 +121,27 @@ CF_MissionReputationRewardPerDifficulty[id] = 215
 CF_MissionMaxSets[id] = 6
 CF_MissionRequiredData[id] = {}
 
+-- Uses: Squad
+local id = "Squad"
+CF_Mission[#CF_Mission + 1] = id
+
+CF_MissionName[id] = "Wipe squad"
+CF_MissionScript[id] = "VoidWanderers.rte/Scripts/Mission_Squad.lua"
+CF_MissionMinReputation[id] = 1300
+CF_MissionBriefingText[id] = "Locate and destroy enemy specops squad and their commander."
+CF_MissionGoldRewardPerDifficulty[id] = 1500
+CF_MissionReputationRewardPerDifficulty[id] = 230
+CF_MissionMaxSets[id] = 6
+CF_MissionRequiredData[id] = {}
+
+local i = 1
+CF_MissionRequiredData[id][i] = {}
+CF_MissionRequiredData[id][i]["Name"] = "Commander"
+CF_MissionRequiredData[id][i]["Type"] = "Vector"
+CF_MissionRequiredData[id][i]["Max"] = 1
+
+local i = 2
+CF_MissionRequiredData[id][i] = {}
+CF_MissionRequiredData[id][i]["Name"] = "Trooper"
+CF_MissionRequiredData[id][i]["Type"] = "Vector"
+CF_MissionRequiredData[id][i]["Max"] = 4

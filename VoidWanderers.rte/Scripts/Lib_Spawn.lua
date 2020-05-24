@@ -2,6 +2,13 @@
 --
 -----------------------------------------------------------------------------------------
 function CF_MakeBrain(c, p, team, pos)
+	local f = CF_GetPlayerFaction(c, p);
+	CF_MakeBrainWithPreset(c, p, team, pos, CF_Brains[f], CF_BrainClasses[f], CF_BrainModules[f])
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
+function CF_MakeBrainWithPreset(c, p, team, pos, preset, class, module)
 	--print ("CF_SpawnBrain");
 
 	-- We don't check for moids here because we must create brain anyway
@@ -9,7 +16,11 @@ function CF_MakeBrain(c, p, team, pos)
 	local weapon = nil;
 	local f = CF_GetPlayerFaction(c, p);
 	
-	actor = CF_MakeActor(CF_Brains[f], CF_BrainClasses[f], CF_BrainModules[f])
+	if module ~= nil then
+		actor = CF_MakeActor(preset, class, module)
+	else
+		actor = CF_MakeActor2(preset, class)
+	end
 	
 	-- Create list of prefered weapons for brains
 	local list = {CF_WeaponTypes.RIFLE, CF_WeaponTypes.DIGGER}

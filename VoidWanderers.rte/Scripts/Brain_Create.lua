@@ -16,7 +16,6 @@ function do_rpgbrain_create(self)
 	self.PushCost = 15;
 	self.StealCost = 30;
 	self.DistortCost = 25;
-
 	
 	-- Find our owner actor
 	local found = MovableMan:GetMOFromID(self.RootID);
@@ -60,19 +59,30 @@ function do_rpgbrain_create(self)
 				--print ("Preset")
 				local pos = string.find(s ,"SHLD");
 				if pos ~= nil then
-					self.ShieldLvl = tonumber(string.sub(s, string.len(s), string.len(s) ))
+					self.ShieldLvl = tonumber(string.sub(s, pos + 4, pos + 4 ))
 				end
 			
 				local pos = string.find(s ,"TLKN");
 				if pos ~= nil then
-					self.TelekinesisLvl = tonumber(string.sub(s, string.len(s), string.len(s) ))
+					self.TelekinesisLvl = tonumber(string.sub(s, pos + 4, pos + 4 ))
+				end
+				
+				local pos = string.find(s ,"HLTH");
+				if pos ~= nil then
+					local val = (tonumber(string.sub(s, pos + 4, pos + 4 )) + 1) * 10
+				
+					self.MaxHealth = 100 + val
+					self.RegenInterval = 1500 - val * 10
 				end
 			end
 		end
 		
+		self.ThisActor.Health = self.MaxHealth
+		
 		--print (self.ThisActor.PresetName)
-		--print ("Sheild: "..self.ShieldLvl)
+		--print ("Shield: "..self.ShieldLvl)
 		--print ("Kinesis: "..self.TelekinesisLvl)
+		--print ("MaxHealth: "..self.MaxHealth)
 		
 		if self.ShieldLvl > 0 then
 			self.ShieldEnabled = true
@@ -120,7 +130,8 @@ function do_rpgbrain_create(self)
 				G_VW_DepressureTimer = Timer()
 			end
 			
-			G_VW_ShieldRadius = 150
+			G_VW_ShieldRadius = 180
+			G_VW_ShieldRadiusPerPower = 30
 			G_VW_MinVelocity = 10
 			
 			local shld = #G_VW_Shields + 1
@@ -129,6 +140,7 @@ function do_rpgbrain_create(self)
 			G_VW_Active[shld] = true
 			G_VW_Pressure[shld] = 0
 			G_VW_Power[shld] = self.ShieldLvl
+			G_VW_Switch = 0
 			
 			-- Remove inactive shields from the global list
 			local shields ={}
@@ -141,19 +153,29 @@ function do_rpgbrain_create(self)
 			for i = 1, #G_VW_Shields do
 				-- Remove shield duplicates
 				for ii = 1, i - 1 do
-					if MovableMan:IsActor(G_VW_Shields[ii]) and MovableMan:IsActor(G_VW_Shields[i]) then
+					if MovableMan:IsActor(G_VW_Shields[ii]) and MovableMan:IsActor(G_VW_Shields[i])then
 						if G_VW_Shields[ii].ID == G_VW_Shields[i].ID then
-							G_VW_Active[ii] = false
+							G_VW_Active[i] = false
 						end
 					end
 				end
-			
+
+				if not MovableMan:IsActor(G_VW_Shields[i]) then
+					G_VW_Active[i] = false
+				else
+					if not G_VW_Shields[i]:IsInGroup("Brains") or string.find(G_VW_Shields[i].PresetName ,"RPG Brain Robot") == nil then
+						G_VW_Active[i] = false
+					end
+				end
+				
+				-- Remove disabled shields
 				if G_VW_Active[i] then
 					j = j + 1
 					shields[j] = G_VW_Shields[i]
 					active[j] = G_VW_Active[i]
 					pressure[j] = G_VW_Pressure[i]
 					power[j] = G_VW_Power[i]
+					--print (shields[j])
 				end
 			end
 			
@@ -162,7 +184,7 @@ function do_rpgbrain_create(self)
 			G_VW_Pressure = pressure
 			G_VW_Power = power--]]--
 			
-			print ("Shield count: "..#G_VW_Shields)
+			--print ("Shield count: "..#G_VW_Shields)
 		end
 	else 
 		--print (self.ThisActor)

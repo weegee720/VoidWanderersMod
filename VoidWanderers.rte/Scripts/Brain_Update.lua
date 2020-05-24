@@ -23,13 +23,14 @@ function do_rpgbrain_shield()
 	end
 	
 	for i = 1, #G_VW_Active do
-		if G_VW_Active[i] and MovableMan:IsActor(G_VW_Shields[i]) and G_VW_Shields[i].Health > 0 and G_VW_Shields[i]:IsInGroup("Brains") and string.find(G_VW_Shields[i].PresetName ,"RPG Brain Robot") ~= nil then
+		if G_VW_Active[i] and MovableMan:IsActor(G_VW_Shields[i]) and G_VW_Shields[i].Health > 0 then
 			n = #shields + 1
 		
 			shields[n] = G_VW_Shields[i]
 			active[n] = true
 			
-			rads[n] = G_VW_ShieldRadius - G_VW_Pressure[i] / 10
+			--rads[n] = G_VW_ShieldRadius - G_VW_Pressure[i] / 10
+			rads[n] = (100 + (G_VW_Power[i] - 1) * G_VW_ShieldRadiusPerPower) - (G_VW_Pressure[i] / 10)
 			
 			if rads[n] < 0 then
 				rads[n] = 0
@@ -37,7 +38,7 @@ function do_rpgbrain_shield()
 			
 			if G_VW_Pressure[i] > 7 and rads[n] > 5 then
 				for i = 1, 4 do
-					local a = math.random(360) / (180 / 3.14)
+					local a = math.random(360) / (180 / math.pi)
 					local pos = shields[n].Pos + Vector(math.cos(a) * rads[n], math.sin(a) * rads[n])
 					if SceneMan:GetTerrMatter(pos.X, pos.Y) == 0 then
 						VoidWanderersRPG_AddEffect(pos, "Purple Glow 1")
@@ -64,8 +65,18 @@ function do_rpgbrain_shield()
 	G_VW_Active = active;
 	G_VW_Pressure = pressure;
 	
+	local counter = 0
+	
+	if G_VW_Switch == 0 then
+		G_VW_Switch = 1
+	else
+		G_VW_Switch = 0
+	end
+	
 	for p in MovableMan.Particles do
-		if p.HitsMOs and p.Vel.Magnitude >= G_VW_MinVelocity then
+		counter = counter + 1
+	
+		if counter % 2 == G_VW_Switch and p.HitsMOs and p.Vel.Magnitude >= G_VW_MinVelocity then
 			for i = 1, #G_VW_Shields do
 				s = G_VW_Shields[i]
 				pr = G_VW_Pressure[i]
@@ -76,7 +87,7 @@ function do_rpgbrain_shield()
 						
 						radius = rads[i]
 					
-						if dist <= radius and dist > radius * 0.50 then
+						if dist <= radius and dist > radius * 0.1 then
 							pr = pr + (p.Mass * p.Vel.Magnitude)
 						
 							if math.random(3) == 1 then
@@ -91,7 +102,8 @@ function do_rpgbrain_shield()
 								end
 							end
 						
-							p.Vel = p.Vel - Vector(p.Vel.X * 0.75, p.Vel.Y * 0.75)
+							--p.Vel = p.Vel - Vector(p.Vel.X * 0.95, p.Vel.Y * 0.95)
+							p.Vel = Vector(p.Vel.X * 0.001, p.Vel.Y * 0.001)
 						end
 					end
 				else
@@ -109,6 +121,10 @@ function do_rpgbrain_update(self)
 	if ActivityMan:GetActivity().ActivityState ~= Activity.RUNNING then
 		return
 	end
+
+	--[[if true then
+		return
+	end--]]--
 	
 	if G_VW_Shields ~= nil then
 		-- Timers are updated on every sim update

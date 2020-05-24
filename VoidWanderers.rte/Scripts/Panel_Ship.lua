@@ -347,9 +347,9 @@ function VoidWanderers:ProcessShipControlPanelUI()
 						local pname = CF_LocationName[ self.ShipControlLocationList[i] ]
 						if pname ~= nil then
 							if i == self.ShipControlSelectedLocation then
-								CF_DrawString("> " .. pname, pos + Vector(-62 - 71, -40 + (i - self.ShipControlLocationListStart) * 11), 130, 12)
+								CF_DrawString("> " .. pname, pos + Vector(-62 - 71, -40 + (i - self.ShipControlLocationListStart) * 11), 130, 10)
 							else
-								CF_DrawString(pname, pos + Vector(-62 - 71, -40 + (i - self.ShipControlLocationListStart) * 11), 130, 12)
+								CF_DrawString(pname, pos + Vector(-62 - 71, -40 + (i - self.ShipControlLocationListStart) * 11), 130, 10)
 							end
 						end
 					end
