@@ -49,9 +49,7 @@ if PresetMan:GetModuleID("UTL.rte") ~= -1 then
 	CF_BombOwnerFactions[n] = {}
 	CF_BombUnlockData[n] = 0
 
-
-	-- Disabled, because explodes via script in the UI
-	--[[local n = #CF_BombNames + 1
+	local n = #CF_BombNames + 1
 	CF_BombNames[n] = "ADW 25kg FRAG"
 	CF_BombPresets[n] = "ADW 25kg FRAG"
 	CF_BombModules[n] = "UTL.rte"
@@ -59,7 +57,7 @@ if PresetMan:GetModuleID("UTL.rte") ~= -1 then
 	CF_BombPrices[n] = 120
 	CF_BombDescriptions[n] = "Part of Ul-Tex's popular 25kg bomb range, the FRAG variant detonates above the target and showers the area in a withering hail of dense metal balls."
 	CF_BombOwnerFactions[n] = {}
-	CF_BombUnlockData[n] = 0--]]--
+	CF_BombUnlockData[n] = 0
 
 	local n = #CF_BombNames + 1
 	CF_BombNames[n] = "ADW 25kg HE"
@@ -81,8 +79,7 @@ if PresetMan:GetModuleID("UTL.rte") ~= -1 then
 	CF_BombOwnerFactions[n] = {}
 	CF_BombUnlockData[n] = 0
 
-	-- Disabled, because explodes via script in the UI
-	--[[local n = #CF_BombNames + 1
+	local n = #CF_BombNames + 1
 	CF_BombNames[n] = "ADW 50kg CLUST"
 	CF_BombPresets[n] = "ADW 50kg CLUST"
 	CF_BombModules[n] = "UTL.rte"
@@ -100,5 +97,5 @@ if PresetMan:GetModuleID("UTL.rte") ~= -1 then
 	CF_BombPrices[n] = 250
 	CF_BombDescriptions[n] = "Ul-Tex's 50kg bomb range, for when you absolutey definately NEED that squad of browncoats dead. The FRAG variant sprays the target area with dense metal balls at high velocity."
 	CF_BombOwnerFactions[n] = {}
-	CF_BombUnlockData[n] = 0--]]--
+	CF_BombUnlockData[n] = 0
 end
