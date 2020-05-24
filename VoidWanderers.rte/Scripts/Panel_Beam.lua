@@ -98,6 +98,8 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 				self.TeleportEffectTimer:Reset()
 			end
 			
+			--print (CF_LocationName[ self.GS["Location"] ])
+			
 			local locname = CF_LocationName[ self.GS["Location"] ]
 			if locname ~= nil then
 				if CF_LocationPlayable[ self.GS["Location"] ] == nil or CF_LocationPlayable[ self.GS["Location"] ] == true then
@@ -171,6 +173,9 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 					--Select scene
 					local r = math.random(#CF_LocationScenes[ self.GS["Location"] ])
 					local scene = CF_LocationScenes[ self.GS["Location"] ][r]
+					
+					print (self.GS["Location"])
+					print (scene)
 					
 					-- Set new operating mode
 					self.GS["Mode"] = "Mission"

@@ -27,7 +27,7 @@ function VoidWanderers:InitShipControlPanelUI()
 	end
 	
 	-- Init variables
-	self.ShipControlPanelModes = {REPORT = 0, LOCATION = 1, PLANET = 2}
+	self.ShipControlPanelModes = {REPORT = 0, LOCATION = 1, PLANET = 2, SHIPYARD = 3}
 
 	-- Debug
 	--for i = 1, CF_MaxMissionReportLines do
@@ -52,6 +52,8 @@ function VoidWanderers:InitShipControlPanelUI()
 	
 	self.ShipControlLocationsPerPage = 10
 	self.ShipControlPlanetsPerPage = 10
+	
+	self.ShipControlSelectedUpgrade = 1
 end
 -----------------------------------------------------------------------------------------
 --
@@ -93,13 +95,12 @@ function VoidWanderers:ProcessShipControlPanelUI()
 			for i = 1, #self.ShipControlPlanetList do
 				for j = 1, #self.ShipControlPlanetList - 1 do
 					if CF_PlanetName[ self.ShipControlPlanetList[j] ] > CF_PlanetName[ self.ShipControlPlanetList[j + 1] ] then
-						local s = CF_PlanetName[ self.ShipControlPlanetList[j] ]
-						CF_PlanetName[ self.ShipControlPlanetList[j] ] = CF_PlanetName[ self.ShipControlPlanetList[j + 1] ]
-						CF_PlanetName[ self.ShipControlPlanetList[j + 1] ] = s
+						local s = self.ShipControlPlanetList[j]
+						self.ShipControlPlanetList[j] = self.ShipControlPlanetList[j + 1]
+						self.ShipControlPlanetList[j + 1] = s
 					end
 				end
 			end
-
 			
 			-- Fill location list
 			self.ShipControlLocationList = {}
@@ -114,9 +115,9 @@ function VoidWanderers:ProcessShipControlPanelUI()
 			for i = 1, #self.ShipControlLocationList do
 				for j = 1, #self.ShipControlLocationList - 1 do
 					if CF_LocationName[ self.ShipControlLocationList[j] ] > CF_LocationName[ self.ShipControlLocationList[j + 1] ] then
-						local s = CF_LocationName[ self.ShipControlLocationList[j] ]
-						CF_LocationName[ self.ShipControlLocationList[j] ] = CF_LocationName[ self.ShipControlLocationList[j + 1] ]
-						CF_LocationName[ self.ShipControlLocationList[j + 1] ] = s
+						local s = self.ShipControlLocationList[j]
+						self.ShipControlLocationList[j] = self.ShipControlLocationList[j + 1] 
+						self.ShipControlLocationList[j + 1] = s
 					end
 				end
 			end
@@ -295,7 +296,6 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,-77))
 				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,78))				
 			end
-			
 ---------------------------------------------------------------------------------------------------
 			if self.ShipControlMode == self.ShipControlPanelModes.PLANET then
 				if cont:IsState(Controller.PRESS_UP) then
@@ -432,6 +432,113 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				end
 			end
 ---------------------------------------------------------------------------------------------------
+			if self.ShipControlMode == self.ShipControlPanelModes.SHIPYARD then
+				-- Create upgrades list
+				self.ShipControlUpgrades = {}
+				self.ShipControlUpgrades[1] = {}
+				self.ShipControlUpgrades[1]["Name"] = "Cryo-chambers"
+				self.ShipControlUpgrades[1]["Variable"] = "Player0VesselClonesCapacity"
+				self.ShipControlUpgrades[1]["Max"] = CF_VesselMaxClonesCapacity[ self.GS["Player0Vessel"] ]
+				self.ShipControlUpgrades[1]["Description"] = "How many bodies you can store"
+				self.ShipControlUpgrades[1]["Price"] = 1500
+
+				self.ShipControlUpgrades[2] = {}
+				self.ShipControlUpgrades[2]["Name"] = "Storage"
+				self.ShipControlUpgrades[2]["Variable"] = "Player0VesselStorageCapacity"
+				self.ShipControlUpgrades[2]["Max"] = CF_VesselMaxStorageCapacity[ self.GS["Player0Vessel"] ]
+				self.ShipControlUpgrades[2]["Description"] = "How many items you can store"
+				self.ShipControlUpgrades[2]["Price"] = 350
+
+				self.ShipControlUpgrades[3] = {}
+				self.ShipControlUpgrades[3]["Name"] = "Life support"
+				self.ShipControlUpgrades[3]["Variable"] = "Player0VesselLifeSupport"
+				self.ShipControlUpgrades[3]["Max"] = CF_VesselMaxLifeSupport[ self.GS["Player0Vessel"] ]
+				self.ShipControlUpgrades[3]["Description"] = "How many bodies can be active on ship simultaneously"
+				self.ShipControlUpgrades[3]["Price"] = 2500
+
+				self.ShipControlUpgrades[4] = {}
+				self.ShipControlUpgrades[4]["Name"] = "Communication"
+				self.ShipControlUpgrades[4]["Variable"] = "Player0VesselCommunication"
+				self.ShipControlUpgrades[4]["Max"] = CF_VesselMaxCommunication[ self.GS["Player0Vessel"] ]
+				self.ShipControlUpgrades[4]["Description"] = "How many bodies you can control on planet surface"
+				self.ShipControlUpgrades[4]["Price"] = 3000
+
+				self.ShipControlUpgrades[5] = {}
+				self.ShipControlUpgrades[5]["Name"] = "Engine"
+				self.ShipControlUpgrades[5]["Variable"] = "Player0VesselSpeed"
+				self.ShipControlUpgrades[5]["Max"] = CF_VesselMaxSpeed[ self.GS["Player0Vessel"] ]
+				self.ShipControlUpgrades[5]["Description"] = "Speed of the vessel. Faster ships are harder to intercept."
+				self.ShipControlUpgrades[5]["Price"] = 500
+				
+				if cont:IsState(Controller.PRESS_UP) then
+					-- Select planet
+					self.ShipControlSelectedUpgrade = self.ShipControlSelectedUpgrade - 1
+					if self.ShipControlSelectedUpgrade < 1 then
+						self.ShipControlSelectedUpgrade = 1
+					end
+				end
+			
+				if cont:IsState(Controller.PRESS_DOWN) then
+					-- Select planet
+					self.ShipControlSelectedUpgrade = self.ShipControlSelectedUpgrade + 1
+					if self.ShipControlSelectedUpgrade > #self.ShipControlUpgrades then
+						self.ShipControlSelectedUpgrade = #self.ShipControlUpgrades
+					end
+				end
+
+				-- Show planet list
+				for i = 1, #self.ShipControlUpgrades do
+					if i == self.ShipControlSelectedUpgrade then
+						CF_DrawString("> " .. self.ShipControlUpgrades[i]["Name"], pos + Vector(-62 - 71, -40 + i * 11), 130, 12)
+					else
+						CF_DrawString(self.ShipControlUpgrades[i]["Name"], pos + Vector(-62 - 71, -40 + i * 11), 130, 12)
+					end
+				end
+
+				CF_DrawString("SELECT UPGRADE:", pos + Vector(-62-71, -60), 270, 40)
+				
+				local current = tonumber(self.GS[ self.ShipControlUpgrades[self.ShipControlSelectedUpgrade]["Variable"] ])
+				local maximum = self.ShipControlUpgrades[self.ShipControlSelectedUpgrade]["Max"]
+				local price = self.ShipControlUpgrades[self.ShipControlSelectedUpgrade]["Price"]
+
+				if price > CF_GetPlayerGold(self.GS, 0) then
+					if self.Time % 2 == 0 then
+						CF_DrawString("FUNDS: "..CF_GetPlayerGold(self.GS, 0).." oz", pos + Vector(-62-71, -46), 270, 40)
+					end
+				else
+					CF_DrawString("FUNDS: "..CF_GetPlayerGold(self.GS, 0).." oz", pos + Vector(-62-71, -46), 270, 40)
+				end
+				
+				CF_DrawString("Current: "..current, pos + Vector(10, -30), 270, 40)
+				CF_DrawString("Maximum: "..maximum, pos + Vector(10, -20), 270, 40)
+				if current < maximum then
+					CF_DrawString("Upgrade price: "..self.ShipControlUpgrades[self.ShipControlSelectedUpgrade]["Price"].." oz", pos + Vector(10, -10), 270, 40)
+				end
+
+				CF_DrawString(self.ShipControlUpgrades[self.ShipControlSelectedUpgrade]["Description"], pos + Vector(10, 10), 130, 80)
+				
+				if cont:IsState(Controller.WEAPON_FIRE) then
+					if not self.FirePressed then
+						self.FirePressed = true;
+						
+						if current < maximum and price <= CF_GetPlayerGold(self.GS, 0) then
+							self.GS[ self.ShipControlUpgrades[self.ShipControlSelectedUpgrade]["Variable"] ] = current + 1
+							CF_SetPlayerGold(self.GS, 0, CF_GetPlayerGold(self.GS, 0) - price)
+						end
+					end
+				else
+					self.FirePressed = false
+				end
+
+				CF_DrawString("Upgrade ship", pos + Vector(-62-71, -78), 270, 40)
+				CF_DrawString("U/D - Select upgrade, FIRE - Upgrade", pos + Vector(-62-71, 78), 270, 40)
+				self:PutGlow("ControlPanel_Ship_PlanetBack", pos + Vector(-71, 0))
+				self:PutGlow("ControlPanel_Ship_PlanetBack", pos + Vector(70, 0))
+				
+				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,-77))
+				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,78))
+			end
+---------------------------------------------------------------------------------------------------
 			
 			if cont:IsState(Controller.PRESS_LEFT) then
 				self.ShipControlMode = self.ShipControlMode - 1
@@ -448,8 +555,14 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self.ShipSelectedItem = 1
 				self.LastShipSelectedItem = 0
 				
-				if self.ShipControlMode == 3 then
-					self.ShipControlMode = self.ShipControlPanelModes.PLANET
+				if self.GS["Planet"] == "TradeStar" and self.GS["Location"] ~= nil then
+					if self.ShipControlMode == 4 then
+						self.ShipControlMode = self.ShipControlPanelModes.SHIPYARD
+					end
+				else
+					if self.ShipControlMode == 3 then
+						self.ShipControlMode = self.ShipControlPanelModes.PLANET
+					end
 				end
 			end			
 		end

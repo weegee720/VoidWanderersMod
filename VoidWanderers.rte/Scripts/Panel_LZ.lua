@@ -129,7 +129,7 @@ function VoidWanderers:ProcessLZControlPanelUI()
 				CF_DrawString("RETURN IN T-" ..tostring(self.ControlPanelLZPressTime + CF_TeamReturnDelay - self.Time) , pos + Vector(-30, -10), 130, 20)
 				
 				-- Return to ship
-				if self.ControlPanelLZPressTime + CF_TeamReturnDelay - self.Time then
+				if self.ControlPanelLZPressTime + CF_TeamReturnDelay == self.Time then
 					self.DeployedActors = {}
 					
 					-- Bring back actors
