@@ -26,7 +26,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Suburbs"}
 CF_LocationPlanet[id] = "MP3-GTC-CTY"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine"}
 
 local id = "Tenements"
 CF_Location[#CF_Location + 1] = id
@@ -37,7 +37,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Tenements"}
 CF_LocationPlanet[id] = "MP3-GTC-CTY"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine"}
 
 local id = "Towers"
 CF_Location[#CF_Location + 1] = id
@@ -48,7 +48,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Towers"}
 CF_LocationPlanet[id] = "MP3-GTC-CTY"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine"}
 
 local id = "City Prison"
 CF_Location[#CF_Location + 1] = id
@@ -59,7 +59,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"City Prison"}
 CF_LocationPlanet[id] = "MP3-GTC-CTY"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine"}
 
 local id = "The Bank"
 CF_Location[#CF_Location + 1] = id
@@ -70,7 +70,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"The Bank"}
 CF_LocationPlanet[id] = "MP3-GTC-CTY"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine"}
 
 local id = "Skyrise"
 CF_Location[#CF_Location + 1] = id
@@ -81,7 +81,7 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Skyrise"}
 CF_LocationPlanet[id] = "MP3-GTC-CTY"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine"}
 
 local id = "Office"
 CF_Location[#CF_Location + 1] = id
@@ -92,6 +92,6 @@ CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = true
 CF_LocationScenes[id] = {"Office"}
 CF_LocationPlanet[id] = "MP3-GTC-CTY"
-CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships"}
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine"}
 
 

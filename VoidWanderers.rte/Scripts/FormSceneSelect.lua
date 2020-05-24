@@ -69,6 +69,22 @@ function VoidWanderers:SceneButton_OnClick()
 	
 	self:FormClose();
 	SceneMan:LoadScene(self.UI[el]["Text"], true)
+	
+	for p = -1, self.PlayerCount - 1 do
+		self:SetPlayerBrain(nil, p)
+	end
+	
+	for actor in MovableMan.AddedActors do
+		--print (actor.PresetName)
+		if actor.ClassName == "AHuman" or actor.ClassName == "ACrab" or actor.PresetName == "Brain Case" then
+			actor.ToDelete = true
+		end
+	end--]]--
+
+	for p = -1, self.PlayerCount - 1 do
+		self:SetPlayerBrain(nil, p)
+	end
+	
 	self.SelectedLocationID = self.UI[el]["LocationID"]
 	dofile(BASE_PATH.."FormSceneEditor.lua")
 	self:FormLoad();

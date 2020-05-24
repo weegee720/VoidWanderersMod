@@ -41,6 +41,7 @@ CF_MissionRequiredData[id][i]["Type"] = "Vector"
 CF_MissionRequiredData[id][i]["Max"] = 16
 
 
+
 local id = "Enemy"
 CF_Mission[#CF_Mission + 1] = id
 
@@ -55,7 +56,7 @@ local i = 1
 CF_MissionRequiredData[id][i] = {}
 CF_MissionRequiredData[id][i]["Name"] = "Any"
 CF_MissionRequiredData[id][i]["Type"] = "Vector"
-CF_MissionRequiredData[id][i]["Max"] = 12
+CF_MissionRequiredData[id][i]["Max"] = 6
 
 local i = 2
 CF_MissionRequiredData[id][i] = {}
@@ -103,6 +104,7 @@ local i = 9
 CF_MissionRequiredData[id][i] = {}
 CF_MissionRequiredData[id][i]["Name"] = "LZ"
 CF_MissionRequiredData[id][i]["Type"] = "Vector"
-CF_MissionRequiredData[id][i]["Max"] = 4
+CF_MissionRequiredData[id][i]["Max"] = 12
+
 
 CF_GenericMissionCount = #CF_Mission

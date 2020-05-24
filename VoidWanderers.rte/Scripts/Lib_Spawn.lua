@@ -796,7 +796,7 @@ function CF_GenerateRandomMission(c)
 	local cpus = tonumber(c["ActiveCPUs"])
 	local mission = {}
 	
-	-- Select CPUs to choose mission. We'll give a bithigher priorities to CPU's with better reputation
+	-- Select CPUs to choose mission. We'll give a bit higher priorities to CPU's with better reputation
 	local selp = {}
 	local r
 	
@@ -804,11 +804,11 @@ function CF_GenerateRandomMission(c)
 		local rep = tonumber(c["Player"..i.."Reputation"])
 		
 		if rep < -2000 then
-			r = 0.25
+			r = 0.15
 		elseif rep < -1000 then
-			r = 0.50
+			r = 0.30
 		elseif rep < 0 then
-			r = 0.75
+			r = 0.45
 		else
 			r = 1
 		end

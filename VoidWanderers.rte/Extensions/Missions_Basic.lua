@@ -31,7 +31,39 @@ CF_MissionRequiredData[id][i]["Type"] = "Vector"
 CF_MissionRequiredData[id][i]["Max"] = 4
 
 
--- Uses: Enemy
+-- Uses: Enemy, Mine
+local id = "Mine"
+CF_Mission[#CF_Mission + 1] = id
+
+CF_MissionName[id] = "Establish Mining"
+CF_MissionScript[id] = "VoidWanderers.rte/Scripts/Mission_Mine.lua"
+CF_MissionMinReputation[id] = 1000
+CF_MissionBriefingText[id] = "Establish mining camp and protect enough miners from enemy."
+CF_MissionGoldRewardPerDifficulty[id] = 0
+CF_MissionReputationRewardPerDifficulty[id] = 60
+CF_MissionMaxSets[id] = 6
+CF_MissionRequiredData[id] = {}
+
+local i = 1
+CF_MissionRequiredData[id][i] = {}
+CF_MissionRequiredData[id][i]["Name"] = "Miners"
+CF_MissionRequiredData[id][i]["Type"] = "Vector"
+CF_MissionRequiredData[id][i]["Max"] = 6
+
+local i = 2
+CF_MissionRequiredData[id][i] = {}
+CF_MissionRequiredData[id][i]["Name"] = "MinerSentries"
+CF_MissionRequiredData[id][i]["Type"] = "Vector"
+CF_MissionRequiredData[id][i]["Max"] = 6
+
+local i = 3
+CF_MissionRequiredData[id][i] = {}
+CF_MissionRequiredData[id][i]["Name"] = "MinerLZ"
+CF_MissionRequiredData[id][i]["Type"] = "Vector"
+CF_MissionRequiredData[id][i]["Max"] = 6
+
+
+-- Uses: Enemy, Mine
 local id = "Dropships"
 CF_Mission[#CF_Mission + 1] = id
 
@@ -45,15 +77,3 @@ CF_MissionMaxSets[id] = 6
 CF_MissionRequiredData[id] = {}
 
 
--- Uses: Enemy
-local id = "Mine"
-CF_Mission[#CF_Mission + 1] = id
-
-CF_MissionName[id] = "Establish Mining"
-CF_MissionScript[id] = "VoidWanderers.rte/Scripts/Mission_Mine.lua"
-CF_MissionMinReputation[id] = 1000
-CF_MissionBriefingText[id] = "Establish mining camp and protect enough miners from enemy."
-CF_MissionGoldRewardPerDifficulty[id] = 0
-CF_MissionReputationRewardPerDifficulty[id] = 60
-CF_MissionMaxSets[id] = 6
-CF_MissionRequiredData[id] = {}

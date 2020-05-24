@@ -11,40 +11,40 @@ function VoidWanderers:MissionCreate()
 	
 	setts = {}
 	setts[1] = {}
-	setts[1]["SpawnRate"] = 0.40
+	setts[1]["SpawnRate"] = 0.20
 	setts[1]["Reinforcements"] = 3
 	setts[1]["Interval"] = 26
-	setts[1]["TargetGold"] = 5000
+	setts[1]["TargetGold"] = 4000
 	
 	setts[2] = {}
-	setts[2]["SpawnRate"] = 0.60
+	setts[2]["SpawnRate"] = 0.40
 	setts[2]["Reinforcements"] = 4
 	setts[2]["Interval"] =26
-	setts[2]["TargetGold"] = 4500
+	setts[2]["TargetGold"] = 4000
 
 	setts[3] = {}
-	setts[3]["SpawnRate"] = 0.80
+	setts[3]["SpawnRate"] = 0.60
 	setts[3]["Reinforcements"] = 5
 	setts[3]["Interval"] = 26
 	setts[3]["TargetGold"] = 4000
 
 	setts[4] = {}
-	setts[4]["SpawnRate"] = 1
+	setts[4]["SpawnRate"] = 0.80
 	setts[4]["Reinforcements"] = 6
 	setts[4]["Interval"] = 24
-	setts[4]["TargetGold"] = 3500
+	setts[4]["TargetGold"] = 4000
 
 	setts[5] = {}
 	setts[5]["SpawnRate"] = 1
 	setts[5]["Reinforcements"] = 8
 	setts[5]["Interval"] = 24
-	setts[5]["TargetGold"] = 3000
+	setts[5]["TargetGold"] = 3500
 
 	setts[6] = {}
 	setts[6]["SpawnRate"] = 1
 	setts[6]["Reinforcements"] = 8
 	setts[6]["Interval"] = 22
-	setts[6]["TargetGold"] = 3000
+	setts[6]["TargetGold"] = 3500
 	
 	self.MissionSettings = setts[self.MissionDifficulty]
 	self.MissionStart = self.Time
@@ -53,70 +53,51 @@ function VoidWanderers:MissionCreate()
 	self.MissionLastFailWarning = 0
 	
 	-- Use generic enemy set
-	local set = CF_GetRandomMissionPointsSet(self.Pts, "Enemy")
+	local set = CF_GetRandomMissionPointsSet(self.Pts, "Mine")
 
 	-- Get LZs
-	self.MissionLZs = CF_GetPointsArray(self.Pts, "Enemy", set, "LZ")	
+	self.MissionLZs = CF_GetPointsArray(self.Pts, "Mine", set, "MinerLZ")	
+	
+	local count
 
-	-- In case we don't have any LZ defined disable reinforcements
-	if #self.MissionLZs == 0 then
-		self.MissionSettings["Reinforcements"] = 0
+	-- Get miner locations
+	local miners = CF_GetPointsArray(self.Pts, "Mine", set, "Miners")
+	count = math.ceil(#miners * self.MissionSettings["SpawnRate"])
+	if count < 0 then
+		count = 1
 	end
-	
-	-- Find 2 biggest available point sets except snipers which may be located on some cliffs
-	-- From the first we'll spawn security and from the second miners
-	local sets = {}
-	
-	sets[1] = CF_GetPointsArray(self.Pts, "Enemy", set, "Any")
-	sets[2] = CF_GetPointsArray(self.Pts, "Enemy", set, "Rifle")
-	sets[3] = CF_GetPointsArray(self.Pts, "Enemy", set, "Shotgun")
-	sets[4] = CF_GetPointsArray(self.Pts, "Enemy", set, "Heavy")
-	sets[5] = CF_GetPointsArray(self.Pts, "Enemy", set, "Armor")
+	miners = CF_SelectRandomPoints(miners, count)
 
-	for i = 1, #sets do
-		for j = 1, #sets - 1 do
-			if #sets[j] < #sets[j + 1] then
-				local c = sets[j + 1]
-				sets[j + 1] = sets[j]
-				sets[j] = c
-			end
-		end
+	-- Get security locations
+	local security = CF_GetPointsArray(self.Pts, "Mine", set, "MinerSentries")
+	count = math.ceil(#security * self.MissionSettings["SpawnRate"])
+	if count < 0 then
+		count = 1
 	end
-	
-	local miners
-	local security = sets[1]
-	if #sets[2] > 0 then
-		miners = sets[2]
-	else
-		miners = sets[1]
-	end
+	security = CF_SelectRandomPoints(security, count)
 
 	-- Spawn miners with double rate
 	for i = 1, #miners do
-		if math.random() < self.MissionSettings["SpawnRate"] * 2 then
-			local nw = {}
-			nw["Preset"] = CF_PresetTypes.ENGINEER
-			nw["Team"] = CF_CPUTeam
-			nw["Player"] = self.MissionTargetPlayer
-			nw["AIMode"] = Actor.AIMODE_GOLDDIG
-			nw["Pos"] = miners[i]
-			
-			table.insert(self.SpawnTable, nw)
-		end
+		local nw = {}
+		nw["Preset"] = CF_PresetTypes.ENGINEER
+		nw["Team"] = CF_CPUTeam
+		nw["Player"] = self.MissionTargetPlayer
+		nw["AIMode"] = Actor.AIMODE_GOLDDIG
+		nw["Pos"] = miners[i]
+		
+		table.insert(self.SpawnTable, nw)
 	end
 	
 	-- Spawn security
 	for i = 1, #security do
-		if math.random() < self.MissionSettings["SpawnRate"] then
-			local nw = {}
-			nw["Preset"] = math.random(CF_PresetTypes.HEAVY2)
-			nw["Team"] = CF_CPUTeam
-			nw["Player"] = self.MissionTargetPlayer
-			nw["AIMode"] = Actor.AIMODE_SENTRY
-			nw["Pos"] = security[i]
-			
-			table.insert(self.SpawnTable, nw)
-		end
+		local nw = {}
+		nw["Preset"] = math.random(CF_PresetTypes.HEAVY2)
+		nw["Team"] = CF_CPUTeam
+		nw["Player"] = self.MissionTargetPlayer
+		nw["AIMode"] = Actor.AIMODE_SENTRY
+		nw["Pos"] = security[i]
+		
+		table.insert(self.SpawnTable, nw)
 	end
 	
 	-- Spawn a few snipers finally

@@ -15,6 +15,7 @@ function VoidWanderers:MissionCreate()
 	setts[1]["AllyReinforcementsCount"] = 6
 	setts[1]["EnemyDropshipUnitCount"] = 1
 	setts[1]["Interval"] = 32
+	setts[1]["InitialMiners"] = 2
 	setts[1]["MinersNeeded"] = 3
 	setts[1]["TimeToHold"] = 60
 	
@@ -22,6 +23,7 @@ function VoidWanderers:MissionCreate()
 	setts[2]["AllyReinforcementsCount"] = 6
 	setts[2]["EnemyDropshipUnitCount"] = 1
 	setts[2]["Interval"] = 32
+	setts[2]["InitialMiners"] = 1
 	setts[2]["MinersNeeded"] = 3
 	setts[2]["TimeToHold"] = 70
 
@@ -29,6 +31,7 @@ function VoidWanderers:MissionCreate()
 	setts[3]["AllyReinforcementsCount"] = 6
 	setts[3]["EnemyDropshipUnitCount"] = 2
 	setts[3]["Interval"] = 32
+	setts[3]["InitialMiners"] = 2
 	setts[3]["MinersNeeded"] = 4
 	setts[3]["TimeToHold"] = 80
 
@@ -36,6 +39,7 @@ function VoidWanderers:MissionCreate()
 	setts[4]["AllyReinforcementsCount"] = 6
 	setts[4]["EnemyDropshipUnitCount"] = 2
 	setts[4]["Interval"] = 30
+	setts[4]["InitialMiners"] = 2
 	setts[4]["MinersNeeded"] = 5
 	setts[4]["TimeToHold"] = 90
 
@@ -43,6 +47,7 @@ function VoidWanderers:MissionCreate()
 	setts[5]["AllyReinforcementsCount"] = 6
 	setts[5]["EnemyDropshipUnitCount"] = 3
 	setts[5]["Interval"] = 30
+	setts[5]["InitialMiners"] = 3
 	setts[5]["MinersNeeded"] = 6
 	setts[5]["TimeToHold"] = 100
 
@@ -50,6 +55,7 @@ function VoidWanderers:MissionCreate()
 	setts[6]["AllyReinforcementsCount"] = 6
 	setts[6]["EnemyDropshipUnitCount"] = 3
 	setts[6]["Interval"] = 30
+	setts[6]["InitialMiners"] = 3
 	setts[6]["MinersNeeded"] = 6
 	setts[6]["TimeToHold"] = 120
 	
@@ -60,36 +66,14 @@ function VoidWanderers:MissionCreate()
 	self.MissionLastAllyReinforcements = self.Time - 1
 	
 	-- Use generic enemy set
-	local set = CF_GetRandomMissionPointsSet(self.Pts, "Enemy")
+	local set = CF_GetRandomMissionPointsSet(self.Pts, "Mine")
 
 	-- Get LZs
-	self.MissionLZs = CF_GetPointsArray(self.Pts, "Enemy", set, "LZ")	
-
-	-- In case we don't have any LZ defined then use player lz which is always present
-	if #self.MissionLZs == 0 then
-		self.MissionLZs = CF_GetPointsArray(self.Pts, "Deploy", self.MissionDeploySet, "PlayerLZ")	
-	end
+	self.MissionLZs = CF_GetPointsArray(self.Pts, "Mine", set, "MinerLZ")
 	
-	-- Select second biggest deployment set
-	local sets = {}
-	
-	sets[1] = CF_GetPointsArray(self.Pts, "Enemy", set, "Any")
-	sets[2] = CF_GetPointsArray(self.Pts, "Enemy", set, "Rifle")
-	sets[3] = CF_GetPointsArray(self.Pts, "Enemy", set, "Shotgun")
-	sets[4] = CF_GetPointsArray(self.Pts, "Enemy", set, "Heavy")
-	sets[5] = CF_GetPointsArray(self.Pts, "Enemy", set, "Armor")
-
-	for i = 1, #sets do
-		for j = 1, #sets - 1 do
-			if #sets[j] < #sets[j + 1] then
-				local c = sets[j + 1]
-				sets[j + 1] = sets[j]
-				sets[j] = c
-			end
-		end
-	end
-	
-	local miners = CF_SelectRandomPoints(sets[1], 2)
+	-- Git miners
+	local miners = CF_GetPointsArray(self.Pts, "Mine", set, "Miners")
+	miners = CF_SelectRandomPoints(miners, self.MissionSettings["InitialMiners"])
 
 	-- Spawn miners
 	for i = 1, #miners do
@@ -99,7 +83,7 @@ function VoidWanderers:MissionCreate()
 		nw["Player"] = self.MissionSourcePlayer
 		nw["AIMode"] = Actor.AIMODE_GOLDDIG
 		nw["Pos"] = miners[i]
-		nw["RenamePreset"] = "-" -- Spawn as allies. Allies don't need comm-points to operate
+		nw["RenamePreset"] = "-" -- Spawn as allies. Allies don't need comm-points to operate and don't get transfered to ship
 		
 		table.insert(self.SpawnTable, nw)
 	end

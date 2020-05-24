@@ -80,6 +80,13 @@ function VoidWanderers:LaunchScript(scene , script)
 	
 	dofile(BASE_PATH..script)
 	SceneMan:LoadScene(scene , true)
+	
+	--Delete all added actors
+	for actor in MovableMan.AddedActors do
+		if actor.ClassName ~= "Adoor" then
+			actor.ToDelete = true
+		end
+	end	
 end
 -----------------------------------------------------------------------------------------
 -- Pause Activity

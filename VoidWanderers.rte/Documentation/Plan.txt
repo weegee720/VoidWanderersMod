@@ -8,3 +8,12 @@ Planned features:
 - Campaigns?
 - Tactical icons for friedly actors indicating snipers, diggers etc. to make unit selection faster
 - Built in good old CCRPG and CCRTS systems?
+- Way to recon before misison starts?
+
+
+Planned missions:
+
+Zombie inslaught
+Train chase
+Console hunt (UL2 maps only)
+Chip steal

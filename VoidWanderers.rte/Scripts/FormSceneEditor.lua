@@ -4,6 +4,8 @@
 function VoidWanderers:FormLoad()
 	--CF_StopUIProcessing = true
 
+	print ("Form load")
+	
 	G_CursorActor = CreateActor("VW_Cursor")
 	if G_CursorActor then
 		G_CursorActor.Team = CF_PlayerTeam
@@ -24,7 +26,11 @@ function VoidWanderers:FormLoad()
 		ActivityMan:GetActivity():SwitchToActor(G_CursorActor, 0, 0);
 	end
 
+	--print (self:GetPlayerBrain(0))
+	--print (self:GetPlayerBrain(-1))
 	self:CreateActors()
+	--print (self:GetPlayerBrain(0))
+	--print (self:GetPlayerBrain(-1))
 	
 	self.Pts = {}
 	
@@ -91,8 +97,27 @@ function VoidWanderers:FormLoad()
 	el["OnClick"] = self.AlwaysShowGenericMarks_OnClick;
 	
 	self.UI[#self.UI + 1] = el;	
+
+
+	el = {}
+	el["Type"] = self.ElementTypes.BUTTON;
+	el["Presets"] = {};
+	el["Presets"][self.ButtonStates.IDLE] = "ButtonSceneEditorWideIdle"
+	el["Presets"][self.ButtonStates.MOUSE_OVER] = "ButtonSceneEditorWideMouseOver"
+	el["Presets"][self.ButtonStates.PRESSED] = "ButtonSceneEditorWidePressed"
+	el["RelPos"] = Vector(-self.ResX2 + 20 + sx / 2 + 321 , -self.ResY2 + 20 )
+	el["Text"] = "Snap to grid 12px"
+	el["Width"] = sx;
+	el["Height"] = sy;
+	el["Visible"] = false
+	
+	el["OnClick"] = self.SnapToGrid_OnClick;
+	
+	self.UI[#self.UI + 1] = el;	
 	
 	self.ShowGeneric = true
+	self.SnapToGrid = true
+	self.GridSize = 12
 	
 	-- Create scene buttons
 	for i = 1, #self.Data do
@@ -198,6 +223,12 @@ end
 -----------------------------------------------------------------------------------------
 function VoidWanderers:AlwaysShowGenericMarks_OnClick()
 	self.ShowGeneric = not self.ShowGeneric
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
+function VoidWanderers:SnapToGrid_OnClick()
+	self.SnapToGrid = not self.SnapToGrid
 end
 -----------------------------------------------------------------------------------------
 --
@@ -486,7 +517,16 @@ function VoidWanderers:FormClick()
 			if self.Pts[self.SelectedType][self.SelectedSet][self.SelectedPointType] == nil then
 				self.Pts[self.SelectedType][self.SelectedSet][self.SelectedPointType] = {}
 			end
-			self.Pts[self.SelectedType][self.SelectedSet][self.SelectedPointType][self.SelectedPoint] = Vector(math.floor(self.Mouse.X), math.floor(self.Mouse.Y))
+			
+			local ms;
+			
+			if self.SnapToGrid and self.SnappedMouse ~= nil then
+				ms = self.SnappedMouse
+			else
+				ms = self.Mouse
+			end
+			
+			self.Pts[self.SelectedType][self.SelectedSet][self.SelectedPointType][self.SelectedPoint] = Vector(math.floor(ms.X), math.floor(ms.Y))
 		end
 	end
 	
@@ -513,7 +553,15 @@ end
 -----------------------------------------------------------------------------------------
 function VoidWanderers:FormDraw()
 	if not self.ButtonPressed then
-		CF_DrawString(""..math.ceil(self.Mouse.X).."-"..math.ceil(self.Mouse.Y), self.Mouse + Vector(-14,40), 100, 100)
+		local ms;
+		
+		if self.SnapToGrid and self.SnappedMouse ~= nil then
+			ms = self.SnappedMouse
+		else
+			ms = self.Mouse
+		end	
+	
+		CF_DrawString(""..math.floor(ms.X).."-"..math.floor(ms.Y), self.Mouse + Vector(-14,40), 100, 100)
 	end
 	
 	if self.SelectedType ~= nil then
@@ -586,7 +634,27 @@ function VoidWanderers:FormDraw()
 		end
 	end
 	
-	local s = ""
+	if self.SnapToGrid and not self.ButtonPressed then
+		local sx
+		local sy
+		
+		if self.Mouse.X % self.GridSize < self.GridSize / 2 then
+			sx = math.floor(self.Mouse.X / self.GridSize) * self.GridSize
+		else
+			sx = math.ceil(self.Mouse.X / self.GridSize) * self.GridSize
+		end
+
+		if self.Mouse.Y % self.GridSize < self.GridSize / 2 then
+			sy = math.floor(self.Mouse.Y / self.GridSize) * self.GridSize
+		else
+			sy = math.ceil(self.Mouse.Y / self.GridSize) * self.GridSize
+		end
+		
+		self.SnappedMouse = Vector(sx,sy)
+		self:PutGlow("SceneEditor_Dot_Yellow", self.SnappedMouse)
+	end
+	
+	local s = SceneMan.Scene.PresetName.."\n"
 	
 	if self.SelectedType ~= nil then
 		s = s..self.SelectedType
