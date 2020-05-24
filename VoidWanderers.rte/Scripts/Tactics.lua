@@ -297,6 +297,10 @@ function VoidWanderers:StartActivity()
 		
 		self.MissionStatus = nil
 		
+		-- Set generic mission difficulty based on location security
+		local diff = CF_GetLocationDifficulty(self.GS, self.GS["Location"])
+		self.MissionDifficulty = diff		
+		
 		-- Find available mission
 		for m = 1, CF_MaxMissions do
 			if self.GS["Location"] == self.GS["Mission"..m.."Location"] then -- GAMEPLAY
@@ -384,10 +388,9 @@ function VoidWanderers:StartActivity()
 		
 		-- Set unseen
 		if CF_FogOfWarEnabled then
-			--SceneMan:MakeAllUnseen(Vector(CF_FogOfWarResolution, CF_FogOfWarResolution), CF_PlayerTeam);
+			SceneMan:MakeAllUnseen(Vector(CF_FogOfWarResolution, CF_FogOfWarResolution), CF_PlayerTeam);
 			
 			-- Reveal previously saved fog of war
-			--print ("Reveal fog")
 			
 			-- Do not reveal on vessel maps
 			if not CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.ALWAYSUNSEEN) then
@@ -708,6 +711,7 @@ function VoidWanderers:TriggerShipAssault()
 			--id = "TEST" -- DEBUG
 			--id = "PIRATE_GENERIC" -- DEBUG
 			id = "ABANDONED_VESSEL_GENERIC"  --DEBUG
+			id = "HOSTILE_DRONE"
 			
 			-- Launch encounter
 			if found and id ~= nil then
@@ -1110,6 +1114,12 @@ function VoidWanderers:UpdateActivity()
 			end
 		end--]]--
 		
+		if self.AssaultTime > self.Time then
+			if self.Time % 2 == 0 then
+				self:MakeAlertSound()
+			end
+		end
+		
 		if self.GS["Mode"] == "Vessel" then
 			if CF_CountActors(CF_PlayerTeam) > tonumber(self.GS["Player0VesselLifeSupport"]) then
 				self.OverCrowded = true
@@ -1125,8 +1135,18 @@ function VoidWanderers:UpdateActivity()
 						end
 					end
 				end
+				
+				if self.Time % 2 == 0 then
+					self:MakeAlertSound()
+				end
 			else
 				self.OverCrowded = false
+			end
+			
+			if self.RandomEncounterID ~= nil then
+				if self.Time % 2 == 0 then
+					self:MakeAlertSound()
+				end
 			end
 			
 			-- When on vessel always 
@@ -1150,6 +1170,10 @@ function VoidWanderers:UpdateActivity()
 		
 		-- Process enemy spawn during assaults
 		if self.GS["Mode"] == "Assault" then
+			if self.Time % 2 == 0 then
+				self:MakeAlertSound()
+			end
+		
 			-- Spawn enemies
 			if self.AssaultNextSpawnTime == self.Time then
 				-- Check end of assault conditions
@@ -1159,8 +1183,6 @@ function VoidWanderers:UpdateActivity()
 					
 					-- Re-init consoles back
 					self:InitConsoles()
-					
-					
 					
 					-- Launch ship assault encounter
 					local id = "COUNTERATTACK"
@@ -1640,7 +1662,10 @@ function VoidWanderers:InitExplorationPoints()
 	
 	self.MissionExplorationHologram = "Holo" .. math.random(CF_MaxHolograms)
 	
-	print (self.MissionExplorationPoint)
+	self.MissionExplorationText = {}
+	self.MissionExplorationTextStart = -100
+	
+	--print (self.MissionExplorationPoint)
 end
 -----------------------------------------------------------------------------------------
 --
@@ -1652,35 +1677,112 @@ function VoidWanderers:ProcessExplorationPoints()
 				self:PutGlow(self.MissionExplorationHologram, self.MissionExplorationPoint)
 			end
 			
+			-- Send all units to brainhunt
 			for actor in MovableMan.Actors do
-				if actor.Team == CF_PlayerTeam and CF_Dist(actor.Pos, self.MissionExplorationPoint) < 5 then
-					self:GiveRandomExplorationReward()
-					self.MissionExplorationRecovered = true
-					self.MissionExplorationPoint = nil
-					
-					for a in MovableMan.Actors do
-						if a.Team ~= CF_PlayerTeam then
-							a.AIMode = Actor.AIMODE_BRAINHUNT
+				if actor.Team == CF_PlayerTeam and CF_Dist(actor.Pos, self.MissionExplorationPoint) < 25 then
+					if actor:IsInGroup("Brains") then
+						self.MissionExplorationText = self:GiveRandomExplorationReward()
+						self.MissionExplorationRecovered = true
+						--self.MissionExplorationPoint = nil
+						
+						self.MissionExplorationTextStart = self.Time
+						
+						for a in MovableMan.Actors do
+							if a.Team ~= CF_PlayerTeam then
+								a.AIMode = Actor.AIMODE_BRAINHUNT
+							end
 						end
+						
+						break
+					else
+						self:AddObjectivePoint("Only brain can decrypt this holorecord", self.MissionExplorationPoint + Vector(0,-30) , CF_PlayerTeam, GameActivity.ARROWDOWN);
 					end
-					
-					break
 				end
 			end
 		end
+	end
+	
+	if self.Time > self.MissionExplorationTextStart and self.Time < self.MissionExplorationTextStart + 10 then
+		local txt = ""
+		for i = 1, #self.MissionExplorationText do
+			txt = self.MissionExplorationText[i] .."\n"
+		end
+		
+		self:AddObjectivePoint(txt, self.MissionExplorationPoint + Vector(0,-30) , CF_PlayerTeam, GameActivity.ARROWDOWN);
 	end
 end
 -----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
 function VoidWanderers:GiveRandomExplorationReward()
-	print ("Reward")
+	local rewards = {gold = 1, experience = 2, reputation = 3, blueprints = 4, nothing = 5}
+	local text = {"Nothing of value was found."}
+	
+	local r = math.random(rewards.nothing)
+	
+	if r == rewards.gold then
+		local amount = self.MissionDifficulty * 200 + math.random(self.MissionDifficulty * 500)
+		
+		CF_SetPlayerGold(self.GS, 0, CF_GetPlayerGold(self.GS, 0) + amount)
+		text = {}
+		text[1] = "Bank account access codes found."
+		text[2] = tostring(amount).."oz of gold received."
+	elseif r == rewards.experience then
+		local exppts = self.MissionDifficulty * 50 + math.random(self.MissionDifficulty * 100)
+		levelup = CF_GiveExp(self.GS, exppts)
+		
+		text = {}
+		text[1] = "Captain's log found. "..exppts.." exp gained."
+		
+		if levelup then
+			local s = ""
+			if self.PlayerCount > 1 then
+				s = "s"
+			end
+		
+			text[2] = "Brain"..s.." leveled up!"
+		end
+	elseif r == rewards.reputation then
+		local amount = self.MissionDifficulty * 25 + math.random(self.MissionDifficulty * 25)
+		local plr = math.random(tonumber(self.GS["ActiveCPUs"]))
+		
+		local rep = tonumber(self.GS["Player"..plr.."Reputation"])
+		self.GS["Player"..plr.."Reputation"] = rep + amount
+		
+		text = {}
+		text[1] = "Intelligence data found."
+		text[2] = "+"..amount.." "..CF_GetPlayerFaction(self.GS, plr).." reputation."
+	elseif r == rewards.blueprints then
+		local id = CF_UnlockRandomQuantumItem(self.GS)
+		
+		text = {CF_QuantumItmPresets[id].." quantum scheme found."}
+	end
+	
+	for i = 1, #text do
+		self.MissionReport[#self.MissionReport + 1]	= text[i]
+	end
+	
+	return text;
 end
 -----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
 function VoidWanderers:CraftEnteredOrbit()
 	-- Empty default handler, may be changed by mission scripts
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
+function VoidWanderers:MakeAlertSound()
+	local pos = self.BrainPos[1]
+	local actr = self:GetControlledActor(0)
+	if actr ~= nil then
+		pos = actr.Pos
+	end
+
+	local fxb = CreateAEmitter("Alarm Effect");
+	fxb.Pos = pos;
+	MovableMan:AddParticle(fxb);				
 end
 -----------------------------------------------------------------------------------------
 -- That's all folks!!!

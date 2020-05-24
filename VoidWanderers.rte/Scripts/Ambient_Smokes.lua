@@ -13,6 +13,15 @@ function VoidWanderers:AmbientCreate()
 	
 	self.AmbientSmokesNextHealthDamage = self.Time
 	self.Ship = SceneMan.Scene:GetArea("Vessel")
+	
+	
+	-- Explosions
+	self.ExplosionTimer = Timer();
+	self.ExplosionTimer:Reset();
+	self.ExplosionInterval =  2500;
+	self.SafeExplosionDistance = 250;
+	
+	self.LastExplosionPos = self.Ship:GetRandomPoint();
 end
 -----------------------------------------------------------------------------------------
 --
@@ -44,6 +53,36 @@ function VoidWanderers:AmbientUpdate()
 			end
 		end
 	end--]]--
+	
+	
+	-- Put explosion
+	if self.ExplosionTimer:IsPastSimMS(self.ExplosionInterval) then
+		local pos;
+		local ok = true;
+		
+		-- Select safe position for our explosion to avoid hitting any of our heroes
+		pos = self.Ship:GetRandomPoint();
+		
+		for actor in MovableMan.Actors do
+			if actor.Team == CF_PlayerTeam then
+				if CF_Dist(pos, actor.Pos) < self.SafeExplosionDistance then
+					ok = false
+					break
+				end
+			end
+		end
+		
+		if ok then
+			local preset = "Explosion "..math.random(10);
+			
+			-- When all evacuated - destroy the ship with terrain eating explosions
+			local Charge = CreateMOSRotating(preset, self.ModuleName)
+			Charge.Pos = pos;
+			MovableMan:AddParticle(Charge)
+			Charge:GibThis();
+			self.ExplosionTimer:Reset();
+		end
+	end
 end
 -----------------------------------------------------------------------------------------
 --
