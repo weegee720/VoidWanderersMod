@@ -18,6 +18,8 @@ function CF_InitFactions(activity)
 	
 	CF_SellPriceCoeff = 0.25
 	
+	CF_MissionResultShowInterval = 10
+	
 	CF_UnknownItemPrice = 250
 	CF_UnknownActorPrice = 500
 	

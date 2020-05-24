@@ -25,15 +25,6 @@ function VoidWanderers:MissionCreate()
 	local amount = math.ceil(CF_AmbientEnemyRate * #enm)
 	--print ("Crates: "..amount)
 	local enmpos = CF_SelectRandomPoints(enm, amount)
-
-	-- Find random enemy players for this map
-	--local p1 = math.random(tonumber(self.GS["ActiveCPUs"]))
-	--local p2
-	--local pret = p1
-	--while pret == p1 do
-	--	pret = math.random(tonumber(self.GS["ActiveCPUs"]))
-	--end
-	--p2 = pret
 	
 	-- We should not spawn player-selected faction unless we have bad relation with  it
 	local selection = {}

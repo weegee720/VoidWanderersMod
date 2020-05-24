@@ -261,7 +261,7 @@ function VoidWanderers:ProcessLZControlPanelUI()
 			
 			if self.MissionStatus ~= nil then
 				local l = CF_GetStringPixelWidth(self.MissionStatus)
-				CF_DrawString(self.MissionStatus, pos + Vector(-l/2, 4), 130, 25)
+				CF_DrawString(self.MissionStatus, pos + Vector(-l/2, 16), 130, 25)
 			end
 		end
 	end

@@ -1,6 +1,85 @@
 -----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
+function CF_MakeBrain(c, p, team, pos)
+	--print ("CF_SpawnBrain");
+
+	-- We don't check for moids here because we must create brain anyway
+	local actor = nil
+	local weapon = nil;
+	local f = CF_GetPlayerFaction(c, p);
+	
+	actor = CF_MakeActor(CF_Brains[f], CF_BrainClasses[f], CF_BrainModules[f])
+	
+	-- Create list of prefered weapons for brains
+	local list = {CF_WeaponTypes.RIFLE, CF_WeaponTypes.DIGGER}
+	
+	if CF_PreferedBrainInventory[f] ~= nil then
+		list = CF_PreferedBrainInventory[f]
+	end
+	
+	local weaponsgiven = 0
+	
+	if actor ~= nil then
+		for i = 1, #list do
+			local weaps;
+			-- Try to give brain most powerful prefered weapon
+			weaps = CF_MakeListOfMostPowerfulWeapons(c, p, list[i], 100000)
+			
+			if weaps ~= nil then
+				local wf = weaps[1]["Faction"]
+				weapon = CF_MakeItem(CF_ItmPresets[wf][ weaps[1]["Item"] ], CF_ItmClasses[wf][ weaps[1]["Item"] ], CF_ItmModules[wf][ weaps[1]["Item"] ]);
+				if weapon ~= nil then
+					actor:AddInventoryItem(weapon);
+					
+					if list[i] ~= CF_WeaponTypes.DIGGER and list[i] ~= CF_WeaponTypes.TOOL then
+						weaponsgiven = weaponsgiven + 1
+					end
+				end
+			end
+		end
+		
+		if weaponsgiven == 0 then
+			-- If we didn't get any weapins try to give other weapons, rifles
+			if weaps == nil then
+				weaps = CF_MakeListOfMostPowerfulWeapons(c, p, CF_WeaponTypes.RIFLE, 100000)
+			end
+
+			-- Sniper rifles
+			if weaps == nil then
+				weaps = CF_MakeListOfMostPowerfulWeapons(c, p, CF_WeaponTypes.SNIPER, 100000)
+			end
+
+			-- No luck - heavies then
+			if weaps == nil then
+				weaps = CF_MakeListOfMostPowerfulWeapons(c, p, CF_WeaponTypes.HEAVY, 100000)
+			end
+			
+			-- No luck - pistols then
+			if weaps == nil then
+				weaps = CF_MakeListOfMostPowerfulWeapons(c, p, CF_WeaponTypes.PISTOL, 100000)
+			end
+			
+			if weaps ~= nil then
+				local wf = weaps[1]["Faction"]
+				weapon = CF_MakeItem(CF_ItmPresets[wf][ weaps[1]["Item"] ], CF_ItmClasses[wf][ weaps[1]["Item"] ], CF_ItmModules[wf][ weaps[1]["Item"] ]);
+				if weapon ~= nil then
+					actor:AddInventoryItem(weapon);
+				end
+			end
+		end
+
+		-- Set default AI mode
+		actor.AIMode = Actor.AIMODE_SENTRY;
+		actor.Pos = pos
+		actor.Team = team
+	end
+	
+	return actor;
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
 function CF_SpawnAIUnitWithPreset(c, p, team, pos, aimode, pre)
 	local act = CF_MakeUnitFromPreset(c, p, pre)
 	

@@ -188,6 +188,7 @@ function VoidWanderers:StartActivity()
 			if actor then
 				actor.Pos = dsts[dest]
 				actor.Team = CF_PlayerTeam
+				actor.AIMode = Actor.AIMODE_SENTRY
 				for j = 1, #self.DeployedActors[i]["InventoryPresets"] do
 					local itm = CF_MakeItem2(self.DeployedActors[i]["InventoryPresets"][j], self.DeployedActors[i]["InventoryClasses"][j])
 					if itm then
@@ -240,17 +241,23 @@ function VoidWanderers:StartActivity()
 				self.MissionDifficulty = tonumber(self.GS["Mission"..m.."Difficulty"])
 				self.MissionSourcePlayer = tonumber(self.GS["Mission"..m.."SourcePlayer"])
 				self.MissionTargetPlayer = tonumber(self.GS["Mission"..m.."TargetPlayer"])
+
+				-- DEBUG
+				--self.MissionDifficulty = CF_MaxDifficulty -- DEBUG
+				--self.MissionType = "Assault" -- DEBUG
+				--self.MissionType = "Assassinate" -- DEBUG
+				--self.MissionType = "Dropships" -- DEBUG
 				
 				self.MissionScript = CF_MissionScript[ self.MissionType ]
 				self.MissionGoldReward = CF_MissionGoldRewardPerDifficulty[ self.MissionType ] * self.MissionDifficulty
 				self.MissionReputationReward = CF_MissionReputationRewardPerDifficulty[ self.MissionType ] * self.MissionDifficulty
 				
 				self.MissionStatus = "" -- Will be updated by mission script
-				
+
 				-- Create unit presets
 				CF_CreateAIUnitPresets(self.GS, self.MissionSourcePlayer , CF_GetTechLevelFromDifficulty(self.GS, self.MissionSourcePlayer, self.MissionDifficulty, CF_MaxDifficulty))
 				CF_CreateAIUnitPresets(self.GS, self.MissionTargetPlayer , CF_GetTechLevelFromDifficulty(self.GS, self.MissionTargetPlayer, self.MissionDifficulty, CF_MaxDifficulty))
-
+				
 				break
 			end
 		end
@@ -492,8 +499,8 @@ function VoidWanderers:TriggerShipAssault()
 		
 		local rep = tonumber(self.GS["Player"..self.AssaultEnemyPlayer.."Reputation"])
 		
-		print (CF_GetPlayerFaction(self.GS,self.AssaultEnemyPlayer))
-		print (rep)
+		--print (CF_GetPlayerFaction(self.GS,self.AssaultEnemyPlayer))
+		--print (rep)
 		
 		if rep < CF_ReputationHuntTreshold then
 			self.AssaultDifficulty = math.floor(math.abs(rep / CF_ReputationPerDifficulty))
@@ -509,9 +516,9 @@ function VoidWanderers:TriggerShipAssault()
 			local r = math.random(CF_MaxDifficulty * 40)
 			local tgt = ((CF_MaxDifficulty - self.AssaultDifficulty) * 4) + 4
 			
-			print (self.AssaultDifficulty)
-			print (r)
-			print (tgt)
+			--print (self.AssaultDifficulty)
+			--print (r)
+			--print (tgt)
 			
 			if r < tgt then
 				toassault = true
@@ -829,6 +836,12 @@ function VoidWanderers:UpdateActivity()
 						if act then
 							self.AssaultEnemiesToSpawn = self.AssaultEnemiesToSpawn - 1
 							MovableMan:AddActor(act)
+							
+							local fxb = CreateAEmitter("Teleporter Effect A");
+							fxb.Pos = act.Pos;
+							MovableMan:AddParticle(fxb);
+							
+							act:FlashWhite(1500);
 						end
 					end
 				end
@@ -1005,7 +1018,7 @@ end
 -----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
-function VoidWanderers:DeployGenericMissionEnemies(setnumber, setname, plr)
+function VoidWanderers:DeployGenericMissionEnemies(setnumber, setname, plr, spawnrate)
 	-- Define spawn queue
 	local dq = {}
 	-- Defenders aka turrets if any
@@ -1061,23 +1074,25 @@ function VoidWanderers:DeployGenericMissionEnemies(setnumber, setname, plr)
 		--local enmpos = CF_SelectRandomPoints(enm, #enm)
 		
 		for i = 1, #enmpos do
-			local nw = {}
-			if dq[d]["Preset"] == nil then
-				nw["Preset"] = math.random(CF_PresetTypes.ENGINEER)
-			else
-				nw["Preset"] = dq[d]["Preset"]
+			if math.random() < spawnrate then
+				local nw = {}
+				if dq[d]["Preset"] == nil then
+					nw["Preset"] = math.random(CF_PresetTypes.ARMOR2)
+				else
+					nw["Preset"] = dq[d]["Preset"]
+				end
+				nw["Team"] = CF_CPUTeam
+				nw["Player"] = plr
+				nw["AIMode"] = Actor.AIMODE_SENTRY
+				nw["Pos"] = enmpos[i]
+				
+				table.insert(self.SpawnTable, nw)
 			end
-			nw["Team"] = CF_CPUTeam
-			nw["Player"] = plr
-			nw["AIMode"] = Actor.AIMODE_SENTRY
-			nw["Pos"] = enmpos[i]
-			
-			table.insert(self.SpawnTable, nw)	
 		end
 	end
 	
 	-- Get LZs
-	self.MissionEnemyLZs = CF_GetPointsArray(self.Pts, setname, setnumber, "LZ")
+	self.MissionLZs = CF_GetPointsArray(self.Pts, setname, setnumber, "LZ")
 	
 	-- Get base box
 	local bp = CF_GetPointsArray(self.Pts, setname, setnumber, "Base")
@@ -1123,6 +1138,12 @@ function VoidWanderers:GiveMissionRewards()
 	end
 
 	self.MissionFailed = false
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
+function VoidWanderers:CraftEnteredOrbit()
+	-- Empty default handler, may be changed by mission scripts
 end
 -----------------------------------------------------------------------------------------
 -- That's all folks!!!
