@@ -462,6 +462,31 @@ function do_rpgbrain_update(self)
 			VoidWanderersRPG_AddEffect(self.Pos + relpos, effect)
 		end
 		
+		-- Process go to
+		if self.ThisActor.AIMode == Actor.AIMODE_GOTO then
+			local dest = self.ThisActor:GetLastAIWaypoint()
+			
+			if dest ~= self.ThisActor.Pos then
+				if CF_GS["Brain"..self.BrainNumber.."GotoEnabled"] == "true" then
+					for actor in MovableMan.Actors do
+						local brainonly = false
+					
+						if actor.Team == self.ThisActor.Team and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") and actor.AIMode == Actor.AIMODE_SENTRY and not actor:IsInGroup("Brains") then
+							local d = CF_Dist(self.ThisActor.Pos, actor.Pos)
+							if d <= CF_OrdersRange	* 2 then
+								actor.AIMode = Actor.AIMODE_GOTO
+								actor:AddAISceneWaypoint(dest)
+								actor:FlashWhite(25)
+							end
+						end
+					end
+					
+					self.ThisActor:ClearAIWaypoints()
+					self.ThisActor.AIMode = Actor.AIMODE_SENTRY
+				end
+			end
+		end
+		
 		-- Process linked actors
 		if self.LinkedActors then
 			--VoidWanderersRPG_AddEffect(self.ThisActor.ViewPoint, "Green Glow")
@@ -789,6 +814,10 @@ function do_rpgbrain_pda(self)
 				if self.ActiveMenu[i]["Count"] ~= nil and self.ActiveMenu[i]["Count"] ~= -1 then
 					s = s .." "..self.ActiveMenu[i]["Count"]
 				end
+				
+				if self.ActiveMenu[i]["State"] ~= nil then
+					s = s .." [ "..self.ActiveMenu[i]["State"].." ]"
+				end
 			
 				if i == self.SelectedMenuItem then
 					CF_DrawString("> "..s, pos + Vector(-50, (i - self.MenuItemsListStart) * 10), 150 , 8)
@@ -829,6 +858,20 @@ function rpgbrain_orders_follow(self)
 				self.SkillTargetActors[i]:AddAIMOWaypoint(self.ThisActor)
 			end
 		end
+	end
+end
+
+function rpgbrain_orders_goto(self)
+	if CF_GS["Brain"..self.BrainNumber.."GotoEnabled"] == "true" then
+		CF_GS["Brain"..self.BrainNumber.."GotoEnabled"] = "false"
+	else
+		CF_GS["Brain"..self.BrainNumber.."GotoEnabled"] = "true"
+	end
+
+	if CF_GS["Brain"..self.BrainNumber.."GotoEnabled"] == "true" then
+		self.Orders[self.GotoOrderIndex]["State"] = "On"
+	else
+		self.Orders[self.GotoOrderIndex]["State"] = "Off"
 	end
 end
 
@@ -1010,6 +1053,18 @@ end
 
 function rpgbrain_skill_scanner(self)
 	self.ScanEnabled = not self.ScanEnabled
+
+	if CF_GS["Brain"..self.BrainNumber.."ScannerEnabled"] == "true" then
+		CF_GS["Brain"..self.BrainNumber.."ScannerEnabled"] = "false"
+	else
+		CF_GS["Brain"..self.BrainNumber.."ScannerEnabled"] = "true"
+	end			
+	
+	if CF_GS["Brain"..self.BrainNumber.."ScannerEnabled"] == "true" then
+		self.Skills[self.ScannerSkillIndex]["State"] = "On"
+	else
+		self.Skills[self.ScannerSkillIndex]["State"] = "Off"
+	end			
 end
 
 function CF_GetAvailableQuantumItems(c)

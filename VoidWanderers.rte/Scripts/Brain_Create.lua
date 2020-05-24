@@ -176,6 +176,21 @@ function do_rpgbrain_create(self)
 
 		local o = #self.Orders + 1
 		self.Orders[o]	= {}
+		self.Orders[o]["Text"] = "Toggle go to"
+		self.Orders[o]["ActorDetectRange"] = CF_OrdersRange	* 2
+		self.Orders[o]["DetectAllActors"] = true
+		self.Orders[o]["Count"] = -1
+		self.Orders[o]["Function"] = rpgbrain_orders_goto
+		self.GotoOrderIndex = o
+		
+		if CF_GS["Brain"..self.BrainNumber.."GotoEnabled"] == "true" then
+			self.Orders[o]["State"] = "On"
+		else
+			self.Orders[o]["State"] = "Off"
+		end
+		
+		local o = #self.Orders + 1
+		self.Orders[o]	= {}
 		self.Orders[o]["Text"] = "Follow"
 		self.Orders[o]["ActorDetectRange"] = CF_OrdersRange		
 		self.Orders[o]["DetectAllActors"] = true
@@ -213,14 +228,6 @@ function do_rpgbrain_create(self)
 		self.Orders[o]["DetectAllActors"] = true
 		self.Orders[o]["Count"] = -1
 		self.Orders[o]["Function"] = rpgbrain_orders_link
-
-		--[[local o = #self.Orders + 1
-		self.Orders[o]	= {}
-		self.Orders[o]["Text"] = "Fire Barrage"
-		self.Orders[o]["ActorDetectRange"] = CF_OrdersRange
-		self.Orders[o]["DetectAllActors"] = true
-		self.Orders[o]["Count"] = -1
-		self.Orders[o]["Function"] = rpgbrain_orders_barrage--]]--
 		
 		local o = #self.Orders + 1
 		self.Orders[o]	= {}
@@ -238,13 +245,23 @@ function do_rpgbrain_create(self)
 		self.Skills[count]["DetectAllActors"] = true
 		self.Skills[count]["SubMenu"] = self.Orders
 		
-		if self.RepairCount > 0 then
+		if self.ScanLevel > 0 then
 			count = count + 1
 			self.Skills[count] = {}
 			
 			self.Skills[count]["Text"] = "Toggle scanner"
 			self.Skills[count]["Count"] = -1
 			self.Skills[count]["Function"] = rpgbrain_skill_scanner
+			
+			self.ScannerSkillIndex = count
+			
+			if CF_GS["Brain"..self.BrainNumber.."ScannerEnabled"] == "true" then
+				self.Skills[self.ScannerSkillIndex]["State"] = "On"
+				self.ScanEnabled = true
+			else
+				self.Skills[self.ScannerSkillIndex]["State"] = "Off"
+				self.ScanEnabled = false
+			end			
 		end
 		
 		if self.RepairCount > 0 then
