@@ -142,6 +142,24 @@ CF_MissionRequiredData[id][i]["Name"] = "Waypoint 2"
 CF_MissionRequiredData[id][i]["Type"] = "Vector"
 CF_MissionRequiredData[id][i]["Max"] = 6
 
+
+local id = "Exploration"
+CF_Mission[#CF_Mission + 1] = id
+
+CF_MissionName[id] = "Vessel_exploration"
+CF_MissionScript[id] = ""
+CF_MissionMinReputation[id] = 0
+CF_MissionBriefingText[id] = ""
+CF_MissionMaxSets[id] = 6
+CF_MissionRequiredData[id] = {}
+
+local i = 1
+CF_MissionRequiredData[id][i] = {}
+CF_MissionRequiredData[id][i]["Name"] = "Explore"
+CF_MissionRequiredData[id][i]["Type"] = "Vector"
+CF_MissionRequiredData[id][i]["Max"] = 16
+
+
 CF_GenericMissionCount = #CF_Mission
 
 -------------------------------------------------------------------------------
