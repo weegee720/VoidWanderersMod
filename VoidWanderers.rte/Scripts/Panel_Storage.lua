@@ -51,10 +51,13 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 			
 			-- Init control panel
 			if not self.StorageControlPanelInitialized then
-				self.StorageItems, self.StorageFilters = CF_GetStorageArray(self.GS, true)
+				if self.StorageItems == nil then
+					self.StorageItems, self.StorageFilters = CF_GetStorageArray(self.GS, true)
+				end
 				self.StorageSelectedItem = 1
 				self.LastStorageSelectedItem = 0
 				self.StorageControlPanelInitialized = true
+				self.StorageItemsUsedByStorage = true
 			end
 			
 			-- Draw generic UI
@@ -68,10 +71,12 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 			local cont = act:GetController()
 
 			if cont:IsState(Controller.PRESS_UP) then
-				self.StorageSelectedItem = self.StorageSelectedItem - 1
-				
-				if self.StorageSelectedItem < 1 then
-					self.StorageSelectedItem = 1
+				if #self.StorageFilters[self.StorageControlMode] > 0 then
+					self.StorageSelectedItem = self.StorageSelectedItem - 1
+					
+					if self.StorageSelectedItem < 1 then
+						self.StorageSelectedItem = 1
+					end
 				end
 			end
 
@@ -86,14 +91,12 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 			end
 
 			if cont:IsState(Controller.PRESS_LEFT) then
-				if #self.StorageFilters[self.StorageControlMode] > 0 then
-					self.StorageControlMode = self.StorageControlMode - 1
-					self.StorageSelectedItem = 1
-					self.LastStorageSelectedItem = 0
-					
-					if self.StorageControlMode == -3 then
-						self.StorageControlMode = self.StorageControlPanelModes.TOOL
-					end
+				self.StorageControlMode = self.StorageControlMode - 1
+				self.StorageSelectedItem = 1
+				self.LastStorageSelectedItem = 0
+				
+				if self.StorageControlMode == -3 then
+					self.StorageControlMode = self.StorageControlPanelModes.TOOL
 				end
 			end	
 
@@ -179,10 +182,10 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 			end
 			
 			-- Print Selected mode text
-			CF_DrawString(self.StorageControlPanelModesTexts[self.StorageControlMode], pos + Vector(-130,78) , 170, 10)
+			CF_DrawString(self.StorageControlPanelModesTexts[self.StorageControlMode], pos + Vector(-130,-77) , 170, 10)
 			
 			-- Print help text
-			CF_DrawString("L/R - Change filter, U/D - Select item", pos + Vector(-130,-77) , 300, 10)
+			CF_DrawString("L/R - Change filter, U/D - Select, FIRE - Dispense", pos + Vector(-130,78) , 300, 10)
 			
 			-- Print storage capacity
 			CF_DrawString("Capacity: "..CF_CountUsedStorageInArray(self.StorageItems).."/"..self.GS["Player0VesselStorageCapacity"], pos + Vector(-130,-60) , 300, 10)
@@ -193,13 +196,20 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 		self:PutGlow("ControlPanel_Storage", self.StorageControlPanelPos)
 		self.StorageControlPanelInitialized = false
 		
+		-- Delete sample weapon
 		if self.StorageControlPanelObject ~= nil then
 			if MovableMan:IsDevice(self.StorageControlPanelObject) then
 				self.StorageControlPanelObject.ToDelete = true
 			end
 		end
+		
+		self.StorageItemsUsedByStorage = nil
+		
+		-- Delete storage data array
+		if self.StorageItems ~= nil and self.StorageItemsUsedByStorage == nil and self.StorageItemsUsedByClones == nil then
+			self.StorageItems = nil
+		end
 	end
-	
 end
 -----------------------------------------------------------------------------------------
 --

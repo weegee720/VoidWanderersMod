@@ -85,17 +85,23 @@ end
 -----------------------------------------------------------------------------------------
 function CF_SetStorageArray(gs, arr)
 	-- Clear stored array data
-	-- Copy items
 	for i = 1, CF_MaxStorageItems do
 		gs["ItemStorage"..i.."Preset"] = nil
 		gs["ItemStorage"..i.."Class"] = nil
 		gs["ItemStorage"..i.."Count"] = nil
 	end
 	
+	-- Copy items
+	local itm = 1
+	
+	
 	for i = 1, #arr do
-		gs["ItemStorage"..i.."Preset"] = arr[i]["Preset"]
-		gs["ItemStorage"..i.."Class"] = arr[i]["Class"]
-		gs["ItemStorage"..i.."Count"] = arr[i]["Count"]
+		if arr[i]["Count"] > 0 then
+			gs["ItemStorage"..itm.."Preset"] = arr[i]["Preset"]
+			gs["ItemStorage"..itm.."Class"] = arr[i]["Class"]
+			gs["ItemStorage"..itm.."Count"] = arr[i]["Count"]
+			itm = itm + 1
+		end
 	end
 end
 -----------------------------------------------------------------------------------------
@@ -111,7 +117,7 @@ function CF_CountUsedStorageInArray(arr)
 	return count
 end
 -----------------------------------------------------------------------------------------
---	Searcheds for given item in all faction files and returns it's factions and index if found
+--	Searches for given item in all faction files and returns it's factions and index if found
 -----------------------------------------------------------------------------------------
 function CF_FindItemInFactions(preset, class)
 	for fact = 1, #CF_Factions do
@@ -147,5 +153,92 @@ function CF_FindActorInFactions(preset, class)
 	return nil, nil
 end
 -----------------------------------------------------------------------------------------
+--	Returns sorted array of stored items from game state. If makefilters is true, then 
+--	it will also return additional array with filtered items
+-----------------------------------------------------------------------------------------
+function CF_GetClonesArray(gs)
+	local arr = {}
+	
+	-- Copy clones
+	for i = 1, CF_MaxClones do
+		if gs["ClonesStorage"..i.."Preset"] ~= nil then
+			arr[i] = {}
+			arr[i]["Preset"] = gs["ClonesStorage"..i.."Preset"]
+			arr[i]["Class"] = gs["ClonesStorage"..i.."Class"]
+			
+			arr[i]["Items"] = {}
+			for itm = 1, CF_MaxItems do
+				if gs["ClonesStorage"..i.."Item"..itm.."Preset"] ~= nil then
+					arr[i]["Items"][itm] = {}
+					arr[i]["Items"][itm]["Preset"] = gs["ClonesStorage"..i.."Item"..itm.."Preset"]
+					arr[i]["Items"][itm]["Class"] = gs["ClonesStorage"..i.."Item"..itm.."Class"]
+				else
+					break
+				end
+			end
+		else
+			break
+		end
+	end
+	
+	-- Sort clones
+	for i = 1, #arr do
+		for j = 1, #arr  - 1 do
+			if arr[j]["Preset"] > arr[j + 1]["Preset"] then
+				local p = arr[j]["Preset"]
+				local c = arr[j]["Class"]
+				local itm = arr[j]["Items"]
+			
+				arr[j]["Preset"] = arr[j + 1]["Preset"]
+				arr[j]["Class"] = arr[j + 1]["Class"]
+				arr[j]["Items"] = arr[j + 1]["Items"]
+			
+				arr[j + 1]["Preset"] = p
+				arr[j + 1]["Class"] = c
+				arr[j + 1]["Class"] = itm
+			end
+		end
+	end
+	
+	return arr
+end
+
+-----------------------------------------------------------------------------------------
+--	Counts used clones in clone array
+-----------------------------------------------------------------------------------------
+function CF_CountUsedClonesInArray(arr)
+	return #arr
+end
+-----------------------------------------------------------------------------------------
+--	Saves array of stored items to game state
+-----------------------------------------------------------------------------------------
+function CF_SetClonesArray(gs, arr)
+	-- Clean clones
+	for i = 1, CF_MaxClones do
+		gs["ClonesStorage"..i.."Preset"] = nil
+		gs["ClonesStorage"..i.."Class"] = nil
+		
+		for itm = 1, CF_MaxItems do
+			gs["ClonesStorage"..i.."Item"..itm.."Preset"] = nil
+			gs["ClonesStorage"..i.."Item"..itm.."Class"] = nil
+		end
+	end
+	
+	-- Save clones
+	-- Copy clones
+	for i = 1, #arr do
+		gs["ClonesStorage"..i.."Preset"] = arr[i]["Preset"]
+		gs["ClonesStorage"..i.."Class"] = arr[i]["Class"]
+		
+		for itm = 1, #arr[i]["Items"] do
+			gs["ClonesStorage"..i.."Item"..itm.."Preset"] = arr[i]["Items"][itm]["Preset"]
+			gs["ClonesStorage"..i.."Item"..itm.."Class"] = arr[i]["Items"][itm]["Class"]
+		end
+	end	
+	
+end
+-----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
+
+

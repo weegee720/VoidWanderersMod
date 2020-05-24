@@ -58,6 +58,7 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 	
 	-- Set vessel attrs
 	config["Player0VesselStorageCapacity"] = CF_VesselStartStorageCapacity[ config["Player0Vessel"] ]
+	config["Player0VesselClonesCapacity"] = CF_VesselStartClonesCapacity[ config["Player0Vessel"] ]
 	
 	-- Set up initial location - Tradestar
 	config["Planet"] = CF_Planet[1]
@@ -90,17 +91,17 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 	--end
 	
 	-- Assign initial player actors in storage
-	--[[for i = 1, 4 do
-		config["CloneStorage"..i.."Preset"] = CF_ActPresets[f][found]
-		config["CloneStorage"..i.."Class"] = CF_ActClasses[f][found]
+	for i = 1, 4 do
+		config["ClonesStorage"..i.."Preset"] = CF_ActPresets[f][found]
+		config["ClonesStorage"..i.."Class"] = CF_ActClasses[f][found]
 		
 		local slt = 1
 		for j = #weaps, 1 , -1 do
-			config[ "CloneStorage"..i.."Item"..slt.."Preset"] = CF_ItmPresets[f][weaps[j] ]
-			config[ "CloneStorage"..i.."Item"..slt.."Class"] = CF_ItmClasses[f][weaps[j] ]
+			config[ "ClonesStorage"..i.."Item"..slt.."Preset"] = CF_ItmPresets[f][weaps[j] ]
+			config[ "ClonesStorage"..i.."Item"..slt.."Class"] = CF_ItmClasses[f][weaps[j] ]
 			slt = slt + 1
 		end
-	end]]--
+	end--]]--
 	
 	-- Put some weapons to ship storage
 	local slt = 1
