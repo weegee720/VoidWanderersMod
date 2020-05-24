@@ -49,7 +49,6 @@ function VoidWanderers:StartActivity()
 			y = tonumber(self.LS["CockpitSpawn"..i.."Y"])
 			self.CockpitPos[i] = Vector(x,y)
 		end
-		
 
 		-- Create brains
 		print ("Create brains")
@@ -392,7 +391,7 @@ function VoidWanderers:UpdateActivity()
 		FrameMan:SetScreenText(self.MissionEndText, 0, 0, 8000, true);	
 	end
 	
-	self:DoBrainSelection()
+	--self:DoBrainSelection()
 	self:CheckWinningConditions();
 	self:YSortObjectivePoints();
 	--CF_ReturnOnMissionEnd();

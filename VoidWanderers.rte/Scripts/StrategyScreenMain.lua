@@ -393,6 +393,10 @@ function VoidWanderers:UpdateActivity()
 		return
 	end
 
+	if CF_StopUIProcessing then
+		return
+	end
+	
 	if self.ProcessBeforeAnything ~= nil then
 		self:ProcessBeforeAnything()
 	end

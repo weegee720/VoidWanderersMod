@@ -11,6 +11,7 @@ function CF_InitFactions(activity)
 	CF_PlayerTeam = Activity.TEAM_1;
 	CF_RogueTeam = -1;
 	CF_MOIDLimit = 200;
+	CF_ModuleName = "VoidWanderers.rte"
 	
 	-- When enabled UL2 will use special rendering techniques to improve UI rendering
 	-- performance on weaker machines. Some artifacts may appear though.
@@ -27,6 +28,8 @@ function CF_InitFactions(activity)
 	CF_MaxSaveGames = 6
 	CF_MaxItems = 50
 	CF_MaxUnitsPerDropship = 3
+	
+	CF_StopUIProcessing = false
 	
 	CF_MaxAIEngineerCount = 3
 	
@@ -238,7 +241,7 @@ function CF_InitFactions(activity)
 	CF_CraftClasses = {};
 	CF_CraftPrices = {}
 
-	local factionstorage = "./VoidWanderers.rte/Factions/"
+	local factionstorage = "./"..CF_ModuleName.."/Factions/"
 	
 	-- Load factions
 	if CF_IsFilePathExists("./Factions2/Factions.cfg") then
@@ -246,7 +249,7 @@ function CF_InitFactions(activity)
 		factionstorage = "./Factions2/"
 		print ("USING FACTIONS2 FOLDER!")
 	else
-		CF_FactionFiles = CF_ReadFactionsList("VoidWanderers.rte/Factions/Factions.cfg")
+		CF_FactionFiles = CF_ReadFactionsList(CF_ModuleName.."/Factions/Factions.cfg")
 	end
 	
 	-- Load factions data
@@ -451,14 +454,64 @@ function CF_InitFactions(activity)
 			print ("ERROR!!! Could not load: "..CF_FactionFiles[i])
 		end
 	end
+
+	-- Init planet data structures
+	CF_Planet = {}
+	CF_PlanetName = {}
+	CF_PlanetGlow = {}
+	CF_PlanetGlowModule = {}
 	
-	CF_InitShipsData(activity)
-	CF_InitScenesData(activity)
+	-- Init locations data structures
+	CF_Location = {}
+	CF_LocationName = {}
+	CF_LocationPos = {}
+	CF_LocationSecurity = {}
+	CF_LocationScene = {}
+	CF_LocationPlanet = {}	
+
+	-- Init ship data structures
+	CF_Vessel = {}
+	CF_VesselName = {}
+	CF_VesselScene = {}
+	CF_VesselModule = {}
+
+	-- Price of the vesel
+	CF_VesselPrice = {}
 	
-	--print("Factions loaded:")
-	--for i = 1 , #CF_Factions do
-		--print(CF_Factions[i])
-	--end	
+	-- Amount of bodies which can be stored on the ship
+	CF_VesselMaxCloneCapacity = {}
+	CF_VesselStartCloneCapacity = {}
+	
+	-- Amount of items which can be stored on the ship
+	CF_VesselMaxCargoCapacity = {}
+	CF_VesselStartCargoCapacity = {}
+
+	-- How many units can be active on the ship simultaneously
+	CF_VesselMaxLifeSupport = {}
+	CF_VesselStartLifeSupport = {}
+
+	-- How many units can be active on the planet surface simultaneously
+	CF_VesselMaxCommunication = {}
+	CF_VesselStartCommunication = {}
+
+	CF_VesselMaxFuel = {}
+	
+	
+	-- Load extensions
+	CF_ExtensionFiles = CF_ReadFactionsList(CF_ModuleName.."/Extensions/Extensions.cfg")
+	
+	local extensionstorage = "./"..CF_ModuleName.."/Extensions/"
+	
+	-- Load factions data
+	for i = 1, #CF_ExtensionFiles do
+		f = loadfile(extensionstorage..CF_ExtensionFiles[i])
+		if f ~= nil then
+			-- Execute script
+			f()
+		else
+			print ("ERROR!!! Could not load: "..CF_ExtensionFiles[i])
+		end
+	end
 end
 -----------------------------------------------------------------------------------------
 --	Create actor from preset pre, where c - config, p - player, t - territory, pay gold is pay == true
@@ -559,14 +612,6 @@ function CF_SpawnDropShip(c, p, t, pres, pay, team)
 					local load = CF_MakeActorFromPreset(c, p, t, pres[i], pay)
 					
 					if load ~= nil then
-						-- Add ally mission chip if necessary
-						if math.random() < CF_AllyItemProbability and p ~= 0 and team ~= CF_PlayerTeam and c["Player0AllyFaction"] ~= "None" then
-							local chip = CreateHeldDevice("Chip", "VoidWanderers.rte");
-							if chip ~= nil then
-								load:AddInventoryItem(chip)
-							end
-						end
-
 						load.Team = team;
 						load.AIMode = Actor.AIMODE_SENTRY;
 						actor:AddInventoryItem(load)
@@ -730,6 +775,9 @@ function CF_LaunchMission(scene , script)
 	SCENE_TO_LAUNCH = scene
 	SCRIPT_TO_LAUNCH = BASE_PATH..script
 	TRANSFER_IN_PROGRESS = true
+	
+	--print(SCENE_TO_LAUNCH)
+	--print(SCRIPT_TO_LAUNCH)
 	
 	MovableMan:PurgeAllMOs()
 	
