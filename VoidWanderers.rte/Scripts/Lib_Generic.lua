@@ -508,13 +508,14 @@ function CF_InitFactions(activity)
 	
 	-- Load factions data
 	for i = 1, #CF_ExtensionFiles do
-		f = loadfile(extensionstorage..CF_ExtensionFiles[i])
+		--[[f = loadfile(extensionstorage..CF_ExtensionFiles[i])
 		if f ~= nil then
 			-- Execute script
 			f()
 		else
 			print ("ERROR!!! Could not load: "..CF_ExtensionFiles[i])
-		end
+		end]]--
+		dofile(extensionstorage..CF_ExtensionFiles[i])
 	end
 end
 -----------------------------------------------------------------------------------------

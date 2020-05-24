@@ -330,7 +330,11 @@ function VoidWanderers:StartActivity()
 			sec = sec + CF_SecurityIncrementPerDeployment
 			CF_SetLocationSecurity(self.GS, self.GS["Location"], sec)
 
-			missionscript = CF_LocationScript[ self.GS["Location"] ]
+			if CF_LocationScript[ self.GS["Location"] ] ~= nil then
+				local r = math.random(#CF_LocationScript[ self.GS["Location"] ])
+				missionscript = CF_LocationScript[ self.GS["Location"] ][r]
+			end
+			
 			ambientscript = CF_LocationAmbientScript[ self.GS["Location"] ]
 		end
 		
@@ -945,7 +949,7 @@ function VoidWanderers:UpdateActivity()
 			
 			local d = CF_Dist(Vector(sx,sy), Vector(dx,dy))
 			
-			if (d < 1) then
+			if (d < 0.5) then
 				self.GS["Location"] = self.GS["Destination"]
 				self.GS["Destination"] = nil
 
@@ -1091,8 +1095,7 @@ function VoidWanderers:UpdateActivity()
 		-- Kill all actors outside the ship
 		if self.GS["SceneType"] == "Vessel" then
 			for actor in MovableMan.Actors do
-				if (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") and not self.Ship:IsInside(actor.Pos) then
-					--actor:AddAbsForce(Vector(0 , -12*actor.Mass) , Vector(actor.Pos.X , actor.Pos.Y - 50))
+				if (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") and not self.Ship:IsInside(actor.Pos) and not actor:IsInGroup("Brains") then
 					if actor:IsInGroup("Heavy Infantry") then
 						actor.Health = actor.Health - math.random(4)
 					else

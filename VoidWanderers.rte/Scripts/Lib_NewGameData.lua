@@ -79,6 +79,12 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 	config["Planet"] = CF_Planet[1]
 	config["Location"] = CF_Location[1]
 	
+	
+	local locpos = CF_LocationPos[ config["Location"] ]
+	
+	config["ShipX"] = locpos.X
+	config["ShipY"] = locpos.Y
+	
 	--Debug
 	--config["Planet"] = "CC-11Y"
 	--config["Location"] = "Ketanot Hills"

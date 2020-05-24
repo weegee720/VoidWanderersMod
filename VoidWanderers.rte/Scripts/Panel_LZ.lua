@@ -262,6 +262,16 @@ function VoidWanderers:ProcessLZControlPanelUI()
 					self:LaunchScript(scene, "Tactics.lua")
 					self.EnableBrainSelection = false
 					self:DestroyLZControlPanelUI()
+					
+					-- Destroy mission and ambient specific objects
+					if self.AmbientDestroy ~= nil then
+						self:AmbientDestroy()
+					end
+
+					if self.MissionDestroy ~= nil then
+						self:MissionDestroy()
+					end
+					
 					return
 				end
 			else

@@ -239,16 +239,17 @@ CF_LocationPos[id] = Vector(0,0)
 CF_LocationSecurity[id] = 0
 CF_LocationGoldPresent[id] = false
 CF_LocationScenes[id] = {"Abandoned Titan Vessel"}
+CF_LocationScript[id] = {"VoidWanderers.rte/Scripts/Mission_AbandonedVessel_Faction.lua"}
+CF_LocationAmbientScript[id] = "VoidWanderers.rte/Scripts/Ambient_Smokes.lua"
 CF_LocationPlanet[id] = ""
-CF_LocationScript[id] = "VoidWanderers.rte/Scripts/Mission_VesselExploration.lua"
 CF_LocationPlayable[id] = true
-CF_LocationMissions[id] = {}
+CF_LocationMissions[id] = {"Assassinate", "Zombies"}
 CF_LocationAttributes[id] = {CF_LocationAttributeTypes.VESSEL, CF_LocationAttributeTypes.NOTMISSIONASSIGNABLE, CF_LocationAttributeTypes.ALWAYSUNSEEN}
 
 local id = "ABANDONED_VESSEL_GENERIC";
 CF_RandomEncounters[#CF_RandomEncounters + 1] = id
-CF_RandomEncountersInitialTexts[id] = "A dead vessel floats in the asteroid field, it might have been abandoned for years, though it does not mean that it's empty."
-CF_RandomEncountersInitialVariants[id] = {"Send away team immediately!", "Just cut off everything valuable from the hull", "Leave it alone"}
+CF_RandomEncountersInitialTexts[id] = "A dead vessel floats in an asteroid field, it might have been abandoned for years, though it does not mean that it's empty."
+CF_RandomEncountersInitialVariants[id] = {"Send away team immediately!", "Just cut off everything valuable from the hull.", "Leave it alone..."}
 CF_RandomEncountersVariantsInterval[id] = 24
 CF_RandomEncountersOneTime[id] = false
 CF_RandomEncountersFunctions[id] = 
@@ -283,12 +284,121 @@ function (self, variant)
 	end
 	
 	if variant == 2 then
-		self.GS["Location"] = self.AbandonedVesselLocation
-		self.GS["Destination"] = nil
+		local devices = {"a zrbite reactor", "an elerium reactor", "a solar panel", "a warp projector", "an observation lens", "a hangar door", "a dust filter", "a neutrino collector", "a Higgs boson detector", "a microwave heater"}
+		if math.random() < 10.1 then
+			local losstext
+			local r = math.random(5)
+			
+			for p = 0 , self.PlayerCount - 1 do
+				FrameMan:FlashScreen(p, 13, 1000)
+			end
+			
+			if r == 1 then
+				-- Destroy stored clone if any
+				if #self.Clones > 0 then
+					local rclone = math.random(tonumber(self.GS["Player0VesselClonesCapacity"]))
+					-- If damaged cell hit the clone then remove actor from array
+					local newarr = {}
+					local ii = 1
+					
+					for i = 1, #self.Clones do
+						if i ~= rclone then
+							newarr[ii] = self.Clones[i]
+							ii = ii + 1
+						end
+					end
+					
+					self.Clones = newarr
+				end
+				CF_SetClonesArray(self.GS, self.Clones)
+				
+				self.GS["Player0VesselClonesCapacity"] = tonumber(self.GS["Player0VesselClonesCapacity"]) - 1
+				
+				if self.GS["Player0VesselClonesCapacity"] <=0 then
+					self.GS["Player0VesselClonesCapacity"] = 1
+				end
+				
+				losstext = "and destroyed one of our cryo-chambers." 
+			elseif r == 2 then
+				-- Destroy storage cells
+				for i = 1 ,7 do
+					local rweap = math.random(#self.StorageItems * 2)
+					if rweap <= #self.StorageItems then
+						if self.StorageItems[rweap]["Count"] > 0 then
+							self.StorageItems[rweap]["Count"] = self.StorageItems[rweap]["Count"] - 1
+						end
+					end
+				end
+
+				self.GS["Player0VesselStorageCapacity"] = tonumber(self.GS["Player0VesselStorageCapacity"]) - 7
+				
+				if self.GS["Player0VesselStorageCapacity"] <=0 then
+					self.GS["Player0VesselStorageCapacity"] = 1
+				end
+				
+				-- If we have some items left in nonexisting cell then throw them around
+				while CF_CountUsedStorageInArray(self.StorageItems) > self.GS["Player0VesselStorageCapacity"] do
+					local rweap = math.random(#self.StorageItems)
+					if self.StorageItems[rweap]["Count"] > 0 then
+						self.StorageItems[rweap]["Count"] = self.StorageItems[rweap]["Count"] - 1
+						
+						if self.StorageInputPos ~= nil then
+							local itm = CF_MakeItem2(self.StorageItems[rweap]["Preset"], self.StorageItems[rweap]["Class"])
+							if itm then
+								itm.Pos = self.StorageInputPos
+								local a = math.random(360)
+								local r = 10 + math.random(40)
+								itm.Vel = Vector(math.cos(a / (180 / 3.14)) * r, math.sin(a / (180 / 3.14) * r))
+								MovableMan:AddItem(itm)
+							end
+						end
+					end
+				end
+				
+				CF_SetStorageArray(self.GS, self.StorageItems)
+				self.StorageItems, self.StorageFilters = CF_GetStorageArray(self.GS, true)
+				
+				losstext = "and destroyed five of our storage cells." 
+			elseif r == 3 then
+				-- Destroy life support
+				self.GS["Player0VesselLifeSupport"] = tonumber(self.GS["Player0VesselLifeSupport"]) - 1
+				
+				if self.GS["Player0VesselLifeSupport"] <=0 then
+					self.GS["Player0VesselLifeSupport"] = 1
+				end
+				
+				losstext = "and destroyed our oxygen regeneration tank. Our life support system degraded." 
+			elseif r == 4 then
+				-- Destroy life support
+				self.GS["Player0VesselCommunication"] = tonumber(self.GS["Player0VesselCommunication"]) - 1
+				
+				if self.GS["Player0VesselCommunication"] <=0 then
+					self.GS["Player0VesselCommunication"] = 1
+				end
+				
+				losstext = "and destroyed one of our antennas." 
+			elseif r == 5 then
+				-- Destroy engine
+				self.GS["Player0VesselSpeed"] = tonumber(self.GS["Player0VesselSpeed"]) - 5
+				
+				if self.GS["Player0VesselSpeed"] <=5 then
+					self.GS["Player0VesselSpeed"] = 5
+				end
+				
+				losstext = "and damaged our engine. We've lost some speed." 
+			end
 		
-		self.MissionReport = {}
-		self.MissionReport[#self.MissionReport + 1] = "TODO - Write something here"
-		CF_SaveMissionReport(self.GS, self.MissionReport)
+			self.MissionReport = {}
+			self.MissionReport[#self.MissionReport + 1] = "We tried to cut off "..devices[math.random(#devices)].." but it exploded "..losstext
+			CF_SaveMissionReport(self.GS, self.MissionReport)
+		else
+			local gold = math.random(1250)
+			CF_SetPlayerGold(self.GS, 0, CF_GetPlayerGold(self.GS, 0) + gold)
+			
+			self.MissionReport = {}
+			self.MissionReport[#self.MissionReport + 1] = "We managed to find some uncorrupted parts of "..devices[math.random(#devices)].." worth "..gold.." oz of gold."
+			CF_SaveMissionReport(self.GS, self.MissionReport)
+		end
 		
 		-- Finish encounter
 		self.RandomEncounterID = nil

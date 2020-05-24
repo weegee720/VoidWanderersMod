@@ -20,7 +20,15 @@ function Create(self)
 		end
 	else
 		local wtypes = {CF_WeaponTypes.RIFLE, CF_WeaponTypes.SHOTGUN, CF_WeaponTypes.SNIPER, CF_WeaponTypes.HEAVY}
-		local f = CF_Factions[math.random(#CF_Factions)]
+		local f 
+		local ok = false
+		
+		while not ok do
+			f = CF_Factions[math.random(#CF_Factions)]
+			if CF_FactionPlayable[f] then
+				ok = true
+			end
+		end		
 		
 		-- We need this fake cfg because CF_MakeList operates only on configs to get data
 		local cfg = {}

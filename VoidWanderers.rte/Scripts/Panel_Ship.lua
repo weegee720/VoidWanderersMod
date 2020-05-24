@@ -157,16 +157,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 						self.FirePressed = true;
 						
 						if self.RandomEncounterID == nil then
-							--self.GS["Location"] = self.ShipControlLocationList [ self.ShipControlSelectedLocation ]
-							if self.GS["Location"] ~= nil then
-								local locpos = CF_LocationPos[ self.GS["Location"] ]
-								if locpos == nil then
-									locpos = Vector(0,0)
-								end
-
-								self.GS["ShipX"] = math.floor(locpos.X)
-								self.GS["ShipY"] = math.floor(locpos.Y)
-							else
+							if self.GS["Location"] == nil then
 								if self.GS["ShipX"] == nil or self.GS["ShipY"] == nil then
 									self.GS["ShipX"] = 0
 									self.GS["ShipY"] = 0
