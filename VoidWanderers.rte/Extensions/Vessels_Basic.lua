@@ -123,7 +123,7 @@ CF_LocationAmbientScript[id] = "VoidWanderers.rte/Scripts/Ambient_Smokes.lua"
 CF_LocationPlanet[id] = ""
 CF_LocationPlayable[id] = true
 CF_LocationMissions[id] = {"Assassinate", "Zombies"}
-CF_LocationAttributes[id] = {CF_LocationAttributeTypes.ABANDONEDVESSEL, CF_LocationAttributeTypes.NOTMISSIONASSIGNABLE, CF_LocationAttributeTypes.ALWAYSUNSEEN, CF_LocationAttributeTypes.TEMPLOCATION}
+CF_LocationAttributes[id] = {CF_LocationAttributeTypes.ABANDONEDVESSEL, CF_LocationAttributeTypes.NOTMISSIONASSIGNABLE, CF_LocationAttributeTypes.ALWAYSUNSEEN, CF_LocationAttributeTypes.TEMPLOCATION, CF_LocationAttributeTypes.NOBOMBS}
 
 
 local id = "Abandoned Gryphon Vessel"
@@ -140,7 +140,7 @@ CF_LocationAmbientScript[id] = "VoidWanderers.rte/Scripts/Ambient_Smokes.lua"
 CF_LocationPlanet[id] = ""
 CF_LocationPlayable[id] = true
 CF_LocationMissions[id] = {"Assassinate", "Zombies"}
-CF_LocationAttributes[id] = {CF_LocationAttributeTypes.ABANDONEDVESSEL, CF_LocationAttributeTypes.NOTMISSIONASSIGNABLE, CF_LocationAttributeTypes.ALWAYSUNSEEN, CF_LocationAttributeTypes.TEMPLOCATION}
+CF_LocationAttributes[id] = {CF_LocationAttributeTypes.ABANDONEDVESSEL, CF_LocationAttributeTypes.NOTMISSIONASSIGNABLE, CF_LocationAttributeTypes.ALWAYSUNSEEN, CF_LocationAttributeTypes.TEMPLOCATION, CF_LocationAttributeTypes.NOBOMBS}
 
 
 local id = "Abandoned Titan Vessel"
@@ -157,7 +157,7 @@ CF_LocationAmbientScript[id] = "VoidWanderers.rte/Scripts/Ambient_Smokes.lua"
 CF_LocationPlanet[id] = ""
 CF_LocationPlayable[id] = true
 CF_LocationMissions[id] = {"Assassinate", "Zombies"}
-CF_LocationAttributes[id] = {CF_LocationAttributeTypes.ABANDONEDVESSEL, CF_LocationAttributeTypes.NOTMISSIONASSIGNABLE, CF_LocationAttributeTypes.ALWAYSUNSEEN, CF_LocationAttributeTypes.TEMPLOCATION}
+CF_LocationAttributes[id] = {CF_LocationAttributeTypes.ABANDONEDVESSEL, CF_LocationAttributeTypes.NOTMISSIONASSIGNABLE, CF_LocationAttributeTypes.ALWAYSUNSEEN, CF_LocationAttributeTypes.TEMPLOCATION, CF_LocationAttributeTypes.NOBOMBS}
 --]]--
 
 -- Counterattack vessel scenes
@@ -173,7 +173,7 @@ CF_LocationAmbientScript[id] = "VoidWanderers.rte/Scripts/Ambient_Space.lua"
 CF_LocationPlanet[id] = ""
 CF_LocationPlayable[id] = true
 CF_LocationMissions[id] = {"Assassinate", "Zombies"}
-CF_LocationAttributes[id] = {CF_LocationAttributeTypes.VESSEL, CF_LocationAttributeTypes.NOTMISSIONASSIGNABLE, CF_LocationAttributeTypes.ALWAYSUNSEEN, CF_LocationAttributeTypes.TEMPLOCATION, CF_LocationAttributeTypes.SCOUT , CF_LocationAttributeTypes.CORVETTE}
+CF_LocationAttributes[id] = {CF_LocationAttributeTypes.VESSEL, CF_LocationAttributeTypes.NOTMISSIONASSIGNABLE, CF_LocationAttributeTypes.ALWAYSUNSEEN, CF_LocationAttributeTypes.TEMPLOCATION, CF_LocationAttributeTypes.SCOUT , CF_LocationAttributeTypes.CORVETTE, CF_LocationAttributeTypes.NOBOMBS}
 
 local id = "Vessel Gryphon"
 CF_Location[#CF_Location + 1] = id
@@ -187,7 +187,7 @@ CF_LocationAmbientScript[id] = "VoidWanderers.rte/Scripts/Ambient_Space.lua"
 CF_LocationPlanet[id] = ""
 CF_LocationPlayable[id] = true
 CF_LocationMissions[id] = {"Assassinate", "Zombies"}
-CF_LocationAttributes[id] = {CF_LocationAttributeTypes.VESSEL, CF_LocationAttributeTypes.NOTMISSIONASSIGNABLE, CF_LocationAttributeTypes.ALWAYSUNSEEN, CF_LocationAttributeTypes.TEMPLOCATION, CF_LocationAttributeTypes.FRIGATE, CF_LocationAttributeTypes.DESTROYER}
+CF_LocationAttributes[id] = {CF_LocationAttributeTypes.VESSEL, CF_LocationAttributeTypes.NOTMISSIONASSIGNABLE, CF_LocationAttributeTypes.ALWAYSUNSEEN, CF_LocationAttributeTypes.TEMPLOCATION, CF_LocationAttributeTypes.FRIGATE, CF_LocationAttributeTypes.DESTROYER, CF_LocationAttributeTypes.NOBOMBS}
 
 local id = "Vessel Titan"
 CF_Location[#CF_Location + 1] = id
@@ -201,7 +201,7 @@ CF_LocationAmbientScript[id] = "VoidWanderers.rte/Scripts/Ambient_Space.lua"
 CF_LocationPlanet[id] = ""
 CF_LocationPlayable[id] = true
 CF_LocationMissions[id] = {"Assassinate", "Zombies"}
-CF_LocationAttributes[id] = {CF_LocationAttributeTypes.VESSEL, CF_LocationAttributeTypes.NOTMISSIONASSIGNABLE, CF_LocationAttributeTypes.ALWAYSUNSEEN, CF_LocationAttributeTypes.TEMPLOCATION , CF_LocationAttributeTypes.CRUISER, CF_LocationAttributeTypes.BATTLESHIP}
+CF_LocationAttributes[id] = {CF_LocationAttributeTypes.VESSEL, CF_LocationAttributeTypes.NOTMISSIONASSIGNABLE, CF_LocationAttributeTypes.ALWAYSUNSEEN, CF_LocationAttributeTypes.TEMPLOCATION , CF_LocationAttributeTypes.CRUISER, CF_LocationAttributeTypes.BATTLESHIP, CF_LocationAttributeTypes.NOBOMBS}
 
 
 

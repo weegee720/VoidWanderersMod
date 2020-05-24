@@ -37,7 +37,8 @@ function CF_InitExtensionsData(activity)
 	FRIGATE = 10,
 	DESTROYER = 11, 
 	CRUISER = 12, 
-	BATTLESHIP = 13
+	BATTLESHIP = 13,
+	NOBOMBS = 14
 	}
 
 	CF_AssaultDifficultyVesselClass = {}

@@ -314,22 +314,19 @@ function CF_InitFactions(activity)
 	CF_CraftModules = {};
 	CF_CraftClasses = {};
 	CF_CraftPrices = {}
-
-	local factionstorage = "./"..CF_ModuleName.."/Factions/"
 	
 	-- Load factions
 	if CF_IsFilePathExists("./Factions2/Factions.cfg") then
-		CF_FactionFiles = CF_ReadFactionsList("Factions2/Factions.cfg")
-		factionstorage = "./Factions2/"
+		CF_FactionFiles = CF_ReadFactionsList("Factions2/Factions.cfg", "./Factions2/")
 		print ("USING FACTIONS2 FOLDER!")
 	else
-		CF_FactionFiles = CF_ReadFactionsList(CF_ModuleName.."/Factions/Factions.cfg")
+		CF_FactionFiles = CF_ReadFactionsList(CF_ModuleName.."/Factions/Factions.cfg" , "./"..CF_ModuleName.."/Factions/")
 	end
 	
 	-- Load factions data
 	for i = 1, #CF_FactionFiles do
 		--print("Loading "..CF_FactionFiles[i])
-		f = loadfile(factionstorage..CF_FactionFiles[i])
+		f = loadfile(CF_FactionFiles[i])
 		if f ~= nil then
 			local lastfactioncount  = #CF_Factions
 		
@@ -532,7 +529,7 @@ function CF_InitFactions(activity)
 	CF_InitExtensionsData(activity)
 	
 	-- Load extensions
-	CF_ExtensionFiles = CF_ReadFactionsList(CF_ModuleName.."/Extensions/Extensions.cfg")
+	CF_ExtensionFiles = CF_ReadExtensionsList(CF_ModuleName.."/Extensions/Extensions.cfg")
 	
 	local extensionstorage = "./"..CF_ModuleName.."/Extensions/"
 	

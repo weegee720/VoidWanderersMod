@@ -1,7 +1,53 @@
 -----------------------------------------------------------------------------
+-- Returns true if string ends with 'End'
+-----------------------------------------------------------------------------
+function CF_StringEnds(String,End)
+   return End=='' or string.sub(String,-string.len(End))==End
+end
+-----------------------------------------------------------------------------
 -- Read data from file line by line and return the list
 -----------------------------------------------------------------------------
-function CF_ReadFactionsList(filename)
+function CF_ReadFactionsList(filename, defaultpath)
+	print("VoidWanderers::CF_ReadFactionsList")
+	io = require("io");
+	local config = {};
+	
+	for line in io.lines("./"..filename) do
+		s = string.gsub(line , "\n" , "");
+		s = string.gsub(s , "\r" , "");
+		
+		local enabled = false
+		
+		if string.find(s , "*") == nil then
+			enabled = true
+		end
+		
+		if enabled then
+			if CF_StringEnds(s, ".rte") then
+				local file = string.sub(s, 1, #s - 4)
+				local path = "./"..s.."/FactionFiles/UL2/"..file..".lua"
+				
+				if PresetMan:GetModuleID(s) then
+					if CF_IsFilePathExists(path) then
+						config[#config + 1] = path
+					else
+						print ("ERR: FILE "..path.." NOT FOUND, FACTION NOT AUTOLOADED")
+					end
+				else
+					print ("ERR: MODULE "..s.." NOT LOADED, FACTION NOT AUTOLOADED")
+				end
+			else
+				config[#config + 1] = defaultpath..s;
+			end
+		end
+	end
+	
+	return config;
+end
+-----------------------------------------------------------------------------
+-- 
+-----------------------------------------------------------------------------
+function CF_ReadExtensionsList(filename)
 	print("VoidWanderers::CF_ReadFactionsList")
 	io = require("io");
 	local config = {};

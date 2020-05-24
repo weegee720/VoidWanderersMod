@@ -172,9 +172,9 @@ function VoidWanderers:MissionUpdate()
 					end
 				end
 				
-				if actor.ClassName == "ACDropShip" or actor.ClassName == "ACRocket" then
+				if actor.Team ~= CF_PlayerTeam and (actor.ClassName == "ACDropShip" or actor.ClassName == "ACRocket") then
 					if not SceneMan:IsUnseen(actor.Pos.X, actor.Pos.Y, CF_PlayerTeam) then
-						self:AddObjectivePoint("TAKE DOWN\nDROPSHIP", actor.AboveHUDPos, CF_PlayerTeam, GameActivity.ARROWDOWN);
+						self:AddObjectivePoint("TAKE DOWN\nDROP SHIP", actor.AboveHUDPos, CF_PlayerTeam, GameActivity.ARROWDOWN);
 					end
 				end
 			end

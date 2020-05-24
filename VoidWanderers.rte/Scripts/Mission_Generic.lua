@@ -249,8 +249,8 @@ function VoidWanderers:MissionUpdate()
 	
 	-- Enumerate actors and select potential actors and miners
 	for actor in MovableMan.Actors do
-		if actor.ClassName == "ACDropShip" then
-			self:AddObjectivePoint("INCOMING\nDROPSHIP", actor.Pos + Vector(0,-50) , CF_PlayerTeam, GameActivity.ARROWDOWN);
+		if actor.Team ~= CF_PlayerTeam and actor.ClassName == "ACDropShip" then
+			self:AddObjectivePoint("INCOMING\nDROP SHIP", actor.Pos + Vector(0,-50) , CF_PlayerTeam, GameActivity.ARROWDOWN);
 		end
 	
 		if actor.Team == self.MissionCPUTeams[sel] then

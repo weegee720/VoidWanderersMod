@@ -160,7 +160,7 @@ function VoidWanderers:MissionUpdate()
 			if self.MissionSettings["AllyReinforcementsCount"] > 0 then
 				for p = 0, self.PlayerCount - 1 do
 					FrameMan:ClearScreenText(p);
-					FrameMan:SetScreenText("ONLY "..self.MissionSettings["AllyReinforcementsCount"].." ALLY DROPSHIP"..s.." LEFT!!!", p, 0, 1000, true);
+					FrameMan:SetScreenText("ONLY "..self.MissionSettings["AllyReinforcementsCount"].." ALLY DROP SHIP"..s.." LEFT!!!", p, 0, 1000, true);
 				end
 			end
 		end

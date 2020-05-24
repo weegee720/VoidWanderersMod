@@ -70,15 +70,41 @@ function VoidWanderers:ProcessLZControlPanelUI()
 					--print (self.BombPayload[self.BombingCount]["Preset"])
 					--print (self.BombPayload[self.BombingCount]["Class"])
 					
+					local bombpos = Vector(self.BombingTarget - self.BobmingRange / 2 + math.random(self.BobmingRange), -40)
+					
 					local bomb = CF_MakeItem2(self.BombPayload[self.BombingCount]["Preset"], self.BombPayload[self.BombingCount]["Class"])
 					if bomb then
-						bomb.Pos = Vector(self.BombingTarget - self.BobmingRange / 2 + math.random(self.BobmingRange), -40)
+						bomb.Pos = bombpos
 						MovableMan:AddItem(bomb)
+					end
+					
+					-- Place special actor so the bombs can detect the fake dropship that drops them launches
+					-- Fake dropship will delete itself after 250 ms
+					local dropship = CreateACDropShip("Fake Drop Ship MK1", self.ModuleName)
+					if dropship then
+						dropship.Team = CF_PlayerTeam
+						dropship.Pos = bombpos + Vector(0,-20)
+						MovableMan:AddActor(dropship)
+					else
+						print ("ERR: Dropship not created")
 					end
 				
 					self.BombingCount = self.BombingCount + 1
 					if self.BombingCount > #self.BombPayload then
 						break
+					end
+				end
+
+				-- Alert all enemy units in target area when bombs fall
+				if self.BombingCount == 2 and #self.BombPayload > 1 then
+					for actor in MovableMan.Actors do
+						if actor.Team ~= CF_PlayerTeam and not actor:IsInGroup("Brains") and actor.AIMode == Actor.AIMODE_SENTRY and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") then
+							local d = CF_Dist(actor.Pos, self.LastKnownBombingPosition)
+							
+							if d < self.BobmingRange * 1.5 then
+								actor.AIMode = Actor.AIMODE_BRAINHUNT
+							end
+						end
 					end
 				end
 				
@@ -211,7 +237,7 @@ function VoidWanderers:ProcessLZControlPanelUI()
 					end
 					
 					if self.BombsControlPanelSelectedModes[selectedpanel] == self.BombsControlPanelModes.BOMB then
-						if self.BombsControlPanelInBombMode then
+						if self.BombsControlPanelInBombMode or CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.NOBOMBS) then
 							self.BombsControlPanelSelectedModes[selectedpanel] = self.BombsControlPanelSelectedModes[selectedpanel] - 1
 						end
 					end
@@ -221,7 +247,7 @@ function VoidWanderers:ProcessLZControlPanelUI()
 					self.BombsControlPanelSelectedModes[selectedpanel] = self.BombsControlPanelSelectedModes[selectedpanel] + 1
 
 					if self.BombsControlPanelSelectedModes[selectedpanel] == self.BombsControlPanelModes.BOMB then
-						if self.BombsControlPanelInBombMode then
+						if self.BombsControlPanelInBombMode or CF_IsLocationHasAttribute(self.GS["Location"], CF_LocationAttributeTypes.NOBOMBS) then
 							self.BombsControlPanelSelectedModes[selectedpanel] = self.BombsControlPanelSelectedModes[selectedpanel] + 1
 						end
 					end
