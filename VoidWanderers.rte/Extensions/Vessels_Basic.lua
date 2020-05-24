@@ -9,8 +9,8 @@ CF_VesselModule[id] = "VoidWanderers.rte"
 CF_VesselMaxCloneCapacity[id] = 20
 CF_VesselStartCloneCapacity[id] = 6
 
-CF_VesselMaxCargoCapacity[id] = 100
-CF_VesselStartCargoCapacity[id] = 20
+CF_VesselMaxStorageCapacity[id] = 100
+CF_VesselStartStorageCapacity[id] = 20
 
 CF_VesselMaxLifeSupport[id] = 8
 CF_VesselStartLifeSupport[id] = 4

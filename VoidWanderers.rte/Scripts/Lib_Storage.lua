@@ -1,7 +1,8 @@
 -----------------------------------------------------------------------------------------
---	Returns sorted array of stored items from game state
+--	Returns sorted array of stored items from game state. If makefilters is true, then 
+--	it will also return additional array with filtered items
 -----------------------------------------------------------------------------------------
-function CF_GetStorageArray(gs)
+function CF_GetStorageArray(gs, makefilters)
 	local arr = {}
 	
 	-- Copy items
@@ -35,16 +36,79 @@ function CF_GetStorageArray(gs)
 		end
 	end
 	
+	local arr2
+	if makefilters then
+		arr2 = {}
+		
+		-- Array for all items
+		arr2[-1] = {}
+		-- Array for unknown items
+		arr2[-2] = {}
+		-- Arrays for items by types
+		arr2[CF_WeaponTypes.PISTOL] = {}
+		arr2[CF_WeaponTypes.RIFLE] = {}
+		arr2[CF_WeaponTypes.SHOTGUN] = {}
+		arr2[CF_WeaponTypes.SNIPER] = {}
+		arr2[CF_WeaponTypes.HEAVY] = {}
+		arr2[CF_WeaponTypes.SHIELD] = {}
+		arr2[CF_WeaponTypes.DIGGER] = {}
+		arr2[CF_WeaponTypes.GRENADE] = {}
+		arr2[CF_WeaponTypes.TOOL] = {}
+		
+		for itm = 1, #arr do
+			local f,i = CF_FindItemInFactions(arr[itm]["Preset"], arr[itm]["Class"])
+
+			-- Add item to 'all' list
+			local indx = #arr2[-1] + 1
+			arr2[-1][indx] = itm
+			
+			if f ~= nil and i ~= nil then
+				-- Add item to specific list
+				local indx = #arr2[CF_ItmTypes[f][i]] + 1
+				arr2[CF_ItmTypes[f][i]][indx] = itm
+			else
+				-- Add item to unknown list
+				local indx = #arr2[-2] + 1
+				arr2[-2][indx] = itm
+			end
+		end
+	end
+	
 	--for i = 1, #arr do
 	--	print (arr[i]["Preset"])
 	--end
 	
-	return arr
+	return arr, arr2
 end
 -----------------------------------------------------------------------------------------
 --	Saves array of stored items to game state
 -----------------------------------------------------------------------------------------
 function CF_SetStorageArray(gs, arr)
+	-- Clear stored array data
+	-- Copy items
+	for i = 1, CF_MaxStorageItems do
+		gs["ItemStorage"..i.."Preset"] = nil
+		gs["ItemStorage"..i.."Class"] = nil
+		gs["ItemStorage"..i.."Count"] = nil
+	end
+	
+	for i = 1, #arr do
+		gs["ItemStorage"..i.."Preset"] = arr[i]["Preset"]
+		gs["ItemStorage"..i.."Class"] = arr[i]["Class"]
+		gs["ItemStorage"..i.."Count"] = arr[i]["Count"]
+	end
+end
+-----------------------------------------------------------------------------------------
+--	Counts used storage units in storage array
+-----------------------------------------------------------------------------------------
+function CF_CountUsedStorageInArray(arr)
+	local count = 0
+	
+	for i = 1, #arr do
+		count = count + arr[i]["Count"]
+	end
+	
+	return count
 end
 -----------------------------------------------------------------------------------------
 --	Searcheds for given item in all faction files and returns it's factions and index if found

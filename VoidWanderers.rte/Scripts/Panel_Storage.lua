@@ -15,10 +15,25 @@ function VoidWanderers:InitStorageControlPanelUI()
 		end
 	end
 	
-	-- Init variables
-	--self.ShipControlPanelModes = {LOCATION = 0, PLANET = 1}
+	self.StorageControlPanelItemsPerPage = 9
 	
-	--self.ShipControlMode = self.ShipControlPanelModes.LOCATION
+	-- Init variables
+	self.StorageControlPanelModes = {UNKNOWN = -2, EVERYTHING = -1, PISTOL = 0, RIFLE = 1, SHOTGUN = 2, SNIPER = 3, HEAVY = 4, SHIELD = 5, DIGGER = 6, GRENADE = 7, TOOL = 8}
+	self.StorageControlPanelModesTexts = {}
+	
+	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.UNKNOWN] = "Unknown items"
+	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.EVERYTHING] = "All items"
+	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.PISTOL] = "Pistols"
+	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.RIFLE] = "Rifles"
+	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.SHOTGUN] = "Shotguns"
+	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.SNIPER] = "Sniper rifles"
+	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.HEAVY] = "Heavy weapons"
+	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.SHIELD] = "Shields"
+	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.DIGGER] = "Diggers"
+	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.GRENADE] = "Explosives"
+	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.TOOL] = "Tools"
+	
+	self.StorageControlMode = self.StorageControlPanelModes.EVERYTHING
 end
 -----------------------------------------------------------------------------------------
 --
@@ -36,7 +51,7 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 			
 			-- Init control panel
 			if not self.StorageControlPanelInitialized then
-				self.StorageItems = CF_GetStorageArray(self.GS)
+				self.StorageItems, self.StorageFilters = CF_GetStorageArray(self.GS, true)
 				self.SelectedItem = 1
 				self.LastSelectedItem = 0
 				self.StorageControlPanelInitialized = true
@@ -44,51 +59,145 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 			
 			-- Draw generic UI
 			local pos = act.Pos
-			self:PutGlow("ControlPanel_Storage_List", pos + Vector(-70,0))
+			self:PutGlow("ControlPanel_Storage_List", pos + Vector(-71,0))
 			self:PutGlow("ControlPanel_Storage_Description", pos + Vector(90,0))
-			
-			-- Draw items list
-			for i = 1, #self.StorageItems do
-				if i == self.SelectedItem then
-					CF_DrawString("> "..self.StorageItems[i]["Preset"], pos + Vector(-130,-60) + Vector(0, (i - 1) * 10), 90, 10)
-				else
-					CF_DrawString(self.StorageItems[i]["Preset"], pos + Vector(-130,-60) + Vector(0, (i - 1) * 10), 90, 10)
+			self:PutGlow("ControlPanel_Storage_HorizontalPanel", pos + Vector(20,-77))
+			self:PutGlow("ControlPanel_Storage_HorizontalPanel", pos + Vector(20,78))
+
+			-- Process controls
+			local cont = act:GetController()
+
+			if cont:IsState(Controller.PRESS_UP) then
+				self.SelectedItem = self.SelectedItem - 1
+				
+				if self.SelectedItem < 1 then
+					self.SelectedItem = 1
 				end
-				CF_DrawString(tostring(self.StorageItems[i]["Count"]), pos + Vector(-130,-60) + Vector(110, (i - 1) * 10), 90, 10)
+			end
+
+			if cont:IsState(Controller.PRESS_DOWN) then
+				if #self.StorageFilters[self.StorageControlMode] > 0 then
+					self.SelectedItem = self.SelectedItem + 1
+					
+					if self.SelectedItem > #self.StorageFilters[self.StorageControlMode] then
+						self.SelectedItem = #self.StorageFilters[self.StorageControlMode]
+					end
+				end
+			end
+
+			if cont:IsState(Controller.PRESS_LEFT) then
+				if #self.StorageFilters[self.StorageControlMode] > 0 then
+					self.StorageControlMode = self.StorageControlMode - 1
+					self.SelectedItem = 1
+					self.LastSelectedItem = 0
+					
+					if self.StorageControlMode == -3 then
+						self.StorageControlMode = self.StorageControlPanelModes.TOOL
+					end
+				end
+			end	
+
+			if cont:IsState(Controller.PRESS_RIGHT) then
+				self.StorageControlMode = self.StorageControlMode + 1
+				self.SelectedItem = 1
+				self.LastSelectedItem = 0
+				
+				if self.StorageControlMode == 9 then
+					self.StorageControlMode = self.StorageControlPanelModes.UNKNOWN
+				end
 			end
 			
-			if self.SelectedItem ~= self.LastSelectedItem then
-				-- Get item description
-				local f, i = CF_FindItemInFactions(self.StorageItems[self.SelectedItem]["Preset"], self.StorageItems[self.SelectedItem]["Class"])
-				
-				if f ~= nil and i ~= nil then
-					self.SelectedItemDescription = CF_ItmDescriptions[f][i]
-					self.SelectedItemManufacturer = CF_FactionNames[f]
+			self.StorageControlItemsListStart = self.SelectedItem - (self.SelectedItem - 1) % self.StorageControlPanelItemsPerPage
+			
+			-- Draw items list
+			for i = self.StorageControlItemsListStart, self.StorageControlItemsListStart + self.StorageControlPanelItemsPerPage - 1 do
+				if i <= #self.StorageFilters[self.StorageControlMode] then
+					local itm = self.StorageFilters[self.StorageControlMode][i]
+					local loc = i - self.StorageControlItemsListStart
 					
+					if i == self.SelectedItem then
+						CF_DrawString("> "..self.StorageItems[itm]["Preset"], pos + Vector(-130,-40) + Vector(0, (loc) * 12), 90, 10)
+					else
+						CF_DrawString(self.StorageItems[itm]["Preset"], pos + Vector(-130,-40) + Vector(0, (loc) * 12), 90, 10)
+					end
+					CF_DrawString(tostring(self.StorageItems[itm]["Count"]), pos + Vector(-130,-40) + Vector(110, (loc) * 12), 90, 10)
+				end
+			end
+
+			if self.SelectedItem ~= self.LastSelectedItem then
+				local itm = self.StorageFilters[self.StorageControlMode][self.SelectedItem]
+
+				-- Delete old item object
+				if self.StorageControlPanelObject ~= nil then
+					if MovableMan:IsDevice(self.StorageControlPanelObject) then
+						self.StorageControlPanelObject.ToDelete = true
+					end
+				end
+				
+				if itm ~= nil then
+					-- Get item description
+					local f, i = CF_FindItemInFactions(self.StorageItems[itm]["Preset"], self.StorageItems[itm]["Class"])
+					
+					if f ~= nil and i ~= nil then
+						self.SelectedItemDescription = CF_ItmDescriptions[f][i]
+						self.SelectedItemManufacturer = CF_FactionNames[f]
+						
+					else
+						self.SelectedItemDescription = "Unknown item"
+						self.SelectedItemManufacturer = "Unknown"
+					end
+					
+					-- Create new item object
+					self.StorageControlPanelObject = CF_MakeItem2(self.StorageItems[itm]["Preset"], self.StorageItems[itm]["Class"])
+					if self.StorageControlPanelObject ~= nil then
+						MovableMan:AddItem(self.StorageControlPanelObject)
+						--self.StorageControlPanelObject.HitsMOs = false
+						--self.StorageControlPanelObject.GetsHitByMOs = false
+					end
 				else
-					self.SelectedItemDescription = "Unknown item"
-					self.SelectedItemManufacturer = "Unknown"
+					self.SelectedItemDescription = ""
+					self.SelectedItemManufacturer = ""
+				end
+			end
+			
+			-- Pin item object
+			if self.StorageControlPanelObject ~= nil then
+				if MovableMan:IsDevice(self.StorageControlPanelObject) then
+					self.StorageControlPanelObject.Pos = pos + Vector(85,-40)
+					self.StorageControlPanelObject.Vel = Vector(0,0)
 				end
 			end
 			
 			-- Print description
-			
-			--print (self.StorageItems[self.SelectedItem]["Preset"])
-			--print (self.StorageItems[self.SelectedItem]["Class"])
-			
 			if self.SelectedItemDescription ~= nil then
-				CF_DrawString(self.SelectedItemDescription, pos + Vector(10,-25) , 170, 120)
+				CF_DrawString(self.SelectedItemDescription, pos + Vector(10,-10) , 170, 120)
 			end
 
+			-- Print manufacturer
 			if self.SelectedItemManufacturer ~= nil then
-				CF_DrawString("Manufacturer: "..self.SelectedItemManufacturer, pos + Vector(10,-40) , 170, 120)
+				CF_DrawString("Manufacturer: "..self.SelectedItemManufacturer, pos + Vector(10,-25) , 170, 120)
 			end
+			
+			-- Print Selected mode text
+			CF_DrawString(self.StorageControlPanelModesTexts[self.StorageControlMode], pos + Vector(-130,78) , 170, 10)
+			
+			-- Print help text
+			CF_DrawString("L/R - Change filter, U/D - Select item", pos + Vector(-130,-77) , 300, 10)
+			
+			-- Print storage capacity
+			CF_DrawString("Capacity: "..CF_CountUsedStorageInArray(self.StorageItems).."/"..self.GS["Player0VesselStorageCapacity"], pos + Vector(-130,-60) , 300, 10)
 		end
 	end
 	
 	if showidle and self.StorageControlPanelPos ~= nil then
 		self:PutGlow("ControlPanel_Storage", self.StorageControlPanelPos)
 		self.StorageControlPanelInitialized = false
+		
+		if self.StorageControlPanelObject ~= nil then
+			if MovableMan:IsDevice(self.StorageControlPanelObject) then
+				self.StorageControlPanelObject.ToDelete = true
+			end
+		end
 	end
 	
 end

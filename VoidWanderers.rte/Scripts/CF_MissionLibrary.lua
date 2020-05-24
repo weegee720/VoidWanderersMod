@@ -407,8 +407,8 @@ function CF_InitFactions(activity)
 	CF_VesselStartCloneCapacity = {}
 	
 	-- Amount of items which can be stored on the ship
-	CF_VesselMaxCargoCapacity = {}
-	CF_VesselStartCargoCapacity = {}
+	CF_VesselMaxStorageCapacity = {}
+	CF_VesselStartStorageCapacity = {}
 
 	-- How many units can be active on the ship simultaneously
 	CF_VesselMaxLifeSupport = {}
