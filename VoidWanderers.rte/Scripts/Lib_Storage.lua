@@ -296,7 +296,6 @@ end
 --	Returns true if added item is new item and you need to sort and update filters
 -----------------------------------------------------------------------------------------
 function CF_PutItemToStorageArray(arr, preset, class)
-	-- Put item to storage array
 	-- Find item in storage array
 	local found = 0
 	local isnew = false

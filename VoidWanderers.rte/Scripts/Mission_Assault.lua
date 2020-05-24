@@ -155,7 +155,7 @@ function VoidWanderers:MissionUpdate()
 				FrameMan:SetScreenText(self.MissionStatus, p, 0, 1000, true);
 			end
 		end
-	end
+	end--]]--
 end
 -----------------------------------------------------------------------------------------
 --

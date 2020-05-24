@@ -53,7 +53,7 @@ function VoidWanderers:ProcessLZControlPanelUI()
 	
 		if showidle then
 			self:PutGlow("ControlPanel_LZ", self.LZControlPanelPos[i])
-			CF_DrawString("RETURN",self.LZControlPanelPos[i] + Vector(-13,0),120,20 )
+			--CF_DrawString("RETURN",self.LZControlPanelPos[i] + Vector(-13,0),120,20 )
 		end
 	end
 	

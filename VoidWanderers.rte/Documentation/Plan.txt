@@ -6,3 +6,5 @@ Planned features:
 - Fast vessel unit deployment
 - Artifacts and relics
 - Campaigns?
+- Tactical icons for friedly actors indicating snipers, diggers etc. to make unit selection faster
+- Built in good old CCRPG and CCRTS systems?

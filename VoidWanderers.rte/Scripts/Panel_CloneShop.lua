@@ -206,7 +206,7 @@ function VoidWanderers:ProcessCloneShopControlPanelUI()
 	
 	if showidle and self.CloneShopControlPanelPos ~= nil and self.CloneShopControlPanelActor ~= nil then
 		self:PutGlow("ControlPanel_CloneShop", self.CloneShopControlPanelPos)
-		CF_DrawString("Body\nStore ",self.CloneShopControlPanelPos + Vector(-16,0), 120, 20)
+		--CF_DrawString("Body\nStore ",self.CloneShopControlPanelPos + Vector(-16,0), 120, 20)
 
 		self.CloneShopControlPanelInitialized = false
 	end

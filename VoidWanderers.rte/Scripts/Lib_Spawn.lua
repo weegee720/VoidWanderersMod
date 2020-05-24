@@ -689,6 +689,8 @@ function CF_SelectRandomPoints(pts, n)
 	-- If length of array = n then we don't need to find random and can simply return this array
 	if #pts == n then
 		return pts
+	elseif #pts == 0 then
+		return res
 	else
 		-- Start selecting random values
 		for i = 1, #pts do

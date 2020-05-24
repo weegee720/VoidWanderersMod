@@ -138,7 +138,11 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 				end
 			end
 
-
+			-- Bacause StorageFilters my change outside of this panel by other players always check for out-of-bounds 
+			if self.StorageSelectedItem > #self.StorageFilters[self.StorageControlMode] and #self.StorageFilters[self.StorageControlMode] > 0 then
+				self.StorageSelectedItem = #self.StorageFilters[self.StorageControlMode]
+			end
+			
 			-- Process controls
 			local cont = act:GetController()
 			
@@ -266,6 +270,11 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 							end
 							-- Update game state
 							CF_SetStorageArray(self.GS, self.StorageItems)
+							
+							-- Refresh storage array and filters
+							if self.StorageItems[itm]["Count"] == 0 then
+								self.StorageItems, self.StorageFilters = CF_GetStorageArray(self.GS, true)							
+							end
 						end
 					end
 				end
@@ -287,7 +296,6 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 					CF_DrawString(tostring(self.StorageItems[itm]["Count"]), pos + Vector(-130,-40) + Vector(110, (loc) * 12), 90, 10)
 				end
 			end
-
 			
 			-- Pin item object
 			if self.StorageControlPanelObject ~= nil then
@@ -325,7 +333,7 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 	
 	if showidle and self.StorageControlPanelPos ~= nil then
 		self:PutGlow("ControlPanel_Storage", self.StorageControlPanelPos)
-		CF_DrawString("STORAGE",self.StorageControlPanelPos + Vector(-16,0), 120, 20)
+		--CF_DrawString("STORAGE",self.StorageControlPanelPos + Vector(-16,0), 120, 20)
 
 		self.StorageControlPanelInitialized = false
 		

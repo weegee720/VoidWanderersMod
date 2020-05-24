@@ -363,14 +363,11 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 						
 						if self.SelectedClone > 0 and CF_CountUsedStorageInArray(self.StorageItems) < tonumber(self.GS["Player0VesselStorageCapacity"]) and #self.Clones[self.SelectedClone]["Items"] > 0 then
 							-- Put item to storage array
-							local needrefresh = CF_PutItemToStorageArray(self.StorageItems, self.Clones[self.SelectedClone]["Items"][self.ClonesInventorySelectedItem]["Preset"], self.Clones[self.SelectedClone]["Items"][self.ClonesInventorySelectedItem]["Class"])
-
+							CF_PutItemToStorageArray(self.StorageItems, self.Clones[self.SelectedClone]["Items"][self.ClonesInventorySelectedItem]["Preset"], self.Clones[self.SelectedClone]["Items"][self.ClonesInventorySelectedItem]["Class"])
 							CF_SetStorageArray(self.GS, self.StorageItems)
 
 							-- Refresh storage items array and filters
-							if needrefresh then
-								self.StorageItems, self.StorageFilters = CF_GetStorageArray(self.GS, true)							
-							end
+							self.StorageItems, self.StorageFilters = CF_GetStorageArray(self.GS, true)							
 							
 							-- Remove item from inventory via temp array
 							local inv = {}
@@ -433,6 +430,11 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 									-- Update game state
 									CF_SetClonesArray(self.GS, self.Clones)
 									CF_SetStorageArray(self.GS, self.StorageItems)
+							
+									-- Refresh storage array and filters
+									if self.StorageItems[itm]["Count"] == 0 then
+										self.StorageItems, self.StorageFilters = CF_GetStorageArray(self.GS, true)							
+									end
 								else
 									self.ClonesControlLastMessageTime = self.Time
 									self.ClonesControlMessageText = "No more items in storage"
@@ -448,6 +450,11 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 					end
 				else
 					self.FirePressed = false
+				end
+
+				-- Bacause StorageFilters my change outside of this panel by other players always check for out-of-bounds 
+				if self.ClonesStorageSelectedItem > #self.StorageFilters[self.StorageControlPanelModes.EVERYTHING] and #self.StorageFilters[self.StorageControlPanelModes.EVERYTHING] > 0 then
+					self.ClonesStorageSelectedItem = #self.StorageFilters[self.StorageControlPanelModes.EVERYTHING]
 				end
 				
 				if cont:IsState(Controller.PRESS_UP) then
@@ -546,7 +553,7 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 	if showidle and self.ClonesControlPanelPos ~= nil then
 		self.ClonesControlPanelInitialized = false
 		self:PutGlow("ControlPanel_Clones", self.ClonesControlPanelPos)
-		CF_DrawString("CLONES",self.ClonesControlPanelPos + Vector(-16,0),120,20 )
+		--CF_DrawString("CLONES",self.ClonesControlPanelPos + Vector(-16,0),120,20 )
 	end
 	
 	-- Process clones input
@@ -589,15 +596,13 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 									-- If we have free space add items to storage, spawn nearby otherwise
 									if CF_CountUsedStorageInArray(self.StorageItems) < tonumber(self.GS["Player0VesselStorageCapacity"]) then
 										-- Put item to storage array
-										local needrefresh = CF_PutItemToStorageArray(self.StorageItems, inv[i], cls[i])
+										CF_PutItemToStorageArray(self.StorageItems, inv[i], cls[i])
 										
 										-- Store everything
 										CF_SetStorageArray(self.GS, self.StorageItems)
 										
 										-- Refresh storage items array and filters
-										if needrefresh then
-											self.StorageItems, self.StorageFilters = CF_GetStorageArray(self.GS, true)
-										end
+										self.StorageItems, self.StorageFilters = CF_GetStorageArray(self.GS, true)
 									else
 										local itm = CF_MakeItem2(inv[i], cls[i])
 										if itm ~= nil then

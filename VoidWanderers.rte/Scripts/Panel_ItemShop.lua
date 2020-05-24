@@ -242,7 +242,7 @@ function VoidWanderers:ProcessItemShopControlPanelUI()
 	
 	if showidle and self.ItemShopControlPanelPos ~= nil and self.ItemShopControlPanelActor ~= nil then
 		self:PutGlow("ControlPanel_ItemShop", self.ItemShopControlPanelPos)
-		CF_DrawString("Item\nStore ",self.ItemShopControlPanelPos + Vector(-16,0), 120, 20)
+		--CF_DrawString("Item\nStore ",self.ItemShopControlPanelPos + Vector(-16,0), 120, 20)
 
 		self.ItemShopControlPanelInitialized = false
 		

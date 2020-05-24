@@ -1104,24 +1104,30 @@ function VoidWanderers:DeployGenericMissionEnemies(setnumber, setname, plr, spaw
 	
 	-- Spawn everything
 	for d = 1, #dq do
-		local enmpos = CF_GetPointsArray(self.Pts, setname, setnumber, dq[d]["PointName"])
-		--local enmpos = CF_SelectRandomPoints(enm, #enm)
+		local fullenmpos = CF_GetPointsArray(self.Pts, setname, setnumber, dq[d]["PointName"])
+		local count = math.floor(spawnrate * #fullenmpos)
+		-- Guarantee that at least one unit is awlays spawned
+		if count < 1 then
+			count = 1
+		end
+		
+		local enmpos = CF_SelectRandomPoints(fullenmpos, count)
+		
+		print (dq[d]["PointName"].." - "..#enmpos.." / ".. #fullenmpos .." - "..spawnrate)
 		
 		for i = 1, #enmpos do
-			if math.random() < spawnrate then
-				local nw = {}
-				if dq[d]["Preset"] == nil then
-					nw["Preset"] = math.random(CF_PresetTypes.ARMOR2)
-				else
-					nw["Preset"] = dq[d]["Preset"]
-				end
-				nw["Team"] = CF_CPUTeam
-				nw["Player"] = plr
-				nw["AIMode"] = Actor.AIMODE_SENTRY
-				nw["Pos"] = enmpos[i]
-				
-				table.insert(self.SpawnTable, nw)
+			local nw = {}
+			if dq[d]["Preset"] == nil then
+				nw["Preset"] = math.random(CF_PresetTypes.ARMOR2)
+			else
+				nw["Preset"] = dq[d]["Preset"]
 			end
+			nw["Team"] = CF_CPUTeam
+			nw["Player"] = plr
+			nw["AIMode"] = Actor.AIMODE_SENTRY
+			nw["Pos"] = enmpos[i]
+			
+			table.insert(self.SpawnTable, nw)
 		end
 	end
 	

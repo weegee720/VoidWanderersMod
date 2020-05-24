@@ -36,6 +36,7 @@ function Create(self)
 			act.Pos = self.Pos-- + Vector(0,-8)
 			act.Vel = Vector(0,-5)
 			act.Team = CF_PlayerTeam
+			act.AIMode = Actor.AIMODE_SENTRY
 			MovableMan:AddActor(act)
 		end
 	end
