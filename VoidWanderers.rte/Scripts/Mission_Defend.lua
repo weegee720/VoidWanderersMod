@@ -13,46 +13,46 @@ function VoidWanderers:MissionCreate()
 	
 	setts = {}
 	setts[1] = {}
-	setts[1]["SpawnRate"] = 0.60
+	setts[1]["SpawnRate"] = 0.40
 	setts[1]["Reinforcements"] = 5
 	setts[1]["Interval"] = 30
 	setts[1]["TroopCount"] = 1
-	setts[1]["AllyTech"] = 1
+	setts[1]["AllyTech"] = 2
 	
 	setts[2] = {}
-	setts[2]["SpawnRate"] = 0.55
+	setts[2]["SpawnRate"] = 0.40
 	setts[2]["Reinforcements"] = 5
 	setts[2]["Interval"] = 30
-	setts[2]["TroopCount"] = 1
+	setts[2]["TroopCount"] = 2
 	setts[2]["AllyTech"] = 1
 
 	setts[3] = {}
-	setts[3]["SpawnRate"] = 0.50
+	setts[3]["SpawnRate"] = 0.35
 	setts[3]["Reinforcements"] = 6
 	setts[3]["Interval"] = 28
 	setts[3]["TroopCount"] = 2
 	setts[3]["AllyTech"] = 0
 
 	setts[4] = {}
-	setts[4]["SpawnRate"] = 0.45
+	setts[4]["SpawnRate"] = 0.35
 	setts[4]["Reinforcements"] = 6
 	setts[4]["Interval"] = 28
 	setts[4]["TroopCount"] = 2
 	setts[4]["AllyTech"] = 0
 
 	setts[5] = {}
-	setts[5]["SpawnRate"] = 0.40
+	setts[5]["SpawnRate"] = 0.30
 	setts[5]["Reinforcements"] = 7
 	setts[5]["Interval"] = 26
 	setts[5]["TroopCount"] = 3
 	setts[5]["AllyTech"] = -1
 
 	setts[6] = {}
-	setts[6]["SpawnRate"] = 0.35
+	setts[6]["SpawnRate"] = 0.30
 	setts[6]["Reinforcements"] = 7
 	setts[6]["Interval"] = 26
 	setts[6]["TroopCount"] = 3
-	setts[6]["AllyTech"] = -1
+	setts[6]["AllyTech"] = -2
 	
 	self.MissionSettings = setts[self.MissionDifficulty]
 	self.MissionStart = self.Time

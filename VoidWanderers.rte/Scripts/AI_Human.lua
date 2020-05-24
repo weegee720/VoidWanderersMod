@@ -487,6 +487,7 @@ function HumanBehaviors.ShootTarget(AI, Owner)
 	
 	coroutine.yield()	-- wait until next frame
 	
+	-- WEEGEE make AI lamer
 	local ErrorOffset = Vector(RangeRand(40, 80), 0):RadRotate(RangeRand(1, 6))
 	if Dist.Largest < 150 then
 		ErrorOffset = ErrorOffset * 0.5
@@ -673,9 +674,11 @@ function HumanBehaviors.ShootTarget(AI, Owner)
 				
 				local aim = Owner:GetAimAngle(true)			
 				if AI.flying then
-					aimTarget = (aimTarget or aim) + RangeRand(-0.05, 0.05)
+					-- aimTarget = (aimTarget or aim) + RangeRand(-0.05, 0.05) -- WEEGEE
+					aimTarget = (aimTarget or aim) + RangeRand(-0.2, 0.2)
 				else
-					aimTarget = (aimTarget or aim) + math.min(math.max(RangeRand(-15, 15)/(range+50), -0.1), 0.1)
+					-- aimTarget = (aimTarget or aim) + math.min(math.max(RangeRand(-15, 15)/(range+50), -0.1), 0.1) -- WEEGEE
+					aimTarget = (aimTarget or aim) + math.min(math.max(RangeRand(-25, 25)/(range + 25), -0.35), 0.35)
 				end
 				
 				local angDiff = aim - aimTarget
@@ -687,7 +690,8 @@ function HumanBehaviors.ShootTarget(AI, Owner)
 				
 				if PrjDat and ShootTimer:IsPastRealMS(shootDelay) then
 					ErrorOffset = ErrorOffset * 0.97	-- reduce the aim point error
-					AI.Ctrl.AnalogAim = Vector(1,0):RadRotate(aim-math.max(math.min(angDiff*0.1, 0.25), -0.25))
+					--AI.Ctrl.AnalogAim = Vector(1,0):RadRotate(aim-math.max(math.min(angDiff*0.1, 0.25), -0.25)) -- WEEGEE
+					AI.Ctrl.AnalogAim = Vector(1,0):RadRotate(aim-math.max(math.min(angDiff*0.1, 0.45), -0.45))
 					
 					if AI.canHitTarget and angDiff < 0.7 then 
 						if Weapon.FullAuto then	-- open fire if our aim overlap the target

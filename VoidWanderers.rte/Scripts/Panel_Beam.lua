@@ -115,6 +115,11 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 				end
 			end
 			
+			local limit = tonumber(self.GS["Player0VesselCommunication"])
+			if anybraindetached then
+				limit = 1000
+			end
+			
 			if anybraindetached and braincount < self.PlayerCount then
 				CF_DrawString("All brains must be on the landing deck", pos + Vector(-54, -6), 124, 36)
 				canbeam = false
@@ -123,7 +128,7 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 				if locname ~= nil then
 					if CF_LocationPlayable[ self.GS["Location"] ] == nil or CF_LocationPlayable[ self.GS["Location"] ] == true then
 						
-						if count <= tonumber(self.GS["Player0VesselCommunication"]) then
+						if count <= limit then
 							if count > 0 then
 								CF_DrawString("Deploy away team on "..CF_LocationName[ self.GS["Location"] ], pos + Vector(-55, -6), 124, 36)
 								canbeam = true
@@ -132,10 +137,8 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 								canbeam = false
 							end
 						else
-							if not anybraindetached then
-								CF_DrawString("Too many units!", pos + Vector(-35, -6), 124, 36)
-								canbeam = false
-							end
+							CF_DrawString("Too many units!", pos + Vector(-35, -6), 124, 36)
+							canbeam = false
 						end
 					else
 						CF_DrawString("Can't deploy to "..CF_LocationName[ self.GS["Location"] ], pos + Vector(-50, -6), 124, 36)

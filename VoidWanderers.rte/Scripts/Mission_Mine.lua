@@ -23,7 +23,7 @@ function VoidWanderers:MissionCreate()
 	setts[2]["AllyReinforcementsCount"] = 6
 	setts[2]["EnemyDropshipUnitCount"] = 1
 	setts[2]["Interval"] = 35
-	setts[2]["InitialMiners"] = 1
+	setts[2]["InitialMiners"] = 2
 	setts[2]["MinersNeeded"] = 3
 	setts[2]["TimeToHold"] = 140
 
@@ -166,7 +166,7 @@ function VoidWanderers:MissionUpdate()
 		end
 		
 		-- Send player reinforcements
-		if not self.EnoughMiners and #self.MissionLZs > 0 and self.Time >= self.MissionLastAllyReinforcements + 20 and self.MissionSettings["AllyReinforcementsCount"] > 0 then
+		if not self.MissionEnoughMiners and #self.MissionLZs > 0 and self.Time >= self.MissionLastAllyReinforcements + 20 and self.MissionSettings["AllyReinforcementsCount"] > 0 then
 			if MovableMan:GetMOIDCount() < CF_MOIDLimit then
 				--print ("Spawn ally")
 				self.MissionLastAllyReinforcements = self.Time
