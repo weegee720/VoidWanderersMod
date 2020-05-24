@@ -66,16 +66,26 @@ end
 -------------------------------------------------------------------------------
 
 --[[
-	Rail Rifle by Arcalane
-	http://forums.datarealms.com/viewtopic.php?f=61&p=489286
+	Aeon Tech by Arcalane
+	http://forums.datarealms.com/viewtopic.php?p=534293#p534293
 	Supported out of the box
 ]]--
 
 
-if PresetMan:GetModuleID("RailRifle.rte") ~= -1 then
+if PresetMan:GetModuleID("ATech.rte") ~= -1 then
 	local id = #CF_ArtItmPresets + 1
 	CF_ArtItmPresets[id] = "Rail Sniper Rifle"
-	CF_ArtItmModules[id] = "RailRifle.rte"
+	CF_ArtItmModules[id] = "ATech.rte"
+	CF_ArtItmClasses[id] = "HDFirearm"
+	
+	local id = #CF_ArtItmPresets + 1
+	CF_ArtItmPresets[id] = "Pacifier Battle Rifle"
+	CF_ArtItmModules[id] = "ATech.rte"
+	CF_ArtItmClasses[id] = "HDFirearm"
+	
+	local id = #CF_ArtItmPresets + 1
+	CF_ArtItmPresets[id] = "Jotun Grenade Launcher"
+	CF_ArtItmModules[id] = "ATech.rte"
 	CF_ArtItmClasses[id] = "HDFirearm"
 end
 -------------------------------------------------------------------------------
