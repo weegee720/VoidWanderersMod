@@ -225,12 +225,6 @@ function VoidWanderers:BtnOk_OnClick()
 	local cpu = {}
 	
 	player = self.FactionButtons[self.SelectedPlayerFaction]["FactionId"]
-	if self.SelectedPlayerAlly ~= "None" then
-		ally = self.FactionButtons[self.SelectedPlayerAlly]["FactionId"]
-	else
-		ally = "None"
-	end
-	
 	for i = 1, CF_MaxCPUPlayers do
 		if self.SelectedCPUFactions[i] ~= 0 then
 			cpu[i] = self.FactionButtons[self.SelectedCPUFactions[i]]["FactionId"]
@@ -239,17 +233,20 @@ function VoidWanderers:BtnOk_OnClick()
 		end
 	end
 	
+	-- Create new game data
 	dofile(LIB_PATH.."CF_NewGameData.lua");
-	config = CF_MakeNewConfig(self.Difficulty,player, ally, cpu);
+	config = CF_MakeNewConfig(self.Difficulty, player, cpu);
 	CF_MakeNewConfig = nil;
 	
 	CF_WriteConfigFile(config , self.ModuleName , STATE_CONFIG_FILE);
 	
 	self:FormClose();
-	dofile(BASE_PATH.."FormDefault.lua")
-	-- Load game state
-	self:LoadCurrentGameState();
-	self:FormLoad();
+	
+	--for player = 0, self.PlayerCount - 1 do
+	--	self:SetPlayerBrain(nil, player);
+	--end	
+	
+	CF_LaunchMission(config["Scene"], "Tactics.lua")
 end
 -----------------------------------------------------------------------------------------
 --

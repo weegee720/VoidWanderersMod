@@ -25,17 +25,7 @@ function CF_InitFactions(activity)
 	
 	CF_MaxCPUPlayers = 8
 	CF_MaxSaveGames = 6
-	CF_MaxItemsPerPreset = 3
-	CF_MaxAssaultPresets = 6
-	CF_MaxDefenders = 8
-	CF_MaxUnitsPerDropship = 3
-	CF_TickInterval = 500
-	CF_AttackEventExpire = 2
-	CF_MaxAttackEventSlots = 20
-	CF_MessageInterval = 5000
-	CF_AllyMissionProbability = 0.015
-	CF_AITerrAttackCooldown = 18
-	CF_TerrAttackCooldown = 20
+	CF_MaxItems = 50
 
 	CF_MaxAIEngineerCount = 3
 	
@@ -247,19 +237,6 @@ function CF_InitFactions(activity)
 	CF_CraftClasses = {};
 	CF_CraftPrices = {}
 
-	-- Define available ally missions
-	CF_AllyMissions = {}
-	
-	local m = #CF_AllyMissions + 1
-	CF_AllyMissions[m] = {}
-	CF_AllyMissions[m]["Scene"] = "Ally_01"
-	CF_AllyMissions[m]["Script"] = "Ally_01.lua"
-
-	local m = #CF_AllyMissions + 1
-	CF_AllyMissions[m] = {}
-	CF_AllyMissions[m]["Scene"] = "Ally_02"
-	CF_AllyMissions[m]["Script"] = "Ally_02.lua"
-
 	local factionstorage = "./VoidWanderers.rte/Factions/"
 	
 	-- Load factions
@@ -468,92 +445,60 @@ function CF_InitFactions(activity)
 		end
 	end
 	
+	CF_InitOtherGameData(activity)
+	
 	--print("Factions loaded:")
 	--for i = 1 , #CF_Factions do
 		--print(CF_Factions[i])
 	--end	
 end
 -----------------------------------------------------------------------------------------
--- Make brain where c - config, p - player, pay - if true then pay for unit
+-- Initialize global faction lists
 -----------------------------------------------------------------------------------------
-function CF_MakeBrain(c, p, pay)
-	--print ("CF_SpawnBrain");
+function CF_InitOtherGameData(activity)
+	-- Init vessels data
+	CF_Vessel = {}
+	CF_VesselName = {}
+	CF_VesselScene = {}
+	CF_VesselModule = {}
 
-	-- We don't check for moids here because we must create brain anyway
-	local actor = nil
-	local weapon = nil;
-	local f = CF_GetPlayerFaction(c, p);
+	-- Price of the vesel
+	CF_VesselPrice = {}
 	
-	actor = CF_MakeActor(CF_Brains[f], CF_BrainClasses[f], CF_BrainModules[f])
+	-- Amount of bodies which can be stored on the ship
+	CF_VesselMaxCloneCapacity = {}
+	CF_VesselStartCloneCapacity = {}
 	
-	-- Create list of prefered weapons for brains
-	local list = {CF_WeaponTypes.RIFLE, CF_WeaponTypes.DIGGER}
-	
-	if CF_PreferedBrainInventory[f] ~= nil then
-		list = CF_PreferedBrainInventory[f]
-	end
-	
-	local weaponsgiven = 0
-	
-	if actor ~= nil then
-		for i = 1, #list do
-			local weaps;
-			-- Try to give brain most powerful prefered weapon
-			weaps = CF_MakeListOfMostPowerfulWeapons(c, p, list[i])
-			
-			if weaps ~= nil then
-				local wf = weaps[1]["Faction"]
-				weapon = CF_MakeItem(CF_ItmPresets[wf][ weaps[1]["Item"] ], CF_ItmClasses[wf][ weaps[1]["Item"] ], CF_ItmModules[wf][ weaps[1]["Item"] ]);
-				if weapon ~= nil then
-					actor:AddInventoryItem(weapon);
-					
-					if list[i] ~= CF_WeaponTypes.DIGGER and list[i] ~= CF_WeaponTypes.TOOL then
-						weaponsgiven = weaponsgiven + 1
-					end
-				end
-			end
-		end
-		
-		if weaponsgiven == 0 then
-			-- If we didn't get any weapins try to give other weapons, rifles
-			if weaps == nil then
-				weaps = CF_MakeListOfMostPowerfulWeapons(c, p, CF_WeaponTypes.RIFLE)
-			end
+	-- Amount of items which can be stored on the ship
+	CF_VesselMaxCargoCapacity = {}
+	CF_VesselStartCargoCapacity = {}
 
-			-- Sniper rifles
-			if weaps == nil then
-				weaps = CF_MakeListOfMostPowerfulWeapons(c, p, CF_WeaponTypes.SNIPER)
-			end
+	-- How many units can be active on the ship simultaneously
+	CF_VesselMaxLifeSupport = {}
+	CF_VesselStartLifeSupport = {}
 
-			-- No luck - heavies then
-			if weaps == nil then
-				weaps = CF_MakeListOfMostPowerfulWeapons(c, p, CF_WeaponTypes.HEAVY)
-			end
-			
-			-- No luck - pistols then
-			if weaps == nil then
-				weaps = CF_MakeListOfMostPowerfulWeapons(c, p, CF_WeaponTypes.PISTOL)
-			end
-			
-			if weaps ~= nil then
-				local wf = weaps[1]["Faction"]
-				weapon = CF_MakeItem(CF_ItmPresets[wf][ weaps[1]["Item"] ], CF_ItmClasses[wf][ weaps[1]["Item"] ], CF_ItmModules[wf][ weaps[1]["Item"] ]);
-				if weapon ~= nil then
-					actor:AddInventoryItem(weapon);
-				end
-			end
-		end
-		
-		-- Pay for brain
-		if pay then
-			CF_SetPlayerGold(c, p, CF_GetPlayerGold(c, p) - CF_BrainPrices[f]);
-		end
+	-- How many units can be active on the planet surface simultaneously
+	CF_VesselMaxCommunication = {}
+	CF_VesselStartCommunication = {}
 
-		-- Set default AI mode
-		actor.AIMode = Actor.AIMODE_SENTRY;
-	end
+	local id = "Gryphon"
+	CF_Vessel[#CF_Vessel + 1] = id
+	CF_VesselPrice[id] = 35000
+	CF_VesselName[id] = "Gryphon"
+	CF_VesselScene[id] = "Vessel Gryphon"
+	CF_VesselModule[id] = "VoidWanderers.rte"
 	
-	return actor;
+	CF_VesselMaxCloneCapacity[id] = 20
+	CF_VesselStartCloneCapacity[id] = 6
+	
+	CF_VesselMaxCargoCapacity[id] = 100
+	CF_VesselStartCargoCapacity[id] = 20
+	
+	CF_VesselMaxLifeSupport[id] = 8
+	CF_VesselStartLifeSupport[id] = 4
+	
+	CF_VesselMaxCommunication[id] = 8
+	CF_VesselStartCommunication[id] = 4
 end
 -----------------------------------------------------------------------------------------
 --	Create actor from preset pre, where c - config, p - player, t - territory, pay gold is pay == true
@@ -687,45 +632,6 @@ function CF_SpawnDropShip(c, p, t, pres, pay, team)
 	return actor, payloadcount
 end
 -----------------------------------------------------------------------------------------
--- Spawns ally dropship loaded with random units
------------------------------------------------------------------------------------------
-function CF_SpawnAllyDropShip(c, team)
-	--print ("CF_SpawnDropship");
-	local actor = nil;
-	local f = CF_GetPlayerAllyFaction(c);
-	local payloadcount = 0
-
-	-- Calculate ally dropship capacity
-	local dcap = CF_MaxUnitsPerDropship;
-	if CF_DropShipCapacityBonuses[f] ~= nil then
-		dcap = CF_DropShipCapacityBonuses[f]
-	end
-	
-	if MovableMan:GetMOIDCount() < CF_MOIDLimit then
-		actor = CF_MakeActor(CF_Crafts[f] , CF_CraftClasses[f] , CF_CraftModules[f]);
-
-		if actor ~= nil then
-			actor.AIMode = Actor.AIMODE_DELIVER;
-			actor:SetControllerMode(Controller.CIM_AI, -1);
-			actor.Team = team;
-			
-			-- Create actors and fill dropship with them
-			for i = 1, dcap do
-				--local load = CF_MakeActorFromPreset(c, p, t, pres[i], pay)
-				local load = CF_SpawnRandomInfantry(team, nil, f, Actor.AIMODE_SENTRY)
-					
-				if load ~= nil then
-					load.Team = team;
-					actor:AddInventoryItem(load)
-					payloadcount = payloadcount + 1
-				end
-			end
-		end
-	end
-	
-	return actor, payloadcount
-end
------------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
 function CF_SpawnRandomInfantry(team , pos , faction , aimode)
@@ -835,15 +741,9 @@ function CF_InitMission(config)
 	print ("CF_InitMission");
 	CF_Activity:SetTeamFunds(tonumber(config["PlayerGold"]) , CF_PlayerTeam);
 	CF_AIBudget = tonumber(config["LastMissionAIBudget"]);
-	if ironman and not debugcheats then 
-		playerischeater = true;
-	end
-	ironman = true;
+
 	CF_PlayerFaction = CF_GetPlayerFaction(config);
 	CF_CPUFaction = CF_GetCPUFaction(config);
-	
-	CF_Activity:SetLZArea(CF_PlayerTeam, SceneMan.Scene:GetArea("LZ Team 1"));
-	CF_Activity:SetBrainLZWidth(CF_PlayerTeam, 0);
 end
 -----------------------------------------------------------------------------------------
 -- Transfers player to strategy screen after 3 second of victory message
@@ -858,7 +758,7 @@ function CF_ReturnOnMissionEnd()
 	
 	if CF_StartReturnCountdown then
 		if CF_MissionEndTimer:IsPastSimMS(CF_MissionReturnInterval) then
-			CF_LaunchMissionActivity("Unmapped Lands 2");
+			--CF_LaunchMissionActivity("Unmapped Lands 2");
 		end
 	end
 end
@@ -1049,17 +949,11 @@ function CF_DrawString(str , pos , width , height)
 	local y;
 	local chr;
 	local drawthistime
-	local letterpreset
+	local letterpreset = "Ltr"
 	
 	x = pos.X
 	y = pos.Y
 
-	if CF_LowPerformance  and CF_FrameCounter > 0 then
-		letterpreset = "LnLtr"
-	else
-		letterpreset = "Ltr"
-	end
-	
 	local words = CF_Split(str," ");
 	for w = 1, #words do
 		drawthistime = true
@@ -1086,25 +980,15 @@ function CF_DrawString(str , pos , width , height)
 			else
 				local cindex, cwidth, coffset = CF_GetCharData(chr)
 				
-				if CF_LowPerformance and CF_FrameCounter > 0 then
-					if CF_FrameCounter % 2 == i % 2 then
-						drawthistime = true
-					else
-						drawthistime = false
-					end
+				local pix = CreateMOPixel(letterpreset..cindex);
+				local offset = coffset
+				if offset ~= nil then
+					pix.Pos = Vector(x , y) + offset;
+				else
+					pix.Pos = Vector(x , y);
 				end
 				
-				if drawthistime then
-					local pix = CreateMOPixel(letterpreset..cindex);
-					local offset = coffset
-					if offset ~= nil then
-						pix.Pos = Vector(x , y) + offset;
-					else
-						pix.Pos = Vector(x , y);
-					end
-					
-					MovableMan:AddParticle(pix);
-				end
+				MovableMan:AddParticle(pix);
 				
 				x = x + cwidth
 			end
@@ -1150,175 +1034,6 @@ function CF_ConvertTimeToString(timenum)
 	
 	return timestr;
 end
------------------------------------------------------------------------------
--- Returns array of calculated resource and other values for specified territory
--- if player is owner then values calculated for defender of this territory
--- c - config, t - territory number, p - player, planetdata - initializeed planet data array
--- planet data used to determine territory boarders and find adjacent territories
------------------------------------------------------------------------------
-function CF_GetTerritoryValues(c, t, plr, planetdata)
-	-- Values
-	local v = {}
-	local owner = tonumber(c["Terr"..t.."Owner"])
-	
-	local f = CF_GetPlayerFaction(c, plr)
-	
-	-- MINING
-	v[T_MINE] = {}
-	-- Get level
-	local lvl = tonumber(c["Terr"..t.."MineLevel"])
-	local bonus = tonumber(c["Terr"..t.."MineBonus"])
-	local bonus2 = CF_MineBonuses[f]
-	if bonus2 == nil then bonus2 = 0 end
-	local val = tonumber(c["MineIncome"..lvl])
-	val = val + math.ceil((val * bonus / 100) +  (val * bonus2 / 100))
-
-	v[T_MINE][V_LEVEL] = lvl;
-	-- Calculate gold per tick
-	v[T_MINE][V_VAL] = val
-	-- Calculate bonus
-	v[T_MINE][V_BONUS] = bonus;
-	-- Count defenders
-	v[T_MINE][V_DEFEND] = tonumber(c["Terr"..t.."MineDefence"]);
-	
-	-- SCIENCE
-	v[T_LAB] = {}
-	-- Get level
-	local lvl = tonumber(c["Terr"..t.."LabLevel"])
-	local bonus = tonumber(c["Terr"..t.."LabBonus"])		
-	local bonus2 = CF_LabBonuses[f]
-	if bonus2 == nil then bonus2 = 0 end
-	local val = tonumber(c["LabIncome"..lvl])
-	val = val + math.ceil((val * bonus / 100) + (val * bonus2 / 100))
-
-	v[T_LAB][V_LEVEL] = lvl;
-	-- Calculate science points per tick
-	v[T_LAB][V_VAL] = val
-	-- Calculate bonus
-	v[T_LAB][V_BONUS] = bonus;
-	-- Count defenders
-	v[T_LAB][V_DEFEND] = tonumber(c["Terr"..t.."LabDefence"]);
-
-	
-	-- AIRFIELDS
-	v[T_AIR] = {}
-	-- Get level
-	local lvl = tonumber(c["Terr"..t.."AirfieldLevel"])
-	local bonus = tonumber(c["Terr"..t.."AirfieldBonus"])		
-	local bonus2 = CF_AirfieldBonuses[f]
-	if bonus2 == nil then bonus2 = 0 end
-	local val = tonumber(c["AirfieldTime"..lvl])
-	val = val - math.floor((val * bonus / 100) +  (val * bonus2 / 100))
-
-	v[T_AIR][V_LEVEL] = lvl;
-	-- Calculate arrival time in seconds
-	v[T_AIR][V_VAL] = val
-	-- Calculate bonus
-	v[T_AIR][V_BONUS] = bonus;
-	-- Count defenders
-	v[T_AIR][V_DEFEND] = tonumber(c["Terr"..t.."AirfieldDefence"]);
-	
-	
-	-- SUPERWEAPONS
-	v[T_SUPER] = {}
-	-- Get level
-	local lvl = tonumber(c["Terr"..t.."SuperWeaponLevel"])
-	local bonus = tonumber(c["Terr"..t.."SuperWeaponBonus"])		
-	local bonus2 = CF_SuperWeaponBonuses[f]
-	if bonus2 == nil then bonus2 = 0 end
-	local val = tonumber(c["SuperWeaponTime"..lvl])
-	val = val - math.floor((val * bonus / 100) +  (val * bonus2 / 100))
-
-	v[T_SUPER][V_LEVEL] = lvl;
-	-- Calculate weapon recharge time in seconds
-	v[T_SUPER][V_VAL] = val
-	-- Calculate bonus
-	v[T_SUPER][V_BONUS] = bonus;
-	-- Count defenders
-	v[T_SUPER][V_DEFEND] = tonumber(c["Terr"..t.."SuperWeaponDefence"]);
-
-	
-	-- FACTORIES
-	v[T_FACT] = {}
-	-- Get level
-	local lvl = tonumber(c["Terr"..t.."FactoryLevel"])
-	local bonus = tonumber(c["Terr"..t.."FactoryBonus"])		
-	local bonus2 = CF_FactoryBonuses[f]
-	if bonus2 == nil then bonus2 = 0 end
-	local val = tonumber(c["FactoryReduce"..lvl])
-	val = val - bonus - bonus2
-	
-	if val < -90 then
-		val = -90
-	end
-
-	v[T_FACT][V_LEVEL] = lvl;
-	-- Calculate price drop in percents
-	v[T_FACT][V_VAL] = val
-	-- Calculate bonus
-	v[T_FACT][V_BONUS] = bonus;
-	-- Count defenders
-	v[T_FACT][V_DEFEND] = tonumber(c["Terr"..t.."FactoryDefence"]);
-	
-	
-	-- CLONING
-	v[T_CLONE] = {}
-	-- Get level
-	local lvl = tonumber(c["Terr"..t.."CloneLevel"])
-	local bonus = tonumber(c["Terr"..t.."CloneBonus"])		
-	local bonus2 = CF_CloneBonuses[f]
-	if bonus2 == nil then bonus2 = 0 end
-	local val = tonumber(c["CloneReduce"..lvl])
-	val = val - bonus - bonus2
-
-	if val < -90 then
-		val = -90
-	end	
-	
-	v[T_CLONE][V_LEVEL] = lvl;
-	-- Calculate price drop in percents
-	v[T_CLONE][V_VAL] = val;
-	-- Calculate bonus
-	v[T_CLONE][V_BONUS] = bonus;
-	-- Count defenders
-	v[T_CLONE][V_DEFEND] = tonumber(c["Terr"..t.."CloneDefence"]);
-	
-	
-	-- HOSPITALS
-	v[T_HOSP] = {}
-	-- Get level
-	local lvl = tonumber(c["Terr"..t.."HospitalLevel"])
-	local bonus = tonumber(c["Terr"..t.."HospitalBonus"])		
-	local bonus2 = CF_HospitalBonuses[f]
-	if bonus2 == nil then bonus2 = 0 end
-	local val = tonumber(c["HospitalRestore"..lvl])
-	val = val + math.floor((val * bonus / 100) +  (val * bonus2 / 100))
-	
-	if val < 0 then
-		val = 0
-	end
-
-	v[T_HOSP][V_LEVEL] = lvl;
-	-- Calculate regen points per tactical tick
-	v[T_HOSP][V_VAL] = val;
-	-- Calculate bonus
-	v[T_HOSP][V_BONUS] = bonus;
-	-- Count defenders
-	v[T_HOSP][V_DEFEND] = tonumber(c["Terr"..t.."HospitalDefence"]);
-
-	-- HQ
-	v[T_HQ] = {}
-	-- Get level
-	v[T_HQ][V_LEVEL] = 0
-	-- Calculate gold income
-	v[T_HQ][V_VAL] = 0
-	-- Calculate bonus
-	v[T_HQ][V_BONUS] = 0;
-	-- Count defenders
-	v[T_HQ][V_DEFEND] = tonumber(c["Terr"..t.."HQDefence"]);
-	
-	return v;
-end
 -----------------------------------------------------------------------------------------
 -- Make item of specified preset, module and class
 -----------------------------------------------------------------------------------------
@@ -1336,6 +1051,27 @@ function CF_MakeItem(item, class, module)
 		return CreateTDExplosive(item, module)
 	elseif class == "ThrownDevice" then
 		return CreateThrownDevice(item, module)
+	end
+	
+	return nil;
+end
+-----------------------------------------------------------------------------------------
+-- Make item of specified preset, module and class
+-----------------------------------------------------------------------------------------
+function CF_MakeItem2(item, class)
+	-- print ("CF_MakeItem")
+	if class == nil then
+		class = "HDFirearm"
+	end
+	
+	if class == "HeldDevice" then
+		return CreateHeldDevice(item)
+	elseif class == "HDFirearm" then
+		return CreateHDFirearm(item)
+	elseif class == "TDExplosive" then
+		return CreateTDExplosive(item)
+	elseif class == "ThrownDevice" then
+		return CreateThrownDevice(item)
 	end
 	
 	return nil;
@@ -1364,6 +1100,29 @@ function CF_MakeActor(item, class, module)
 	return nil;
 end
 -----------------------------------------------------------------------------------------
+-- Make actor of specified preset, module and class
+-----------------------------------------------------------------------------------------
+function CF_MakeActor2(item, class)
+	-- print ("CF_MakeItem")
+	if class == nil then
+		class = "AHuman"
+	end
+	
+	if class == "AHuman" then
+		return CreateAHuman(item)
+	elseif class == "ACrab" then
+		return CreateACrab(item)
+	elseif class == "Actor" then
+		return CreateActor(item)
+	elseif class == "ACDropShip" then
+		return CreateACDropShip(item)
+	elseif class == "ACRocket" then
+		return CreateACRocket(item)
+	end
+	
+	return nil;
+end
+-----------------------------------------------------------------------------------------
 -- 
 -----------------------------------------------------------------------------------------
 function CF_GetPlayerGold(c, p)
@@ -1383,289 +1142,6 @@ function CF_SetPlayerGold(c, p, funds)
 	end
 
 	c["Player"..p.."Gold"] = math.ceil(funds)
-end
------------------------------------------------------------------------------------------
--- 
------------------------------------------------------------------------------------------
-function CF_GetPlayerScience(c, p)
-	return tonumber(c["Player"..p.."Science"])
-end
------------------------------------------------------------------------------------------
--- 
------------------------------------------------------------------------------------------
-function CF_SetPlayerScience(c, p, funds)
-	if funds < 0 then
-		funds = 0
-	end
-
-	c["Player"..p.."Science"] = math.ceil(funds)
-end
------------------------------------------------------------------------------------------
--- 
------------------------------------------------------------------------------------------
-function CF_GetPlayerIntel(c, p)
-	return tonumber(c["Player"..p.."Intel"])
-end
------------------------------------------------------------------------------------------
--- 
------------------------------------------------------------------------------------------
-function CF_SetPlayerIntel(c, p, funds)
-	if funds < 0 then
-		funds = 0
-	end
-
-	c["Player"..p.."Intel"] = math.ceil(funds)
-end
------------------------------------------------------------------------------------------
--- 
------------------------------------------------------------------------------------------
-function CF_GetPlayerRelations(c, p)
-	return tonumber(c["Player"..p.."Relations"])
-end
------------------------------------------------------------------------------------------
--- 
------------------------------------------------------------------------------------------
-function CF_GetAllyPrice(c)
-	local price = 0
-	
-	if c["AllyPrice"] ~= nil then
-		price = tonumber(c["AllyPrice"])
-	else
-		price = CF_AllyReinforcementsBasePrice
-	end
-	
-	-- Find out if player and ally are of the same nature
-	local pf = CF_GetPlayerFaction(c, 0)
-	local af = CF_GetPlayerAllyFaction(c)
-	
-	if af ~= "None" then
-		if CF_FactionNatures[pf] ~= CF_FactionNatures[af] then
-			-- Increase price if ally is of the other nature
-			price = price + math.ceil(price * CF_SynthetsToOrganicRatio)
-		end
-	end
-	
-	return price
-end
------------------------------------------------------------------------------------------
--- 
------------------------------------------------------------------------------------------
-function CF_SetPlayerRelations(c, p, funds)
-	if funds < 0 then
-		funds = 0
-	end
-
-	c["Player"..p.."Relations"] = math.ceil(funds)
-end
------------------------------------------------------------------------------------------
--- Returns true if territory number t1 has boarders with territory t2 where planetdata
--- is initialized planetdata array
------------------------------------------------------------------------------------------
-function CF_HasBoardersWithTerritory(t1, t2, planetdata)
-	for j = 1, #planetdata[t1]["NearLands"] do
-		if planetdata[t1]["NearLands"][j] == t2 then
-			return true
-		end
-	end
-
-	return false;
-end
------------------------------------------------------------------------------------------
--- Returns true if territory number t has boarders with player p, where c is config and planetdata
--- is initialized planetdata array
------------------------------------------------------------------------------------------
-function CF_HasBoardersWithPlayer(c, p, t, planetdata)
-	local lmap = {};
-
-	for i = 1 , 10 do
-		lmap[i] =  0;
-	end
-	
-	-- Mark all territories near t as 1-s
-	for i = 1 , 10 do
-		if tonumber(c["Terr"..i.."Owner"]) == p then
-			lmap[i] = i;
-			
-			for j = 1, #planetdata[i]["NearLands"] do
-				lmap[ planetdata[i]["NearLands"][j] ]  = i;
-			end
-		end
-	end
-
-	if lmap[t] > 0 then
-		return true, lmap[t];
-	else
-		return false;
-	end
-end
------------------------------------------------------------------------------------------
--- Returns list of items available for research where c is config, p is player,
--- acttype - desired item type or any of nil, minpower, maxpower desired power level or
--- any if nil
------------------------------------------------------------------------------------------
-function CF_MakeListOfResearchableItems(c, p, itmtype, minpower, maxpower, lockedonly)
-	local f = CF_GetPlayerFaction(c, p)
-	local list = {}
-	
-	--print (minpower.." - "..maxpower)
-	
-	-- Make list of player faction items
-	for i = 1, #CF_ItmNames[f] do
-		local n = #list + 1
-		local toaddthis = true;
-		
-		if itmtype ~= nil then
-			if CF_ItmTypes[f][i] ~= itmtype then
-				--print ("Wrong type")
-				toaddthis = false;
-			end
-		end
-		
-		if minpower ~= nil and maxpower ~= nil then
-			if CF_ItmPowers[f][i] < minpower or CF_ItmPowers[f][i] > maxpower then
-				--print ("Wrong power")
-				toaddthis = false;
-			end
-		end
-		
-		if lockedonly ~= nil and lockedonly == true then
-			if c["Player".. p.."Item"..i.."Unlocked"] == "True" then
-				--print ("Unlocked")
-				toaddthis = false;
-			end
-		end
-		
-		if toaddthis then
-			list[n] = {}
-			list[n]["Unlocked"] = c["Player".. p .."Item"..i.."Unlocked"];
-			list[n]["Faction"] = f;
-			list[n]["UnlockData"] = CF_ItmUnlockData[f][i]
-			list[n]["Preset"] = i
-		end
-	end
-
-	-- Make list of foreign faction items
-	local i = 1
-	
-	while c["Player"..p.."ForeignItem"..i.."Unlocked"] ~= nil do
-		local n = #list + 1
-		local toaddthis = true;
-		
-		local ff = c["Player".. p .."ForeignItem"..i.."Faction"];
-		local ii = tonumber(c["Player".. p .."ForeignItem"..i.."Preset"])
-		
-		if itmtype ~= nil then
-			if CF_ItmTypes[ff][ii] ~= itmtype then
-				toaddthis = false;
-			end
-		end
-		
-		if minpower ~= nil and maxpower ~= nil then
-			if CF_ItmPowers[ff][ii] < minpower or CF_ItmPowers[ff][ii] > maxpower then
-				toaddthis = false;
-			end
-		end
-		
-		if lockedonly ~= nil and lockedonly == true then
-			if c["Player".. p .."ForeignItem"..i.."Unlocked"] == "True" then
-				toaddthis = false;
-			end
-		end		
-		
-		if toaddthis then
-			list[n] = {}
-			list[n]["Unlocked"] = c["Player".. p .."ForeignItem"..i.."Unlocked"];
-			list[n]["Faction"] = c["Player".. p .."ForeignItem"..i.."Faction"];
-			list[n]["UnlockData"] = tonumber(c["Player".. p .."ForeignItem"..i.."UnlockData"])
-			list[n]["Preset"] = tonumber(c["Player".. p .."ForeignItem"..i.."Preset"])
-			list[n]["ForeignListItem"] = i
-		end
-		i = i + 1
-	end
-	
-	return list;
-end
------------------------------------------------------------------------------------------
--- Returns list of actors available for research where c is config, p is player,
--- acttype - desired actors type or any of nil, minpower, maxpower desired power level or
--- any if nil, if lockedonly is true then return only locked actors
------------------------------------------------------------------------------------------
-function CF_MakeListOfResearchableActors(c, p, acttype, minpower, maxpower, lockedonly)
-	local f = CF_GetPlayerFaction(c, p)
-	local list = {}
-	
-	-- Make list of player faction actors
-	for i = 1, #CF_ActNames[f] do
-		local n = #list + 1
-		local toaddthis = true;
-		
-		if acttype ~= nil then
-			if CF_ActTypes[f][i] ~= acttype then
-				toaddthis = false;
-			end
-		end
-		
-		if minpower ~= nil and maxpower ~= nil then
-			if CF_ActPowers[f][i] < minpower or CF_ActPowers[f][i] > maxpower then
-				toaddthis = false;
-			end
-		end
-		
-		if lockedonly ~= nil and lockedonly == true then
-			if c["Player".. p.."Actor"..i.."Unlocked"] == "True" then
-				toaddthis = false;
-			end
-		end
-		
-		if toaddthis then
-			list[n] = {}
-			list[n]["Unlocked"] = c["Player".. p .."Actor"..i.."Unlocked"];
-			list[n]["Faction"] = f;
-			list[n]["UnlockData"] = CF_ActUnlockData[f][i]
-			list[n]["Preset"] = i
-		end
-	end
-
-	-- Make list of foreign faction actors
-	local i = 1
-	
-	while c["Player"..p.."ForeignActor"..i.."Unlocked"] ~= nil do
-		local n = #list + 1
-		local toaddthis = true;
-		
-		local ff = c["Player".. p .."ForeignActor"..i.."Faction"]
-		local ii = tonumber(c["Player".. p .."ForeignActor"..i.."Preset"])
-		
-		if acttype ~= nil then
-			if CF_ActTypes[ff][ii] ~= acttype then
-				toaddthis = false;
-			end
-		end
-		
-		if minpower ~= nil and maxpower ~= nil then
-			if CF_ActPowers[ff][ii] < minpower or CF_ActPowers[ff][ii] > maxpower then
-				toaddthis = false;
-			end
-		end
-
-		if lockedonly ~= nil and lockedonly == true then
-			if c["Player".. p .."ForeignActor"..i.."Unlocked"] == "True" then
-				toaddthis = false;
-			end
-		end
-		
-		if toaddthis then
-			list[n] = {}
-			list[n]["Unlocked"] = c["Player".. p .."ForeignActor"..i.."Unlocked"];
-			list[n]["Faction"] = c["Player".. p .."ForeignActor"..i.."Faction"];
-			list[n]["UnlockData"] = tonumber(c["Player".. p .."ForeignActor"..i.."UnlockData"])
-			list[n]["Preset"] = tonumber(c["Player".. p .."ForeignActor"..i.."Preset"])
-			list[n]["ForeignListActor"] = i
-		end
-		i = i + 1
-	end
-	
-	return list;
 end
 -----------------------------------------------------------------------------------------
 -- Create list of weapons of wtype sorted by their power. c - config, p - player, wtype - weapon type
@@ -1836,107 +1312,6 @@ function CF_GetPreset(c, p, pr)
 	end
 	
 	return actor, faction, items, itemfactions
-end
------------------------------------------------------------------------------------------
--- Returns data with preset pr values for player p in config c
------------------------------------------------------------------------------------------
-function CF_GetPresetBasicPrice(c, p, pr)
-	local actor 
-	local faction
-	local items
-	local itemfactions
-	
-	local price = 0;
-	
-	actor, faction, items, itemfactions = CF_GetPreset(c,p,pr);
-	
-	if actor ~= nil then
-		price = CF_ActPrices[faction][actor];
-		
-		for i = 1, CF_MaxItemsPerPreset do
-			if items[i] ~= nil then
-				price = price + CF_ItmPrices[itemfactions[i]][items[i]];
-			end
-		end
-	end
-	
-	return price;
-end
------------------------------------------------------------------------------------------
--- Returns data with preset pr values for player p in config c
------------------------------------------------------------------------------------------
-function CF_GetPresetTerritoryPrice(c, p, pr, t)
-	local data = CF_GetTerritoryValues(c, t, p, nil)
-	local itembns = data[T_FACT][V_VAL]
-	local unitbns = data[T_CLONE][V_VAL]
-	
-	local actor 
-	local faction
-	local items
-	local itemfactions
-	
-	local price = 0;
-	
-	actor, faction, items, itemfactions = CF_GetPreset(c,p,pr);
-	
-	if actor ~= nil then
-		price = math.floor(CF_ActPrices[faction][actor] + (CF_ActPrices[faction][actor] * unitbns / 100));
-		
-		for i = 1, CF_MaxItemsPerPreset do
-			if items[i] ~= nil then
-				price = price + math.floor((CF_ItmPrices[itemfactions[i]][items[i]] + (CF_ItmPrices[itemfactions[i]][items[i]] * itembns / 100)));
-			end
-		end
-	end
-	
-	return price;
-end
------------------------------------------------------------------------------------------
---	Returns full price in config c for assault team of player p built on territory t
------------------------------------------------------------------------------------------
-function CF_GetAssaultTeamPriceForTerritory(c, p, t)
-	local squadprice = 0;
-	local unitcount = 0
-	local dropshipsneeded = 0
-	local pf = CF_GetPlayerFaction(c, p)
-
-	-- Calculate dropship capacity
-	local dcap = CF_MaxUnitsPerDropship;
-	if CF_DropShipCapacityBonuses[pf] ~= nil then
-		dcap = CF_DropShipCapacityBonuses[pf]
-	end
-	
-	for i = 1, CF_MaxAssaultPresets do
-		local apr = i;
-		local pr = c["PlayerAssaultPreset"..apr]
-	
-		if pr ~= nil then
-			squadprice = squadprice + CF_GetPresetTerritoryPrice(c, p, pr, t);
-			unitcount = unitcount + 1
-		end
-	end
-	
-	dropshipsneeded = math.ceil(unitcount / dcap)
-	local totalprice = 0
-	if squadprice > 0 then
-		--totalprice = squadprice + dropshipsneeded * CF_CraftPrices[pf] + CF_BrainPrices[pf]
-		-- Dropships return anyway and return gold so why should me count their prices?
-		totalprice = squadprice + CF_BrainPrices[pf]
-	end
-
-	return totalprice;
-end
------------------------------------------------------------------------------------------
--- Returns true if territory t in config c was scaned and scan did not expire
------------------------------------------------------------------------------------------
-function CF_IsIntelAvailable(c, t)
-	if c["Terr"..t.."IntelExpires"] then 
-		if tonumber(c["Terr"..t.."IntelExpires"]) >= tonumber(c["Time"]) then
-			return true
-		end
-	end
-	
-	return false;
 end
 -----------------------------------------------------------------------------------------
 -- 
@@ -2185,246 +1560,6 @@ function CF_CreateAIUnitPresets(c, p)
 	end -- If preequipped
 end
 -----------------------------------------------------------------------------
---	Steals item tech of one player and gives it to another. Returns tech name stolen
------------------------------------------------------------------------------
-function CF_StealRandomItemTech(c, from, to)
-	local fromtech = CF_MakeListOfResearchableItems(c, from)
-	local totech = CF_MakeListOfResearchableItems(c, to)
-	local n = math.random(#fromtech);
-	local tof = CF_GetPlayerFaction(c, to)
-	local fromf = CF_GetPlayerFaction(c, from)
-	local frompresetname = CF_ItmPresets[fromf][fromtech[n]["Preset"]]
-	local resulttype = ""
-	
-	-- If the item if from our faction then find it in our research and unlock it
-	if fromtech[n]["Faction"] == tof then
-		for i = 1, #CF_ItmNames[tof] do
-			if frompresetname == CF_ItmPresets[tof][i] then
-				if c["Player"..to.."Item"..i.."Unlocked"] ~= "True" then
-					c["Player"..to.."Item"..i.."Unlocked"] = fromtech[n]["Unlocked"]
-				end
-			end
-		end
-	else
-		-- Find out if item is not in researcheable list
-		local researchpos = 0;
-		
-		for i = 1, #totech do
-			local topresetname = CF_ItmPresets[totech[i]["Faction"]][totech[i]["Preset"]]
-			
-			if frompresetname == topresetname then
-				researchpos = i;
-				break
-			end
-		end
-		
-		-- If item already in research list then unlock it
-		if researchpos > 0 then
-			if c["Player"..to.."ForeignItem"..totech[researchpos]["ForeignListItem"].."Unlocked"] ~= "True" then
-				c["Player"..to.."ForeignItem"..totech[researchpos]["ForeignListItem"].."Unlocked"] = fromtech[n]["Unlocked"]
-			end
-		else
-			-- If not - add new foreign item
-			-- Count foreign items
-			local enough = false;
-			local count = 0
-			while not enough do
-				count = count + 1
-				if c["Player"..to.."ForeignItem"..count.."Preset"] == nil then
-					enough = true
-				end
-			end
-			
-			c["Player"..to.."ForeignItem"..count.."Unlocked"] = fromtech[n]["Unlocked"]
-			c["Player"..to.."ForeignItem"..count.."Faction"] = fromf
-			c["Player"..to.."ForeignItem"..count.."Preset"] = fromtech[n]["Preset"]
-			c["Player"..to.."ForeignItem"..count.."UnlockData"] = fromtech[n]["UnlockData"]
-		end
-	end
-	
-	return frompresetname
-end
------------------------------------------------------------------------------
---	Steals item tech of one player and gives it to another. Returns tech name stolen
------------------------------------------------------------------------------
-function CF_StealRandomActorTech(c, from, to)
-	local fromtech = CF_MakeListOfResearchableActors(c, from)
-	local totech = CF_MakeListOfResearchableActors(c, to)
-	local n = math.random(#fromtech);
-	local tof = CF_GetPlayerFaction(c, to)
-	local fromf = CF_GetPlayerFaction(c, from)
-	local frompresetname = CF_ActPresets[fromf][fromtech[n]["Preset"]]
-	local resulttype = ""
-	
-	-- If the item if from our faction then find it in our research and unlock it
-	if fromtech[n]["Faction"] == tof then
-		for i = 1, #CF_ActNames[tof] do
-			if frompresetname == CF_ActPresets[tof][i] then
-				if c["Player"..to.."Actor"..i.."Unlocked"] ~= "True" then
-					c["Player"..to.."Actor"..i.."Unlocked"] = fromtech[n]["Unlocked"]
-				end
-			end
-		end
-	else
-		-- Find out if item is not in researcheable list
-		local researchpos = 0;
-		
-		for i = 1, #totech do
-			local topresetname = CF_ActPresets[totech[i]["Faction"]][totech[i]["Preset"]]
-			
-			if frompresetname == topresetname then
-				researchpos = i;
-				break
-			end
-		end
-		
-		-- If item already in research list then unlock it
-		if researchpos > 0 then
-			if c["Player"..to.."ForeignActor"..totech[researchpos]["ForeignListActor"].."Unlocked"] ~= "True" then
-				c["Player"..to.."ForeignActor"..totech[researchpos]["ForeignListActor"].."Unlocked"] = fromtech[n]["Unlocked"]
-			end
-		else
-			-- If not - add new foreign item
-			-- Count foreign items
-			local enough = false;
-			local count = 0
-			while not enough do
-				count = count + 1
-				if c["Player"..to.."ForeignActor"..count.."Preset"] == nil then
-					enough = true
-				end
-			end
-			
-			c["Player"..to.."ForeignActor"..count.."Unlocked"] = fromtech[n]["Unlocked"]
-			c["Player"..to.."ForeignActor"..count.."Faction"] = fromf
-			c["Player"..to.."ForeignActor"..count.."Preset"] = fromtech[n]["Preset"]
-			c["Player"..to.."ForeignActor"..count.."UnlockData"] = fromtech[n]["UnlockData"]
-		end
-	end
-
-	return frompresetname
-end
------------------------------------------------------------------------------
---	Steals tech of one player and gives it to another. Returns tech name destroyed
------------------------------------------------------------------------------
-function CF_DestroyRandomItemTech(c, p)
-	local tech = CF_MakeListOfResearchableItems(c, p)
-	
-	-- Find available tech
-	local enough = false;
-	local counter = 0
-	local n
-	
-	while not enough do
-		n = math.random(#tech);
-
-		if tech[n]["ForeignListItem"] == nil then
-			if c["Player"..p.."Item"..n.."Unlocked"] == "True" then
-				enough = true
-			end
-		else
-			if c["Player"..p.."ForeignItem"..tech[n]["ForeignListItem"].."Unlocked"] == "True" then
-				enough = true
-			end
-		end
-		
-		counter = counter + 1
-		if counter == 100 then
-			break;
-		end
-	end
-	
-	-- If it's players tech then just disable it in player's list
-	if tech[n]["ForeignListItem"] == nil then
-		c["Player"..p.."Item"..n.."Unlocked"] = "False"
-	else
-		-- If it's foreign tech then disable it in foreign list
-		c["Player"..p.."ForeignItem"..tech[n]["ForeignListItem"].."Unlocked"] = "False"
-	end
-	
-	return CF_ItmPresets[CF_GetPlayerFaction(c, p)][tech[n]["Preset"]]
-end
------------------------------------------------------------------------------
---	Steals tech of one player and gives it to another. Returns tech name destroyed
------------------------------------------------------------------------------
-function CF_DestroyRandomActorTech(c, p)
-	local tech = CF_MakeListOfResearchableActors(c, p)
-	
-	-- Find available tech
-	local enough = false;
-	local counter = 0
-	local n
-	
-	while not enough do
-		n = math.random(#tech);
-
-		if tech[n]["ForeignListActor"] == nil then
-			if c["Player"..p.."Actor"..n.."Unlocked"] == "True" then
-				enough = true
-			end
-		else
-			if c["Player"..p.."ForeignActor"..tech[n]["ForeignListActor"].."Unlocked"] == "True" then
-				enough = true
-			end
-		end
-		
-		counter = counter + 1
-		if counter == 100 then
-			break;
-		end
-	end
-	
-	-- If it's players tech then just disable it in player's list
-	if tech[n]["ForeignListActor"] == nil then
-		c["Player"..p.."Actor"..n.."Unlocked"] = "False"
-	else
-		-- If it's foreign tech then disable it in foreign list
-		c["Player"..p.."ForeignActor"..tech[n]["ForeignListActor"].."Unlocked"] = "False"
-	end
-	
-	return CF_ActPresets[CF_GetPlayerFaction(c, p)][tech[n]["Preset"]]
-end
------------------------------------------------------------------------------
---	Returns list of territories in config c owned by player owner
------------------------------------------------------------------------------
-function CF_GetPlayerTerritories(c, p)
-	local ret = {}
-
-	for i = 1, 10 do
-		if tonumber(c["Terr"..i.."Owner"]) == p then
-			ret[#ret + 1] =  i
-		end
-	end
-	
-	return ret;
-end
------------------------------------------------------------------------------
---
------------------------------------------------------------------------------
-function CF_MakeFacilityString(f)
-	local fs;
-	
-	if f == T_MINE then
-		fs = "Mine"
-	elseif f == T_LAB then
-		fs = "Lab"
-	elseif f == T_AIR then
-		fs = "Airfield"
-	elseif f == T_SUPER then
-		fs = "SuperWeapon"
-	elseif f == T_FACT then
-		fs = "Factory"
-	elseif f == T_CLONE then
-		fs = "Clone"
-	elseif f == T_HOSP then
-		fs = "Hospital"
-	elseif f == T_HQ then
-		fs = "HQ"
-	end	
-
-	return fs;
-end
------------------------------------------------------------------------------
 --	
 -----------------------------------------------------------------------------
 function CF_PayGold(c, p , amount)
@@ -2433,113 +1568,6 @@ function CF_PayGold(c, p , amount)
 		gold = 0
 	end
 	CF_SetPlayerGold(c, p, gold);
-end
------------------------------------------------------------------------------
---	Build facility fcl on territory t for player p in config c
------------------------------------------------------------------------------
-function CF_BuildFacility(c, p, t, fcl)
-	--print ("CF_Build "..p.." "..t.." "..fcl)
-
-	local coeff = 1.0;
-	
-	if c["Player"..p.."Type"] == "CPU" then
-		coeff = tonumber(c["AIBuildCoeff"])
-	end
-
-	if fcl ~= T_HQ then
-		local data = CF_GetTerritoryValues(c, t, p, nil)
-		local lvl = data[fcl][V_LEVEL]
-
-		if lvl < 5 then
-			local price = tonumber(c[CF_MakeFacilityString(fcl).."Price"..(lvl + 1)]) * coeff
-			
-			-- First mine is always free
-			local income = CF_GetTotalPlayerIncome(c, p)
-			
-			if fcl == T_MINE and income[T_MINE] == 0 then
-				price = 0
-			end
-			
-			if CF_GetPlayerGold(c, p) >= price then
-				-- Pay for facility
-				CF_PayGold(c, p, price);
-				
-				-- Level up facility
-				c["Terr"..t..CF_MakeFacilityString(fcl).."Level"] = lvl + 1;
-				
-				if CF_AIDebugOutput then
-					print ("AI"..p.." builds "..CF_MakeFacilityString(fcl).." at "..t)
-				end
-				return true;
-			end
-		end
-	end
-
-	return false;
-end
---------------------------------------------------------------------------------------
---	Returns array with total player resource income with all bonuses applied
---	c - config, p - player
------------------------------------------------------------------------------------------
-function CF_GetTotalPlayerIncome(c, p)
-	local values = {}
-	local gold = 0
-	local science = 0
-	local gldcoeff = 1.0
-	local scicoeff = 1.0
-	
-	if c["Player"..p.."Type"] == "CPU" then
-		gldcoeff = tonumber(c["AIMineCoeff"])
-		scicoeff = tonumber(c["AIScienceCoeff"])
-	end
-	
-	for i = 1, 10 do
-		local owner = tonumber(c["Terr"..i.."Owner"]);
-		
-		if owner == p then
-			local data = CF_GetTerritoryValues(c, i, owner, nil)
-			
-			gold = gold + data[T_MINE][V_VAL]
-			science = science + data[T_LAB][V_VAL]
-		end
-	end
-	
-	values[T_MINE] = gold * gldcoeff
-	values[T_LAB] = science * scicoeff
-	
-	return values;
-end
------------------------------------------------------------------------------------------
---	Set new owner of territory
------------------------------------------------------------------------------------------
-function CF_SetNewTerritoryOwner(c, terr, owner)
-	if CF_AIDebugOutput then
-		print ("CF_SetNewTerritoryOwner "..terr.." "..owner)
-	end
-	local oldowner = tonumber(c["Terr"..terr.."Owner"])
-	
-	-- Clear player main base
-	if oldowner == 0 then
-		c["PlayerMainBase"] = nil
-	end
-
-	-- Set new owner
-	c["Terr"..terr.."Owner"] = owner;
-	
-	-- Kill all defenders
-	c["Terr"..terr.."HQDefence"] = 0;
-	c["Terr"..terr.."MineDefence"] = 0
-	c["Terr"..terr.."LabDefence"] = 0
-	c["Terr"..terr.."AirfieldDefence"] = 0
-	c["Terr"..terr.."SuperWeaponDefence"] = 0
-	c["Terr"..terr.."FactoryDefence"] = 0
-	c["Terr"..terr.."CloneDefence"] = 0
-	c["Terr"..terr.."HospitalDefence"] = 0
-	
-	-- TODO apply random damages to facilities
-	
-	-- Redraw planet piece
-	--self:RedrawPlanetPiece(terr , self.PlanetStates.IDLE, true)
 end
 -----------------------------------------------------------------------------------------
 -- Get table with inventory of actor, inventory cleared as a result
