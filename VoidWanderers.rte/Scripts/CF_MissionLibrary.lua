@@ -27,7 +27,10 @@ function CF_InitFactions(activity)
 	CF_MaxCPUPlayers = 8
 	CF_MaxSaveGames = 6
 	CF_MaxItems = 50
+	CF_MaxStorageItems = 1000
 	CF_MaxUnitsPerDropship = 3
+	
+	
 	
 	-- Set this to true to stop any UI processing. Useful when debuging and need to disable UI error message spam.
 	CF_StopUIProcessing = false

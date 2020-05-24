@@ -31,15 +31,83 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 	
 		if MovableMan:IsActor(act) and act.PresetName == "Storage Control Panel" then
 			showidle = false
+
+			self.LastSelectedItem = self.SelectedItem
 			
-			-- TODO add UI processing here
+			-- Init control panel
+			if not self.StorageControlPanelInitialized then
+				self.StorageItems = CF_GetStorageArray(self.GS)
+				self.SelectedItem = 1
+				self.LastSelectedItem = 0
+				self.StorageControlPanelInitialized = true
+			end
+			
+			-- Draw generic UI
+			local pos = act.Pos
+			self:PutGlow("ControlPanel_Storage_List", pos + Vector(-70,0))
+			self:PutGlow("ControlPanel_Storage_Description", pos + Vector(90,0))
+			
+			-- Draw items list
+			for i = 1, #self.StorageItems do
+				if i == self.SelectedItem then
+					CF_DrawString("> "..self.StorageItems[i]["Preset"], pos + Vector(-130,-60) + Vector(0, (i - 1) * 10), 90, 10)
+				else
+					CF_DrawString(self.StorageItems[i]["Preset"], pos + Vector(-130,-60) + Vector(0, (i - 1) * 10), 90, 10)
+				end
+				CF_DrawString(tostring(self.StorageItems[i]["Count"]), pos + Vector(-130,-60) + Vector(110, (i - 1) * 10), 90, 10)
+			end
+			
+			if self.SelectedItem ~= self.LastSelectedItem then
+				-- Get item description
+				local f, i = CF_FindItemInFactions(self.StorageItems[self.SelectedItem]["Preset"], self.StorageItems[self.SelectedItem]["Class"])
+				
+				if f ~= nil and i ~= nil then
+					self.SelectedItemDescription = CF_ItmDescriptions[f][i]
+					self.SelectedItemManufacturer = CF_FactionNames[f]
+					
+				else
+					self.SelectedItemDescription = "Unknown item"
+					self.SelectedItemManufacturer = "Unknown"
+				end
+			end
+			
+			-- Print description
+			
+			--print (self.StorageItems[self.SelectedItem]["Preset"])
+			--print (self.StorageItems[self.SelectedItem]["Class"])
+			
+			if self.SelectedItemDescription ~= nil then
+				CF_DrawString(self.SelectedItemDescription, pos + Vector(10,-25) , 170, 120)
+			end
+
+			if self.SelectedItemManufacturer ~= nil then
+				CF_DrawString("Manufacturer: "..self.SelectedItemManufacturer, pos + Vector(10,-40) , 170, 120)
+			end
 		end
 	end
 	
 	if showidle and self.StorageControlPanelPos ~= nil then
 		self:PutGlow("ControlPanel_Storage", self.StorageControlPanelPos)
+		self.StorageControlPanelInitialized = false
 	end
+	
 end
 -----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

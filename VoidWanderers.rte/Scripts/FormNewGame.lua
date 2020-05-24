@@ -217,7 +217,7 @@ end
 --
 -----------------------------------------------------------------------------------------
 function VoidWanderers:BtnOk_OnClick()
-	CF_StopUIProcessing = true
+	--CF_StopUIProcessing = true
 	
 	-- Create new game file
 	local config = {};

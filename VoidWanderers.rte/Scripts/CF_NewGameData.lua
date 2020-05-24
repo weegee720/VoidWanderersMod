@@ -76,7 +76,7 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 	-- Find available player weapon
 	local weaps = {}
 	
-	-- Find available player actor
+	-- Find available player items
 	for i = 1, #CF_ItmNames[f] do
 		if CF_ItmUnlockData[f][i] == 0 then
 			weaps[#weaps + 1] = i
@@ -95,6 +95,16 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 			slt = slt + 1
 		end
 	end
+	
+	-- Put some weapons to ship storage
+	local slt = 1
+	
+	for j = #weaps, 1 , -1 do
+		config["ItemStorage"..slt.."Preset"] = CF_ItmPresets[f][weaps[j]]
+		config["ItemStorage"..slt.."Class"] = CF_ItmClasses[f][weaps[j]]
+		config["ItemStorage"..slt.."Count"] = 4
+		slt = slt + 1
+	end
 
 	-- Create initial player actors in cockpit
 	--[[for i = 1, 4 do
@@ -108,9 +118,6 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 			slt = slt + 1
 		end
 	end]]--
-	
-	-- Set game start
-	config["SpawnLocation"] = "Cockpit"
 	
 	-- Set initial scene
 	config["Scene"] = CF_VesselScene[config["Player0Vessel"]]

@@ -40,15 +40,6 @@ function VoidWanderers:StartActivity()
 			y = tonumber(self.LS["BrainSpawn"..i.."Y"])
 			self.BrainPos[i] = Vector(x,y)
 		end
-		
-		self.CockpitPos = {}
-		for i = 1, 4 do
-			local x,y;
-			
-			x = tonumber(self.LS["CockpitSpawn"..i.."X"])
-			y = tonumber(self.LS["CockpitSpawn"..i.."Y"])
-			self.CockpitPos[i] = Vector(x,y)
-		end
 
 		-- Create brains
 		print ("Create brains")
@@ -60,42 +51,6 @@ function VoidWanderers:StartActivity()
 				MovableMan:AddActor(a)
 			end
 		end
-		
-		-- Create initial actors
-		--[[print ("Create actors")
-		if self.GS["SpawnLocation"] == "Cockpit" then
-			for i = 1, 4 do
-				local p;
-				local c;
-				
-				p = self.GS["PlayerActor"..i.."Preset"]
-				c = self.GS["PlayerActor"..i.."Class"]
-			
-				local a = CF_MakeActor2(p, c)
-				if a ~= nil then
-					a.Team = CF_PlayerTeam;
-					a.Pos = self.CockpitPos[i];
-					a.AIMode = Actor.AIMODE_SENTRY;
-					
-					-- Give weapons
-					for j = 1, CF_MaxItems do
-						local p;
-						local c;
-						
-						p = self.GS["PlayerActor"..i.."Item"..j.."Preset"]
-						c = self.GS["PlayerActor"..i.."Item"..j.."Class"]
-						if p ~= nil then
-							local w = CF_MakeItem2(p, c)
-							if w ~= nil then
-								a:AddInventoryItem(w)
-							end
-						end
-					end
-					
-					MovableMan:AddActor(a)
-				end
-			end
-		end]]--
 	end
 	
 	-- Read control panels location data
@@ -148,7 +103,7 @@ function VoidWanderers:StartActivity()
 
 	self.TickTimer = Timer();
 	self.TickTimer:Reset();
-	self.TickInterval = CF_TacticalTickInterval;
+	self.TickInterval = CF_TickInterval;
 	self.Time = 1;
 
 	self.AISpawnTimer = Timer();
@@ -177,7 +132,7 @@ function VoidWanderers:StartActivity()
 	self:InitShipControlPanelUI()
 	self:InitStorageControlPanelUI()
 	
-	
+	print ("VoidWanderers:Tactics:StartActivity - End");
 end
 -----------------------------------------------------------------------------------------
 -- Removes specified item from actor's inventory, returns number of removed items
@@ -399,6 +354,7 @@ function VoidWanderers:UpdateActivity()
 	self:YSortObjectivePoints();
 	--CF_ReturnOnMissionEnd();
 	--]]--
+	
 end
 -----------------------------------------------------------------------------------------
 -- Brain selection and gameover conditions check
