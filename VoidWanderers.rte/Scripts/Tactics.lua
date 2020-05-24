@@ -24,6 +24,10 @@ function VoidWanderers:StartActivity()
 	self.TickTimer:Reset();
 	self.TickInterval = CF_TickInterval;
 	
+	
+	self.TeleportEffectTimer = Timer()
+	self.TeleportEffectTimer:Reset()
+	
 	-- Factions are already initialized by strategic part
 	self:LoadCurrentGameState();
 
@@ -46,7 +50,7 @@ function VoidWanderers:StartActivity()
 		end
 
 		-- Create brains
-		print ("Create brains")
+		--print ("Create brains")
 		for player = 0, self.PlayerCount - 1 do
 			local a = CreateActor("Brain Case", "Base.rte")
 			if a ~= nil then
@@ -54,6 +58,20 @@ function VoidWanderers:StartActivity()
 				a.Pos = self.BrainPos[player+1];
 				MovableMan:AddActor(a)
 			end
+		end
+	end
+	
+	-- Load pre-spawned enemy locations. These locations also used during assaults to place teleported units
+	self.EnemySpawn = {}
+	for i = 1, 32 do
+		local x,y;
+		
+		x = tonumber(self.LS["EnemySpawn"..i.."X"])
+		y = tonumber(self.LS["EnemySpawn"..i.."Y"])
+		if x ~= nil and y ~= nil then
+			self.EnemySpawn[i] = Vector(x,y)
+		else
+			break
 		end
 	end
 	
@@ -84,56 +102,21 @@ function VoidWanderers:StartActivity()
 	
 	-- Init consoles if in Vessel mode
 	if self.GS["Mode"] == "Vessel" then
-		--self:CreateControlPanelActors()
-		
-		self:InitShipControlPanelUI()
-		self:InitStorageControlPanelUI()
-		self:InitClonesControlPanelUI()
-		self:InitBeamControlPanelUI()
+		self:InitConsoles()
 	end
+
+	self.AssaultTime = 0
 	
 	print ("VoidWanderers:Tactics:StartActivity - End");
 end
 -----------------------------------------------------------------------------------------
--- Removes specified item from actor's inventory, returns number of removed items
+-- 
 -----------------------------------------------------------------------------------------
-function VoidWanderers:CreateControlPanelActors()
-	-- Clone
-	if self.CloneControlPanelPos ~= nil then
-		if not MovableMan:IsActor(self.CloneControlPanelActor) then
-			self.CloneControlPanelActor = CreateActor("Clone Control Panel")
-			if self.CloneControlPanelActor ~= nil then
-				self.CloneControlPanelActor.Pos = self.CloneControlPanelPos
-				self.CloneControlPanelActor.Team = CF_PlayerTeam
-				MovableMan:AddActor(self.CloneControlPanelActor)
-			end
-		end
-	end
-	
-	-- Storage
-	if self.StorageControlPanelPos ~= nil then
-		if not MovableMan:IsActor(self.StorageControlPanelActor) then
-			self.StorageControlPanelActor = CreateActor("Storage Control Panel")
-			if self.StorageControlPanelActor ~= nil then
-				self.StorageControlPanelActor.Pos = self.StorageControlPanelPos
-				self.StorageControlPanelActor.Team = CF_PlayerTeam
-				MovableMan:AddActor(self.StorageControlPanelActor)
-			end
-		end
-	end
-		
-
-	-- Beam
-	if self.BeamControlPanelPos ~= nil then
-		if not MovableMan:IsActor(self.BeamControlPanelActor) then
-			self.BeamControlPanelActor = CreateActor("Beam Control Panel")
-			if self.BeamControlPanelActor ~= nil then
-				self.BeamControlPanelActor.Pos = self.BeamControlPanelPos
-				self.BeamControlPanelActor.Team = CF_PlayerTeam
-				MovableMan:AddActor(self.BeamControlPanelActor)
-			end
-		end
-	end
+function VoidWanderers:InitConsoles()
+	self:InitShipControlPanelUI()
+	self:InitStorageControlPanelUI()
+	self:InitClonesControlPanelUI()
+	self:InitBeamControlPanelUI()
 end
 -----------------------------------------------------------------------------------------
 -- 
@@ -234,14 +217,26 @@ end
 -- 
 -----------------------------------------------------------------------------------------
 function VoidWanderers:TriggerShipAssault()
+	if not CF_EnableAssaults then
+		return
+	end
+
 	--TODO Check reputation and trigger assaults accordingly
 	
-	self.GS["AssaultTime"] = self.Time + CF_ShipAssaultDelay
-	self.GS["AssaultEnemyPlayer"] = 1
-	self.GS["AssaultDifficulty"] = math.random(CF_MaxAssaultDifficulty)
+	self.AssaultTime = self.Time + CF_ShipAssaultDelay
+	self.AssaultEnemyPlayer = 1
+	self.AssaultDifficulty = 1--math.random(CF_MaxDifficulty)
+	self.AssaultEnemiesToSpawn = CF_AssaultDifficultyUnitCount[self.AssaultDifficulty]
+	self.AssaultNextSpawnTime = self.AssaultTime + CF_AssaultDifficultySpawnInterval[self.AssaultDifficulty] + 1
+	self.AssaultNextSpawnPos = self.EnemySpawn[math.random(#self.EnemySpawn)]	
+	
+	-- Create attacker's unit presets
+	-- TODO Add actual tech levels depending on difficulty
+	CF_CreateAIUnitPresets(self.GS, self.AssaultEnemyPlayer, CF_GetTechLevelFromDifficulty(self.GS, self.AssaultEnemyPlayer, self.AssaultDifficulty, CF_MaxDifficulty))	
 	
 	-- Remove some panel actors
 	self.ShipControlPanelActor.ToDelete = true
+	self.BeamControlPanelActor.ToDelete = true
 end
 -----------------------------------------------------------------------------------------
 -- Pause Activity
@@ -307,19 +302,28 @@ function VoidWanderers:UpdateActivity()
 		end
 	end
 	
-	-- Process UI's
+	-- Process UI's and other vessel mode features
 	if self.GS["Mode"] == "Vessel" then
 		self:ProcessClonesControlPanelUI()
 		self:ProcessStorageControlPanelUI()
 		
 		-- Show assault warning
-		if tonumber(self.GS["AssaultTime"]) > self.Time then
+		if self.AssaultTime > self.Time then
 			FrameMan:ClearScreenText(0);
-			FrameMan:SetScreenText(CF_GetPlayerFaction(self.GS, tonumber(self.GS["AssaultEnemyPlayer"])).." "..CF_AssaultDifficultyTexts[self.GS["AssaultDifficulty"]].." approaching in T-"..self.GS["AssaultTime"] - self.Time.."\nBATTLE STATIONS!", 0, 0, 1000, true);
+			FrameMan:SetScreenText(CF_GetPlayerFaction(self.GS, tonumber(self.AssaultEnemyPlayer)).." "..CF_AssaultDifficultyTexts[self.AssaultDifficulty].." approaching in T-"..self.AssaultTime - self.Time.."\nBATTLE STATIONS!", 0, 0, 1000, true);
 		else
 			-- Process some control panels only when ship is not boarded
 			self:ProcessShipControlPanelUI()
 			self:ProcessBeamControlPanelUI()
+		end
+		
+		-- Launch defense activity
+		if self.AssaultTime == self.Time then
+			self.GS["Mode"] = "Assault"
+
+			-- Remove control actors
+			self.StorageControlPanelActor.ToDelete = true		
+			self.ClonesControlPanelActor.ToDelete = true		
 		end
 	end
 	
@@ -327,12 +331,61 @@ function VoidWanderers:UpdateActivity()
 	if self.TickTimer:IsPastSimMS(self.TickInterval) then
 		self.Time = self.Time + 1
 		self.TickTimer:Reset();
+		
+		-- Process enemy spawn during assaults
+		if self.GS["Mode"] == "Assault" then
+			-- Spawn enemies
+			if self.AssaultNextSpawnTime == self.Time then
+				print ("Spawn")
+				self.AssaultNextSpawnTime = self.Time + CF_AssaultDifficultySpawnInterval[self.AssaultDifficulty]
+				
+				local cnt = math.random(CF_AssaultDifficultySpawnBurst[self.AssaultDifficulty])
+				for j = 1, cnt do
+					if self.AssaultEnemiesToSpawn > 0 then
+						pos = self.AssaultNextSpawnPos
+					
+						local act = CF_SpawnAIUnit(self.GS, self.AssaultEnemyPlayer, CF_CPUTeam, pos, Actor.AIMODE_BRAINHUNT)
+						
+						if act then
+							self.AssaultEnemiesToSpawn = self.AssaultEnemiesToSpawn - 1
+							MovableMan:AddActor(act)
+						end
+					end
+				end
+				
+				self.AssaultNextSpawnPos = self.EnemySpawn[math.random(#self.EnemySpawn)]
+			end
+		
+			-- Check end of assault conditions
+			if CF_CountActors(CF_CPUTeam) == 0 and self.AssaultEnemiesToSpawn == 0 then
+				-- End of assault
+				self.GS["Mode"] = "Vessel"
+				
+				-- Re-init consoles back
+				self:InitConsoles()
+			end
+		end
 	end
 	
-	-- Show retreat reason
-	if self.MissionEndText ~= nil then
-		FrameMan:ClearScreenText(0);
-		FrameMan:SetScreenText(self.MissionEndText, 0, 0, 8000, true);	
+	if self.GS["Mode"] == "Assault" then
+		-- Show enemies count
+		if self.Time % 10 == 0 and self.AssaultEnemiesToSpawn > 0 then
+			FrameMan:SetScreenText("Remaining assault bots: "..self.AssaultEnemiesToSpawn, 0, 0, 1500, true);
+		end
+		
+		-- Create teleportation effect
+		if self.AssaultEnemiesToSpawn > 0 and self.AssaultNextSpawnTime - self.Time < 6 then
+			self:AddObjectivePoint("INTRUDER\nALERT", self.AssaultNextSpawnPos , CF_PlayerTeam, GameActivity.ARROWDOWN);
+		
+			if self.TeleportEffectTimer:IsPastSimMS(50) then
+				-- Create particle
+				local p = CreateMOSParticle("Tiny Blue Glow", self.ModuleName)
+				p.Pos = self.AssaultNextSpawnPos + Vector(-20 + math.random(40), 30 - math.random(20))
+				p.Vel = Vector(0,-2)
+				MovableMan:AddParticle(p)
+				self.TeleportEffectTimer:Reset()
+			end
+		end
 	end
 	
 	self:DoBrainSelection()

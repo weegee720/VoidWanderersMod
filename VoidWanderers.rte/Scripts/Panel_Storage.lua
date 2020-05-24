@@ -15,8 +15,6 @@ function VoidWanderers:InitStorageControlPanelUI()
 
 	x = tonumber(self.LS["StorageInputX"])
 	y = tonumber(self.LS["StorageInputY"])
-	print (x)
-	print (y)
 	if x~= nil and y ~= nil then
 		self.StorageInputPos = Vector(x,y)
 	else
@@ -53,17 +51,17 @@ function VoidWanderers:InitStorageControlPanelUI()
 	self.StorageControlPanelModes = {UNKNOWN = -2, EVERYTHING = -1, PISTOL = 0, RIFLE = 1, SHOTGUN = 2, SNIPER = 3, HEAVY = 4, SHIELD = 5, DIGGER = 6, GRENADE = 7, TOOL = 8}
 	self.StorageControlPanelModesTexts = {}
 	
-	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.UNKNOWN] = "Unknown items"
-	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.EVERYTHING] = "All items"
-	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.PISTOL] = "Pistols"
-	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.RIFLE] = "Rifles"
-	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.SHOTGUN] = "Shotguns"
-	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.SNIPER] = "Sniper rifles"
-	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.HEAVY] = "Heavy weapons"
-	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.SHIELD] = "Shields"
-	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.DIGGER] = "Diggers"
-	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.GRENADE] = "Explosives"
-	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.TOOL] = "Tools"
+	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.UNKNOWN] = "[ Unknown items ]"
+	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.EVERYTHING] = "[ All items ]"
+	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.PISTOL] = "[ Pistols ]"
+	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.RIFLE] = "[ Rifles ]"
+	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.SHOTGUN] = "[ Shotguns ]"
+	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.SNIPER] = "[ Sniper rifles ]"
+	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.HEAVY] = "[ Heavy weapons ]"
+	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.SHIELD] = "[ Shields ]"
+	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.DIGGER] = "[ Diggers ]"
+	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.GRENADE] = "[ Explosives ]"
+	self.StorageControlPanelModesTexts[self.StorageControlPanelModes.TOOL] = "[ Tools ]"
 	
 	self.StorageControlMode = self.StorageControlPanelModes.EVERYTHING
 	

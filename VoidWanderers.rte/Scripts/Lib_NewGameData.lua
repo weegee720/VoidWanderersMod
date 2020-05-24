@@ -53,8 +53,12 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 	config["Player0Type"] = "Player"
 	config["Player0Gold"] = math.floor(4000 * PositiveIndex)
 	
+	-- Set initial reputation
+	for i = 1, CF_MaxCPUPlayers do
+		
+		
+	end
 	
-	config["AssaultTime"] = "0"
 	
 	-- Assign player ship
 	config["Player0Vessel"] = "Gryphon"
@@ -120,19 +124,6 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 		config["ItemStorage"..slt.."Count"] = 4
 		slt = slt + 1
 	end
-
-	-- Create initial player actors in cockpit
-	--[[for i = 1, 4 do
-		config["PlayerActor"..i.."Preset"] = CF_ActPresets[f][found]
-		config["PlayerActor"..i.."Class"] = CF_ActClasses[f][found]
-		
-		local slt = 1
-		for j = #weaps, 1 , -1 do
-			config[ "PlayerActor"..i.."Item"..slt.."Preset"] = CF_ItmPresets[f][weaps[j] ]
-			config[ "PlayerActor"..i.."Item"..slt.."Class"] = CF_ItmClasses[f][weaps[j] ]
-			slt = slt + 1
-		end
-	end]]--
 	
 	-- Set initial scene
 	config["Scene"] = CF_VesselScene[config["Player0Vessel"]]
@@ -149,6 +140,12 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 			config["Player".. i .."Faction"] = cpus[i]
 			config["Player".. i .."Active"] = "True"
 			config["Player".. i .."Type"] = "CPU"
+			
+			if config["Player".. i .."Faction"] == config["Player".. 0 .."Faction"] then
+				config["Player".. i .."Reputation"] = "500"
+			else
+				config["Player".. i .."Reputation"] = "0"
+			end
 		else
 			config["Player".. i .."Faction"] = "Nobody"
 			config["Player".. i .."Active"] = "False"

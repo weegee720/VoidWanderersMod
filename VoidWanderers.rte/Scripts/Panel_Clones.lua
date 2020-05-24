@@ -54,9 +54,9 @@ function VoidWanderers:InitClonesControlPanelUI()
 	self.ClonesControlPanelModesTexts = {}
 	self.ClonesControlPanelModesHelpTexts = {}
 	
-	self.ClonesControlPanelModesTexts[self.ClonesControlPanelModes.CLONES] = "Bodies"
-	self.ClonesControlPanelModesTexts[self.ClonesControlPanelModes.INVENTORY] = "Inventory"
-	self.ClonesControlPanelModesTexts[self.ClonesControlPanelModes.ITEMS] = "Items"
+	self.ClonesControlPanelModesTexts[self.ClonesControlPanelModes.CLONES] = "[ Bodies ]"
+	self.ClonesControlPanelModesTexts[self.ClonesControlPanelModes.INVENTORY] = "[ Inventory ]"
+	self.ClonesControlPanelModesTexts[self.ClonesControlPanelModes.ITEMS] = "[ Items ]"
 
 	self.ClonesControlPanelModesHelpTexts[self.ClonesControlPanelModes.CLONES] = "L/R/U/D - Select, FIRE - Deploy"
 	self.ClonesControlPanelModesHelpTexts[self.ClonesControlPanelModes.INVENTORY] = "L/R/U/D - Select, FIRE - Remove from inventory"
@@ -232,7 +232,7 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 				CF_DrawString("Capacity: "..CF_CountUsedClonesInArray(self.Clones).."/"..self.GS["Player0VesselClonesCapacity"], pos + Vector(-130,-60) , 300, 10)
 				
 				-- Change panel text to show life support capacity
-				self.ClonesControlPanelModesTexts[self.ClonesControlPanelModes.CLONES] = "Bodies. Life support usage: "..CF_CountActors(CF_PlayerTeam).."/"..self.GS["Player0VesselLifeSupport"]
+				self.ClonesControlPanelModesTexts[self.ClonesControlPanelModes.CLONES] = "[ Bodies ] Life support usage: "..CF_CountActors(CF_PlayerTeam).."/"..self.GS["Player0VesselLifeSupport"]
 			end
 
 
@@ -376,6 +376,7 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 					for i = 1, #self.Clones[self.SelectedClone]["Items"] do
 						if self.ClonesControlMode == self.ClonesControlPanelModes.INVENTORY and self.ClonesInventorySelectedItem == i then
 							CF_DrawString("> "..self.Clones[self.SelectedClone]["Items"][i]["Preset"], pos + Vector(-141 + 12,-40) + Vector(0, (i - 1) * 12), 120, 10)
+							self.ClonesControlPanelModesTexts[self.ClonesControlPanelModes.INVENTORY] = self.Clones[self.SelectedClone]["Items"][i]["Preset"] .. " [ Inventory ]"
 						else
 							CF_DrawString(self.Clones[self.SelectedClone]["Items"][i]["Preset"], pos + Vector(-141 + 12,-40) + Vector(0, (i - 1) * 12), 120, 10)
 						end
@@ -392,12 +393,14 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 						
 						
 						if self.ClonesControlMode == self.ClonesControlPanelModes.ITEMS and self.ClonesStorageSelectedItem == i then
-							CF_DrawString("> "..self.StorageItems[itm]["Preset"], pos + Vector(12,-40) + Vector(0, (loc) * 12), 90, 10)
+							CF_DrawString("> "..self.StorageItems[itm]["Preset"], pos + Vector(12,-40) + Vector(0, (loc) * 12), 120, 10)
+							self.ClonesControlPanelModesTexts[self.ClonesControlPanelModes.ITEMS] = self.StorageItems[itm]["Preset"] .. " [ Items ]"
+
 						else
-							CF_DrawString(self.StorageItems[itm]["Preset"], pos + Vector(12,-40) + Vector(0, (loc) * 12), 90, 10)
+							CF_DrawString(self.StorageItems[itm]["Preset"], pos + Vector(12,-40) + Vector(0, (loc) * 12), 120, 10)
 						end
 						
-						CF_DrawString(tostring(self.StorageItems[itm]["Count"]), pos + Vector(12,-40) + Vector(110, (loc) * 12), 90, 10)
+						CF_DrawString(tostring(self.StorageItems[itm]["Count"]), pos + Vector(12,-40) + Vector(110, (loc) * 12), 120, 10)
 					end
 				end
 				

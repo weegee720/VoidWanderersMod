@@ -24,7 +24,7 @@ function CF_InitFactions(activity)
 	-- count frames so other function can decide if it's odd or even frame right now
 	CF_FrameCounter = 0
 	
-	CF_ShipAssaultDelay = 30
+	CF_ShipAssaultDelay = 2--30
 	
 	CF_AssaultDifficultyTexts = {}
 	CF_AssaultDifficultyTexts[1] = "scout"
@@ -43,30 +43,32 @@ function CF_InitFactions(activity)
 	CF_AssaultDifficultyUnitCount[6] = 30
 
 	CF_AssaultDifficultySpawnInterval = {}
-	CF_AssaultDifficultySpawnInterval[1] = 8
-	CF_AssaultDifficultySpawnInterval[2] = 7
+	CF_AssaultDifficultySpawnInterval[1] = 10
+	CF_AssaultDifficultySpawnInterval[2] = 8
 	CF_AssaultDifficultySpawnInterval[3] = 6
 	CF_AssaultDifficultySpawnInterval[4] = 5
-	CF_AssaultDifficultySpawnInterval[5] = 4
-	CF_AssaultDifficultySpawnInterval[6] = 3
+	CF_AssaultDifficultySpawnInterval[5] = 5
+	CF_AssaultDifficultySpawnInterval[6] = 5
 
 	CF_AssaultDifficultySpawnBurst = {}
-	CF_AssaultDifficultySpawnBurst[1] = 2
+	CF_AssaultDifficultySpawnBurst[1] = 1
 	CF_AssaultDifficultySpawnBurst[2] = 2
-	CF_AssaultDifficultySpawnBurst[3] = 3
+	CF_AssaultDifficultySpawnBurst[3] = 2
 	CF_AssaultDifficultySpawnBurst[4] = 3
-	CF_AssaultDifficultySpawnBurst[5] = 2
-	CF_AssaultDifficultySpawnBurst[6] = 1
+	CF_AssaultDifficultySpawnBurst[5] = 3
+	CF_AssaultDifficultySpawnBurst[6] = 3
 	
-	CF_MaxAssaultDifficulty = 6
+	CF_MaxDifficulty = 6
 	
 	CF_MaxCPUPlayers = 8
 	CF_MaxSaveGames = 6
 	CF_MaxItems = 6 -- Max items per clone in clone storage
+	CF_MaxItemsPerPreset = 2 -- Max items per AI unit preset
 	CF_MaxStorageItems = 1000
-	CF_MaxClones = 1000
+	CF_MaxClones = 1000 -- Max clones in clone storage
 	CF_MaxUnitsPerDropship = 3
 	
+	CF_MaxSavedActors = 100
 	
 	-- Set this to true to stop any UI processing. Useful when debuging and need to disable UI error message spam.
 	CF_StopUIProcessing = false
@@ -78,6 +80,8 @@ function CF_InitFactions(activity)
 
 	-- How much percents of price to add if player and ally factions natures are not the same
 	CF_SynthetsToOrganicRatio = 0.70
+	
+	CF_EnableAssaults = true -- Set to false to disable assaults
 	
 	CF_FogOfWarEnabled = true -- Gameplay value
 	CF_FogOfWarResolution = 100
@@ -472,211 +476,6 @@ function CF_InitFactions(activity)
 			print ("ERROR!!! Could not load: "..CF_ExtensionFiles[i])
 		end
 	end
-end
------------------------------------------------------------------------------------------
---	Create actor from preset pre, where c - config, p - player, t - territory, pay gold is pay == true
--- 	returns actor or nil, also returns actor ofsset, value wich you must add to default actor position to 
--- 	avoid actor hang in the air, used mainly for turrets
------------------------------------------------------------------------------------------
-function CF_MakeActorFromPreset(c, p, t, pre, pay)
-	--print ("CF_MakeActorFromPreset");
-
-	local actor = nil
-	local offset = Vector(0,0)
-	local weapon = nil;
-	local price = 0;
-	
-	if t ~= nil then
-		price = CF_GetPresetTerritoryPrice(c, p, pre, t);
-	end
-	
-	if pay and CF_GetPlayerGold(c, p) < price then
-		return nil
-	end
-	
-	if MovableMan:GetMOIDCount() < CF_MOIDLimit then
-		--print (pre)
-		--print (c["Player"..p.."Preset"..pre.."Actor"])
-		--print (c["Player"..p.."Preset"..pre.."Faction"])
-		local a = c["Player"..p.."Preset"..pre.."Actor"]
-		if a ~= nil then
-			a = tonumber(a)
-			local f = c["Player"..p.."Preset"..pre.."Faction"]
-			
-			actor = CF_MakeActor(CF_ActPresets[f][a], CF_ActClasses[f][a], CF_ActModules[f][a])
-			
-			offset = CF_ActOffsets[f][a]
-			if offset == nil then
-				offset = Vector(0,0)
-			end			
-			
-			--print (actor)
-			
-			-- Give weapons to non-crab actors
-			if actor ~= nil and CF_ActClasses[f][a] ~= "ACrab" then
-				for i = 1, CF_MaxItemsPerPreset do 
-					if c["Player"..p.."Preset"..pre.."Item"..i] ~= nil then
-						
-						local w = tonumber(c["Player"..p.."Preset"..pre.."Item"..i])
-						local wf = c["Player"..p.."Preset"..pre.."ItemFaction"..i]
-						
-						weapon = CF_MakeItem(CF_ItmPresets[wf][w], CF_ItmClasses[wf][w], CF_ItmModules[wf][w]);
-						--print (weapon)
-						
-						if weapon ~= nil then
-							actor:AddInventoryItem(weapon)
-						end
-					end
-				end
-			end
-			
-			if actor ~= nil then
-				-- Set default AI mode
-				actor.AIMode = Actor.AIMODE_SENTRY;
-				
-				if pay then
-					CF_SetPlayerGold(c, p, CF_GetPlayerGold(c, p) - price);
-				end
-			end
-		end
-	end
-	
-	return actor, offset;
-end
------------------------------------------------------------------------------------------
--- Spawns dropship loaded with selected presets
------------------------------------------------------------------------------------------
-function CF_SpawnDropShip(c, p, t, pres, pay, team)
-	--print ("CF_SpawnDropship");
-	local actor = nil;
-	local f = CF_GetPlayerFaction(c, p);
-	local payloadcount = 0
-
-	-- Calculate dropship capacity
-	local dcap = CF_MaxUnitsPerDropship;
-	if CF_DropShipCapacityBonuses[f] ~= nil then
-		dcap = CF_DropShipCapacityBonuses[f]
-	end
-	
-	if MovableMan:GetMOIDCount() < CF_MOIDLimit then
-		actor = CF_MakeActor(CF_Crafts[f] , CF_CraftClasses[f] , CF_CraftModules[f]);
-
-		if actor ~= nil then
-			actor.AIMode = Actor.AIMODE_DELIVER;
-			actor:SetControllerMode(Controller.CIM_AI, -1);
-			actor.Team = team;
-			
-			-- Create actors and fill dropship with them
-			for i = 1, dcap do
-				if pres[i] ~= nil then
-					local load = CF_MakeActorFromPreset(c, p, t, pres[i], pay)
-					
-					if load ~= nil then
-						load.Team = team;
-						load.AIMode = Actor.AIMODE_SENTRY;
-						actor:AddInventoryItem(load)
-						payloadcount = payloadcount + 1
-					
-						if actor.MaxMass ~= nil and actor.MaxMass > 0 then
-							if actor.Mass >= actor.MaxMass then
-								print ("Dropship overloaded, will deliver only "..payloadcount.." units")
-								break;
-							end
-						end
-					end
-				end
-			end
-			
-			-- Pay for dropship
-			if pay then
-				CF_SetPlayerGold(c, p, CF_GetPlayerGold(c, p) - CF_CraftPrices[f]);
-			end
-		end
-	end
-	
-	return actor, payloadcount
-end
------------------------------------------------------------------------------------------
---
------------------------------------------------------------------------------------------
-function CF_SpawnRandomInfantry(team , pos , faction , aimode)
-	--print ("CF_SpawnRandomInfantry");
-	local actor = nil;
-	local r1, r2;
-	local item;
-	
-	if MovableMan:GetMOIDCount() < CF_MOIDLimit then
-		-- Find AHuman
-		local ok = false;
-		-- Emergency counter in case we don't have AHumans in factions
-		local counter = 0
-		
-		while (not ok) do
-			ok = false;
-			r1 = math.random(#CF_ActNames[faction])
-
-			if (CF_ActClasses[faction][r1] == nil or CF_ActClasses[faction][r1] == "AHuman") and CF_ActTypes[faction][r1] ~= CF_ActorTypes.ARMOR then
-				ok = true;
-			end
-			
-			-- Break to avoid endless loop
-			counter = counter + 1
-			if counter > 20 then
-				break
-			end
-		end
-	
-		actor = CF_MakeActor(CF_ActPresets[faction][r1] , CF_ActClasses[faction][r1], CF_ActModules[faction][r1]);
-		
-		if actor ~= nil then
-			-- Check if this is pre-equipped faction
-			local preequipped = false
-			
-			if CF_PreEquippedActors[faction] ~= nil and CF_PreEquippedActors[faction] then
-				preequpped = true
-			end			
-		
-			if not preequipped then
-				-- Find rifle
-				local ok = false;
-				-- Emergency counter in case we don't have AHumans in factions
-				local counter = 0
-				
-				while (not ok) do
-					ok = false;
-					r2 = math.random(#CF_ItmNames[faction])
-			
-					if CF_ItmTypes[faction][r2] == CF_WeaponTypes.RIFLE or CF_ItmTypes[faction][r2] == CF_WeaponTypes.SHOTGUN or CF_ItmTypes[faction][r2] == CF_WeaponTypes.SNIPER then
-						ok = true;
-					end
-					
-					-- Break to avoid endless loop
-					counter = counter + 1
-					if counter > 40 then
-						break
-					end
-				end
-			
-				item = CF_MakeItem(CF_ItmPresets[faction][r2] , CF_ItmClasses[faction][r2], CF_ItmModules[faction][r2]);
-				
-				if item ~= nil then
-					actor:AddInventoryItem(item);
-				end
-			end
-			
-			actor.AIMode = aimode;
-			actor.Team = team;
-			
-			if pos ~= nil then
-				actor.Pos = pos;
-				MovableMan:AddActor(actor);
-			else
-				return actor
-			end
-		end
-	end
-	
-	return nil
 end
 -----------------------------------------------------------------------------------------
 --
@@ -1086,420 +885,11 @@ function CF_SetPlayerGold(c, p, funds)
 	c["Player"..p.."Gold"] = math.ceil(funds)
 end
 -----------------------------------------------------------------------------------------
--- Create list of weapons of wtype sorted by their power. c - config, p - player, wtype - weapon type
------------------------------------------------------------------------------------------
-function CF_MakeListOfMostPowerfulWeapons(c, p, wtype)
-	local weaps = {};
-	local itms, itmfs = CF_MakeListOfAvailableItems(c, p);
-
-	-- Filter needed items
-	for i = 1, #itms do
-		if CF_ItmTypes[itmfs[i]][itms[i]] == wtype and CF_ItmPowers[itmfs[i]][itms[i]] > 0 then
-			local n = #weaps + 1
-			weaps[n] = {}
-			weaps[n]["Item"] = itms[i]
-			weaps[n]["Faction"] = itmfs[i]
-			weaps[n]["Power"] = CF_ItmPowers[itmfs[i]][itms[i]]
-		end
-	end
-	
-	
-	-- Sort them
-	for j = 1, #weaps - 1 do
-		for i = 1, #weaps - j do
-			if weaps[i]["Power"] < weaps[i + 1]["Power"] then
-				local temp = weaps[i];
-				weaps[i] = weaps[i + 1]
-				weaps[i + 1] = temp
-			end
-		end
-	end
-	
-	if #weaps == 0 then
-		return nil
-	end
-	
-	return weaps;
-end
------------------------------------------------------------------------------------------
--- Create list of actors of atype sorted by their power. c - config, p - player, wtype - weapon type
------------------------------------------------------------------------------------------
-function CF_MakeListOfMostPowerfulActors(c, p, atype)
-	local acts = {};
-	local actors, actfs = CF_MakeListOfAvailableActors(c, p);
-	
-	-- Filter needed items
-	for i = 1, #actors do
-		if CF_ActTypes[actfs[i]][actors[i]] == atype and CF_ActPowers[actfs[i]][actors[i]] > 0 then
-			local n = #acts + 1
-			acts[n] = {}
-			acts[n]["Actor"] = actors[i]
-			acts[n]["Faction"] = actfs[i]
-			acts[n]["Power"] = CF_ActPowers[actfs[i]][actors[i]]
-		end
-	end
-	
-	-- Sort them
-	for j = 1, #acts - 1 do
-		for i = 1, #acts - j do
-			if acts[i]["Power"] < acts[i + 1]["Power"] then
-				local temp = acts[i];
-				acts[i] = acts[i + 1]
-				acts[i + 1] = temp
-			end
-		end
-	end
-	
-	if #acts == 0 then
-		return nil
-	end
-	
-	return acts;
-end
------------------------------------------------------------------------------------------
--- 
------------------------------------------------------------------------------------------
-function CF_MakeListOfAvailableItems(c, p)
-	local f = CF_GetPlayerFaction(c, p)
-	local itm = {}
-	local fact = {}
-	
-	-- Add player items
-	for i = 1, #CF_ItmNames[f] do
-		if c["Player".. p .."Item"..i.."Unlocked"] == "True" then
-			fact[#itm + 1] = f
-			itm[#itm + 1] = i
-		end
-	end
-
-	-- Add ally items
-	if c["Player"..p.."AllyFaction"] ~= "None" then
-		local f = CF_GetPlayerAllyFaction(c, p)
-		for i = 1, #CF_ItmNames[f] do
-			if c["Player".. p .."AllyItem"..i.."Unlocked"] == "True" then
-				fact[#itm + 1] = f
-				itm[#itm + 1] = i
-			end
-		end
-	end
-
-	-- Add foreign items
-	local i = 1
-	
-	while c["Player"..p.."ForeignItem"..i.."Unlocked"] ~= nil do
-		if c["Player"..p.."ForeignItem"..i.."Unlocked"] == "True" then
-			fact[#itm + 1] = c["Player".. p .."ForeignItem"..i.."Faction"];
-			itm[#itm + 1] = tonumber(c["Player".. p .."ForeignItem"..i.."Preset"])
-		end
-		i = i + 1
-	end
-	
-	return itm, fact;
-end
------------------------------------------------------------------------------------------
--- 
------------------------------------------------------------------------------------------
-function CF_MakeListOfAvailableActors(c, p)
-	local f = CF_GetPlayerFaction(c, p)
-	local act = {}
-	local fact = {}
-	
-	for i = 1, #CF_ActNames[f] do
-		if c["Player".. p .."Actor"..i.."Unlocked"] == "True" then
-			fact[#act + 1] = f
-			act[#act + 1] = i
-		end
-	end
-
-	if c["Player"..p.."AllyFaction"] ~= "None" then
-		local f = CF_GetPlayerAllyFaction(c, p)
-		for i = 1, #CF_ActNames[f] do
-			if c["Player".. p .."AllyActor"..i.."Unlocked"] == "True" then
-				fact[#act + 1] = f
-				act[#act + 1] = i
-			end
-		end
-	end
-
-	-- Add foreign items
-	local i = 1
-	
-	while c["Player"..p.."ForeignActor"..i.."Unlocked"] ~= nil do
-		if c["Player"..p.."ForeignActor"..i.."Unlocked"] == "True" then
-			fact[#act + 1] = c["Player".. p .."ForeignActor"..i.."Faction"];
-			act[#act + 1] = tonumber(c["Player".. p .."ForeignActor"..i.."Preset"])
-		end
-		i = i + 1
-	end
-	
-	return act, fact;
-end
------------------------------------------------------------------------------------------
--- Returns data with preset pr values for player p in config c
------------------------------------------------------------------------------------------
-function CF_GetPreset(c, p, pr)
-	local actor = nil;
-	local faction = nil;
-	local items = {}
-	local itemfactions = {}
-
-	if c["Player"..p.."Preset"..pr.."Faction"] ~= nil then
-		faction = c["Player"..p.."Preset"..pr.."Faction"];
-		actor = tonumber(c["Player"..p.."Preset"..pr.."Actor"]);
-	
-		for i = 1, CF_MaxItemsPerPreset do
-			items[i] = tonumber(c["Player"..p.."Preset"..pr.."Item"..i])
-			itemfactions[i] = c["Player"..p.."Preset"..pr.."ItemFaction"..i]
-		end
-	end
-	
-	return actor, faction, items, itemfactions
-end
------------------------------------------------------------------------------------------
 -- 
 -----------------------------------------------------------------------------------------
 function CF_CommitMissionResult(c, result)
 	-- Set result
 	c["LastMissionResult"] = result
-end
------------------------------------------------------------------------------------------
---	Creates units presets for specified AI where c - config, p - player
------------------------------------------------------------------------------------------
-function CF_CreateAIUnitPresets(c, p)
-	--print ("CF_CreateAIUnitPresets "..p)
-	-- Presets -            	"Infantry 1", 				"Infantry 2", 			"Sniper", 				"Shotgun", 				"Heavy 1", 				"Heavy 2", 				"Armor 1", 				"Armor 2", 				"Engineer", 			"Defender"
-	local desiredactors = 		{CF_ActorTypes.LIGHT, 		CF_ActorTypes.HEAVY, 	CF_ActorTypes.LIGHT, 	CF_ActorTypes.HEAVY, 	CF_ActorTypes.HEAVY, 	CF_ActorTypes.HEAVY, 	CF_ActorTypes.ARMOR, 	CF_ActorTypes.HEAVY, 	CF_ActorTypes.LIGHT, 	CF_ActorTypes.TURRET}
-
-	local desiredweapons = 		{CF_WeaponTypes.RIFLE, 		CF_WeaponTypes.RIFLE, 	CF_WeaponTypes.SNIPER, 	CF_WeaponTypes.SHOTGUN, CF_WeaponTypes.HEAVY, 	CF_WeaponTypes.HEAVY, 	CF_WeaponTypes.HEAVY, 	CF_WeaponTypes.SHIELD, 	CF_WeaponTypes.DIGGER, 	CF_WeaponTypes.SHOTGUN}
-	local desiredsecweapons = 	{CF_WeaponTypes.PISTOL, 	CF_WeaponTypes.PISTOL, 	CF_WeaponTypes.PISTOL, 	CF_WeaponTypes.GRENADE,	CF_WeaponTypes.RIFLE, 	CF_WeaponTypes.GRENADE,	CF_WeaponTypes.PISTOL, 	CF_WeaponTypes.PISTOL, 	CF_WeaponTypes.RIFLE, 	CF_WeaponTypes.GRENADE}
-	local desiredtretweapons = 	{CF_WeaponTypes.GRENADE, 	CF_WeaponTypes.GRENADE,	CF_WeaponTypes.GRENADE,	CF_WeaponTypes.GRENADE, CF_WeaponTypes.GRENADE, CF_WeaponTypes.GRENADE, CF_WeaponTypes.GRENADE, CF_WeaponTypes.GRENADE, CF_WeaponTypes.GREANDE, CF_WeaponTypes.GRENADE}
-	
-	local f = CF_GetPlayerFaction(c,p)
-	local preequipped = false
-	
-	if CF_PreEquippedActors[f] ~= nil and CF_PreEquippedActors[f] then
-		preequipped = true
-	end
-	
-	if preequipped then
-		--print ("Pre-equipped")
-		--print ("")
-
-		-- Fill presets for pre-equpped faction
-		for i = 1, 10 do
-			-- Select a suitable actor based on his equipment class
-			local selected = 1
-			local match = false;
-
-			local actors
-			local lastgoodactors
-			
-			-- Build a list of desired actors and weapons
-			local da = {}
-			local dw = {}
-			
-			da[1] = desiredactors[i]
-			dw[1] = desiredweapons[i]
-			da[2] = CF_ActorTypes.HEAVY
-			dw[2] = desiredweapons[i]
-			da[3] = CF_ActorTypes.LIGHT
-			dw[3] = desiredweapons[i]
-			da[4] = CF_ActorTypes.ARMOR
-			dw[4] = desiredweapons[i]
-			da[5] = CF_ActorTypes.HEAVY
-			dw[5] = nil
-			da[6] = CF_ActorTypes.LIGHT
-			dw[6] = nil
-			da[7] = CF_ActorTypes.ARMOR
-			dw[7] = nil
-
-			for k = 1, #da do
-				actors = CF_MakeListOfMostPowerfulActors(c, p, da[k])
-				
-				if actors ~= nil and dw[k] ~= nil then
-					for j = 1, #actors do
-						if CF_EquipmentTypes[f][ actors[j]["Actor"] ] ~= nil then
-							if CF_EquipmentTypes[f][ actors[j]["Actor"] ] == dw[k] then
-								selected = j
-								match = true
-								break
-							end
-						end
-					end
-				end
-				
-				if match then
-					break
-				end
-				
-				if actors ~= nil then
-					lastgoodactors = actors
-				end
-			end
-			
-			if actors == nil then
-				actors = lastgoodactors
-			end
-			
-			if actors ~= nil then
-				c["Player"..p.."Preset"..i.."Actor"] = actors[selected]["Actor"];
-				c["Player"..p.."Preset"..i.."Faction"] = actors[selected]["Faction"];
-
-				--Reset all weapons
-				for j = 1, CF_MaxItemsPerPreset do
-					c["Player"..p.."Preset"..i.."Item"..j] = nil
-					c["Player"..p.."Preset"..i.."ItemFaction"..j] = nil
-				end
-				
-				-- If we didn't find a suitable engineer unit then try give digger to engineer preset
-				if desiredweapons[i] == CF_WeaponTypes.DIGGER and not match then
-					local weapons1
-					weapons1 = CF_MakeListOfMostPowerfulWeapons(c, p, desiredweapons[i])
-				
-					local class = CF_ActClasses[actors[selected]["Faction"]][actors[selected]["Actor"]]
-					-- Don't give weapons to ACrabs
-					if class ~= "ACrab" then
-						if weapons1 ~= nil then
-							c["Player"..p.."Preset"..i.."Item"..1] = weapons1[1]["Item"];
-							c["Player"..p.."Preset"..i.."ItemFaction"..1] = weapons1[1]["Faction"];
-							--print (CF_PresetNames[i].." + Digger")
-						end
-					end
-				end
-				
-				--print(CF_PresetNames[i].." "..CF_ActPresets[c["Player"..p.."Preset"..i.."Faction"]][c["Player"..p.."Preset"..i.."Actor"]] .." "..tostring(match))
-				--print(c["Player"..p.."Preset"..i.."Item1"])
-				--print(c["Player"..p.."Preset"..i.."Item2"])
-				--print(c["Player"..p.."Preset"..i.."Item3"])
-			end	
-		end
-	else
-		--print ("Empty actors")
-
-		-- Fill presets for generic faction
-		for i = 1, 10 do
-			local actors
-			actors = CF_MakeListOfMostPowerfulActors(c, p, desiredactors[i])
-			
-			if actors == nil then
-				actors = CF_MakeListOfMostPowerfulActors(c, p, CF_ActorTypes.LIGHT)
-			end
-
-			if actors == nil then
-				actors = CF_MakeListOfMostPowerfulActors(c, p, CF_ActorTypes.HEAVY)
-			end
-
-			if actors == nil then
-				actors = CF_MakeListOfMostPowerfulActors(c, p, CF_ActorTypes.ARMOR)
-			end
-			
-			local weapons1
-			weapons1 = CF_MakeListOfMostPowerfulWeapons(c, p, desiredweapons[i])
-
-			if weapons1 == nil then
-				weapons1 = CF_MakeListOfMostPowerfulWeapons(c, p, CF_WeaponTypes.RIFLE)
-			end
-
-			if weapons1 == nil then
-				weapons1 = CF_MakeListOfMostPowerfulWeapons(c, p, CF_WeaponTypes.SHOTGUN)
-			end
-
-			if weapons1 == nil then
-				weapons1 = CF_MakeListOfMostPowerfulWeapons(c, p, CF_WeaponTypes.SNIPER)
-			end
-			
-			if weapons1 == nil then
-				weapons1 = CF_MakeListOfMostPowerfulWeapons(c, p, CF_WeaponTypes.HEAVY)
-			end
-			
-			if weapons1 == nil then
-				weapons1 = CF_MakeListOfMostPowerfulWeapons(c, p, CF_WeaponTypes.PISTOL)
-			end
-
-
-			local weapons2
-			weapons2 = CF_MakeListOfMostPowerfulWeapons(c, p, desiredsecweapons[i])
-
-			if weapons2 == nil then
-				weapons2 = CF_MakeListOfMostPowerfulWeapons(c, p, CF_WeaponTypes.PISTOL)
-			end
-
-			if weapons2 == nil then
-				weapons2 = CF_MakeListOfMostPowerfulWeapons(c, p, CF_WeaponTypes.DIGGER)
-			end
-
-			local weapons3
-			weapons3 = CF_MakeListOfMostPowerfulWeapons(c, p, desiredtretweapons[i])
-			
-			if actors ~= nil then
-				c["Player"..p.."Preset"..i.."Actor"] = actors[1]["Actor"];
-				c["Player"..p.."Preset"..i.."Faction"] = actors[1]["Faction"];
-				
-				local class = CF_ActClasses[actors[1]["Faction"]][actors[1]["Actor"]]
-				
-				-- Don't give weapons to ACrabs
-				if class ~= "ACrab" then
-					local weap = 1
-					
-					if weapons1 ~= nil then
-						-- Add small random spread for primary weapons
-						local spread = 2;
-					
-						if #weapons1 < spread then
-							spread = 1;
-						end
-						
-						local w = math.random(spread)
-						--print ("Selected weapon: "..w)
-					
-						c["Player"..p.."Preset"..i.."Item"..weap] = weapons1[w]["Item"];
-						c["Player"..p.."Preset"..i.."ItemFaction"..weap] = weapons1[w]["Faction"];
-						weap = weap + 1
-					end
-					
-					if weapons2 ~= nil then
-						-- Add small random spread for secondary weapons
-						local spread = 2;
-					
-						if #weapons2 < spread then
-							spread = 1;
-						end
-						
-						local w = math.random(spread)
-						--print ("Selected sec weapon: "..w)
-
-						c["Player"..p.."Preset"..i.."Item"..weap] = weapons2[w]["Item"];
-						c["Player"..p.."Preset"..i.."ItemFaction"..weap] = weapons2[w]["Faction"];
-						weap = weap + 1
-					end
-
-					if weapons3 ~= nil then
-						-- Add small random spread for grenades
-						local spread = 2;
-					
-						if #weapons3 < spread then
-							spread = 1;
-						end
-						
-						local w = math.random(spread)
-						--print ("Selected tri weapon: "..w)
-
-						c["Player"..p.."Preset"..i.."Item"..weap] = weapons3[w]["Item"];
-						c["Player"..p.."Preset"..i.."ItemFaction"..weap] = weapons3[w]["Faction"];
-						weap = weap + 1
-					end
-					
-					if CF_AIDebugOutput then
-						--print ("------")
-						--print(CF_ActPresets[c["Player"..p.."Preset"..i.."Faction"]][c["Player"..p.."Preset"..i.."Actor"]])
-						--print(CF_ItmPresets[c["Player"..p.."Preset"..i.."ItemFaction1"]][c["Player"..p.."Preset"..i.."Item1"]])
-						--print(CF_ItmPresets[c["Player"..p.."Preset"..i.."ItemFaction2"]][c["Player"..p.."Preset"..i.."Item2"]])
-						--print(CF_ItmPresets[c["Player"..p.."Preset"..i.."ItemFaction3"]][c["Player"..p.."Preset"..i.."Item3"]])
-					end
-				end
-			end
-		end
-	end -- If preequipped
 end
 -----------------------------------------------------------------------------
 --	
@@ -1561,9 +951,9 @@ end
 function CF_Dist(pos1 , pos2)
 	return SceneMan:ShortestDistance(pos1, pos2, true).Magnitude
 end
------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
 --
------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
 function CF_CountActors(team)
 	local c = 0
 
@@ -1575,9 +965,31 @@ function CF_CountActors(team)
 	
 	return c
 end
------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
+--	Returns how many science points corresponds to selected difficulty level
+-----------------------------------------------------------------------------------------
+function CF_GetTechLevelFromDifficulty(c, p, diff, maxdiff)
+	local maxpoints = 0
+	local f = CF_GetPlayerFaction(c, p)
+	
+	
+	for i = 1, #CF_ItmNames[f] do
+		if CF_ItmUnlockData[f][i] > maxpoints then
+			maxpoints = CF_ItmUnlockData[f][i]
+		end
+	end
+
+	for i = 1, #CF_ActNames[f] do
+		if CF_ActUnlockData[f][i] > maxpoints then
+			maxpoints = CF_ActUnlockData[f][i]
+		end
+	end
+	
+	return math.floor(maxpoints / maxdiff * diff)
+end
+-----------------------------------------------------------------------------------------
 --
------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------
 
 
 
