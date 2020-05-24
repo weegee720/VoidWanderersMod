@@ -35,6 +35,8 @@ function VoidWanderers:StartActivity()
 	-- Factions are already initialized by strategic part
 	self:LoadCurrentGameState();
 	
+	CF_GS = self.GS
+	
 	self.PlayerFaction = self.GS["Player0Faction"]
 	
 	-- If activity was reset during mission switch back to mission mode
@@ -1419,25 +1421,8 @@ function VoidWanderers:GiveMissionRewards()
 	if self.GS["BrainsOnMission"] then
 		for p = 0, 3 do
 			local curexp = self.GS["Brain"..p.."Exp"]
-			if curexp == nil then
-				curexp = 0
-			else
-				curexp = tonumber(curexp)
-			end
-
 			local cursklpts = self.GS["Brain"..p.."SkillPoints"]
-			if cursklpts == nil then
-				cursklpts = 0
-			else
-				cursklpts = tonumber(cursklpts)
-			end
-
 			local curlvl = self.GS["Brain"..p.."Level"]
-			if curlvl == nil then
-				curlvl = 0
-			else
-				curlvl = tonumber(cursklpts)
-			end
 			
 			curexp = curexp + exppts
 			

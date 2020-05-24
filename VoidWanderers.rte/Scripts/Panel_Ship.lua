@@ -757,19 +757,22 @@ function VoidWanderers:ProcessShipControlPanelUI()
 			end
 ---------------------------------------------------------------------------------------------------
 			if self.ShipControlMode == self.ShipControlPanelModes.BRAIN then
+				if self.GS["Brain"..plr.."Detached"] == "True" then
+					if self.Time % 2 == 0 then
+						CF_DrawString("PLAYER ".. plr + 1 .." BRAIN DETACHED, ROBOT IN USE!", pos + Vector(-106, -6), 270, 40)
+						CF_DrawString(self.GS["Brain"..plr.."SkillPoints"].." POINTS AVAILABLE", pos + Vector(-46, 6), 270, 40)
+					end
+					self:PutGlow("ControlPanel_Ship_Report", pos)
+				else
+			
 				self.ShipControlSkillUpgrades = {}
 				-- Toughness
 				local nm = #self.ShipControlSkillUpgrades + 1
-				self.ShipControlSkillUpgrades[nm = {}
-				self.ShipControlSkillUpgrades[nm["Name"] = "Toughness"
+				self.ShipControlSkillUpgrades[nm] = {}
+				self.ShipControlSkillUpgrades[nm]["Name"] = "Toughness"
 				self.ShipControlSkillUpgrades[nm]["Variable"] = "Brain"..plr.."Tougness"
-				self.ShipControlSkillUpgrades[nm]["Description"] = ""
-				local val = self.ShipControlSkillUpgrades[nm]["Variable"]
-				if val == nil then
-					val = 0
-				else
-					val = tonumber(val)
-				end
+				self.ShipControlSkillUpgrades[nm]["Description"] = "How much punishment your brain robot can take."
+				local val = tonumber(self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ])
 				self.GS[self.ShipControlSkillUpgrades[nm]["Variable"]] = val
 				self.ShipControlSkillUpgrades[nm]["Price"] = val + 1 * 2
 
@@ -778,14 +781,9 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self.ShipControlSkillUpgrades[nm] = {}
 				self.ShipControlSkillUpgrades[nm]["Name"] = "Force field"
 				self.ShipControlSkillUpgrades[nm]["Variable"] = "Brain"..plr.."Field"
-				self.ShipControlSkillUpgrades[nm]["Description"] = ""
+				self.ShipControlSkillUpgrades[nm]["Description"] = "Strength of force field."
 				self.ShipControlSkillUpgrades[nm]["Price"] = CF_StoragePrice
-				local val = self.ShipControlSkillUpgrades[nm]["Variable"]
-				if val == nil then
-					val = 0
-				else
-					val = tonumber(val)
-				end
+				local val = tonumber(self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ])
 				self.GS[self.ShipControlSkillUpgrades[nm]["Variable"]] = val
 				self.ShipControlSkillUpgrades[nm]["Price"] = val + 1
 
@@ -794,14 +792,9 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self.ShipControlSkillUpgrades[nm] = {}
 				self.ShipControlSkillUpgrades[nm]["Name"] = "Telekinesis"
 				self.ShipControlSkillUpgrades[nm]["Variable"] = "Brain"..plr.."Telekinesis"
-				self.ShipControlSkillUpgrades[nm]["Description"] = ""
+				self.ShipControlSkillUpgrades[nm]["Description"] = "Telekinesis abilities and their power."
 				self.ShipControlSkillUpgrades[nm]["Price"] = CF_StoragePrice
-				local val = self.ShipControlSkillUpgrades[nm]["Variable"]
-				if val == nil then
-					val = 0
-				else
-					val = tonumber(val)
-				end
+				local val = tonumber(self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ])
 				self.GS[self.ShipControlSkillUpgrades[nm]["Variable"]] = val
 				self.ShipControlSkillUpgrades[nm]["Price"] = val + 1
 
@@ -809,15 +802,10 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				local nm = #self.ShipControlSkillUpgrades + 1
 				self.ShipControlSkillUpgrades[nm] = {}
 				self.ShipControlSkillUpgrades[nm]["Name"] = "Scaning"
-				self.ShipControlSkillUpgrades[nm]["Variable"] = "Brain"..plr.."Scaner"
-				self.ShipControlSkillUpgrades[nm]["Description"] = ""
+				self.ShipControlSkillUpgrades[nm]["Variable"] = "Brain"..plr.."Scanner"
+				self.ShipControlSkillUpgrades[nm]["Description"] = "Built-in scanner range."
 				self.ShipControlSkillUpgrades[nm]["Price"] = CF_StoragePrice
-				local val = self.ShipControlSkillUpgrades[nm]["Variable"]
-				if val == nil then
-					val = 0
-				else
-					val = tonumber(val)
-				end
+				local val = tonumber(self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ])
 				self.GS[self.ShipControlSkillUpgrades[nm]["Variable"]] = val
 				self.ShipControlSkillUpgrades[nm]["Price"] = val + 1
 				
@@ -826,30 +814,20 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				self.ShipControlSkillUpgrades[nm] = {}
 				self.ShipControlSkillUpgrades[nm]["Name"] = "Healing"
 				self.ShipControlSkillUpgrades[nm]["Variable"] = "Brain"..plr.."Heal"
-				self.ShipControlSkillUpgrades[nm]["Description"] = ""
+				self.ShipControlSkillUpgrades[nm]["Description"] = "How many times brain-robot can fully heal a unit."
 				self.ShipControlSkillUpgrades[nm]["Price"] = CF_StoragePrice
-				local val = self.ShipControlSkillUpgrades[nm]["Variable"]
-				if val == nil then
-					val = 0
-				else
-					val = tonumber(val)
-				end
+				local val = tonumber(self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ])
 				self.GS[self.ShipControlSkillUpgrades[nm]["Variable"]] = val
 				self.ShipControlSkillUpgrades[nm]["Price"] = val + 1
 
 
 				local nm = #self.ShipControlSkillUpgrades + 1
 				self.ShipControlSkillUpgrades[nm] = {}
-				self.ShipControlSkillUpgrades[nm]["Name"] = "Fixing"
+				self.ShipControlSkillUpgrades[nm]["Name"] = "Engineering"
 				self.ShipControlSkillUpgrades[nm]["Variable"] = "Brain"..plr.."Fix"
-				self.ShipControlSkillUpgrades[nm]["Description"] = ""
+				self.ShipControlSkillUpgrades[nm]["Description"] = "How many times brain-robot can fix a weapon."
 				self.ShipControlSkillUpgrades[nm]["Price"] = CF_StoragePrice
-				local val = self.ShipControlSkillUpgrades[nm]["Variable"]
-				if val == nil then
-					val = 0
-				else
-					val = tonumber(val)
-				end
+				local val = tonumber(self.GS[ self.ShipControlSkillUpgrades[nm]["Variable"] ])
 				self.GS[self.ShipControlSkillUpgrades[nm]["Variable"]] = val
 				self.ShipControlSkillUpgrades[nm]["Price"] = val + 1
 
@@ -871,17 +849,30 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				local current = tonumber(self.GS[ self.ShipControlSkillUpgrades[self.ShipControlSelectedSkillUpgrade]["Variable"] ])
 				local maximum = 5
 				local price = self.ShipControlSkillUpgrades[self.ShipControlSelectedSkillUpgrade]["Price"]
+				local sklpts = tonumber(self.GS["Brain"..plr.."SkillPoints"])
+
+				CF_DrawString("LEVEL: "..self.GS["Brain"..plr.."Level"], pos + Vector(-62-71, -60), 270, 40)
+				CF_DrawString("EXP: "..self.GS["Brain"..plr.."Exp"], pos + Vector(-62, -60), 270, 40)
+				
+				if price > sklpts then
+					if self.Time % 2 == 0 then
+						CF_DrawString("POINTS: "..sklpts, pos + Vector(-62-71, -46), 270, 40)
+					end
+				else
+					CF_DrawString("POINTS: "..sklpts, pos + Vector(-62-71, -46), 270, 40)
+				end
+				
+				CF_DrawString("Current level: "..current, pos + Vector(10, -30), 270, 40)
+				CF_DrawString("Maximum level: "..maximum, pos + Vector(10, -20), 270, 40)
+				if current < maximum then
+					CF_DrawString("Points needed: "..self.ShipControlSkillUpgrades[self.ShipControlSelectedSkillUpgrade]["Price"], pos + Vector(10, -10), 270, 40)
+				end
+
+				CF_DrawString(self.ShipControlSkillUpgrades[self.ShipControlSelectedSkillUpgrade]["Description"], pos + Vector(10, 10), 130, 80)
 				
 				if cont:IsState(Controller.WEAPON_FIRE) then
 					if not self.FirePressed then
 						self.FirePressed = true;
-						
-						local sklpts = self.GS["Brain"..plr.."SkillPoints"]
-						if sklpts == nil then
-							sklpts = 0
-						else
-							sklpts = tonumber(sklpts)
-						end
 						
 						if current < maximum and price <= sklpts then
 							self.GS[ self.ShipControlSkillUpgrades[self.ShipControlSelectedSkillUpgrade]["Variable"] ] = current + 1
@@ -900,17 +891,17 @@ function VoidWanderers:ProcessShipControlPanelUI()
 					else
 						CF_DrawString(self.ShipControlSkillUpgrades[i]["Name"], pos + Vector(-62 - 71, -40 + i * 11), 130, 12)
 					end
-				end				
+				end
 				
-
-				CF_DrawString("Player "..plr.." brain skill management", pos + Vector(-62-71, -78), 270, 40)
 				CF_DrawString("U/D - Select upgrade, FIRE - Upgrade", pos + Vector(-62-71, 78), 270, 40)
 				self:PutGlow("ControlPanel_Ship_PlanetBack", pos + Vector(-71, 0))
 				self:PutGlow("ControlPanel_Ship_PlanetBack", pos + Vector(70, 0))
+				end
+
+				CF_DrawString("Player ".. plr + 1 .." brain robot maintenance", pos + Vector(-62-71, -78), 270, 40)
 				
 				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,-77))
 				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,78))
-
 			end
 -------------------------------------------------------------------------------
 			if self.ShipControlMode == self.ShipControlPanelModes.UPGRADE then
@@ -1297,7 +1288,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 						end
 					else
 						if self.ShipControlMode == 6 then
-							self.ShipControlMode = self.ShipControlPanelModes.REPUTATION
+							self.ShipControlMode = self.ShipControlPanelModes.BRAIN
 						end
 					end
 				end

@@ -160,6 +160,55 @@ function VoidWanderers:LoadCurrentGameState()
 				break
 			end
 		end
+		
+		-- Create RPG brain values if they are not present
+		-- This is needed to update old save files, those values are not created during save-file initialization
+		for plr = 0, 3 do
+			local val = self.GS["Brain"..plr.."SkillPoints"]
+			if val == nil then
+				self.GS["Brain"..plr.."SkillPoints"] = 0
+			end
+
+			local val = self.GS["Brain"..plr.."Exp"]
+			if val == nil then
+				self.GS["Brain"..plr.."Exp"] = 0
+			end
+
+			local val = self.GS["Brain"..plr.."Level"]
+			if val == nil then
+				self.GS["Brain"..plr.."Level"] = 0
+			end
+		
+			local val = self.GS["Brain"..plr.."Tougness"]
+			if val == nil then
+				self.GS["Brain"..plr.."Tougness"] = 0
+			end
+
+			local val = self.GS["Brain"..plr.."Field"]
+			if val == nil then
+				self.GS["Brain"..plr.."Field"] = 0
+			end
+
+			local val = self.GS["Brain"..plr.."Telekinesis"]
+			if val == nil then
+				self.GS["Brain"..plr.."Telekinesis"] = 0
+			end
+			
+			local val = self.GS["Brain"..plr.."Scanner"]
+			if val == nil then
+				self.GS["Brain"..plr.."Scanner"] = 0
+			end
+
+			local val = self.GS["Brain"..plr.."Heal"]
+			if val == nil then
+				self.GS["Brain"..plr.."Heal"] = 0
+			end
+
+			local val = self.GS["Brain"..plr.."Fix"]
+			if val == nil then
+				self.GS["Brain"..plr.."Fix"] = 0
+			end
+		end
 	end
 end
 -----------------------------------------------------------------------------------------
