@@ -816,6 +816,21 @@ function VoidWanderers:UpdateActivity()
 		self.Time = self.Time + 1
 		self.TickTimer:Reset();
 
+		-- Reputation erosion
+		if self.Time % CF_ReputationErosionInterval	== 0 then
+			for i = 1, tonumber(self.GS["ActiveCPUs"]) do
+				local rep =  tonumber(self.GS["Player"..i.."Reputation"]) 
+				
+				if rep > 0 then 
+					rep = rep - 1
+				elseif rep < 0 then
+					rep = rep + 1
+				end
+				
+				self.GS["Player"..i.."Reputation"] = rep
+			end
+		end
+		
 		if self.GS["Mode"] == "Vessel" then
 			if CF_CountActors(CF_PlayerTeam) > tonumber(self.GS["Player0VesselLifeSupport"]) then
 				self.OverCrowded = true

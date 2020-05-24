@@ -946,7 +946,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				CF_DrawString("INSTALL:", pos + Vector(8, 36), 140, 40)
 				CF_DrawString(tostring(instl).."oz", pos + Vector(70, 36), 140, 40)
 
-				CF_DrawString("BONUS:", pos + Vector(8, 48), 140, 40)
+				CF_DrawString("TRADE-IN:", pos + Vector(8, 48), 140, 40)
 				CF_DrawString(tostring(bonus).."oz", pos + Vector(70, 48), 140, 40)
 
 				CF_DrawString("TOTAL:", pos + Vector(8, 60), 140, 40)

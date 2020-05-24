@@ -187,9 +187,20 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 			end
 			
 			self.StorageControlItemsListStart = self.StorageSelectedItem - (self.StorageSelectedItem - 1) % self.StorageControlPanelItemsPerPage
+			
+			local refreshsample = false
+			
+			-- Check if sample object is the one we're currently selecting
+			if MovableMan:IsDevice(self.StorageControlPanelObject) then
+				local itm = self.StorageFilters[self.StorageControlMode][self.StorageSelectedItem]
+				
+				if itm ~= nil and (self.StorageControlPanelObject.PresetName ~= self.StorageItems[itm]["Preset"] or self.StorageControlPanelObject.ClassName ~= self.StorageItems[itm]["Class"]) then
+					refreshsample = true
+				end
+			end
 
 			-- Get selected item info
-			if self.StorageSelectedItem ~= self.LastStorageSelectedItem then
+			if self.StorageSelectedItem ~= self.LastStorageSelectedItem or refreshsample then
 				local itm = self.StorageFilters[self.StorageControlMode][self.StorageSelectedItem]
 
 				-- Delete old item object

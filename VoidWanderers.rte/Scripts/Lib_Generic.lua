@@ -23,6 +23,8 @@ function CF_InitFactions(activity)
 	CF_UnknownItemPrice = 250
 	CF_UnknownActorPrice = 500
 	
+	CF_ReputationErosionInterval = 50
+	
 	CF_MaxMissions = 5
 	
 	CF_SecurityIncrementPerMission = 10
@@ -35,7 +37,7 @@ function CF_InitFactions(activity)
 	CF_ReputationHuntTreshold = -500
 	
 	-- When mission completed defines how many reputation points will be subtracted from target reputation	
-	CF_ReputationPenaltyRatio = 1.25
+	CF_ReputationPenaltyRatio = 1.20
 
 	-- When mission failed defines how many reputation points will be subtracted from both reputations
 	CF_MissionFailedReputationPenaltyRatio = 0.35
