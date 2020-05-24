@@ -2,6 +2,25 @@
 --
 -----------------------------------------------------------------------------------------
 function VoidWanderers:InitClonesControlPanelUI()
+	-- Clone Control Panel
+	local x,y;
+			
+	x = tonumber(self.LS["ClonesControlPanelX"])
+	y = tonumber(self.LS["ClonesControlPanelY"])
+	if x~= nil and y ~= nil then
+		self.ClonesControlPanelPos = Vector(x,y)
+	else
+		self.ClonesControlPanelPos = nil
+	end
+	
+	x = tonumber(self.LS["ClonesDeployX"])
+	y = tonumber(self.LS["ClonesDeployY"])
+	if x~= nil and y ~= nil then
+		self.ClonesDeployPos = Vector(x,y)
+	else
+		self.ClonesDeployPos = nil
+	end
+
 	-- Create actor
 	-- Ship
 	if self.ClonesControlPanelPos ~= nil then
@@ -14,6 +33,10 @@ function VoidWanderers:InitClonesControlPanelUI()
 			end
 		end
 	end
+	
+	self.ClonesControlLastMessageTime = -1000
+	self.ClonesControlMessageIntrval = 3
+	self.ClonesControlMessageText = ""
 	
 	self.ClonesControlPanelLinesPerPage = 9
 	
@@ -69,7 +92,7 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 				
 				self.ClonesControlMode = self.ClonesControlPanelModes.CLONES
 			end			
-
+			
 			if cont:IsState(Controller.PRESS_LEFT) then
 				self.ClonesControlMode = self.ClonesControlMode - 1
 				
@@ -92,6 +115,64 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 					if not self.FirePressed then
 						self.FirePressed = true;
 						
+						if CF_CountActors(CF_PlayerTeam) < tonumber(self.GS["Player0VesselLifeSupport"]) then
+							-- Create new unit
+							if self.SelectedClone ~= 0 then
+								if MovableMan:GetMOIDCount() < CF_MOIDLimit then
+									-- Spawn actor
+									local a = CF_MakeActor2(self.Clones[self.SelectedClone]["Preset"], self.Clones[self.SelectedClone]["Class"])
+									if a ~= nil then
+										a.Team = CF_PlayerTeam
+										if self.ClonesDeployPos ~= nil then
+											a.Pos = self.ClonesDeployPos
+										else
+											a.Pos = self.ClonesControlPanelPos
+										end
+										
+										for i = 1, #self.Clones[self.SelectedClone]["Items"] do
+											local itm = CF_MakeItem2(self.Clones[self.SelectedClone]["Items"][i]["Preset"], self.Clones[self.SelectedClone]["Items"][i]["Class"])
+											if itm ~= nil then
+												a:AddInventoryItem(itm)
+											else
+												self.ClonesControlLastMessageTime = self.Time
+												self.ClonesControlMessageText = "ERROR!!! Can't create item!!!"
+											end
+										end
+										
+										MovableMan:AddActor(a)
+										
+										-- Remove actor from array
+										local newarr = {}
+										local ii = 1
+										
+										for i = 1, #self.Clones do
+											if i ~= self.SelectedClone then
+												newarr[ii] = self.Clones[i]
+												ii = ii + 1
+											end
+										end
+										
+										self.Clones = newarr
+										
+										-- Update game state data
+										CF_SetClonesArray(self.GS, self.Clones)
+										
+										if self.SelectedClone > #self.Clones then
+											self.SelectedClone = #self.Clones
+										end
+									else
+										self.ClonesControlLastMessageTime = self.Time
+										self.ClonesControlMessageText = "ERROR!!! Can't create actor!!!"
+									end
+								else
+									self.ClonesControlLastMessageTime = self.Time
+									self.ClonesControlMessageText = "Too many objects in simulation"
+								end
+							end
+						else
+							self.ClonesControlLastMessageTime = self.Time
+							self.ClonesControlMessageText = "Too many units. Upgrade life support."
+						end
 					end
 				else
 					self.FirePressed = false
@@ -117,12 +198,11 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 					end
 				end
 				
-				
 				self.ClonesControlCloneListStart = self.SelectedClone - (self.SelectedClone - 1) % self.ClonesControlPanelLinesPerPage
 				
 				-- Draw clones list
 				for i = self.ClonesControlCloneListStart, self.ClonesControlCloneListStart + self.ClonesControlPanelLinesPerPage - 1 do
-					if i <= #self.Clones then
+					if i <= #self.Clones and i > 0 then
 						local loc = i - self.ClonesControlCloneListStart
 						
 						if i == self.SelectedClone then
@@ -145,6 +225,9 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 				
 				-- Print clone storage capacity
 				CF_DrawString("Capacity: "..CF_CountUsedClonesInArray(self.Clones).."/"..self.GS["Player0VesselClonesCapacity"], pos + Vector(-130,-60) , 300, 10)
+				
+				-- Change panel text to show life support capacity
+				self.ClonesControlPanelModesTexts[self.ClonesControlPanelModes.CLONES] = "Bodies. Life support usage: "..CF_CountActors(CF_PlayerTeam).."/"..self.GS["Player0VesselLifeSupport"]
 			end
 
 
@@ -154,7 +237,7 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 					if not self.FirePressed then
 						self.FirePressed = true;
 						
-						if CF_CountUsedStorageInArray(self.StorageItems) < tonumber(self.GS["Player0VesselStorageCapacity"]) and #self.Clones[self.SelectedClone]["Items"] > 0 then
+						if self.SelectedClone > 0 and CF_CountUsedStorageInArray(self.StorageItems) < tonumber(self.GS["Player0VesselStorageCapacity"]) and #self.Clones[self.SelectedClone]["Items"] > 0 then
 							-- Put item to storage array
 							-- Find item in storage array
 							local found = 0
@@ -225,19 +308,27 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 					if not self.FirePressed then
 						self.FirePressed = true;
 						
-						local itm = self.StorageFilters[self.StorageControlPanelModes.EVERYTHING][self.ClonesStorageSelectedItem]
-						
-						--Add item to unit's inventory
-						if #self.Clones[self.SelectedClone]["Items"] < CF_MaxItems and self.StorageItems[itm]["Count"] > 0 then
-							local newitm = #self.Clones[self.SelectedClone]["Items"] + 1
-							self.StorageItems[itm]["Count"] = self.StorageItems[itm]["Count"] - 1
-							self.Clones[self.SelectedClone]["Items"][newitm] = {}
-							self.Clones[self.SelectedClone]["Items"][newitm]["Preset"] = self.StorageItems[itm]["Preset"]
-							self.Clones[self.SelectedClone]["Items"][newitm]["Class"] = self.StorageItems[itm]["Class"]
+						if self.SelectedClone > 0 then
+							local itm = self.StorageFilters[self.StorageControlPanelModes.EVERYTHING][self.ClonesStorageSelectedItem]
 							
-							-- Update game state
-							CF_SetClonesArray(self.GS, self.Clones)
-							CF_SetStorageArray(self.GS, self.StorageItems)
+							--Add item to unit's inventory
+							if #self.Clones[self.SelectedClone]["Items"] < CF_MaxItems and self.StorageItems[itm]["Count"] > 0 then
+								local newitm = #self.Clones[self.SelectedClone]["Items"] + 1
+								self.StorageItems[itm]["Count"] = self.StorageItems[itm]["Count"] - 1
+								self.Clones[self.SelectedClone]["Items"][newitm] = {}
+								self.Clones[self.SelectedClone]["Items"][newitm]["Preset"] = self.StorageItems[itm]["Preset"]
+								self.Clones[self.SelectedClone]["Items"][newitm]["Class"] = self.StorageItems[itm]["Class"]
+								
+								-- Update game state
+								CF_SetClonesArray(self.GS, self.Clones)
+								CF_SetStorageArray(self.GS, self.StorageItems)
+							else
+								self.ClonesControlLastMessageTime = self.Time
+								self.ClonesControlMessageText = "Unit inventory full"
+							end
+						else
+							self.ClonesControlLastMessageTime = self.Time
+							self.ClonesControlMessageText = "Clone storage empty"
 						end
 					end
 				else
@@ -299,20 +390,23 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 				-- Print storage capacity
 				CF_DrawString("Capacity: "..CF_CountUsedStorageInArray(self.StorageItems).."/"..self.GS["Player0VesselStorageCapacity"], pos + Vector(12,-60) , 300, 10)
 			end
-
-
 			
 			-- Draw generic UI
 			self:PutGlow("ControlPanel_Clones_Left", pos + Vector(-71,0))
 			self:PutGlow("ControlPanel_Clones_Right", pos + Vector(70,0))
 			self:PutGlow("ControlPanel_Clones_HorizontalPanel", pos + Vector(0,-77))
-			self:PutGlow("ControlPanel_Clones_HorizontalPanel", pos + Vector(0,78))
-
-			-- Print help text
-			CF_DrawString(self.ClonesControlPanelModesHelpTexts[self.ClonesControlMode], pos + Vector(-130,78) , 300, 10)
+			
+			-- Print help text or error message text
+			if self.Time < self.ClonesControlLastMessageTime + self.ClonesControlMessageIntrval then
+				self:PutGlow("ControlPanel_Clones_HorizontalPanel_Red", pos + Vector(0,78))
+				CF_DrawString(self.ClonesControlMessageText, pos + Vector(-130,78) , 300, 10)
+			else
+				self:PutGlow("ControlPanel_Clones_HorizontalPanel", pos + Vector(0,78))
+				CF_DrawString(self.ClonesControlPanelModesHelpTexts[self.ClonesControlMode], pos + Vector(-130,78) , 300, 10)
+			end
 			
 			-- Print Selected mode text
-			CF_DrawString(self.ClonesControlPanelModesTexts[self.ClonesControlMode], pos + Vector(-130,-77) , 170, 10)
+			CF_DrawString(self.ClonesControlPanelModesTexts[self.ClonesControlMode], pos + Vector(-130,-77) , 250, 10)
 		end
 	end
 	

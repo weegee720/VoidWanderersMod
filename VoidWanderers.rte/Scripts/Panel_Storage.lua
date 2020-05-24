@@ -2,6 +2,17 @@
 --
 -----------------------------------------------------------------------------------------
 function VoidWanderers:InitStorageControlPanelUI()
+	-- Storage Control Panel
+	local x,y;
+			
+	x = tonumber(self.LS["StorageControlPanelX"])
+	y = tonumber(self.LS["StorageControlPanelY"])
+	if x~= nil and y ~= nil then
+		self.StorageControlPanelPos = Vector(x,y)
+	else
+		self.StorageControlPanelPos = nil
+	end
+	
 	-- Create actor
 	-- Ship
 	if self.StorageControlPanelPos ~= nil then

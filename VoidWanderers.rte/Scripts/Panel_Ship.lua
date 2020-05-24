@@ -2,6 +2,17 @@
 --
 -----------------------------------------------------------------------------------------
 function VoidWanderers:InitShipControlPanelUI()
+	-- Ship Control Panel
+	local x,y;
+			
+	x = tonumber(self.LS["ShipControlPanelX"])
+	y = tonumber(self.LS["ShipControlPanelY"])
+	if x~= nil and y ~= nil then
+		self.ShipControlPanelPos = Vector(x,y)
+	else
+		self.ShipControlPanelPos = nil
+	end
+
 	-- Create actor
 	-- Ship
 	if self.ShipControlPanelPos ~= nil then

@@ -19,6 +19,10 @@ function VoidWanderers:StartActivity()
 	
 	self.GS = {};
 	self.ModuleName = "VoidWanderers.rte";
+
+	self.TickTimer = Timer();
+	self.TickTimer:Reset();
+	self.TickInterval = CF_TickInterval;
 	
 	-- Factions are already initialized by strategic part
 	self:LoadCurrentGameState();
@@ -54,57 +58,11 @@ function VoidWanderers:StartActivity()
 	end
 	
 	-- Read control panels location data
-	-- Ship Control Panel
-	local x,y;
-			
-	x = tonumber(self.LS["ShipControlPanelX"])
-	y = tonumber(self.LS["ShipControlPanelY"])
-	if x~= nil and y ~= nil then
-		self.ShipControlPanelPos = Vector(x,y)
-	else
-		self.ShipControlPanelPos = nil
-	end
 
-	-- Clone Control Panel
-	local x,y;
-			
-	x = tonumber(self.LS["ClonesControlPanelX"])
-	y = tonumber(self.LS["ClonesControlPanelY"])
-	if x~= nil and y ~= nil then
-		self.ClonesControlPanelPos = Vector(x,y)
-	else
-		self.ClonesControlPanelPos = nil
-	end
-
-	-- Storage Control Panel
-	local x,y;
-			
-	x = tonumber(self.LS["StorageControlPanelX"])
-	y = tonumber(self.LS["StorageControlPanelY"])
-	if x~= nil and y ~= nil then
-		self.StorageControlPanelPos = Vector(x,y)
-	else
-		self.StorageControlPanelPos = nil
-	end
-
-	-- Beam Control Panel
-	local x,y;
-			
-	x = tonumber(self.LS["BeamControlPanelX"])
-	y = tonumber(self.LS["BeamControlPanelY"])
-	if x~= nil and y ~= nil then
-		self.BeamControlPanelPos = Vector(x,y)
-	else
-		self.BeamControlPanelPos = nil
-	end
 	
 	self.GenericTimer = Timer();
 	self.GenericTimer:Reset();
 
-	self.TickTimer = Timer();
-	self.TickTimer:Reset();
-	self.TickInterval = CF_TickInterval;
-	self.Time = 1;
 
 	self.AISpawnTimer = Timer();
 	self.AISpawnTimer:Reset();
@@ -129,11 +87,12 @@ function VoidWanderers:StartActivity()
 	
 	-- Init consoles if in Vessel mode
 	if self.GS["Mode"] == "Vessel" then
-		self:CreateControlPanelActors()
+		--self:CreateControlPanelActors()
 		
 		self:InitShipControlPanelUI()
 		self:InitStorageControlPanelUI()
 		self:InitClonesControlPanelUI()
+		self:InitBeamControlPanelUI()
 	end
 	
 	print ("VoidWanderers:Tactics:StartActivity - End");
@@ -290,12 +249,15 @@ end
 function VoidWanderers:LoadCurrentGameState()
 	if CF_IsFileExists(self.ModuleName , STATE_CONFIG_FILE) then
 		self.GS = CF_ReadConfigFile(self.ModuleName , STATE_CONFIG_FILE);
+		
+		self.Time = tonumber(self.GS["Time"])
 	end
 end
 -----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
 function VoidWanderers:SaveCurrentGameState()
+	self.GS["Time"] = tostring(self.Time)
 	CF_WriteConfigFile(self.GS , self.ModuleName , STATE_CONFIG_FILE);
 end
 -----------------------------------------------------------------------------------------

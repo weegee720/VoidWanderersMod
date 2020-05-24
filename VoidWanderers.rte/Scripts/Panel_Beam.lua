@@ -1,6 +1,24 @@
 -----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
+function VoidWanderers:InitBeamControlPanelUI()
+
+	-- Beam Control Panel
+	local x,y;
+			
+	x = tonumber(self.LS["BeamControlPanelX"])
+	y = tonumber(self.LS["BeamControlPanelY"])
+	if x~= nil and y ~= nil then
+		self.BeamControlPanelPos = Vector(x,y)
+	else
+		self.BeamControlPanelPos = nil
+	end
+
+
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
 function VoidWanderers:ProcessBeamControlPanelUI()
 	local showidle = true
 

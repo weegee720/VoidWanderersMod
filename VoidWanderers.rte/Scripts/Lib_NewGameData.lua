@@ -59,6 +59,11 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 	-- Set vessel attrs
 	config["Player0VesselStorageCapacity"] = CF_VesselStartStorageCapacity[ config["Player0Vessel"] ]
 	config["Player0VesselClonesCapacity"] = CF_VesselStartClonesCapacity[ config["Player0Vessel"] ]
+
+	config["Player0VesselLifeSupport"] = CF_VesselStartLifeSupport[ config["Player0Vessel"] ]
+
+	
+	config["Time"] = 1
 	
 	-- Set up initial location - Tradestar
 	config["Planet"] = CF_Planet[1]
