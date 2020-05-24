@@ -265,6 +265,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 						self:LaunchScript("VoidWanderers Strategy Screen", "StrategyScreenMain.lua")
 						FORM_TO_LOAD = BASE_PATH.."FormSave.lua"
 						self.EnableBrainSelection = false
+						self:DestroyConsoles()
 						return
 					end
 				else

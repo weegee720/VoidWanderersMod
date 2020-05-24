@@ -92,3 +92,23 @@ function VoidWanderers:UpdateActivity()
 		self:StartActivity()
 	end
 end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
+function VoidWanderers:LoadCurrentGameState()
+	if CF_IsFileExists(self.ModuleName , STATE_CONFIG_FILE) then
+		self.GS = CF_ReadConfigFile(self.ModuleName , STATE_CONFIG_FILE);
+		
+		self.Time = tonumber(self.GS["Time"])
+	end
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
+function VoidWanderers:SaveCurrentGameState()
+	self.GS["Time"] = tostring(self.Time)
+	CF_WriteConfigFile(self.GS , self.ModuleName , STATE_CONFIG_FILE);
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------

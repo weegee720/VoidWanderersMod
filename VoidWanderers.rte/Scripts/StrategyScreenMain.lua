@@ -217,20 +217,6 @@ end
 -----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
-function VoidWanderers:LoadCurrentGameState()
-	if CF_IsFileExists(self.ModuleName , STATE_CONFIG_FILE) then
-		self.GS = CF_ReadConfigFile(self.ModuleName , STATE_CONFIG_FILE);
-	end
-end
------------------------------------------------------------------------------------------
---
------------------------------------------------------------------------------------------
-function VoidWanderers:SaveCurrentGameState()
-	CF_WriteConfigFile(self.GS , self.ModuleName , STATE_CONFIG_FILE);
-end
------------------------------------------------------------------------------------------
---
------------------------------------------------------------------------------------------
 function VoidWanderers:DrawMouseCursor()
 	--for i = 1, self.CURSOR_REDRAW_COUNT do
 		local pix = CreateMOPixel("Cursor");

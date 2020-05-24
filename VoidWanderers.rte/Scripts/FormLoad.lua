@@ -161,7 +161,7 @@ function VoidWanderers:FormLoad()
 	el["Presets"][self.ButtonStates.IDLE] = "SideMenuButtonSmallIdle"
 	el["Presets"][self.ButtonStates.MOUSE_OVER] = "SideMenuButtonSmallMouseOver"
 	el["Presets"][self.ButtonStates.PRESSED] = "SideMenuButtonSmallPressed"
-	el["Pos"] = self.Mid + Vector(self.ResX2 - 70,-self.ResY2 + 12)
+	el["Pos"] = self.Mid + Vector(self.ResX2 - 70 -20,-self.ResY2 + 12 + 20)
 	el["Text"] = "Back"
 	el["Width"] = 140;
 	el["Height"] = 40;
@@ -200,9 +200,9 @@ function VoidWanderers:SaveSlots_OnClick()
 		local config = CF_ReadConfigFile(self.ModuleName , "savegame"..self.MouseOverElement..".dat");
 		CF_WriteConfigFile(config , self.ModuleName , STATE_CONFIG_FILE);
 		self:FormClose();
-		dofile(BASE_PATH.."FormDefault.lua")
-		self:LoadCurrentGameState();
-		self:FormLoad();
+
+		self:LoadCurrentGameState()
+		self:LaunchScript(self.GS["Scene"], "Tactics.lua")
 	end
 end
 -----------------------------------------------------------------------------------------
