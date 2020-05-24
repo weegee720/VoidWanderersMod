@@ -640,8 +640,24 @@ end
 -----------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------
+function CF_GetAngriestPlayer(c)
+	local angriest
+	local rep = 0
 
-
+	for i = 1, CF_MaxCPUPlayers do
+		if c["Player"..i.."Active"] == "True" then
+			if tonumber(c["Player"..i.."Reputation"]) < rep then
+				angriest = i
+				rep = tonumber(c["Player"..i.."Reputation"])
+			end
+		end
+	end
+	
+	return angriest, rep
+end
+-----------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------
 
 
 

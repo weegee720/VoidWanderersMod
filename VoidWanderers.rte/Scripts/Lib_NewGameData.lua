@@ -140,9 +140,9 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 			config["Player".. i .."Type"] = "CPU"
 			
 			if config["Player".. i .."Faction"] == config["Player".. 0 .."Faction"] then
-				config["Player".. i .."Reputation"] = "500"
+				config["Player".. i .."Reputation"] = 500
 			else
-				config["Player".. i .."Reputation"] = "0"
+				config["Player".. i .."Reputation"] = 0
 			end
 			
 			activecpus = activecpus + 1
@@ -154,6 +154,9 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 	end
 	
 	config["ActiveCPUs"] = activecpus
+	-- Give tha last CPU worst reputation
+	-- Debug
+	config["Player".. activecpus .."Reputation"] = -500
 	
 	return config;
 end

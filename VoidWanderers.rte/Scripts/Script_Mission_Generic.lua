@@ -15,10 +15,16 @@ function VoidWanderers:MissionCreate()
 
 	-- Find random enemy players for this map
 	local p1 = math.random(tonumber(self.GS["ActiveCPUs"]))
-	local p2 = math.random(tonumber(self.GS["ActiveCPUs"]))
-		
+	local p2
+	local pret = p1
+	while pret == p1 do
+		pret = math.random(tonumber(self.GS["ActiveCPUs"]))
+	end
+	p2 = pret
+	
+	--print (p1)
+	--print (p2)
 
-	-- TODO calc actual difficulty based on location difficulty
 	local diff = CF_MaxDifficulty
 	local sec
 	
@@ -37,8 +43,8 @@ function VoidWanderers:MissionCreate()
 	
 	self.MissionDifficulty = diff
 	
-	CF_CreateAIUnitPresets(self.GS, p1, CF_GetTechLevelFromDifficulty(self.GS, p1, diff, CF_MaxDifficulty))	
-	CF_CreateAIUnitPresets(self.GS, p2, CF_GetTechLevelFromDifficulty(self.GS, p2, diff, CF_MaxDifficulty))	
+	CF_CreateAIUnitPresets(self.GS, p1, CF_GetTechLevelFromDifficulty(self.GS, p1, diff, CF_MaxDifficulty))
+	CF_CreateAIUnitPresets(self.GS, p2, CF_GetTechLevelFromDifficulty(self.GS, p2, diff, CF_MaxDifficulty))
 	
 	self.MissionCPUPlayers = {}
 	self.MissionCPUTeams = {}
@@ -52,17 +58,12 @@ function VoidWanderers:MissionCreate()
 		local plr
 		local tm
 	
-		if p1 ~= p2 then
-			if i % 2 == 0 then
-				plr = p1
-				tm = 2
-			else
-				plr = p2
-				tm = 3
-			end
-		else
+		if i % 2 == 0 then
 			plr = p1
 			tm = 2
+		else
+			plr = p2
+			tm = 3
 		end
 		
 		local pre = math.random(CF_PresetTypes.ENGINEER)
@@ -92,9 +93,36 @@ function VoidWanderers:MissionCreate()
 			table.insert(self.SpawnTable, nw)
 		end
 	end	
+
+	self.DropShipCount = 0
 	
 	self.MissionStart = self.Time
 	self.MissionNextDropShip = self.Time + CF_AmbientReinforcementsInterval
+
+	-- Find player's enemy
+	self.AngriestPlayer, rep = CF_GetAngriestPlayer(self.GS)
+	if self.AngriestPlayer ~= nil then
+		if self.AngriestPlayer ~= p1 and self.AngriestPlayer ~= p2 then
+			self.AngriestDifficulty = math.floor(math.abs(rep) / 1000)
+			
+			if self.AngriestDifficulty < 0 then
+				self.AngriestDifficulty = 1
+			end
+
+			if self.AngriestDifficulty > CF_MaxDifficulty then
+				self.AngriestDifficulty = CF_MaxDifficulty
+			end
+			
+			CF_CreateAIUnitPresets(self.GS, self.AngriestPlayer, CF_GetTechLevelFromDifficulty(self.GS, self.AngriestPlayer, self.AngriestDifficulty, CF_MaxDifficulty))
+		else
+			self.AngriestPlayer = nil
+		end
+	end
+
+	--print (self.AngriestPlayer)
+	
+	self.MissionNextDropShip2 = self.Time + CF_AmbientReinforcementsInterval * 2.5
+	--self.MissionNextDropShip2 = self.Time + 10 -- Debug
 end
 -----------------------------------------------------------------------------------------
 --
@@ -102,9 +130,9 @@ end
 function VoidWanderers:MissionUpdate()
 	--print (self.MissionNextDropShip - self.Time)
 	if self.Time > self.MissionNextDropShip and #self.MissionLZs > 0 then
-		print ("Craft")
-	
 		self.MissionNextDropShip = self.Time + CF_AmbientReinforcementsInterval + math.random(13)
+
+		self.DropShipCount = self.DropShipCount + 1
 		
 		if MovableMan:GetMOIDCount() < CF_MOIDLimit then
 			local sel
@@ -142,6 +170,29 @@ function VoidWanderers:MissionUpdate()
 		end
 	end
 	
+	-- Spawn green team dropship
+	if self.AngriestPlayer ~= nil and self.Time > self.MissionNextDropShip2 and #self.MissionLZs > 0 then
+		self.MissionNextDropShip2 = self.Time + (CF_AmbientReinforcementsInterval + math.random(13)) * 2.75
+		
+		if MovableMan:GetMOIDCount() < CF_MOIDLimit then
+			local count = 3
+			
+			local f = CF_GetPlayerFaction(self.GS, self.AngriestPlayer)
+			local ship = CF_MakeActor(CF_Crafts[f] , CF_CraftClasses[f] , CF_CraftModules[f]);
+			if ship then
+				for i = 1, count do
+					local actor = CF_SpawnAIUnit(self.GS, self.AngriestPlayer, 1, nil, Actor.AIMODE_BRAINHUNT)
+					if actor then
+						ship:AddInventoryItem(actor)
+					end
+				end
+				ship.Team = 1
+				ship.Pos = Vector(self.MissionLZs[math.random(#self.MissionLZs)].X, -10)
+				ship.AIMode = Actor.AIMODE_DELIVER
+				MovableMan:AddActor(ship)
+			end
+		end
+	end
 	
 	-- Assemble guards near miners from time to time
 	local acts = {}
@@ -186,7 +237,8 @@ function VoidWanderers:MissionUpdate()
 	-- If we have spare actors and some miners then send some random actor to nearest miner to protect
 	-- unless this actor is already close enough
 	-- If we don't have any friendly miners then go to kill enemy miners
-	if #acts > 0 then
+	-- Give orders only after some time to let player fortify
+	if self.DropShipCount > 0 and #acts > 0 then
 		local dest
 		
 		if #miners > 0 then

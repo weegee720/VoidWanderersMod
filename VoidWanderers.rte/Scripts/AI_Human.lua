@@ -344,7 +344,7 @@ function HumanBehaviors.BrainSearch(AI, Owner)
 			Brains = {}
 			
 			for Act in MovableMan.Actors do
-				if Act.Team ~= Owner.Team and actor.ClassName == "AHuman" then
+				if Act.Team ~= Owner.Team and Act.ClassName == "AHuman" then
 					table.insert(Brains, Act)
 				end
 			end
