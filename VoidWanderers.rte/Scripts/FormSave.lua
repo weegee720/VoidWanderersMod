@@ -36,7 +36,6 @@ function VoidWanderers:FormLoad()
 
 			if config["Player0Faction"] ~= nil then
 				self.Slots[i]["Faction"] = CF_FactionNames[config["Player0Faction"]];
-				self.Slots[i]["Ally"] = config["Player0AllyFaction"];
 				self.Slots[i]["Gold"] = config["Player0Gold"];
 				self.Slots[i]["Time"] = config["Time"];
 				self.Slots[i]["TimeStamp"] = config["TimeStamp"];
@@ -99,7 +98,7 @@ function VoidWanderers:FormLoad()
 			el["Type"] = self.ElementTypes.LABEL;
 			el["Preset"] = nil
 			el["Pos"] = self.UI[i]["Pos"] + Vector(0, -15)
-			el["Text"] = "[ "..self.Slots[i]["Ally"].." ]"
+			el["Text"] = ""
 			el["Width"] = 180;
 			el["Height"] = 70;
 			

@@ -39,48 +39,33 @@ function VoidWanderers:FormLoad()
 			
 			-- Check that all used factions are installed
 			for j = 0 , CF_MaxCPUPlayers do
-				local f = config["Player"..j.."Faction"];
-				
-				if f == nil then
-					isbroken = true;
-					break;
-				else
+				if config["Player"..j.."Active"] == "True" then
+					local f = config["Player"..j.."Faction"];
 					
-					if CF_FactionNames[f] == nil or CF_FactionPlayable[f] == false then
+					if f == nil then
 						isbroken = true;
-						reason = "NO "..f
+						break;
+					else
+						if CF_FactionNames[f] == nil or CF_FactionPlayable[f] == false then
+							isbroken = true;
+							reason = "NO "..f
+						end
 					end
 				end
 			end
-			
-			if not isbroken then
-				local f = config["Player0AllyFaction"];
-				
-				if f == nil then
-					isbroken = true;
-					break;
-				else
-					if CF_FactionNames[f] == nil or CF_FactionPlayable[f] == false then
-						isbroken = true;
-						reason = "NO "..f
-					end
-				end
-			end--]]--
 
 			if not isbroken then
 				self.Slots[i]["Faction"] = CF_FactionNames[config["Player0Faction"]];
-				self.Slots[i]["Ally"] = config["Player0AllyFaction"];
 				self.Slots[i]["Gold"] = config["Player0Gold"];
 				self.Slots[i]["Time"] = config["Time"];
+				self.Slots[i]["Reason"] = reason
 				self.Slots[i]["TimeStamp"] = config["TimeStamp"];
 				self.Slots[i]["Empty"] = false;
 			else
 				self.Slots[i]["Faction"] = "Broken slot #"..i.."";
-				self.Slots[i]["Ally"] = reason;
 			end
 		else
 			self.Slots[i]["Faction"] = "EMPTY";
-			self.Slots[i]["Ally"] = "";
 		end
 	end
 
@@ -131,7 +116,7 @@ function VoidWanderers:FormLoad()
 		el["Type"] = self.ElementTypes.LABEL;
 		el["Preset"] = nil
 		el["Pos"] = self.UI[i]["Pos"] + Vector(0, -15)
-		el["Text"] = "[ "..self.Slots[i]["Ally"].." ]"
+		el["Text"] = self.Slots[i]["Reason"]
 		el["Width"] = 180;
 		el["Height"] = 70;
 		

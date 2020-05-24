@@ -401,6 +401,8 @@ function VoidWanderers:UpdateActivity()
 	if self.ObserverPos ~= nil then
 		SceneMan:SetScrollTarget(self.ObserverPos, 0.04, false, 3);	
 	end
+
+	self:ClearObjectivePoints();
 	
 	--Read standard input, ugly but at least it will be operational if mouse fail for
 	-- whatever reason

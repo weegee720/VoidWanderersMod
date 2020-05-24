@@ -27,9 +27,28 @@ function VoidWanderers:InitShipControlPanelUI()
 	end
 	
 	-- Init variables
-	self.ShipControlPanelModes = {LOCATION = 0, PLANET = 1}
+	self.ShipControlPanelModes = {REPORT = 0, LOCATION = 1, PLANET = 2}
+
+	-- Debug
+	--for i = 1, CF_MaxMissionReportLines do
+	--	self.GS["MissionReport"..i] = "STRING "..i
+	--end		
 	
-	self.ShipControlMode = self.ShipControlPanelModes.LOCATION
+	--self.MissionReport = {}
+	
+	if self.MissionReport ~= nil then
+		self.ShipControlMode = self.ShipControlPanelModes.REPORT
+	else
+		self.ShipControlMode = self.ShipControlPanelModes.LOCATION
+	end
+	
+	self.ShipControlSelectedLocation = 1
+	self.ShipControlLocationList = nil
+	self.ShipControlLocationListStart = 1
+	
+	self.ShipControlSelectedPlanet = 1
+	self.ShipControlPlanetListStart = 1
+	self.ShipControlPlanetList = nil
 end
 -----------------------------------------------------------------------------------------
 --
@@ -47,6 +66,12 @@ function VoidWanderers:ProcessShipControlPanelUI()
 	local showidle = true
 	local resetlists = false;
 	
+	-- Forc-show report if we have some report array left from previous mission
+	if self.MissionReport ~= nil then
+		self:SwitchToActor(self.ShipControlPanelActor, 0, CF_PlayerTeam)
+		self.MissionReport = nil
+	end
+
 	for plr = 0 , self.PlayerCount - 1 do
 		local act = self:GetControlledActor(plr);
 	
@@ -70,84 +95,40 @@ function VoidWanderers:ProcessShipControlPanelUI()
 			end
 			
 			local cont = act:GetController()
-
-			if cont:IsState(Controller.PRESS_UP) then
-				if self.ShipControlMode == self.ShipControlPanelModes.LOCATION then
+			local pos = act.Pos
+			
+---------------------------------------------------------------------------------------------------
+			if self.ShipControlMode == self.ShipControlPanelModes.LOCATION then 
+				if cont:IsState(Controller.PRESS_UP) then
 					-- Select location
 					self.ShipControlSelectedLocation = self.ShipControlSelectedLocation - 1
 					if self.ShipControlSelectedLocation < 1 then
 						self.ShipControlSelectedLocation = 1
 					end
-				elseif self.ShipControlMode == self.ShipControlPanelModes.PLANET then
-					-- Select planet
-					self.ShipControlSelectedPlanet = self.ShipControlSelectedPlanet - 1
-					if self.ShipControlSelectedPlanet < 1 then
-						self.ShipControlSelectedPlanet = 1
-					end
 				end
-			end
-
-			if cont:IsState(Controller.PRESS_DOWN) then
-				if self.ShipControlMode == self.ShipControlPanelModes.LOCATION then
-					-- Select planet
+			
+				if cont:IsState(Controller.PRESS_DOWN) then
+					-- Select location
 					self.ShipControlSelectedLocation = self.ShipControlSelectedLocation + 1
 					if self.ShipControlSelectedLocation > #self.ShipControlLocationList then
 						self.ShipControlSelectedLocation = #self.ShipControlLocationList
 					end
-				elseif self.ShipControlMode == self.ShipControlPanelModes.PLANET then
-					-- Select planet
-					self.ShipControlSelectedPlanet = self.ShipControlSelectedPlanet + 1
-					if self.ShipControlSelectedPlanet > #self.ShipControlPlanetList then
-						self.ShipControlSelectedPlanet = #self.ShipControlPlanetList
-					end
 				end
-			end
-			
-			-- Scroll the lists
-			self.ShipControlPlanetListStart = self.ShipControlSelectedPlanet - (self.ShipControlSelectedPlanet - 1) % 3
-			self.ShipControlLocationListStart = self.ShipControlSelectedLocation - (self.ShipControlSelectedLocation - 1) % 3
-
-			if cont:IsState(Controller.PRESS_LEFT) or cont:IsState(Controller.PRESS_RIGHT) then
-				if self.ShipControlMode == self.ShipControlPanelModes.PLANET then
-					self.ShipControlMode = self.ShipControlPanelModes.LOCATION
-				else
-					self.ShipControlMode = self.ShipControlPanelModes.PLANET
-				end
-			end
-			
-			if cont:IsState(Controller.WEAPON_FIRE) then
-				if not self.FirePressed then
-					self.FirePressed = true;
-					
-					if self.ShipControlMode == self.ShipControlPanelModes.LOCATION then
+				
+				if cont:IsState(Controller.WEAPON_FIRE) then
+					if not self.FirePressed then
+						self.FirePressed = true;
+						
 						self.GS["Location"] = self.ShipControlLocationList [ self.ShipControlSelectedLocation ]
 						-- Recreate all lists
 						resetlists = true
-					elseif self.ShipControlMode == self.ShipControlPanelModes.PLANET then
-						-- Travel to another planet
-						self.GS["Planet"] = self.ShipControlPlanetList [ self.ShipControlSelectedPlanet ]
-						self.GS["Location"] = nil
-						-- Recreate all lists
-						resetlists = true
-						
-						if self.GS["Planet"] ~= "TradeStar" then
-							self:TriggerShipAssault()
-						end
 					end
+				else
+					self.FirePressed = false
 				end
-			else
-				self.FirePressed = false
-			end
-			
-			-- Draw generic UI
-			local plntpreset = CF_PlanetGlow[ self.GS["Planet"] ]
-			local plntmodeule = CF_PlanetGlowModule[ self.GS["Planet"] ]
-			local pos = act.Pos
-			self:PutGlow("ControlPanel_Ship_PlanetBack", pos)
-			self:PutGlow("ControlPanel_Ship_LocationList", pos + Vector(0, 89))
-			self:PutGlow(plntpreset, pos, plntmodeule)
-			
-			if self.ShipControlMode == self.ShipControlPanelModes.LOCATION then
+				
+				self.ShipControlLocationListStart = self.ShipControlSelectedLocation - (self.ShipControlSelectedLocation - 1) % 3
+				
 				-- Draw mode specific elements
 				-- Write current location
 				local locname = CF_LocationName[ self.GS["Location"] ]
@@ -185,7 +166,52 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				else
 					CF_DrawString("NO OTHER LOCATIONS", pos + Vector(-62, 77), 130, 12)
 				end
-			elseif self.ShipControlMode == self.ShipControlPanelModes.PLANET then
+				
+				local plntpreset = CF_PlanetGlow[ self.GS["Planet"] ]
+				local plntmodeule = CF_PlanetGlowModule[ self.GS["Planet"] ]
+				self:PutGlow("ControlPanel_Ship_PlanetBack", pos)
+				self:PutGlow("ControlPanel_Ship_LocationList", pos + Vector(0, 89))
+				self:PutGlow(plntpreset, pos, plntmodeule)
+			end
+			
+---------------------------------------------------------------------------------------------------
+			if self.ShipControlMode == self.ShipControlPanelModes.PLANET then
+				if cont:IsState(Controller.PRESS_UP) then
+					-- Select planet
+					self.ShipControlSelectedPlanet = self.ShipControlSelectedPlanet - 1
+					if self.ShipControlSelectedPlanet < 1 then
+						self.ShipControlSelectedPlanet = 1
+					end
+				end
+			
+				if cont:IsState(Controller.PRESS_DOWN) then
+					-- Select planet
+					self.ShipControlSelectedPlanet = self.ShipControlSelectedPlanet + 1
+					if self.ShipControlSelectedPlanet > #self.ShipControlPlanetList then
+						self.ShipControlSelectedPlanet = #self.ShipControlPlanetList
+					end
+				end
+				
+				if cont:IsState(Controller.WEAPON_FIRE) then
+					if not self.FirePressed then
+						self.FirePressed = true;
+						
+						-- Travel to another planet
+						self.GS["Planet"] = self.ShipControlPlanetList [ self.ShipControlSelectedPlanet ]
+						self.GS["Location"] = nil
+						-- Recreate all lists
+						resetlists = true
+						
+						if self.GS["Planet"] ~= "TradeStar" then
+							self:TriggerShipAssault()
+						end
+					end
+				else
+					self.FirePressed = false
+				end
+
+				self.ShipControlPlanetListStart = self.ShipControlSelectedPlanet - (self.ShipControlSelectedPlanet - 1) % 3
+
 				-- Show current planet
 				local locname = CF_PlanetName[ self.GS["Planet"] ]
 				if locname ~= nil then
@@ -204,13 +230,74 @@ function VoidWanderers:ProcessShipControlPanelUI()
 						end
 					end
 				end
+				
+				local plntpreset = CF_PlanetGlow[ self.ShipControlPlanetList [ self.ShipControlSelectedPlanet ] ]
+				local plntmodeule = CF_PlanetGlowModule[ self.ShipControlPlanetList [ self.ShipControlSelectedPlanet ] ]
+				self:PutGlow("ControlPanel_Ship_PlanetBack", pos)
+				self:PutGlow("ControlPanel_Ship_LocationList", pos + Vector(0, 89))
+				self:PutGlow(plntpreset, pos, plntmodeule)
 			end
+			
+			-- Show last mission report
+			if self.ShipControlMode == self.ShipControlPanelModes.REPORT then
+				-- Show current planet
+				self:PutGlow("ControlPanel_Ship_Report", pos)
+				CF_DrawString("MISSION REPORT", pos + Vector(-34,-60), 262, 141)
+
+				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,78))
+				CF_DrawString("Press FIRE to save game", pos + Vector(-60,77), 262, 141)
+				
+				for i = 1, CF_MaxMissionReportLines do
+					if self.GS["MissionReport"..i] ~= nil then
+						CF_DrawString(self.GS["MissionReport"..i], pos + Vector(-130,-56 + i * 10), 262, 141)
+					else
+						break
+					end
+				end
+				
+				if cont:IsState(Controller.WEAPON_FIRE) then
+					if not self.FirePressed then
+						self.FirePressed = true;
+						
+						self:SaveActors()
+						self:SaveCurrentGameState()
+						
+						self:LaunchScript("VoidWanderers Strategy Screen", "StrategyScreenMain.lua")
+						FORM_TO_LOAD = BASE_PATH.."FormSave.lua"
+						self.EnableBrainSelection = false
+						return
+					end
+				else
+					self.FirePressed = false
+				end
+			end
+---------------------------------------------------------------------------------------------------
+			
+			if cont:IsState(Controller.PRESS_LEFT) then
+				self.ShipControlMode = self.ShipControlMode - 1
+				self.ShipSelectedItem = 1
+				self.LastShipSelectedItem = 0
+				
+				if self.ShipControlMode == -1 then
+					self.ShipControlMode = self.ShipControlPanelModes.REPORT
+				end
+			end	
+
+			if cont:IsState(Controller.PRESS_RIGHT) then
+				self.ShipControlMode = self.ShipControlMode + 1
+				self.ShipSelectedItem = 1
+				self.LastShipSelectedItem = 0
+				
+				if self.ShipControlMode == 3 then
+					self.ShipControlMode = self.ShipControlPanelModes.PLANET
+				end
+			end			
 		end
 	end
-	
+
 	if showidle and self.ShipControlPanelPos ~= nil then
 		self:PutGlow("ControlPanel_Ship", self.ShipControlPanelPos)
-		CF_DrawString("SHIP",self.ShipControlPanelPos + Vector(-16,0),120,20 )
+		CF_DrawString("BRIDGE",self.ShipControlPanelPos + Vector(-15,0),120,20 )
 		resetlists = true
 	end
 	

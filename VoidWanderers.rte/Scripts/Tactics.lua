@@ -144,6 +144,10 @@ function VoidWanderers:StartActivity()
 	
 	-- Spawn away-team objects
 	if self.GS["Mode"] == "Mission" then
+		-- All mission related final message will be accumulated in mission report list
+		self.MissionReport = {}
+		self.MissionDeployedTroops = #self.DeployedActors
+	
 		local scene = SceneMan.Scene.PresetName
 
 		self.Pts =  CF_ReadPtsData(scene, self.LS)

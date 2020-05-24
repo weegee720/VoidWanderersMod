@@ -30,6 +30,10 @@ function CF_InitFactions(activity)
 	
 	CF_CratesRate = 0.35
 	
+	CF_EvacDist = 650
+	
+	CF_MaxMissionReportLines = 12
+	
 	CF_AssaultDifficultyTexts = {}
 	CF_AssaultDifficultyTexts[1] = "scout"
 	CF_AssaultDifficultyTexts[2] = "corvette"

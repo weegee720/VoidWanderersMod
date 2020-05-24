@@ -64,7 +64,57 @@ function VoidWanderers:ProcessLZControlPanelUI()
 			local cont = act:GetController()
 			local pos = act.Pos
 			
-			self:PutGlow("ControlPanel_LZ_Button", pos)
+			local safe = false
+			
+			local enemies = 0
+			local friends = 0
+			local unsafefriends = 0
+			
+			local targets = {}
+			local unsafe = {}
+			
+			for actor in MovableMan.Actors do
+				if actor.ClassName == "AHuman" or actor.ClassName == "ACrab" then
+					if actor.Team ~= CF_PlayerTeam then
+						enemies = enemies + 1
+						targets[#targets + 1] = actor.Pos
+					else
+						friends = friends + 1
+						
+						for i = 1, #self.LZControlPanelPos do
+							if CF_Dist(actor.Pos, self.LZControlPanelPos[i]) > CF_EvacDist then
+								unsafefriends = unsafefriends + 1
+								unsafe[#unsafe + 1] = actor.Pos
+							end
+						end
+					end
+				end
+			end
+			
+			if enemies == 0 or friends / 4 > enemies then
+				safe = true
+			end
+			
+			if safe then
+				self:PutGlow("ControlPanel_LZ_Button", pos)
+			else
+				self:PutGlow("ControlPanel_LZ_ButtonRed", pos)
+				if unsafefriends > 0 then
+					CF_DrawString("AND ABANDON "..unsafedriends.." UNITS" , pos + Vector(-30, -0), 130, 20)
+				end
+				
+				if self.Time % 2 == 0 then
+					-- Show hostiles to indicate that they prevent from returning safely
+					for i = 1, #targets do
+						self:AddObjectivePoint("HOSTILE", targets[i] + Vector(0,-40), CF_PlayerTeam, GameActivity.ARROWDOWN);
+					end
+				else
+					-- Show hostiles to indicate that they prevent from returning safely
+					for i = 1, #targets do
+						self:AddObjectivePoint("ABANDONED", unsafe[i] + Vector(0,-40), CF_PlayerTeam, GameActivity.ARROWDOWN);
+					end
+				end
+			end
 			
 			if cont:IsState(Controller.WEAPON_FIRE) then
 				if self.ControlPanelLZPressTime ==nil then
@@ -75,16 +125,28 @@ function VoidWanderers:ProcessLZControlPanelUI()
 				-- Return to ship
 				if self.ControlPanelLZPressTime + CF_TeamReturnDelay - self.Time then
 					self.DeployedActors = {}
-				
+					
+					-- Bring back actors
 					for actor in MovableMan.Actors do
 						if actor.Team == CF_PlayerTeam then
 							local assignable = true
 							local f = CF_GetPlayerFaction(self.GS, 0)
 							
+							-- Check if unit is playable
 							if CF_UnassignableUnits[f] ~= nil then
 								for i = 1, #CF_UnassignableUnits[f] do
 									if actor.PresetName == CF_UnassignableUnits[f][i] then
 										assignable = false
+									end
+								end
+							end
+							
+							-- Check if unit is safe
+							local actorsafe = true
+							if not safe then
+								for i = 1, #self.LZControlPanelPos do
+									if CF_Dist(actor.Pos, self.LZControlPanelPos[i]) > CF_EvacDist then
+										actorsafe = false
 									end
 								end
 							end
@@ -101,11 +163,49 @@ function VoidWanderers:ProcessLZControlPanelUI()
 							end
 						end
 					end
+
+					-- Update casualties report
+					if self.MissionDeployedTroops > #self.DeployedActors then
+						self.MissionReport[#self.MissionReport + 1] = tostring(self.MissionDeployedTroops - #self.DeployedActors) .. " UNITS LOST"
+					else
+						self.MissionReport[#self.MissionReport + 1] = "NO CASUALTIES"
+					end
+					
+					-- Collect items
+					if safe then
+						local itemcount = 0
+						local storage = CF_GetStorageArray(self.GS, false)
+						
+						for item in MovableMan.Items do
+							local count = CF_CountUsedStorageInArray(storage)
+	
+							if  count < tonumber(self.GS["Player0VesselStorageCapacity"]) then
+								CF_PutItemToStorageArray(storage, item.PresetName, item.ClassName)
+								itemcount = itemcount + 1
+							else
+								break
+							end
+						end
+					
+						CF_SetStorageArray(self.GS, storage)
+						
+						self.MissionReport[#self.MissionReport + 1] = tostring(itemcount).." items collected"
+					end
+					
+					-- Dump mission report to config to be saved 
+					for i = 1, CF_MaxMissionReportLines do
+						self.GS["MissionReport"..i] = nil
+					end					
+					
+					for i = 1, #self.MissionReport do
+						self.GS["MissionReport"..i] = self.MissionReport[i]
+					end
+					
 					
 					local scene = CF_VesselScene[self.GS["Player0Vessel"]]
 					-- Set new operating mode
 					self.GS["Mode"] = "Vessel"
-					self.GS["SceneType"] = "Vessel"					
+					self.GS["SceneType"] = "Vessel"
 
 					self:SaveCurrentGameState();
 					
