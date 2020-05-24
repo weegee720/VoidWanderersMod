@@ -258,7 +258,7 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 					end
 					
 					-- Create new item object
-					self.StorageControlPanelObject = CF_MakeItem2(self.StorageItems[itm]["Preset"], self.StorageItems[itm]["Class"])
+					self.StorageControlPanelObject = CF_MakeItem(self.StorageItems[itm]["Preset"], self.StorageItems[itm]["Class"], self.StorageItems[itm]["Module"])
 					if self.StorageControlPanelObject ~= nil then
 						MovableMan:AddItem(self.StorageControlPanelObject)
 						self.StorageControlPanelObject.HitsMOs = false
@@ -296,7 +296,7 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 									end
 								end
 								
-								local item = CF_MakeItem2(self.StorageItems[itm]["Preset"], self.StorageItems[itm]["Class"])
+								local item = CF_MakeItem(self.StorageItems[itm]["Preset"], self.StorageItems[itm]["Class"], self.StorageItems[itm]["Module"])
 								if item ~= nil then
 									if hasactor then
 										foundactor:AddInventoryItem(item)
@@ -419,7 +419,7 @@ function VoidWanderers:ProcessStorageControlPanelUI()
 
 						-- Put item to storage
 						if self.Time >= self.StorageLastDetectedItemTime + self.StorageInputDelay and CF_CountUsedStorageInArray(self.StorageItems) < tonumber(self.GS["Player0VesselStorageCapacity"]) then
-							local needrefresh = CF_PutItemToStorageArray(self.StorageItems, item.PresetName, item.ClassName)
+							local needrefresh = CF_PutItemToStorageArray(self.StorageItems, item.PresetName, item.ClassName, CF_GetModuleName(item:GetModuleAndPresetName()))
 							
 							item.ToDelete = true
 

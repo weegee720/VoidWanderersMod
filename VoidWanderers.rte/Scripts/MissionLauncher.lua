@@ -42,12 +42,6 @@ function VoidWanderers:StartActivity()
 	
 	-- Load custom AI
 	--print (CF_UseCustomAI)
-
-	CF_UseCustomAI = true
-	
-	if CF_UseCustomAI then
-		dofile(LIB_PATH.."AI_Human.lua")
-	end
 	
 	if TRANSFER_IN_PROGRESS == nil then
 		TRANSFER_IN_PROGRESS = false
@@ -109,24 +103,6 @@ end
 -----------------------------------------------------------------------------------------
 function VoidWanderers:PauseActivity(pause)
     print("PAUSE! -- VoidWanderers:PauseActivity()!");
-	
-	-- Restore original AI
-	if Original_HumanBehaviors ~= nil then
-		HumanBehaviors = Original_HumanBehaviors
-	end
-	self.WasPaused = true
-	
-	print ("Original AI restored")
-end
------------------------------------------------------------------------------------------
--- Restore cripled AI
------------------------------------------------------------------------------------------
-function VoidWanderers:RestoreAI()
-	if Custom_HumanBehaviors ~= nil and not self:Paused()  then
-		print ("Custom AI restored")
-		HumanBehaviors = Custom_HumanBehaviors
-		self.WasPaused = false
-	end
 end
 -----------------------------------------------------------------------------------------
 -- End Activity
@@ -160,6 +136,12 @@ function VoidWanderers:LoadCurrentGameState()
 		
 			self.GS["Planet"] = CF_Planet[1]
 			self.GS["Location"] = nil
+		end
+		
+		if self.GS["Difficulty"] then
+			local diff = tonumber(self.GS["Difficulty"])
+			
+			self.Difficulty = diff;
 		end
 		
 		-- Check missions for missing scenes, if any of them found - recreate missions

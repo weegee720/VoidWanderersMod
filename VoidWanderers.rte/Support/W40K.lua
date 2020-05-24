@@ -1,41 +1,42 @@
 --print("W40K.lua")
 
-io = require("io");
-
 local paths = {}
 local factns = {}
 
 local n = #factns + 1
 factns[n] = {}
 factns[n]["Line"] = "Imperial Guard.ini"
-factns[n]["Path"] = "./W40K.rte/Other Mod Support/UnmappedLands2/Factions/40K - Imperial Guard.lua"
+factns[n]["Path"] = "W40K.rte/Other Mod Support/UnmappedLands2/Factions/40K - Imperial Guard.lua"
 
 local n = #factns + 1
 factns[n] = {}
 factns[n]["Line"] = "Black Templars.ini"
-factns[n]["Path"] = "./W40K.rte/Other Mod Support/UnmappedLands2/Factions/40K - Black Templars.lua"
+factns[n]["Path"] = "W40K.rte/Other Mod Support/UnmappedLands2/Factions/40K - Black Templars.lua"
 
 local n = #factns + 1
 factns[n] = {}
 factns[n]["Line"] = "Blood Angels.ini"
-factns[n]["Path"] = "./W40K.rte/Other Mod Support/UnmappedLands2/Factions/40K - Blood Angels.lua"
+factns[n]["Path"] = "W40K.rte/Other Mod Support/UnmappedLands2/Factions/40K - Blood Angels.lua"
 
 local n = #factns + 1
 factns[n] = {}
 factns[n]["Line"] = "Dark Angels.ini"
-factns[n]["Path"] = "./W40K.rte/Other Mod Support/UnmappedLands2/Factions/40K - Dark Angels.lua"
+factns[n]["Path"] = "W40K.rte/Other Mod Support/UnmappedLands2/Factions/40K - Dark Angels.lua"
 
 local n = #factns + 1
 factns[n] = {}
 factns[n]["Line"] = "Space Wolves.ini"
-factns[n]["Path"] = "./W40K.rte/Other Mod Support/UnmappedLands2/Factions/40K - Space Wolves.lua"
+factns[n]["Path"] = "W40K.rte/Other Mod Support/UnmappedLands2/Factions/40K - Space Wolves.lua"
 
 local n = #factns + 1
 factns[n] = {}
 factns[n]["Line"] = "Ultra Marines.ini"
-factns[n]["Path"] = "./W40K.rte/Other Mod Support/UnmappedLands2/Factions/40K - Ultramarines.lua"
+factns[n]["Path"] = "W40K.rte/Other Mod Support/UnmappedLands2/Factions/40K - Ultramarines.lua"
 
-for line in io.lines("./W40K.rte/Factions.ini") do
+local f = LuaMan:FileOpen("W40K.rte/Factions.ini", "rt");
+while not LuaMan:FileEOF(f) do
+	line = LuaMan:FileReadLine(f)
+
 	local s
 
 	s = string.gsub(line , "\n" , "");
@@ -59,6 +60,8 @@ for line in io.lines("./W40K.rte/Factions.ini") do
 		end
 	end
 end
+
+LuaMan:FileClose(f)
 
 for i = 1, #paths do
 	print ("Support load: "..paths[i])

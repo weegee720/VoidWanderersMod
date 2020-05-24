@@ -1,17 +1,13 @@
 -----------------------------------------------------------------------------------------
 -- Initializes all game data when new game started and returns new config
 -----------------------------------------------------------------------------------------
-function CF_MakeNewConfig(difficulty, f, cpus)
+function CF_MakeNewConfig(difficulty, f, cpus, activity)
 	local config = {};
 	local gameplay = true;
 
 	-- Init game time
 	config["Time"] = 0;
 	
-	-- Set save timestamp
-	local os = require("os");
-	config["TimeStamp"] = os.date("%d.%m.%y %H:%M");
-
 	local PositiveIndex;
 	local NegativeIndex;
 	
@@ -49,15 +45,19 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 		
 		config["MissionDifficultyBonus"] = 3
 	end			
+
+	config["Difficulty"] = difficulty
 	
 	config["PositiveIndex"] = PositiveIndex
 	config["NegativeIndex"] = NegativeIndex
+	
+	config["FogOfWar"] = activity:GetFogOfWarEnabled()
 	
 	-- Set up players
 	config["Player0Faction"] = f
 	config["Player0Active"] = "True"
 	config["Player0Type"] = "Player"
-	config["Player0Gold"] = math.floor(4000 * PositiveIndex)
+	config["Player0Gold"] = math.floor(activity:GetStartingGold())
 	
 	-- Assign player ship
 	config["Player0Vessel"] = "Lynx"
@@ -127,15 +127,17 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 		else
 			config["ClonesStorage"..i.."Class"] = "AHuman"
 		end
+		config["ClonesStorage"..i.."Module"] = CF_ActModules[f][found]
 		
 		local slt = 1
 		for j = #weaps, 1 , -1 do
-			config[ "ClonesStorage"..i.."Item"..slt.."Preset"] = CF_ItmPresets[f][weaps[j] ]
+			config[ "ClonesStorage"..i.."Item"..slt.."Preset"] = CF_ItmPresets[f][ weaps[j] ]
 			if CF_ItmClasses[f][weaps[j] ] ~= nil then
-				config[ "ClonesStorage"..i.."Item"..slt.."Class"] = CF_ItmClasses[f][weaps[j] ]
+				config[ "ClonesStorage"..i.."Item"..slt.."Class"] = CF_ItmClasses[f][ weaps[j] ]
 			else
 				config[ "ClonesStorage"..i.."Item"..slt.."Class"] = "HDFirearm"
 			end
+			config[ "ClonesStorage"..i.."Item"..slt.."Module"] = CF_ItmModules[f][ weaps[j] ]
 			slt = slt + 1
 		end
 	end--]]--
@@ -144,12 +146,13 @@ function CF_MakeNewConfig(difficulty, f, cpus)
 	local slt = 1
 	
 	for j = #weaps, 1 , -1 do
-		config["ItemStorage"..slt.."Preset"] = CF_ItmPresets[f][weaps[j]]
+		config["ItemStorage"..slt.."Preset"] = CF_ItmPresets[f][ weaps[j] ]
 		if CF_ItmClasses[f][weaps[j]] ~= nil then
-			config["ItemStorage"..slt.."Class"] = CF_ItmClasses[f][weaps[j]]
+			config["ItemStorage"..slt.."Class"] = CF_ItmClasses[f][ weaps[j] ]
 		else
 			config["ItemStorage"..slt.."Class"] = "HDFirearm"
 		end
+		config["ItemStorage"..slt.."Module"] = CF_ItmModules[f][ weaps[j] ]
 		config["ItemStorage"..slt.."Count"] = 4
 		slt = slt + 1
 	end

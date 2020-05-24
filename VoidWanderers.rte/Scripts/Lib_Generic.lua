@@ -41,10 +41,10 @@ function CF_InitFactions(activity)
 	CF_BombSeenRange = 150
 	CF_BombUnseenRange = 400
 	
-	CF_KeyRepeatDelay = 175
+	CF_KeyRepeatDelay = 100
 	
 	CF_MaxLevel = 100
-	CF_ExpPerLevel = 500
+	CF_ExpPerLevel = 250
 	
 	CF_QuantumCapacityPerLevel = 50
 	CF_QuantumSplitterEffectiveness = 0.2
@@ -178,7 +178,6 @@ function CF_InitFactions(activity)
 	
 	CF_EnableAssaults = true -- Set to false to disable assaults
 	
-	CF_FogOfWarEnabled = true -- Gameplay value
 	CF_FogOfWarResolution = 144
 	
 	CF_Factions = {};
@@ -327,12 +326,7 @@ function CF_InitFactions(activity)
 	CF_Music[CF_MusicTypes.MISSION_INTENSE] = {}
 	
 	-- Load factions
-	if CF_IsFilePathExists("./Factions2/Factions.cfg") then
-		CF_FactionFiles = CF_ReadFactionsList("Factions2/Factions.cfg", "./Factions2/")
-		print ("USING FACTIONS2 FOLDER!")
-	else
-		CF_FactionFiles = CF_ReadFactionsList(CF_ModuleName.."/Factions/Factions.cfg" , "./"..CF_ModuleName.."/Factions/")
-	end
+	CF_FactionFiles = CF_ReadFactionsList(CF_ModuleName.."/Factions/Factions.cfg" , ""..CF_ModuleName.."/Factions/")
 	
 	-- Load factions data
 	for i = 1, #CF_FactionFiles do
@@ -540,9 +534,9 @@ function CF_InitFactions(activity)
 	CF_InitExtensionsData(activity)
 	
 	-- Load extensions
-	CF_ExtensionFiles = CF_ReadExtensionsList(CF_ModuleName.."/Extensions/Extensions.cfg")
+	CF_ExtensionFiles = CF_ReadExtensionsList(CF_ModuleName.."/Extensions/Extensions.cfg", ""..CF_ModuleName.."/Extensions/")
 	
-	local extensionstorage = "./"..CF_ModuleName.."/Extensions/"
+	local extensionstorage = ""..CF_ModuleName.."/Extensions/"
 	
 	-- Load factions data
 	for i = 1, #CF_ExtensionFiles do
@@ -553,7 +547,7 @@ function CF_InitFactions(activity)
 		else
 			print ("ERROR!!! Could not load: "..CF_ExtensionFiles[i])
 		end]]--
-		dofile(extensionstorage..CF_ExtensionFiles[i])
+		dofile(CF_ExtensionFiles[i])
 	end
 end
 -----------------------------------------------------------------------------------------
@@ -609,7 +603,7 @@ end
 -- 
 -----------------------------------------------------------------------------------------
 function CF_StartMusic(modulename , musicfile)
-	local path = "./"..modulename.."/Music/"..musicfile
+	local path = ""..modulename.."/Music/"..musicfile
 
 	if CF_IsFilePathExists(path) then
 		AudioMan:ClearMusicQueue();
@@ -858,19 +852,23 @@ end
 -- Make item of specified preset, module and class
 -----------------------------------------------------------------------------------------
 function CF_MakeItem(item, class, module)
-	-- print ("CF_MakeItem")
-	if class == nil then
-		class = "HDFirearm"
-	end
-	
-	if class == "HeldDevice" then
-		return CreateHeldDevice(item, module)
-	elseif class == "HDFirearm" then
-		return CreateHDFirearm(item, module)
-	elseif class == "TDExplosive" then
-		return CreateTDExplosive(item, module)
-	elseif class == "ThrownDevice" then
-		return CreateThrownDevice(item, module)
+	if module == nil then
+		return CF_MakeItem2(item, class)
+	else
+		-- print ("CF_MakeItem")
+		if class == nil then
+			class = "HDFirearm"
+		end
+		
+		if class == "HeldDevice" then
+			return CreateHeldDevice(item, module)
+		elseif class == "HDFirearm" then
+			return CreateHDFirearm(item, module)
+		elseif class == "TDExplosive" then
+			return CreateTDExplosive(item, module)
+		elseif class == "ThrownDevice" then
+			return CreateThrownDevice(item, module)
+		end
 	end
 	
 	return nil;
@@ -879,6 +877,8 @@ end
 -- Make item of specified preset, module and class
 -----------------------------------------------------------------------------------------
 function CF_MakeItem2(item, class)
+	print ("MakeItem2 " .. " " .. item .. " " .. class)
+
 	-- print ("CF_MakeItem")
 	if class == nil then
 		class = "HDFirearm"
@@ -887,11 +887,13 @@ function CF_MakeItem2(item, class)
 	if class == "HeldDevice" then
 		return CreateHeldDevice(item)
 	elseif class == "HDFirearm" then
-		if item == "Pistol" then
-			return CreateHDFirearm(item, "Coalition.rte")
-		else
-			return CreateHDFirearm(item)
+		for k,v in pairs(CF_ItemReplacements) do
+			if k == item then
+				print ("  Item replaced "..item.." "..v)
+				return CreateHDFirearm(item, v)
+			end
 		end
+		return CreateHDFirearm(item)
 	elseif class == "TDExplosive" then
 		return CreateTDExplosive(item)
 	elseif class == "ThrownDevice" then
@@ -904,21 +906,25 @@ end
 -- Make actor of specified preset, module and class
 -----------------------------------------------------------------------------------------
 function CF_MakeActor(item, class, module)
-	-- print ("CF_MakeItem")
-	if class == nil then
-		class = "AHuman"
-	end
-	
-	if class == "AHuman" then
-		return CreateAHuman(item, module)
-	elseif class == "ACrab" then
-		return CreateACrab(item, module)
-	elseif class == "Actor" then
-		return CreateActor(item, module)
-	elseif class == "ACDropShip" then
-		return CreateACDropShip(item, module)
-	elseif class == "ACRocket" then
-		return CreateACRocket(item, module)
+	if module == nil then
+		return CF_MakeActor2(item, class)
+	else
+		-- print ("CF_MakeItem")
+		if class == nil then
+			class = "AHuman"
+		end
+		
+		if class == "AHuman" then
+			return CreateAHuman(item, module)
+		elseif class == "ACrab" then
+			return CreateACrab(item, module)
+		elseif class == "Actor" then
+			return CreateActor(item, module)
+		elseif class == "ACDropShip" then
+			return CreateACDropShip(item, module)
+		elseif class == "ACRocket" then
+			return CreateACRocket(item, module)
+		end
 	end
 	
 	return nil;
@@ -927,6 +933,8 @@ end
 -- Make actor of specified preset, module and class
 -----------------------------------------------------------------------------------------
 function CF_MakeActor2(item, class)
+	print ("MakeActor2 " .. " " .. item .. " " .. class)
+
 	-- print ("CF_MakeItem")
 	if class == nil then
 		class = "AHuman"
@@ -991,6 +999,7 @@ function CF_GetInventory(actor)
 	--print("GetInventory")
 	local inventory = {}
 	local classes = {}
+	local modules = {}
 
 	if MovableMan:IsActor(actor) then
 		if actor.ClassName == "AHuman" then
@@ -1012,6 +1021,7 @@ function CF_GetInventory(actor)
 					if not skip then
 						inventory[#inventory + 1] = human.EquippedItem.PresetName;
 						classes[#classes + 1] = human.EquippedItem.ClassName;
+						modules[#modules + 1] = CF_GetModuleName(human.EquippedItem:GetModuleAndPresetName())
 					end
 				end
 				
@@ -1043,6 +1053,7 @@ function CF_GetInventory(actor)
 					if not skip then
 						inventory[#inventory + 1] = weap.PresetName;
 						classes[#classes + 1] = weap.ClassName;
+						modules[#modules + 1] = CF_GetModuleName(weap:GetModuleAndPresetName())
 					end
 				end
 			end
@@ -1052,7 +1063,7 @@ function CF_GetInventory(actor)
 		--print(actor);
 	end
 	
-	return inventory, classes;
+	return inventory, classes, modules;
 end
 -----------------------------------------------------------------------------------------
 -- Calculate distance
@@ -1131,7 +1142,13 @@ function CF_GiveExp(c, exppts)
 		local cursklpts = tonumber(c["Brain"..p.."SkillPoints"])
 		local curlvl = tonumber(c["Brain"..p.."Level"])
 		
+		--print ("Curexp "..curexp)
+		--print ("Exppts "..exppts)
+		
 		curexp = curexp + exppts
+		
+		--print (CF_ExpPerLevel)
+		--print (math.floor(curexp / CF_ExpPerLevel))
 		
 		while math.floor(curexp / CF_ExpPerLevel) > 0 do
 			if curlvl < CF_MaxLevel then
@@ -1139,6 +1156,11 @@ function CF_GiveExp(c, exppts)
 				cursklpts = cursklpts + 1
 				curlvl = curlvl + 1
 				levelup = true
+				
+				--print (levelup)
+			else
+				curexp = 0
+				break
 			end
 		end
 	
@@ -1152,14 +1174,25 @@ end
 -----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
+function CF_GetModuleName(s)
+	local pos;
+	
+	pos = string.find(s ,"/");
+	
+	if pos ~= nil then
+		local  preset , module;
 
+		module = string.sub(s , 1 , pos - 1);
+		preset = string.sub(s , pos + 1 , string.len(s));
 
-
-
-
-
-
-
+		return module:lower()
+	else
+		return nil
+	end
+end
+-----------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------
 
 
 

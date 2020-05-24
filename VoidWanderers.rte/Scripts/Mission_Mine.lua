@@ -61,7 +61,7 @@ function VoidWanderers:MissionCreate()
 	
 	self.MissionSettings = setts[self.MissionDifficulty]
 	self.MissionStart = self.Time
-	self.MissionAllySpawnInterval = 50
+	self.MissionAllySpawnInterval = 20
 	self.MissionLastReinforcements = self.Time + self.MissionAllySpawnInterval
 	self.MissionLastAllyReinforcements = self.Time - 1
 	
@@ -129,6 +129,10 @@ function VoidWanderers:MissionUpdate()
 		end--]]--
 		
 		self.MissionStatus = "MINERS: "..count.."/"..self.MissionSettings["MinersNeeded"]
+		
+		if self.Time % 2 == 0 and self.MissionSettings["AllyReinforcementsCount"] > 0 and count < self.MissionSettings["MinersNeeded"] and self.Time < self.MissionLastAllyReinforcements + self.MissionAllySpawnInterval then
+			self.MissionStatus = "MINERS ARRIVE IN T-".. self.MissionLastAllyReinforcements + self.MissionAllySpawnInterval - self.Time
+		end
 
 		if count >= self.MissionSettings["MinersNeeded"] then
 			if self.MissionEnoughMiners == false then

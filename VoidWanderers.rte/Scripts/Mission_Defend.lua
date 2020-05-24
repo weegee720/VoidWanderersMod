@@ -75,8 +75,8 @@ function VoidWanderers:MissionCreate()
 	-- Remove all non-player doors, because allied units will be deployed inside CPU bases
 	if CF_LocationRemoveDoors[self.GS["Location"]] ~= nil and CF_LocationRemoveDoors[self.GS["Location"]] == true then
 		for actor in MovableMan.Actors do
-			if actor.Team ~= CF_PlayerTeam and actor.ClassName == "ADoor" then
-				actor.ToDelete = true
+			if actor.ClassName == "ADoor" then
+				actor.Team = CF_PlayerTeam;
 			end
 		end
 	end

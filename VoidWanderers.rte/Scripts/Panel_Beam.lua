@@ -130,22 +130,22 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 						
 						if count <= limit then
 							if count > 0 then
-								CF_DrawString("Deploy away team on "..CF_LocationName[ self.GS["Location"] ], pos + Vector(-55, -6), 124, 36)
+								CF_DrawString("Deploy away team on "..CF_LocationName[ self.GS["Location"] ], pos + Vector(-55, -6), 120, 36)
 								canbeam = true
 							else
-								CF_DrawString("No units on the landing deck", pos + Vector(-50, -6), 124, 36)
+								CF_DrawString("No units on the landing deck", pos + Vector(-50, -6), 120, 36)
 								canbeam = false
 							end
 						else
-							CF_DrawString("Too many units!", pos + Vector(-35, -6), 124, 36)
+							CF_DrawString("Too many units!", pos + Vector(-35, -6), 120, 36)
 							canbeam = false
 						end
 					else
-						CF_DrawString("Can't deploy to "..CF_LocationName[ self.GS["Location"] ], pos + Vector(-50, -6), 124, 36)
+						CF_DrawString("Can't deploy to "..CF_LocationName[ self.GS["Location"] ], pos + Vector(-50, -6), 120, 36)
 						canbeam = false
 					end
 				else
-					CF_DrawString("Can't deploy units into space", pos + Vector(-50,0), 124, 36)
+					CF_DrawString("Can't deploy units into space", pos + Vector(-50,0), 120, 36)
 					canbeam = false
 				end
 			end
@@ -168,7 +168,7 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 						local count = CF_CountUsedStorageInArray(self.StorageItems)
 
 						if  count < tonumber(self.GS["Player0VesselStorageCapacity"]) then
-							CF_PutItemToStorageArray(self.StorageItems, item.PresetName, item.ClassName)
+							CF_PutItemToStorageArray(self.StorageItems, item:GetModuleAndPresetName(), item.ClassName)
 						else
 							break
 						end
@@ -184,7 +184,7 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 					-- Save actors to config and transfer them to scene
 					for actor in MovableMan.Actors do
 						if actor.HitsMOs and actor.GetsHitByMOs and actor.PresetName ~= "Brain Case" and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") then
-							local pre, cls = CF_GetInventory(actor)
+							local pre, cls, mdl = CF_GetInventory(actor)
 						
 							-- These actors must be deployed
 							if self.BeamControlPanelBox:WithinBox(actor.Pos) then
@@ -192,18 +192,22 @@ function VoidWanderers:ProcessBeamControlPanelUI()
 								self.DeployedActors[n] = {}
 								self.DeployedActors[n]["Preset"] = actor.PresetName
 								self.DeployedActors[n]["Class"] = actor.ClassName
+								self.DeployedActors[n]["Module"] = CF_GetModuleName(actor:GetModuleAndPresetName())
 								self.DeployedActors[n]["InventoryPresets"] = pre
 								self.DeployedActors[n]["InventoryClasses"] = cls
+								self.DeployedActors[n]["InventoryModules"] = mdl
 							else
 								-- Save actors to config
 								self.GS["Actor"..savedactor.."Preset"] = actor.PresetName
 								self.GS["Actor"..savedactor.."Class"] = actor.ClassName
+								self.GS["Actor"..savedactor.."Module"] = CF_GetModuleName(actor:GetModuleAndPresetName())
 								self.GS["Actor"..savedactor.."X"] = math.floor(actor.Pos.X)
 								self.GS["Actor"..savedactor.."Y"] = math.floor(actor.Pos.Y)
 								
 								for j = 1, #pre do
 									self.GS["Actor"..savedactor.."Item"..j.."Preset"] = pre[j]
 									self.GS["Actor"..savedactor.."Item"..j.."Class"] = cls[j]
+									self.GS["Actor"..savedactor.."Item"..j.."Module"] = mdl[j]
 								end
 
 								savedactor = savedactor + 1

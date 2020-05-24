@@ -72,7 +72,7 @@ function VoidWanderers:ProcessLZControlPanelUI()
 					
 					local bombpos = Vector(self.BombingTarget - self.BobmingRange / 2 + math.random(self.BobmingRange), -40)
 					
-					local bomb = CF_MakeItem2(self.BombPayload[self.BombingCount]["Preset"], self.BombPayload[self.BombingCount]["Class"])
+					local bomb = CF_MakeItem(self.BombPayload[self.BombingCount]["Preset"], self.BombPayload[self.BombingCount]["Class"], self.BombPayload[self.BombingCount]["Module"])
 					if bomb then
 						bomb.Pos = bombpos
 						MovableMan:AddItem(bomb)
@@ -298,14 +298,16 @@ function VoidWanderers:ProcessLZControlPanelUI()
 								end
 							
 								if actorsafe and assignable and actor.PresetName ~= "LZ Control Panel" and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") then
-									local pre, cls = CF_GetInventory(actor)
+									local pre, cls , mdl = CF_GetInventory(actor)
 									-- These actors must be deployed
 									local n =  #self.DeployedActors + 1
 									self.DeployedActors[n] = {}
 									self.DeployedActors[n]["Preset"] = actor.PresetName
 									self.DeployedActors[n]["Class"] = actor.ClassName
+									self.DeployedActors[n]["Module"] = CF_GetModuleName(actor:GetModuleAndPresetName())
 									self.DeployedActors[n]["InventoryPresets"] = pre
 									self.DeployedActors[n]["InventoryClasses"] = cls
+									self.DeployedActors[n]["InventoryModules"] = mdl
 									--print (#pre)
 								end
 							end
@@ -345,7 +347,7 @@ function VoidWanderers:ProcessLZControlPanelUI()
 								local count = CF_CountUsedStorageInArray(storage)
 		
 								if  count < tonumber(self.GS["Player0VesselStorageCapacity"]) then
-									CF_PutItemToStorageArray(storage, item.PresetName, item.ClassName)
+									CF_PutItemToStorageArray(storage, item.PresetName, item.ClassName, CF_GetModuleName(item:GetModuleAndPresetName()))
 									itemcount = itemcount + 1
 								else
 									break
@@ -365,7 +367,7 @@ function VoidWanderers:ProcessLZControlPanelUI()
 						end
 						
 						-- Save fog of war
-						if CF_FogOfWarEnabled then
+						if self.GS["FogOfWar"] and self.GS["FogOfWar"] == "true" then
 							self:SaveFogOfWarState(self.GS)
 						end
 						
@@ -494,6 +496,7 @@ function VoidWanderers:ProcessLZControlPanelUI()
 									self.BombPayload[n] = {}
 									self.BombPayload[n]["Preset"] = self.Bombs[self.BombsControlPanelSelectedItem]["Preset"]
 									self.BombPayload[n]["Class"] = self.Bombs[self.BombsControlPanelSelectedItem]["Class"]
+									self.BombPayload[n]["Module"] = self.Bombs[self.BombsControlPanelSelectedItem]["Module"]
 								end
 							end
 						end

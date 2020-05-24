@@ -245,7 +245,7 @@ function VoidWanderers:BtnOk_OnClick()
 	
 	-- Create new game data
 	dofile(LIB_PATH.."Lib_NewGameData.lua");
-	config = CF_MakeNewConfig(self.Difficulty, player, cpu);
+	config = CF_MakeNewConfig(self.Difficulty, player, cpu, self);
 	CF_MakeNewConfig = nil;
 	
 	CF_WriteConfigFile(config , self.ModuleName , STATE_CONFIG_FILE);
@@ -295,6 +295,7 @@ function VoidWanderers:FormClick()
 			if actor == nil then
 				self.NoMOIDPlaceholders[self.Phase] = true
 			else
+				actor.HFlipped = false
 				actor:SetControllerMode(Controller.CIM_DISABLED,-1)
 			end
 			self.Phase = self.Phase + 1
@@ -320,6 +321,7 @@ function VoidWanderers:FormClick()
 				if actor == nil then
 					self.NoMOIDPlaceholders[self.Phase] = true
 				else
+					actor.HFlipped = false
 					actor:SetControllerMode(Controller.CIM_DISABLED,-1)
 				end
 				self.Phase = self.Phase + 1
@@ -343,6 +345,7 @@ function VoidWanderers:FormClick()
 				if actor == nil then
 					self.NoMOIDPlaceholders[self.Phase] = true
 				else
+					actor.HFlipped = false
 					actor:SetControllerMode(Controller.CIM_DISABLED,-1)
 				end
 				self.Phase = self.Phase + 1			

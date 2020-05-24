@@ -74,8 +74,8 @@ function VoidWanderers:MissionCreate()
 	
 	-- Remove doors
 	for actor in MovableMan.Actors do
-		if actor.Team ~= CF_CPUTeam and actor.ClassName == "ADoor" then
-			actor.ToDelete = true
+		if actor.ClassName == "ADoor" then
+			actor.Team = CF_CPUTeam;
 		end
 	end--]]--
 	

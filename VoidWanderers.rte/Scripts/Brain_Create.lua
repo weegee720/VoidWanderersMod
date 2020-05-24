@@ -172,81 +172,6 @@ function do_rpgbrain_create(self)
 		self.Skills = {}
 		local count = 0
 		
-		-- Commands skill menu
-		-- Commands skill sub-menu
-		self.Orders = {}
-
-		local o = #self.Orders + 1
-		self.Orders[o]	= {}
-		self.Orders[o]["Text"] = "Toggle go to"
-		self.Orders[o]["ActorDetectRange"] = CF_OrdersRange	* 2
-		self.Orders[o]["DetectAllActors"] = true
-		self.Orders[o]["Count"] = -1
-		self.Orders[o]["Function"] = rpgbrain_orders_goto
-		self.GotoOrderIndex = o
-		
-		if CF_GS["Brain"..self.BrainNumber.."GotoEnabled"] == "true" then
-			self.Orders[o]["State"] = "On"
-		else
-			self.Orders[o]["State"] = "Off"
-		end
-		
-		local o = #self.Orders + 1
-		self.Orders[o]	= {}
-		self.Orders[o]["Text"] = "Follow"
-		self.Orders[o]["ActorDetectRange"] = CF_OrdersRange		
-		self.Orders[o]["DetectAllActors"] = true
-		self.Orders[o]["Count"] = -1
-		self.Orders[o]["Function"] = rpgbrain_orders_follow
-
-		local o = #self.Orders + 1
-		self.Orders[o]	= {}
-		self.Orders[o]["Text"] = "Dig"
-		self.Orders[o]["ActorDetectRange"] = CF_OrdersRange		
-		self.Orders[o]["DetectAllActors"] = true
-		self.Orders[o]["Count"] = -1
-		self.Orders[o]["Function"] = rpgbrain_orders_dig
-
-		local o = #self.Orders + 1
-		self.Orders[o]	= {}
-		self.Orders[o]["Text"] = "Sentry"
-		self.Orders[o]["ActorDetectRange"] = CF_OrdersRange		
-		self.Orders[o]["DetectAllActors"] = true
-		self.Orders[o]["Count"] = -1
-		self.Orders[o]["Function"] = rpgbrain_orders_sentry
-
-		local o = #self.Orders + 1
-		self.Orders[o]	= {}
-		self.Orders[o]["Text"] = "Brain Hunt"
-		self.Orders[o]["ActorDetectRange"] = CF_OrdersRange		
-		self.Orders[o]["DetectAllActors"] = true
-		self.Orders[o]["Count"] = -1
-		self.Orders[o]["Function"] = rpgbrain_orders_brainhunt
-		
-		local o = #self.Orders + 1
-		self.Orders[o]	= {}
-		self.Orders[o]["Text"] = "Link"
-		self.Orders[o]["ActorDetectRange"] = CF_OrdersRange
-		self.Orders[o]["DetectAllActors"] = true
-		self.Orders[o]["Count"] = -1
-		self.Orders[o]["Function"] = rpgbrain_orders_link
-		
-		local o = #self.Orders + 1
-		self.Orders[o]	= {}
-		self.Orders[o]["Text"] = "BACK"
-		self.Orders[o]["Count"] = -1
-		self.Orders[o]["SubMenu"] = self.Skills
-
-		
-		count = count + 1
-		self.Skills[count] = {}
-		
-		self.Skills[count]["Text"] = "Orders"
-		self.Skills[count]["Count"] = -1
-		self.Skills[count]["ActorDetectRange"] = CF_OrdersRange
-		self.Skills[count]["DetectAllActors"] = true
-		self.Skills[count]["SubMenu"] = self.Orders
-		
 		if self.ScanLevel > 0 then
 			count = count + 1
 			self.Skills[count] = {}
@@ -341,7 +266,7 @@ function do_rpgbrain_create(self)
 
 			self.QuantumStorageItem = count
 		end
-		
+
 		if self.ShieldLvl > 0 then
 			self.ShieldEnabled = true
 		end

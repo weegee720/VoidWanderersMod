@@ -234,9 +234,9 @@ function VoidWanderers:ProcessShipControlPanelUI()
 					end
 				end
 
-				CF_DrawString("FLY TO NEW LOCATION:", pos + Vector(-62-71, -60), 270, 40)
+				CF_DrawString("FLY TO ANOTHER LOCATION:", pos + Vector(-62-71, -60), 270, 40)
 				
-				CF_DrawString("U/D - Select location, FIRE - Fly", pos + Vector(-62-71, 78), 270, 40)
+				CF_DrawString("U/D - Select location, L/R - Mode, FIRE - Fly", pos + Vector(-62-71, 78), 270, 40)
 				
 				--local shippos = Vector(0,0)
 				
@@ -468,7 +468,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 
 				CF_DrawString("WARP TO ANOTHER PLANET:", pos + Vector(-62-71, -60), 270, 40)
 
-				CF_DrawString("U/D - Select location, FIRE - Fly", pos + Vector(-62-71, 78), 270, 40)
+				CF_DrawString("U/D - Select location, L/R - Mode, FIRE - Fly", pos + Vector(-62-71, 78), 270, 40)
 				
 				-- Show current planet dot
 				local locpos = CF_PlanetPos[ self.GS["Planet"] ]
@@ -542,7 +542,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 							local count = CF_CountUsedStorageInArray(self.StorageItems)
 
 							if  count < tonumber(self.GS["Player0VesselStorageCapacity"]) then
-								CF_PutItemToStorageArray(self.StorageItems, item.PresetName, item.ClassName)
+								CF_PutItemToStorageArray(self.StorageItems, item.PresetName, item.ClassName, CF_GetModuleName(item:GetModuleAndPresetName()))
 							else
 								break
 							end
@@ -615,7 +615,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 							self.FirePressed = false
 						end
 
-						CF_DrawString("U/D - Select, FIRE - Accept", pos + Vector(-62-71, 78), 270, 40)
+						CF_DrawString("U/D - Select, L/R - Mode, FIRE - Accept", pos + Vector(-62-71, 78), 270, 40)
 						
 						local l = #self.RandomEncounterVariants * self.RandomEncounterVariantsInterval + (self.RandomEncounterVariantsInterval / 2)
 					
@@ -788,7 +788,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				
 				
 				CF_DrawString("Available missions", pos + Vector(-62-71, -78), 270, 40)
-				CF_DrawString("U/D - Select mission, FIRE - Fly to location", pos + Vector(-62-71, 78), 270, 40)
+				CF_DrawString("U/D - Select mission, L/R - Mode, FIRE - Fly", pos + Vector(-62-71, 78), 270, 40)
 				self:PutGlow("ControlPanel_Ship_PlanetBack", pos + Vector(-71, 0))
 				self:PutGlow("ControlPanel_Ship_PlanetBack", pos + Vector(70, 0))
 				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,-77))
@@ -877,6 +877,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				end
 
 				CF_DrawString("Reputation intelligence report", pos + Vector(-62-71, -78), 270, 40)
+				CF_DrawString("L/R - Mode", pos + Vector(-62-71, 78), 270, 40)
 				self:PutGlow("ControlPanel_Ship_Report", pos)
 				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,-77))
 				self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,78))
@@ -1065,7 +1066,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 					end
 				end
 				
-				CF_DrawString("U/D - Select upgrade, FIRE - Upgrade", pos + Vector(-62-71, 78), 270, 40)
+				CF_DrawString("U/D - Select, L/R - Mode, FIRE - Upgrade", pos + Vector(-62-71, 78), 270, 40)
 				self:PutGlow("ControlPanel_Ship_PlanetBack", pos + Vector(-71, 0))
 				self:PutGlow("ControlPanel_Ship_PlanetBack", pos + Vector(70, 0))
 				end
@@ -1257,7 +1258,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 				end
 
 				CF_DrawString("Upgrade ship", pos + Vector(-62-71, -78), 270, 40)
-				CF_DrawString("U/D - Select upgrade, FIRE - Upgrade", pos + Vector(-62-71, 78), 270, 40)
+				CF_DrawString("U/D - Select, L/R - Mode, FIRE - Upgrade", pos + Vector(-62-71, 78), 270, 40)
 				self:PutGlow("ControlPanel_Ship_PlanetBack", pos + Vector(-71, 0))
 				self:PutGlow("ControlPanel_Ship_PlanetBack", pos + Vector(70, 0))
 				
@@ -1653,7 +1654,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 					self:PutGlow("ControlPanel_Ship_HorizontalPanelRed", pos + Vector(0,78))
 					CF_DrawString(self.ShipControlMessageText, pos + Vector(-130,78) , 300, 10)
 				else
-					CF_DrawString("U/D - Select upgrade, FIRE - Buy ship", pos + Vector(-62-71, 78), 270, 40)
+					CF_DrawString("U/D - Select ship, L/R - Mode, FIRE - Buy ship", pos + Vector(-62-71, 78), 270, 40)
 					self:PutGlow("ControlPanel_Ship_HorizontalPanel", pos + Vector(0,78))
 				end
 

@@ -462,114 +462,6 @@ function do_rpgbrain_update(self)
 			VoidWanderersRPG_AddEffect(self.Pos + relpos, effect)
 		end
 		
-		-- Process go to
-		if self.ThisActor.AIMode == Actor.AIMODE_GOTO then
-			local dest = self.ThisActor:GetLastAIWaypoint()
-			
-			if dest ~= self.ThisActor.Pos then
-				if CF_GS["Brain"..self.BrainNumber.."GotoEnabled"] == "true" then
-					for actor in MovableMan.Actors do
-						local brainonly = false
-					
-						if actor.Team == self.ThisActor.Team and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") and actor.AIMode == Actor.AIMODE_SENTRY and not actor:IsInGroup("Brains") then
-							local d = CF_Dist(self.ThisActor.Pos, actor.Pos)
-							if d <= CF_OrdersRange	* 2 then
-								actor.AIMode = Actor.AIMODE_GOTO
-								actor:AddAISceneWaypoint(dest)
-								actor:FlashWhite(25)
-							end
-						end
-					end
-					
-					self.ThisActor:ClearAIWaypoints()
-					self.ThisActor.AIMode = Actor.AIMODE_SENTRY
-				end
-			end
-		end
-		
-		-- Process linked actors
-		if self.LinkedActors then
-			--VoidWanderersRPG_AddEffect(self.ThisActor.ViewPoint, "Green Glow")
-
-			local angle, d = VoidWanderersRPG_GetAngle(self.ThisActor.Pos, self.ThisActor.ViewPoint)
-			--CF_DrawString(string.format("%.2f", angle), self.ThisActor.ViewPoint , 200,200)
-			--CF_DrawString(string.format("%.2f", self.ThisActor:GetAimAngle(false)), self.ThisActor.ViewPoint + Vector(0,10) , 200,200)
-			--CF_DrawString(string.format("%.2f", math.pi - angle), self.ThisActor.ViewPoint + Vector(0,20) , 200,200)
-			--CF_DrawString(tostring(self.ThisActor.HFlipped), self.ThisActor.ViewPoint + Vector(0,30) , 200,200)
-
-			VoidWanderersRPG_AddEffect(self.ThisActor.Pos + Vector(0,-28), "Icon_Linked")
-			
-			for i = 1, #self.LinkedActors do
-				if MovableMan:IsActor(self.LinkedActors[i]) then
-					local flip
-				
-					-- Determine angle to aim
-					-- Flip or unflip actor
-					if self.ThisActor.ViewPoint.X > self.LinkedActors[i].Pos.X then
-						flip = false
-					else
-						flip = true
-					end
-					
-					local angle, d
-					
-					if not self.LinkedActors[i].HFlipped then
-						angle, d = VoidWanderersRPG_GetAngle(self.LinkedActors[i].Pos, self.ThisActor.ViewPoint)
-						
-						--VoidWanderersRPG_AddEffect(self.LinkedActors[i].ViewPoint, "Red Glow")
-					else
-						angle, d = VoidWanderersRPG_GetAngle(self.LinkedActors[i].Pos, self.ThisActor.ViewPoint)
-						angle = math.pi - angle
-						self.LinkedActors[i]:SetAimAngle(angle)
-						
-						--VoidWanderersRPG_AddEffect(self.LinkedActors[i].ViewPoint, "Yellow Glow")
-					end
-				
-					-- Find out if we need to fire this time
-					if not self.PDAEnabled and self.ThisActor:GetController():IsState(Controller.WEAPON_FIRE) then
-						local isvisible = false
-						local sum = SceneMan:CastStrengthSumRay(self.LinkedActors[i].EyePos, self.ThisActor.ViewPoint, 10, 0)
-						
-						if sum > 100 then
-							visible = false
-						else
-							visible = true
-						end
-						
-						-- Abort fire if actor is not looking where it told-to
-						if math.abs(self.LinkedActors[i]:GetAimAngle(false) - angle) > 0.02 then
-							visible = false
-							--self.LinkedActors[i]:FlashWhite(25)
-						end
-						
-						if self.LinkedActors[i].HFlipped ~= flip then
-							visible = false
-							--self.LinkedActors[i]:FlashWhite(25)
-						end
-
-						if visible then
-							self.LinkedActors[i]:GetController():SetState(Controller.WEAPON_FIRE, true)
-							--self.LinkedActors[i]:FlashWhite(25)
-						end
-					end
-	
-					if math.abs(self.LinkedActors[i]:GetAimAngle(false) - angle) > 0.02 then
-						self.LinkedActors[i]:SetAimAngle(angle)
-					end
-					self.LinkedActors[i].HFlipped = flip
-					
-					
-					-- Draw linked icon
-					VoidWanderersRPG_AddEffect(self.LinkedActors[i].Pos + Vector(0,-28), "Icon_Linked")
-				
-					--CF_DrawString(string.format("%.2f", angle), self.LinkedActors[i].Pos , 200,200)
-					--CF_DrawString(string.format("%.2f", self.LinkedActors[i]:GetAimAngle(false)), self.LinkedActors[i].Pos + Vector(0,10) , 200,200)
-				else
-					self.LinkedActors[i] = nil
-				end
-			end
-		end
-		
 		-- Process PDA input
 		if self.ThisActor:IsPlayerControlled() then
 			if CF_PDAInitiator ~= nil and CF_PDAInitiator.ID == self.ThisActor.ID then
@@ -843,14 +735,14 @@ function do_rpgbrain_pda(self)
 				if self.ActiveMenu[i]["State"] ~= nil then
 					s = s .." [ "..self.ActiveMenu[i]["State"].." ]"
 				end
-			
+				
 				if i == self.SelectedMenuItem then
 					CF_DrawString("> "..s, pos + Vector(-50, (i - self.MenuItemsListStart) * 10), 150 , 8)
 				else
 					CF_DrawString(s, pos + Vector(-50, (i - self.MenuItemsListStart) * 10), 150 , 8)
 				end
 			end
-		end
+		end--]]--
 	end
 	
 	if cont:IsState(Controller.WEAPON_FIRE) then
@@ -871,74 +763,6 @@ function do_rpgbrain_pda(self)
 		end
 	else
 		self.FirePressed = false
-	end
-end
-
-function rpgbrain_orders_follow(self)
-	if self.SkillTargetActors ~= nil and #self.SkillTargetActors > 0 then
-		for i = 1, #self.SkillTargetActors do
-			if MovableMan:IsActor(self.SkillTargetActors[i]) then
-				self.SkillTargetActors[i].AIMode = Actor.AIMODE_GOTO
-				self.SkillTargetActors[i]:ClearAIWaypoints()
-				self.SkillTargetActors[i]:AddAIMOWaypoint(self.ThisActor)
-			end
-		end
-	end
-end
-
-function rpgbrain_orders_goto(self)
-	if CF_GS["Brain"..self.BrainNumber.."GotoEnabled"] == "true" then
-		CF_GS["Brain"..self.BrainNumber.."GotoEnabled"] = "false"
-	else
-		CF_GS["Brain"..self.BrainNumber.."GotoEnabled"] = "true"
-	end
-
-	if CF_GS["Brain"..self.BrainNumber.."GotoEnabled"] == "true" then
-		self.Orders[self.GotoOrderIndex]["State"] = "On"
-	else
-		self.Orders[self.GotoOrderIndex]["State"] = "Off"
-	end
-end
-
-function rpgbrain_orders_dig(self)
-	if self.SkillTargetActors ~= nil and #self.SkillTargetActors > 0 then
-		for i = 1, #self.SkillTargetActors do
-			if MovableMan:IsActor(self.SkillTargetActors[i]) then
-				self.SkillTargetActors[i].AIMode = Actor.AIMODE_GOLDDIG
-			end
-		end
-	end
-end
-
-function rpgbrain_orders_sentry(self)
-	if self.SkillTargetActors ~= nil and #self.SkillTargetActors > 0 then
-		for i = 1, #self.SkillTargetActors do
-			if MovableMan:IsActor(self.SkillTargetActors[i]) then
-				self.SkillTargetActors[i].AIMode = Actor.AIMODE_SENTRY
-			end
-		end
-	end
-end
-
-function rpgbrain_orders_brainhunt(self)
-	if self.SkillTargetActors ~= nil and #self.SkillTargetActors > 0 then
-		for i = 1, #self.SkillTargetActors do
-			if MovableMan:IsActor(self.SkillTargetActors[i]) then
-				self.SkillTargetActors[i].AIMode = Actor.AIMODE_BRAINHUNT
-			end
-		end
-	end
-end
-
-function rpgbrain_orders_link(self)
-	if self.SkillTargetActors ~= nil and #self.SkillTargetActors > 0 then
-		self.LinkedActors = self.SkillTargetActors
-		
-		for i = 1, #self.LinkedActors do
-			if MovableMan:IsActor(self.LinkedActors[i]) then
-				self.LinkedActors[i]:SetControllerMode(Controller.CIM_DISABLED,-1);
-			end
-		end
 	end
 end
 
@@ -972,9 +796,9 @@ end
 
 function rpgbrain_skill_healend(self)
 	if self.HealTarget ~= nil and MovableMan:IsActor(self.HealTarget) and self.HealTarget.Health > 0 then
-		local presets, classes
+		local presets, classes , modules
 		if self.HealTarget.ClassName == "AHuman" then
-			presets, classes = CF_GetInventory(self.HealTarget)
+			presets, classes, modules = CF_GetInventory(self.HealTarget)
 		end
 		local preset = self.HealTarget.PresetName
 		local oldpreset = self.HealTarget.PresetName
@@ -984,6 +808,7 @@ function rpgbrain_skill_healend(self)
 		end
 		
 		local class = self.HealTarget.ClassName
+		local module = CF_GetModuleName(self.HealTarget:GetModuleAndPresetName())
 		local pos = Vector(self.HealTarget.Pos.X, self.HealTarget.Pos.Y)
 		local mode = self.HealTarget.AIMode
 		
@@ -994,7 +819,7 @@ function rpgbrain_skill_healend(self)
 		--print (self.OriginalPreset)
 		--print (oldpreset)
 		
-		local actor = CF_MakeActor2(preset,class)
+		local actor = CF_MakeActor(preset, class, module)
 		if actor then
 			actor.PresetName = oldpreset
 			actor.Pos = pos
@@ -1003,7 +828,7 @@ function rpgbrain_skill_healend(self)
 			
 			if actor.ClassName == "AHuman" then
 				for i = 1, #presets do
-					local itm = CF_MakeItem2(presets[i], classes[i])
+					local itm = CF_MakeItem(presets[i], classes[i], modules[i])
 					if itm then
 						actor:AddInventoryItem(itm)
 					end
@@ -1021,10 +846,11 @@ function rpgbrain_skill_repair(self)
 		if self.ThisActor.EquippedItem ~= nil then
 			local preset = self.ThisActor.EquippedItem.PresetName
 			local class = self.ThisActor.EquippedItem.ClassName
+			local module = CF_GetModuleName(self.ThisActor.EquippedItem:GetModuleAndPresetName())
 			
 			self.ThisActor.EquippedItem.ToDelete = true;
 			
-			local newgun = CF_MakeItem2(preset, class)
+			local newgun = CF_MakeItem(preset, class, module)
 			if newgun then
 				self.ThisActor:AddInventoryItem(newgun)
 				self.ThisActor:GetController():SetState(Controller.WEAPON_CHANGE_PREV,true);

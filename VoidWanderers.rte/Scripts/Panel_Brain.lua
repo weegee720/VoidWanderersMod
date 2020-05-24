@@ -57,7 +57,7 @@ function VoidWanderers:ProcessBrainControlPanelUI()
 					-- Give items
 					for j = 1, CF_MaxSavedItemsPerActor do
 						if self.GS["Brain"..bplr.."Item"..j.."Preset"] ~= nil then
-							local itm = CF_MakeItem2(self.GS["Brain"..bplr.."Item"..j.."Preset"], self.GS["Brain"..bplr.."Item"..j.."Class"])
+							local itm = CF_MakeItem(self.GS["Brain"..bplr.."Item"..j.."Preset"], self.GS["Brain"..bplr.."Item"..j.."Class"], self.GS["Brain"..bplr.."Item"..j.."Module"])
 							if itm then
 								rb:AddInventoryItem(itm)
 							end
@@ -107,14 +107,16 @@ function VoidWanderers:ProcessBrainControlPanelUI()
 						for j = 1, CF_MaxSavedItemsPerActor do
 							self.GS["Brain"..bplr.."Item"..j.."Preset"] = nil
 							self.GS["Brain"..bplr.."Item"..j.."Class"] = nil
+							self.GS["Brain"..bplr.."Item"..j.."Module"] = nil
 						end						
 						
 						-- Save inventory
-						local pre, cls = CF_GetInventory(act)
+						local pre, cls, mdl = CF_GetInventory(act)
 							
 						for j = 1, #pre do
 							self.GS["Brain"..bplr.."Item"..j.."Preset"] = pre[j]
 							self.GS["Brain"..bplr.."Item"..j.."Class"] = cls[j]
+							self.GS["Brain"..bplr.."Item"..j.."Module"] = mdl[j]
 						end
 						
 						self.GS["Brain"..bplr.."Detached"] = "False"

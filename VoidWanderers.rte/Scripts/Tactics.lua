@@ -66,7 +66,7 @@ function VoidWanderers:StartActivity()
 	-- Read brain location data
 	if self.GS["SceneType"] == "Vessel" then
 		-- Load vessel level data
-		self.LS = CF_ReadSceneConfigFile(self.ModuleName , SceneMan.Scene.PresetName..".vdat");
+		self.LS = CF_ReadSceneConfigFile(self.ModuleName , SceneMan.Scene.PresetName.."_deploy.dat");
 
 		self.BrainPos = {}
 		for i = 1, 4 do
@@ -129,8 +129,11 @@ function VoidWanderers:StartActivity()
 		-- Spawn previously saved actors
 		for i = 1, CF_MaxSavedActors do
 			if self.GS["Actor"..i.."Preset"] ~= nil then
-				local actor = CF_MakeActor2(self.GS["Actor"..i.."Preset"], self.GS["Actor"..i.."Class"])
+				local actor = CF_MakeActor(self.GS["Actor"..i.."Preset"], self.GS["Actor"..i.."Class"], self.GS["Actor"..i.."Module"])
 				if actor then
+					actor.AIMode = Actor.AIMODE_SENTRY;
+					actor:ClearAIWaypoints();
+					
 					local x = self.GS["Actor"..i.."X"]
 					local y = self.GS["Actor"..i.."Y"]
 					
@@ -148,7 +151,7 @@ function VoidWanderers:StartActivity()
 					for j = 1, CF_MaxSavedItemsPerActor do
 						--print(self.GS["Actor"..i.."Item"..j.."Preset"])
 						if self.GS["Actor"..i.."Item"..j.."Preset"] ~= nil then
-							local itm = CF_MakeItem2(self.GS["Actor"..i.."Item"..j.."Preset"], self.GS["Actor"..i.."Item"..j.."Class"])
+							local itm = CF_MakeItem(self.GS["Actor"..i.."Item"..j.."Preset"], self.GS["Actor"..i.."Item"..j.."Class"], self.GS["Actor"..i.."Item"..j.."Module"])
 							if itm then
 								actor:AddInventoryItem(itm)
 							end
@@ -173,25 +176,30 @@ function VoidWanderers:StartActivity()
 			-- Not only we need to spawn deployed actors but we also need to save them to config
 			-- if we don't do that once player will restart the game after mission away-team actors will disappear
 			for i = 1, #self.DeployedActors do
-				local actor = CF_MakeActor2(self.DeployedActors[i]["Preset"], self.DeployedActors[i]["Class"])
+				local actor = CF_MakeActor(self.DeployedActors[i]["Preset"], self.DeployedActors[i]["Class"], self.DeployedActors[i]["Module"])
 				if actor then
+					actor.AIMode = Actor.AIMODE_SENTRY;
+					actor:ClearAIWaypoints();
+				
 					actor.Pos = self.AwayTeamPos[dest]
 					actor.Team = CF_PlayerTeam
 					
 					self.GS["Actor"..spawnedactors.."Preset"] = actor.PresetName
 					self.GS["Actor"..spawnedactors.."Class"] = actor.ClassName
+					self.GS["Actor"..spawnedactors.."Module"] = CF_GetModuleName(actor:GetModuleAndPresetName())
 					self.GS["Actor"..spawnedactors.."X"] = math.ceil(actor.Pos.X)
 					self.GS["Actor"..spawnedactors.."Y"] = math.ceil(actor.Pos.Y)
 					
 					--print (#self.DeployedActors[i]["InventoryPresets"])
 					
 					for j = 1, #self.DeployedActors[i]["InventoryPresets"] do
-						local itm = CF_MakeItem2(self.DeployedActors[i]["InventoryPresets"][j], self.DeployedActors[i]["InventoryClasses"][j])
+						local itm = CF_MakeItem(self.DeployedActors[i]["InventoryPresets"][j], self.DeployedActors[i]["InventoryClasses"][j], self.DeployedActors[i]["InventoryModules"][j])
 						if itm then
 							actor:AddInventoryItem(itm)
 							
 							self.GS["Actor"..spawnedactors.."Item"..j.."Preset"] = self.DeployedActors[i]["InventoryPresets"][j]
 							self.GS["Actor"..spawnedactors.."Item"..j.."Class"] = self.DeployedActors[i]["InventoryClasses"][j]
+							self.GS["Actor"..spawnedactors.."Item"..j.."Module"] = self.DeployedActors[i]["InventoryModules"][j]
 						end
 					end
 					MovableMan:AddActor(actor)
@@ -238,8 +246,8 @@ function VoidWanderers:StartActivity()
 		-- Remove non-CPU doors
 		if CF_LocationRemoveDoors[self.GS["Location"]] ~= nil and CF_LocationRemoveDoors[self.GS["Location"]] == true then
 			for actor in MovableMan.Actors do
-				if actor.Team ~= CF_CPUTeam and actor.ClassName == "ADoor" then
-					actor.ToDelete = true
+				if actor.ClassName == "ADoor" then
+					actor.Team = CF_CPUTeam
 				end
 			end
 		end
@@ -256,13 +264,14 @@ function VoidWanderers:StartActivity()
 		
 		-- Spawn player troops
 		for i = 1, #self.DeployedActors do
-			local actor = CF_MakeActor2(self.DeployedActors[i]["Preset"], self.DeployedActors[i]["Class"])
+			local actor = CF_MakeActor(self.DeployedActors[i]["Preset"], self.DeployedActors[i]["Class"], self.DeployedActors[i]["Module"])
 			if actor then
 				actor.Pos = dsts[dest]
 				actor.Team = CF_PlayerTeam
 				actor.AIMode = Actor.AIMODE_SENTRY
+				actor:ClearAIWaypoints();
 				for j = 1, #self.DeployedActors[i]["InventoryPresets"] do
-					local itm = CF_MakeItem2(self.DeployedActors[i]["InventoryPresets"][j], self.DeployedActors[i]["InventoryClasses"][j])
+					local itm = CF_MakeItem(self.DeployedActors[i]["InventoryPresets"][j], self.DeployedActors[i]["InventoryClasses"][j], self.DeployedActors[i]["InventoryModules"][j])
 					if itm then
 						actor:AddInventoryItem(itm)
 					end
@@ -397,7 +406,7 @@ function VoidWanderers:StartActivity()
 		self:AmbientCreate()
 		
 		-- Set unseen
-		if CF_FogOfWarEnabled then
+		if self.GS["FogOfWar"] and self.GS["FogOfWar"] == "true" then
 			SceneMan:MakeAllUnseen(Vector(CF_FogOfWarResolution, CF_FogOfWarResolution), CF_PlayerTeam);
 			
 			-- Reveal previously saved fog of war
@@ -608,7 +617,7 @@ function VoidWanderers:SaveFogOfWarState(config)
 	local tiles = 0
 	local revealed = 0
 	
-	if CF_FogOfWarEnabled then
+	if config["FogOfWar"] and config["FogOfWar"] == "true" then
 		local wx = SceneMan.Scene.Width / CF_FogOfWarResolution;
 		local wy = SceneMan.Scene.Height / CF_FogOfWarResolution;
 		local str = "";
@@ -852,12 +861,14 @@ function VoidWanderers:ClearActors()
 	for i = 1, CF_MaxSavedActors do
 		self.GS["Actor"..i.."Preset"] = nil
 		self.GS["Actor"..i.."Class"] = nil
+		self.GS["Actor"..i.."Module"] = nil
 		self.GS["Actor"..i.."X"] = nil
 		self.GS["Actor"..i.."Y"] = nil
 		
 		for j = 1, CF_MaxSavedItemsPerActor do
 			self.GS["Actor"..i.."Item"..j.."Preset"] = nil
 			self.GS["Actor"..i.."Item"..j.."Class"] = nil
+			self.GS["Actor"..i.."Item"..j.."Module"] = nil
 		end
 	end
 end
@@ -871,11 +882,12 @@ function VoidWanderers:SaveActors(clearpos)
 
 	for actor in MovableMan.Actors do
 		if actor.PresetName ~= "Brain Case" and (actor.ClassName == "AHuman" or actor.ClassName == "ACrab") then
-			local pre, cls = CF_GetInventory(actor)
+			local pre, cls, mdl = CF_GetInventory(actor)
 		
 			-- Save actors to config
 			self.GS["Actor"..savedactor.."Preset"] = actor.PresetName
 			self.GS["Actor"..savedactor.."Class"] = actor.ClassName
+			self.GS["Actor"..savedactor.."Module"] = CF_GetModuleName(actor:GetModuleAndPresetName())
 			if clearpos then
 				self.GS["Actor"..savedactor.."X"] = nil
 				self.GS["Actor"..savedactor.."Y"] = nil
@@ -887,6 +899,7 @@ function VoidWanderers:SaveActors(clearpos)
 			for j = 1, #pre do
 				self.GS["Actor"..savedactor.."Item"..j.."Preset"] = pre[j]
 				self.GS["Actor"..savedactor.."Item"..j.."Class"] = cls[j]
+				self.GS["Actor"..savedactor.."Item"..j.."Module"] = mdl[j]
 			end
 
 			savedactor = savedactor + 1
@@ -908,12 +921,10 @@ function VoidWanderers:UpdateActivity()
 	end
 
 	self:ClearObjectivePoints();
-
-	if self.WasPaused then
-		self:RestoreAI()
-	end
 	
-	
+	--if true then
+	--	return
+	--end
 	
 	-- Clear player's money to avoid buying via Trade Star
 	local gold2add = self:GetTeamFunds(CF_PlayerTeam);
@@ -971,6 +982,7 @@ function VoidWanderers:UpdateActivity()
 			end
 		end
 	end--]]--
+	
 	
 	-- Process UI's and other vessel mode features
 	if self.GS["Mode"] == "Vessel" then
@@ -1038,6 +1050,7 @@ function VoidWanderers:UpdateActivity()
 			end
 		end
 	end--]]--
+	
 	
 	if self.GS["Mode"] == "Vessel" and self.FlightTimer:IsPastSimMS(CF_FlightTickInterval) then
 		self.FlightTimer:Reset()
@@ -1152,7 +1165,6 @@ function VoidWanderers:UpdateActivity()
 			end
 		end		
 	end--]]--
-
 	
 	-- Tick timer
 	--if self.TickTimer:IsPastSimMS(self.TickInterval) then
@@ -1264,8 +1276,6 @@ function VoidWanderers:UpdateActivity()
 			if self.AssaultNextSpawnTime == self.Time then
 				-- Check end of assault conditions
 				if CF_CountActors(CF_CPUTeam) == 0 and self.AssaultEnemiesToSpawn == 0 then
-					self:StartMusic(CF_MusicTypes.VICTORY)
-
 					-- End of assault
 					self.GS["Mode"] = "Vessel"
 					
@@ -1373,21 +1383,21 @@ function VoidWanderers:UpdateActivity()
 	
 	-- DEBUG
 	-- Debug-print unit orders
-	--[[local arr = {}
-	arr[Actor.AIMODE_BRAINHUNT] = "Brainhunt"
-	arr[Actor.AIMODE_SENTRY] = "Sentry"
-	arr[Actor.AIMODE_GOLDDIG] = "Gold dig"
-	arr[Actor.AIMODE_GOTO] = "Goto"
-
-	for actor in MovableMan.Actors do
-		if actor.ClassName == "AHuman" or actor.ClassName == "ACrab" then
-			local s = arr[actor.AIMode]
-			
-			if s ~= nil then
-				CF_DrawString(s, actor.Pos + Vector(-20,30), 100, 100)
-			end
-		end
-	end--]]--
+	--local arr = {}
+	--arr[Actor.AIMODE_BRAINHUNT] = "Brainhunt"
+	--arr[Actor.AIMODE_SENTRY] = "Sentry"
+	--arr[Actor.AIMODE_GOLDDIG] = "Gold dig"
+	--arr[Actor.AIMODE_GOTO] = "Goto"
+	--
+	--for actor in MovableMan.Actors do
+	--	if actor.ClassName == "AHuman" or actor.ClassName == "ACrab" then
+	--		local s = arr[actor.AIMode]
+	--		
+	--		if s ~= nil then
+	--			CF_DrawString(s, actor.Pos + Vector(-20,30), 100, 100)
+	--		end
+	--	end
+	--end
 
 	-- Deploy turrets when key pressed
 	--if UInputMan:KeyPressed(75) then
@@ -1936,7 +1946,6 @@ function VoidWanderers:StartMusic(musictype)
 	local ok = false
 	local counter = 0
 	local track = -1
-	local track2 = -1
 	local queue = false
 	
 	-- Queue defeat or victory loops
@@ -1951,9 +1960,6 @@ function VoidWanderers:StartMusic(musictype)
 		queue = true
 		print ("MUSIC: Play defeat")
 	end
-
-	--print (self.LastMusicType)
-	--print (musictype)
 	
 	-- Select calm music to queue after victory or defeat
 	if self.LastMusicType ~= -1 and queue then
@@ -1985,8 +1991,6 @@ function VoidWanderers:StartMusic(musictype)
 			break
 		end
 	end
-	
-	print (musictype)
 	
 	-- If we're playing intense music, then just queue it once and play ambient all the other times
 	if ok then

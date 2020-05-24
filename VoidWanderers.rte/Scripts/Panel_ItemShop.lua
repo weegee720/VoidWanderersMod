@@ -211,7 +211,7 @@ function VoidWanderers:ProcessItemShopControlPanelUI()
 					self.ItemShopSelectedItemType = self.ItemShopItems[itm]["Type"]
 					
 					-- Create new item object
-					self.ItemShopControlPanelObject = CF_MakeItem2(self.ItemShopItems[itm]["Preset"], self.ItemShopItems[itm]["Class"])
+					self.ItemShopControlPanelObject = CF_MakeItem(self.ItemShopItems[itm]["Preset"], self.ItemShopItems[itm]["Class"], self.ItemShopItems[itm]["Module"])
 					if self.ItemShopControlPanelObject ~= nil then
 						MovableMan:AddItem(self.ItemShopControlPanelObject)
 						self.ItemShopControlPanelObject.HitsMOs = false
@@ -236,13 +236,13 @@ function VoidWanderers:ProcessItemShopControlPanelUI()
 						if itm ~= nil then
 							if self.ItemShopItems[itm]["Type"] == CF_WeaponTypes.BOMB then
 								if CF_CountUsedBombsInArray(self.Bombs) < tonumber(self.GS["Player0VesselBombStorage"]) and self.ItemShopSelectedItemPrice <= CF_GetPlayerGold(self.GS, 0) then
-									CF_PutBombToStorageArray(self.Bombs, self.ItemShopItems[itm]["Preset"], self.ItemShopItems[itm]["Class"])
+									CF_PutBombToStorageArray(self.Bombs, self.ItemShopItems[itm]["Preset"], self.ItemShopItems[itm]["Class"], self.ItemShopItems[itm]["Module"])
 									CF_SetBombsArray(self.GS, self.Bombs)
 									CF_SetPlayerGold(self.GS, 0, CF_GetPlayerGold(self.GS, 0) - self.ItemShopSelectedItemPrice)
 								end
 							else
 								if CF_CountUsedStorageInArray(self.StorageItems) < tonumber(self.GS["Player0VesselStorageCapacity"]) and self.ItemShopSelectedItemPrice <= CF_GetPlayerGold(self.GS, 0) then
-									local needrefresh = CF_PutItemToStorageArray(self.StorageItems, self.ItemShopItems[itm]["Preset"], self.ItemShopItems[itm]["Class"])
+									local needrefresh = CF_PutItemToStorageArray(self.StorageItems, self.ItemShopItems[itm]["Preset"], self.ItemShopItems[itm]["Class"], self.ItemShopItems[itm]["Module"])
 									
 									CF_SetPlayerGold(self.GS, 0, CF_GetPlayerGold(self.GS, 0) - self.ItemShopSelectedItemPrice)
 

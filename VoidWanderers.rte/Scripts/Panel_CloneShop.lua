@@ -200,7 +200,7 @@ function VoidWanderers:ProcessCloneShopControlPanelUI()
 									self.Turrets[c]["Preset"] = self.CloneShopItems[cln]["Preset"]
 									self.Turrets[c]["Class"] = self.CloneShopItems[cln]["Class"]--]]--
 									
-									CF_PutTurretToStorageArray(self.Turrets, self.CloneShopItems[cln]["Preset"], self.CloneShopItems[cln]["Class"])
+									CF_PutTurretToStorageArray(self.Turrets, self.CloneShopItems[cln]["Preset"], self.CloneShopItems[cln]["Class"], self.CloneShopItems[cln]["Module"])
 									
 									CF_SetTurretsArray(self.GS, self.Turrets)
 									CF_SetPlayerGold(self.GS, 0, CF_GetPlayerGold(self.GS, 0) - self.CloneShopSelectedClonePrice)
@@ -212,6 +212,7 @@ function VoidWanderers:ProcessCloneShopControlPanelUI()
 									self.Clones[c] = {}
 									self.Clones[c]["Preset"] = self.CloneShopItems[cln]["Preset"]
 									self.Clones[c]["Class"] = self.CloneShopItems[cln]["Class"]
+									self.Clones[c]["Module"] = self.CloneShopItems[cln]["Module"]
 									self.Clones[c]["Items"] = {}
 									
 									CF_SetClonesArray(self.GS, self.Clones)

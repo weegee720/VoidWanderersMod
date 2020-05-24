@@ -74,7 +74,6 @@ function VoidWanderers:FormLoad()
 				self.Slots[i]["Time"] = tm
 				self.Slots[i]["Reason"] = reason
 				self.Slots[i]["Planet"] = CF_PlanetName[ config["Planet"] ]
-				self.Slots[i]["TimeStamp"] = config["TimeStamp"];
 				self.Slots[i]["Empty"] = false;
 			else
 				self.Slots[i]["Faction"] = "Broken slot #"..i.."";
@@ -153,7 +152,7 @@ function VoidWanderers:FormLoad()
 			el["Type"] = self.ElementTypes.LABEL;
 			el["Preset"] = nil
 			el["Pos"] = self.UI[i]["Pos"] + Vector(0, 10)
-			el["Text"] = self.Slots[i]["TimeStamp"] .." / ".. self.Slots[i]["Time"]
+			el["Text"] = self.Slots[i]["Time"]
 			el["Width"] = 180;
 			el["Height"] = 70;
 			
@@ -221,7 +220,6 @@ end
 --
 -----------------------------------------------------------------------------------------
 function VoidWanderers:SaveSlots_OnClick()
-	-- Update timestamp
 	if not self.Slots[self.MouseOverElement]["Empty"] then
 		local config = CF_ReadConfigFile(self.ModuleName , "savegame"..self.MouseOverElement..".dat");
 		CF_WriteConfigFile(config , self.ModuleName , STATE_CONFIG_FILE);

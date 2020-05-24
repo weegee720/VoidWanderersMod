@@ -11,6 +11,7 @@ function CF_GetStorageArray(gs, makefilters)
 			arr[i] = {}
 			arr[i]["Preset"] = gs["ItemStorage"..i.."Preset"]
 			arr[i]["Class"] = gs["ItemStorage"..i.."Class"]
+			arr[i]["Module"] = gs["ItemStorage"..i.."Module"]
 			arr[i]["Count"] = tonumber(gs["ItemStorage"..i.."Count"])
 		else
 			break
@@ -51,7 +52,7 @@ function CF_GetStorageArray(gs, makefilters)
 		arr2[CF_WeaponTypes.BOMB] = {}
 		
 		for itm = 1, #arr do
-			local f,i = CF_FindItemInFactions(arr[itm]["Preset"], arr[itm]["Class"])
+			local f,i = CF_FindItemInFactions(arr[itm]["Preset"], arr[itm]["Class"], arr[itm]["Module"])
 
 			-- Add item to 'all' list
 			local indx = #arr2[-1] + 1
@@ -102,6 +103,7 @@ function CF_GetItemShopArray(gs, makefilters)
 				local ii = #arr + 1
 				arr[ii] = {}
 				arr[ii]["Preset"] = CF_ItmPresets[f][itm]
+				arr[ii]["Module"] = CF_ItmModules[f][itm]
 				if CF_ItmClasses[f][itm] ~= nil then
 					arr[ii]["Class"] = CF_ItmClasses[f][itm]
 				else
@@ -151,6 +153,7 @@ function CF_GetItemShopArray(gs, makefilters)
 				local ii = #arr + 1
 				arr[ii] = {}
 				arr[ii]["Preset"] = CF_BombPresets[itm]
+				arr[ii]["Module"] = CF_BombModules[itm]
 				if CF_BombClasses[itm] ~= nil then
 					arr[ii]["Class"] = CF_BombClasses[itm]
 				else
@@ -259,7 +262,8 @@ function CF_GetItemBlackMarketArray(gs, makefilters)
 					-- Store descriptions to get rid of duplicates
 					arr[count] = {}
 					arr[count]["Description"] = CF_ItmDescriptions[f][itm]
-					arr[count]["Preset"] = CF_ItmDescriptions[f][itm]
+					arr[count]["Preset"] = CF_ItmPresets[f][itm]
+					arr[count]["Module"] = CF_ItmModules[f][itm]
 				end
 			end
 		end
@@ -286,6 +290,7 @@ function CF_GetItemBlackMarketArray(gs, makefilters)
 			-- In case somebody will change number of items in faction file check
 			-- every item
 			arr[ii]["Preset"] = CF_ItmPresets[f][itm]
+			arr[ii]["Module"] = CF_ItmModules[f][itm]
 			if CF_ItmClasses[f][itm] ~= nil then
 				arr[ii]["Class"] = CF_ItmClasses[f][itm]
 			else
@@ -500,6 +505,7 @@ function CF_GetCloneBlackMarketArray(gs, makefilters)
 			-- In case somebody will change number of items in faction file check
 			-- every actor
 			arr[ii]["Preset"] = CF_ActPresets[f][itm]
+			arr[ii]["Module"] = CF_ActModules[f][itm]
 			if CF_ActClasses[f][itm] ~= nil then
 				arr[ii]["Class"] = CF_ActClasses[f][itm]
 			else
@@ -555,6 +561,7 @@ function CF_SetStorageArray(gs, arr)
 	-- Clear stored array data
 	for i = 1, CF_MaxStorageItems do
 		gs["ItemStorage"..i.."Preset"] = nil
+		gs["ItemStorage"..i.."Module"] = nil
 		gs["ItemStorage"..i.."Class"] = nil
 		gs["ItemStorage"..i.."Count"] = nil
 	end
@@ -565,6 +572,7 @@ function CF_SetStorageArray(gs, arr)
 	for i = 1, #arr do
 		if arr[i]["Count"] > 0 then
 			gs["ItemStorage"..itm.."Preset"] = arr[i]["Preset"]
+			gs["ItemStorage"..itm.."Module"] = arr[i]["Module"]
 			gs["ItemStorage"..itm.."Class"] = arr[i]["Class"]
 			gs["ItemStorage"..itm.."Count"] = arr[i]["Count"]
 			itm = itm + 1
@@ -590,14 +598,20 @@ end
 -----------------------------------------------------------------------------------------
 --	Searches for given item in all faction files and returns it's factions and index if found
 -----------------------------------------------------------------------------------------
-function CF_FindItemInFactions(preset, class)
+function CF_FindItemInFactions(preset, class, module)
 	for fact = 1, #CF_Factions do
 		local f = CF_Factions[fact]
 	
 		for i = 1, #CF_ItmNames[f] do
 			if preset == CF_ItmPresets[f][i] then
 				if class == CF_ItmClasses[f][i] or (class == "HDFirearm" and CF_ItmClasses[f][i] == nil) then
-					return f, i
+					if module ~= nil then
+						if module:lower() == CF_ItmModules[f][i]:lower() then
+							return f, i
+						end
+					else
+						return f, i
+					end
 				end
 			end
 		end
@@ -609,7 +623,7 @@ end
 --	Put item to storage array. You still need to update filters array if this is a new item. 
 --	Returns true if added item is new item and you need to sort and update filters
 -----------------------------------------------------------------------------------------
-function CF_PutItemToStorageArray(arr, preset, class)
+function CF_PutItemToStorageArray(arr, preset, class, module)
 	-- Find item in storage array
 	local found = 0
 	local isnew = false
@@ -628,6 +642,7 @@ function CF_PutItemToStorageArray(arr, preset, class)
 		arr[found] = {}
 		arr[found]["Count"] = 1
 		arr[found]["Preset"] = preset
+		arr[found]["Module"] = module
 		if class ~= nil then
 			arr[found]["Class"] = class
 		else
@@ -643,14 +658,20 @@ end
 -----------------------------------------------------------------------------------------
 --	Searches for given actor in all faction files and returns it's factions and index if found
 -----------------------------------------------------------------------------------------
-function CF_FindActorInFactions(preset, class)
+function CF_FindActorInFactions(preset, class , module)
 	for fact = 1, #CF_Factions do
 		local f = CF_Factions[fact]
 	
 		for i = 1, #CF_ActNames[f] do
 			if preset == CF_ActPresets[f][i] then
 				if class == CF_ActClasses[f][i] or (class == "AHuman" and CF_ActClasses[f][i] == nil) then
-					return f, i
+					if module ~= nil then
+						if module == CF_ActModules[f][i] then
+							return f, i
+						end
+					else
+						return f, i
+					end
 				end
 			end
 		end
@@ -671,6 +692,7 @@ function CF_GetClonesArray(gs)
 			arr[i] = {}
 			arr[i]["Preset"] = gs["ClonesStorage"..i.."Preset"]
 			arr[i]["Class"] = gs["ClonesStorage"..i.."Class"]
+			arr[i]["Module"] = gs["ClonesStorage"..i.."Module"]
 			
 			arr[i]["Items"] = {}
 			for itm = 1, CF_MaxItems do
@@ -678,6 +700,7 @@ function CF_GetClonesArray(gs)
 					arr[i]["Items"][itm] = {}
 					arr[i]["Items"][itm]["Preset"] = gs["ClonesStorage"..i.."Item"..itm.."Preset"]
 					arr[i]["Items"][itm]["Class"] = gs["ClonesStorage"..i.."Item"..itm.."Class"]
+					arr[i]["Items"][itm]["Module"] = gs["ClonesStorage"..i.."Item"..itm.."Module"]
 				else
 					break
 				end
@@ -715,10 +738,12 @@ function CF_SetClonesArray(gs, arr)
 	for i = 1, CF_MaxClones do
 		gs["ClonesStorage"..i.."Preset"] = nil
 		gs["ClonesStorage"..i.."Class"] = nil
+		gs["ClonesStorage"..i.."Module"] = nil
 		
 		for itm = 1, CF_MaxItems do
 			gs["ClonesStorage"..i.."Item"..itm.."Preset"] = nil
 			gs["ClonesStorage"..i.."Item"..itm.."Class"] = nil
+			gs["ClonesStorage"..i.."Item"..itm.."Module"] = nil
 		end
 	end
 	
@@ -726,6 +751,7 @@ function CF_SetClonesArray(gs, arr)
 	for i = 1, #arr do
 		gs["ClonesStorage"..i.."Preset"] = arr[i]["Preset"]
 		gs["ClonesStorage"..i.."Class"] = arr[i]["Class"]
+		gs["ClonesStorage"..i.."Module"] = arr[i]["Module"]
 		
 		--print (tostring(i).." "..arr[i]["Preset"])
 		--print (tostring(i).." "..arr[i]["Class"])
@@ -733,6 +759,7 @@ function CF_SetClonesArray(gs, arr)
 		for itm = 1, #arr[i]["Items"] do
 			gs["ClonesStorage"..i.."Item"..itm.."Preset"] = arr[i]["Items"][itm]["Preset"]
 			gs["ClonesStorage"..i.."Item"..itm.."Class"] = arr[i]["Items"][itm]["Class"]
+			gs["ClonesStorage"..i.."Item"..itm.."Module"] = arr[i]["Items"][itm]["Module"]
 			
 			--print (tostring(i).." "..itm.." "..arr[i]["Items"][itm]["Preset"])
 			--print (tostring(i).." "..itm.." "..arr[i]["Items"][itm]["Class"])
@@ -748,7 +775,7 @@ end
 --
 --
 -----------------------------------------------------------------------------------------
-function CF_PutTurretToStorageArray(arr, preset, class)
+function CF_PutTurretToStorageArray(arr, preset, class, module)
 	-- Find item in storage array
 	local found = 0
 	local isnew = false
@@ -772,6 +799,7 @@ function CF_PutTurretToStorageArray(arr, preset, class)
 		else
 			arr[found]["Class"] = "AHuman"
 		end
+		arr[found]["Module"] = module
 		isnew = true
 	else
 		arr[found]["Count"] = arr[found]["Count"] + 1
@@ -792,6 +820,7 @@ function CF_GetTurretsArray(gs)
 			arr[i] = {}
 			arr[i]["Preset"] = gs["TurretsStorage"..i.."Preset"]
 			arr[i]["Class"] = gs["TurretsStorage"..i.."Class"]
+			arr[i]["Module"] = gs["TurretsStorage"..i.."Module"]
 			arr[i]["Count"] = tonumber(gs["TurretsStorage"..i.."Count"])
 		else
 			break
@@ -832,6 +861,7 @@ function CF_SetTurretsArray(gs, arr)
 	for i = 1, CF_MaxTurrets do
 		gs["TurretsStorage"..i.."Preset"] = nil
 		gs["TurretsStorage"..i.."Class"] = nil
+		gs["TurretsStorage"..i.."Module"] = nil
 		gs["TurretsStorage"..i.."Count"] = nil
 	end
 	
@@ -842,6 +872,7 @@ function CF_SetTurretsArray(gs, arr)
 		else
 			gs["TurretsStorage"..i.."Preset"] = arr[i]["Preset"]
 			gs["TurretsStorage"..i.."Class"] = arr[i]["Class"]
+			gs["TurretsStorage"..i.."Module"] = arr[i]["Module"]
 			gs["TurretsStorage"..i.."Count"] = arr[i]["Count"]
 		end
 		
@@ -856,7 +887,7 @@ end
 --
 --
 -----------------------------------------------------------------------------------------
-function CF_PutBombToStorageArray(arr, preset, class)
+function CF_PutBombToStorageArray(arr, preset, class , module)
 	-- Find item in storage array
 	local found = 0
 	local isnew = false
@@ -880,6 +911,7 @@ function CF_PutBombToStorageArray(arr, preset, class)
 		else
 			arr[found]["Class"] = "AHuman"
 		end
+		arr[found]["Module"] = module
 		isnew = true
 	else
 		arr[found]["Count"] = arr[found]["Count"] + 1
@@ -900,6 +932,7 @@ function CF_GetBombsArray(gs)
 			arr[i] = {}
 			arr[i]["Preset"] = gs["BombsStorage"..i.."Preset"]
 			arr[i]["Class"] = gs["BombsStorage"..i.."Class"]
+			arr[i]["Module"] = gs["BombsStorage"..i.."Module"]
 			arr[i]["Count"] = tonumber(gs["BombsStorage"..i.."Count"])
 		else
 			break
@@ -940,6 +973,7 @@ function CF_SetBombsArray(gs, arr)
 	for i = 1, CF_MaxBombs do
 		gs["BombsStorage"..i.."Preset"] = nil
 		gs["BombsStorage"..i.."Class"] = nil
+		gs["BombsStorage"..i.."Module"] = nil
 		gs["BombsStorage"..i.."Count"] = nil
 	end
 	
@@ -950,6 +984,7 @@ function CF_SetBombsArray(gs, arr)
 		else
 			gs["BombsStorage"..i.."Preset"] = arr[i]["Preset"]
 			gs["BombsStorage"..i.."Class"] = arr[i]["Class"]
+			gs["BombsStorage"..i.."Module"] = arr[i]["Module"]
 			gs["BombsStorage"..i.."Count"] = arr[i]["Count"]
 		end
 		

@@ -126,4 +126,6 @@ function CF_InitExtensionsData(activity)
 	CF_RandomEncountersVariantsInterval = {}
 	CF_RandomEncountersFunctions = {}
 	CF_RandomEncountersOneTime = {}
+	
+	CF_ItemReplacements = {}
 end

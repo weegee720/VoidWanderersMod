@@ -312,7 +312,7 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 								if self.SelectedClone ~= 0 then
 									if MovableMan:GetMOIDCount() < CF_MOIDLimit then
 										-- Spawn actor
-										local a = CF_MakeActor2(self.Clones[self.SelectedClone]["Preset"], self.Clones[self.SelectedClone]["Class"])
+										local a = CF_MakeActor(self.Clones[self.SelectedClone]["Preset"], self.Clones[self.SelectedClone]["Class"], self.Clones[self.SelectedClone]["Module"])
 										if a ~= nil then
 											a.Team = CF_PlayerTeam
 											if self.ClonesDeployPos ~= nil then
@@ -322,7 +322,7 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 											end
 											
 											for i = 1, #self.Clones[self.SelectedClone]["Items"] do
-												local itm = CF_MakeItem2(self.Clones[self.SelectedClone]["Items"][i]["Preset"], self.Clones[self.SelectedClone]["Items"][i]["Class"])
+												local itm = CF_MakeItem(self.Clones[self.SelectedClone]["Items"][i]["Preset"], self.Clones[self.SelectedClone]["Items"][i]["Class"], self.Clones[self.SelectedClone]["Items"][i]["Module"])
 												if itm ~= nil then
 													a:AddInventoryItem(itm)
 												else
@@ -655,9 +655,10 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 							self.Clones[c] = {}
 							self.Clones[c]["Preset"] = actor.PresetName
 							self.Clones[c]["Class"] = actor.ClassName
+							self.Clones[c]["Module"] = CF_GetModuleName(actor:GetModuleAndPresetName())
 							
 							-- Store inventory
-							local inv, cls = CF_GetInventory(actor)
+							local inv, cls, mdl = CF_GetInventory(actor)
 							
 							self.Clones[c]["Items"] = {}
 							
@@ -667,12 +668,13 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 									self.Clones[c]["Items"][i] = {}
 									self.Clones[c]["Items"][i]["Preset"] = inv[i]
 									self.Clones[c]["Items"][i]["Class"] = cls[i]
+									self.Clones[c]["Items"][i]["Modules"] = mdl[i]
 								else
 									-- Try to store other items in items storage
 									-- If we have free space add items to storage, spawn nearby otherwise
 									if CF_CountUsedStorageInArray(self.StorageItems) < tonumber(self.GS["Player0VesselStorageCapacity"]) then
 										-- Put item to storage array
-										CF_PutItemToStorageArray(self.StorageItems, inv[i], cls[i])
+										CF_PutItemToStorageArray(self.StorageItems, inv[i], cls[i], mdl[i])
 										
 										-- Store everything
 										CF_SetStorageArray(self.GS, self.StorageItems)
@@ -680,7 +682,7 @@ function VoidWanderers:ProcessClonesControlPanelUI()
 										-- Refresh storage items array and filters
 										self.StorageItems, self.StorageFilters = CF_GetStorageArray(self.GS, true)
 									else
-										local itm = CF_MakeItem2(inv[i], cls[i])
+										local itm = CF_MakeItem(inv[i], cls[i], mdl[i])
 										if itm ~= nil then
 											itm.Pos = self.ClonesInputPos
 											MovableMan:AddItem(itm)
