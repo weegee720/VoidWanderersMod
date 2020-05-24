@@ -142,8 +142,42 @@ CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombi
 
 
 
+local id = "Grasslands Mining Outpost"
+CF_Location[#CF_Location + 1] = id
+CF_LocationName[id] = "Grasslands Mining Outpost"
+CF_LocationPos[id] = Vector( 15, -3)
+CF_LocationDescription[id] = "This looks like a nice, nostalgia-rich area with a small mining outpost."
+CF_LocationSecurity[id] = 30
+CF_LocationGoldPresent[id] = true
+CF_LocationScenes[id] = {"Grasslands Mining Outpost"}
+CF_LocationPlanet[id] = "CC-11Y"
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy"}
 
--- Add locations
+local id = "Yskely Mining Outpost"
+CF_Location[#CF_Location + 1] = id
+CF_LocationName[id] = "Yskely Mining Outpost"
+CF_LocationPos[id] = Vector(11, 17)
+CF_LocationDescription[id] = "A small mining outpost located in the Yskely Mountains."
+CF_LocationSecurity[id] = 0
+CF_LocationGoldPresent[id] = true
+CF_LocationScenes[id] = {"Yskely Mining Outpost"}
+CF_LocationPlanet[id] = "CC-11Y"
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy"}
+
+local id = "Zekarra Mining Outpost"
+CF_Location[#CF_Location + 1] = id
+CF_LocationName[id] = "Zekarra Mining Outpost"
+CF_LocationPos[id] = Vector(-46 ,-20)
+CF_LocationDescription[id] = "A small mining outpost situated in the Zekarra lowlands."
+CF_LocationSecurity[id] = 0
+CF_LocationGoldPresent[id] = true
+CF_LocationScenes[id] = {"Zekarra Mining Outpost"}
+CF_LocationPlanet[id] = "CC-11Y"
+CF_LocationMissions[id] = {"Assault", "Assassinate", "Dropships", "Mine", "Zombies", "Defend", "Destroy"}
+
+
+
+-- Add black markets
 local id = "Station Ypsilon-2"
 CF_Location[#CF_Location + 1] = id
 CF_LocationName[id] = "Station Ypsilon-2"
@@ -155,7 +189,7 @@ CF_LocationPlanet[id] = "CC-11Y"
 CF_LocationPlayable[id] = false
 CF_LocationAttributes[id] = {CF_LocationAttributeTypes.BLACKMARKET}
 
--- Add locations
+-- Add shipyards
 local id = "Toha Shipyards"
 CF_Location[#CF_Location + 1] = id
 CF_LocationName[id] = "Toha Shipyards"

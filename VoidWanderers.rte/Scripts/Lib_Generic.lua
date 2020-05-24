@@ -39,7 +39,7 @@ function CF_InitFactions(activity)
 	CF_ReputationPerDifficulty = 1000
 	
 	CF_DistanceToAttemptEvent = 50
-	CF_RandomEncounterProbability = 0.1
+	CF_RandomEncounterProbability = 0.1 -- 1 -- DEBUG
 	
 	-- When reputation below this level enemy starts sending crafts after player
 	CF_ReputationHuntTreshold = -500
@@ -64,6 +64,7 @@ function CF_InitFactions(activity)
 	CF_FrameCounter = 0
 	
 	CF_ShipAssaultDelay = 30
+	CF_ShipCounterattackDelay = 20
 	
 	CF_TeamReturnDelay = 5
 	
@@ -87,7 +88,6 @@ function CF_InitFactions(activity)
 	
 	CF_ShipSellCoeff = 0.25
 	CF_ShipDevInstallCoeff = 0.05
-	
 	
 	CF_AssaultDifficultyTexts = {}
 	CF_AssaultDifficultyTexts[1] = "scout"

@@ -232,30 +232,22 @@ function VoidWanderers:ProcessShipControlPanelUI()
 					shippreset = "ControlPanel_Ship_CurrentMissionLocation"
 				end
 				
-				--if self.GS["Destination"] ~= nil then
-					local sx = tonumber(self.GS["ShipX"])
-					local sy = tonumber(self.GS["ShipY"])
+				local sx = tonumber(self.GS["ShipX"])
+				local sy = tonumber(self.GS["ShipY"])
 
-					local dx = tonumber(self.GS["DestX"])
-					local dy = tonumber(self.GS["DestY"])
-					
-					local cx = pos.X + 70
-					local cy = pos.Y
-					
-					self:PutGlow(shippreset, pos + Vector(sx,sy) + Vector(70,0))
-					
-					if dx ~= nil and dy ~= nil then
-						self:DrawDottedLine(cx + sx, cy + sy, cx + dx, cy + dy, "ControlPanel_Ship_DestDot",5)
-					end
-					
-					local shippos = Vector(sx,sy)
-				--else
-				--	local locpos = CF_LocationPos[ self.GS["Location"] ]
-				--	if locpos ~= nil then
-				--		self:PutGlow(shippreset, pos + locpos + Vector(70,0))
-				--		shippos = locpos
-				--	end
-				--end
+				local dx = tonumber(self.GS["DestX"])
+				local dy = tonumber(self.GS["DestY"])
+				
+				local cx = pos.X + 70
+				local cy = pos.Y
+				
+				self:PutGlow(shippreset, pos + Vector(sx,sy) + Vector(70,0))
+				
+				if dx ~= nil and dy ~= nil then
+					self:DrawDottedLine(cx + sx, cy + sy, cx + dx, cy + dy, "ControlPanel_Ship_DestDot",5)
+				end
+				
+				local shippos = Vector(sx,sy)
 
 				local msn = false
 				local msntype
@@ -401,6 +393,9 @@ function VoidWanderers:ProcessShipControlPanelUI()
 							self.GS["Planet"] = self.ShipControlPlanetList [ self.ShipControlSelectedPlanet ]
 							self.GS["Location"] = nil
 							self.GS["Destination"] = nil
+
+							self.GS["DestX"] = nil
+							self.GS["DestY"] = nil
 							
 							self.GS["ShipX"] = 0
 							self.GS["ShipY"] = 0
@@ -505,7 +500,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 					CF_DrawString("INCOMING TRANSMISSION", pos + Vector(-56,-77), 262, 141)
 					CF_DrawString(self.RandomEncounterText, pos + Vector(-130,-56), 262, 141)
 					
-					if self.RandomEncounterVariants ~= nil then
+					if self.RandomEncounterVariants ~= nil and self.RandomEncounterDelayTimer:IsPastSimMS(750) then
 						if cont:IsState(Controller.PRESS_UP) then
 							-- Select planet
 							self.ShipControlSelectedEncounterVariant = self.ShipControlSelectedEncounterVariant - 1
@@ -532,7 +527,7 @@ function VoidWanderers:ProcessShipControlPanelUI()
 							self.FirePressed = false
 						end
 
-						CF_DrawString("U/D - Select, FIRE - Send reply", pos + Vector(-62-71, 78), 270, 40)
+						CF_DrawString("U/D - Select, FIRE - Accept", pos + Vector(-62-71, 78), 270, 40)
 						
 						local l = #self.RandomEncounterVariants * self.RandomEncounterVariantsInterval + (self.RandomEncounterVariantsInterval / 2)
 					

@@ -23,8 +23,31 @@ function CF_InitExtensionsData(activity)
 	CF_LocationPlayable = {} -- Used by scene editor to discard service locations
 	CF_LocationAttributes = {}
 	
-	CF_LocationAttributeTypes = {BLACKMARKET = 0, TRADESTAR = 1, SHIPYARD = 2, VESSEL = 3, NOTMISSIONASSIGNABLE = 4, ALWAYSUNSEEN = 5, TEMPLOCATION = 6}
+	CF_LocationAttributeTypes = {
+	BLACKMARKET = 0, 
+	TRADESTAR = 1, 
+	SHIPYARD = 2, 
+	VESSEL = 3, 
+	NOTMISSIONASSIGNABLE = 4, 
+	ALWAYSUNSEEN = 5, 
+	TEMPLOCATION = 6, 
+	ABANDONEDVESSEL = 7, 
+	SCOUT = 8, 
+	CORVETTE = 9, 
+	FRIGATE = 10,
+	DESTROYER = 11, 
+	CRUISER = 12, 
+	BATTLESHIP = 13
+	}
 
+	CF_AssaultDifficultyVesselClass = {}
+	CF_AssaultDifficultyVesselClass[1] = CF_LocationAttributeTypes.SCOUT
+	CF_AssaultDifficultyVesselClass[2] = CF_LocationAttributeTypes.CORVETTE
+	CF_AssaultDifficultyVesselClass[3] = CF_LocationAttributeTypes.FRIGATE
+	CF_AssaultDifficultyVesselClass[4] = CF_LocationAttributeTypes.DESTROYER
+	CF_AssaultDifficultyVesselClass[5] = CF_LocationAttributeTypes.CRUISER
+	CF_AssaultDifficultyVesselClass[6] = CF_LocationAttributeTypes.BATTLESHIP
+	
 	-- Init ship data structures
 	CF_Vessel = {}
 	CF_VesselName = {}

@@ -28,6 +28,9 @@ function VoidWanderers:StartActivity()
 	self.TeleportEffectTimer = Timer()
 	self.TeleportEffectTimer:Reset()
 	
+	self.RandomEncounterDelayTimer = Timer()
+	self.RandomEncounterDelayTimer:Reset()
+	
 	self.FlightTimer = Timer()
 	self.FlightTimer:Reset()
 	self.LastTrigger = 0
@@ -39,6 +42,8 @@ function VoidWanderers:StartActivity()
 	self:LoadCurrentGameState();
 
 	CF_GS = self.GS
+
+	self.RandomEncounterID = nil
 	
 	self.PlayerFaction = self.GS["Player0Faction"]
 	
@@ -51,11 +56,11 @@ function VoidWanderers:StartActivity()
 
 	self.AlliedUnits = nil
 	
-	-- Load level data
-	self.LS = CF_ReadSceneConfigFile(self.ModuleName , SceneMan.Scene.PresetName..".dat");
-	
 	-- Read brain location data
 	if self.GS["SceneType"] == "Vessel" then
+		-- Load vessel level data
+		self.LS = CF_ReadSceneConfigFile(self.ModuleName , SceneMan.Scene.PresetName..".vdat");
+
 		self.BrainPos = {}
 		for i = 1, 4 do
 			local x,y;
@@ -202,6 +207,9 @@ function VoidWanderers:StartActivity()
 		
 		self.DeployedActors = nil
 		self:SaveCurrentGameState()
+	else
+		-- Load generic level data
+		self.LS = CF_ReadSceneConfigFile(self.ModuleName , SceneMan.Scene.PresetName..".dat");
 	end
 
 	-- Spawn away-team objects
@@ -356,6 +364,15 @@ function VoidWanderers:StartActivity()
 		self.MissionStartTime = tonumber(self.GS["Time"])
 		
 		self.SpawnTable = {}
+		
+		-- Clear previous script functions
+		self.MissionCreate = nil
+		self.MissionUpdate = nil
+		self.MissionDestroy = nil
+
+		self.AmbientCreate = nil
+		self.AmbientUpdate = nil
+		self.AmbientDestroy = nil
 		
 		dofile(missionscript)
 		dofile(ambientscript)
@@ -639,15 +656,18 @@ function VoidWanderers:TriggerShipAssault()
 		toassault = true
 	end
 	
-	--toassault = false-- DEBUG
+	--toassault = false -- DEBUG
+	--toassault = true -- DEBUG
 
 	if toassault then
 		self.AssaultTime = self.Time + CF_ShipAssaultDelay
-		
 		self.AssaultEnemiesToSpawn = CF_AssaultDifficultyUnitCount[self.AssaultDifficulty]
 		self.AssaultNextSpawnTime = self.AssaultTime + CF_AssaultDifficultySpawnInterval[self.AssaultDifficulty] + 1
 		self.AssaultNextSpawnPos = self.EnemySpawn[math.random(#self.EnemySpawn)]	
-		
+
+		--self.AssaultEnemiesToSpawn = 0 -- DEBUG
+		--self.AssaultTime = self.Time + 3 -- DEBUG
+
 		-- Create attacker's unit presets
 		CF_CreateAIUnitPresets(self.GS, self.AssaultEnemyPlayer, CF_GetTechLevelFromDifficulty(self.GS, self.AssaultEnemyPlayer, self.AssaultDifficulty, CF_MaxDifficulty))	
 		
@@ -677,17 +697,21 @@ function VoidWanderers:TriggerShipAssault()
 				
 				brk = brk + 1
 				if brk > 30 then
+					--error("Endless loop in random encounter selector")
 					break
 				end
 			end
 			
 			--id = "TEST" -- DEBUG
-			id = "ABANDONED_VESSEL_GENERIC"
+			--id = "PIRATE_GENERIC"
+			--id = "ABANDONED_VESSEL_GENERIC"
 			
 			-- Launch encounter
 			if found and id ~= nil then
 				self.RandomEncounterID = id
 				self.RandomEncounterVariant = 0
+				
+				self.RandomEncounterDelayTimer:Reset()
 				
 				self.RandomEncounterText = CF_RandomEncountersInitialTexts[id]
 				self.RandomEncounterVariants = CF_RandomEncountersInitialVariants[id]
@@ -875,43 +899,19 @@ function VoidWanderers:UpdateActivity()
 		self:ProcessStorageControlPanelUI()
 		self:ProcessBrainControlPanelUI()
 		
-		-- Auto heal all actors when not in combat
+		-- Auto heal all actors when not in combat or random encounter
 		if not self.OverCrowded then
-			for actor in MovableMan.Actors do
-				if actor.Health > 0 and actor.Team == CF_PlayerTeam and self.Ship:IsInside(actor.Pos) then
-					actor.Health = 100
+			if self.RandomEncounterID == nil then
+				for actor in MovableMan.Actors do
+					if actor.Health > 0 and actor.Team == CF_PlayerTeam and self.Ship:IsInside(actor.Pos) then
+						actor.Health = 100
+					end
 				end
 			end
 		else
 			FrameMan:ClearScreenText(0);
 			FrameMan:SetScreenText("LIFE SUPPORT OVERLOADED\nSTORE OR DUMP SOME BODIES", 0, 0, 1000, true);
 		end
-		
-		-- Switch players from brain to bridge
-		--[[local bridgeempty = true
-		local plrtoswitch = -1
-		
-		for plr = 0 , self.PlayerCount - 1 do
-			local act = self:GetControlledActor(plr);
-			
-			if act ~= nil and MovableMan:IsActor(act) then
-				if act.PresetName == "Brain Case" and plrtoswitch == -1 then
-					plrtoswitch = plr
-				end
-				
-				if act.PresetName == "Ship Control Panel" then
-					bridgeempty = false
-				end
-			end
-		end
-			
-		if plrtoswitch > -1 and bridgeempty and MovableMan:IsActor(self.ShipControlPanelActor) then
-			if self.BrainSwitchTimer:IsPastSimMS(500) then
-				self:SwitchToActor(self.ShipControlPanelActor, plrtoswitch, CF_PlayerTeam);
-			end
-		else
-			self.BrainSwitchTimer:Reset()
-		end--]]--
 		
 		-- Show assault warning
 		if self.AssaultTime > self.Time then
@@ -1048,7 +1048,7 @@ function VoidWanderers:UpdateActivity()
 			if MovableMan:IsActor(self.ItemRemoveQueue[i]["Actor"]) then
 				self:RemoveInventoryItem(self.ItemRemoveQueue[i]["Actor"], self.ItemRemoveQueue[i]["Preset"], 1)
 				table.remove(self.ItemRemoveQueue, i)
-				print ("Removed")
+				--print ("Removed")
 				break;
 			else
 				table.remove(self.ItemRemoveQueue, i)
@@ -1119,6 +1119,52 @@ function VoidWanderers:UpdateActivity()
 		if self.GS["Mode"] == "Assault" then
 			-- Spawn enemies
 			if self.AssaultNextSpawnTime == self.Time then
+				-- Check end of assault conditions
+				if CF_CountActors(CF_CPUTeam) == 0 and self.AssaultEnemiesToSpawn == 0 then
+					-- End of assault
+					self.GS["Mode"] = "Vessel"
+					
+					-- Re-init consoles back
+					self:InitConsoles()
+					
+					
+					
+					-- Launch ship assault encounter
+					local id = "COUNTERATTACK"
+					self.RandomEncounterID = id
+					self.RandomEncounterVariant = 0
+					
+					self.RandomEncounterText = ""
+					self.RandomEncounterVariants = {"Blood for Ba'al!!!", "Let them leave."}
+					self.RandomEncounterVariantsInterval = 12
+					self.RandomEncounterChosenVariant = 0
+					self.RandomEncounterIsInitialized = false
+					self.ShipControlSelectedEncounterVariant = 1
+					
+					-- Switch to ship panel
+					local bridgeempty = true
+					local plrtoswitch = -1
+					
+					for plr = 0 , self.PlayerCount - 1 do
+						local act = self:GetControlledActor(plr);
+						
+						if act ~= nil and MovableMan:IsActor(act) then
+							if act.PresetName ~= "Ship Control Panel" and plrtoswitch == -1 then
+								plrtoswitch = plr
+							end
+							
+							if act.PresetName == "Ship Control Panel" then
+								bridgeempty = false
+							end
+						end
+					end
+						
+					if plrtoswitch > -1 and bridgeempty and MovableMan:IsActor(self.ShipControlPanelActor) then
+						self:SwitchToActor(self.ShipControlPanelActor, plrtoswitch, CF_PlayerTeam);
+					end
+					self.ShipControlMode = self.ShipControlPanelModes.REPORT					
+				end
+
 				--print ("Spawn")
 				self.AssaultNextSpawnTime = self.Time + CF_AssaultDifficultySpawnInterval[self.AssaultDifficulty]
 				
@@ -1143,15 +1189,6 @@ function VoidWanderers:UpdateActivity()
 				end
 				
 				self.AssaultNextSpawnPos = self.EnemySpawn[math.random(#self.EnemySpawn)]
-			end
-		
-			-- Check end of assault conditions
-			if CF_CountActors(CF_CPUTeam) == 0 and self.AssaultEnemiesToSpawn == 0 then
-				-- End of assault
-				self.GS["Mode"] = "Vessel"
-				
-				-- Re-init consoles back
-				self:InitConsoles()
 			end
 		end--]]--
 	end
@@ -1471,10 +1508,12 @@ end
 -----------------------------------------------------------------------------------------
 --
 -----------------------------------------------------------------------------------------
-function VoidWanderers:GiveMissionRewards()
+function VoidWanderers:GiveMissionRewards(disablepenalties)
 	print ("MISSION COMPLETED")
 	self.GS["Player"..self.MissionSourcePlayer.."Reputation"] = tonumber(self.GS["Player"..self.MissionSourcePlayer.."Reputation"]) + self.MissionReputationReward
-	self.GS["Player"..self.MissionTargetPlayer.."Reputation"] = tonumber(self.GS["Player"..self.MissionTargetPlayer.."Reputation"]) - math.ceil(self.MissionReputationReward * CF_ReputationPenaltyRatio)
+	if not disablepenalties then
+		self.GS["Player"..self.MissionTargetPlayer.."Reputation"] = tonumber(self.GS["Player"..self.MissionTargetPlayer.."Reputation"]) - math.ceil(self.MissionReputationReward * CF_ReputationPenaltyRatio)
+	end
 	CF_SetPlayerGold(self.GS, 0, CF_GetPlayerGold(self.GS, 0) + self.MissionGoldReward)
 	
 	self.MissionReport[#self.MissionReport + 1] = "MISSION COMPLETED"
@@ -1482,7 +1521,7 @@ function VoidWanderers:GiveMissionRewards()
 		self.MissionReport[#self.MissionReport + 1] = tostring(self.MissionGoldReward).."oz of gold received"
 	end
 	
-	local exppts = math.floor(self.MissionReputationReward + self.MissionGoldReward / 8)
+	local exppts = math.floor((self.MissionReputationReward + self.MissionGoldReward) / 8)
 	
 	local levelup = false;
 
@@ -1510,13 +1549,20 @@ function VoidWanderers:GiveMissionRewards()
 		
 		self.MissionReport[#self.MissionReport + 1] = tostring(exppts).." exp received"
 		if levelup then
-			self.MissionReport[#self.MissionReport + 1] = "Brains leveled up!"
+			local s = ""
+			if self.PlayerCount > 1 then
+				s = "s"
+			end
+		
+			self.MissionReport[#self.MissionReport + 1] = "Brain"..s.." leveled up!"
 		end
 	end
 	
 	if self.MissionReputationReward > 0 then
 		self.MissionReport[#self.MissionReport + 1] = "+"..self.MissionReputationReward.." "..CF_FactionNames[ CF_GetPlayerFaction(self.GS, self.MissionSourcePlayer) ].." reputation"
-		self.MissionReport[#self.MissionReport + 1] = "-"..math.ceil(self.MissionReputationReward * CF_ReputationPenaltyRatio).." "..CF_FactionNames[ CF_GetPlayerFaction(self.GS, self.MissionTargetPlayer) ].." reputation"
+		if not disablepenalties then
+			self.MissionReport[#self.MissionReport + 1] = "-"..math.ceil(self.MissionReputationReward * CF_ReputationPenaltyRatio).." "..CF_FactionNames[ CF_GetPlayerFaction(self.GS, self.MissionTargetPlayer) ].." reputation"
+		end
 	end
 
 	self.MissionFailed = false
