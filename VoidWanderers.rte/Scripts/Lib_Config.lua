@@ -207,7 +207,7 @@ function CF_WriteSceneConfigFile(config, modulename, filename)
 	local sorted = CF_GetSortedListFromTable(config)
 	
 	for i = 1, #sorted do
-		LuaMan:WriteString(file, tostring(sorted[i]["Key"]).."="..tostring(sorted[i]["Value"]).."\n");
+		LuaMan:FileWriteLine(file, tostring(sorted[i]["Key"]).."="..tostring(sorted[i]["Value"]).."\n");
 	end
 	
 	LuaMan:FileClose(file)
